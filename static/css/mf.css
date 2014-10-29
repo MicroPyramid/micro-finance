@@ -1,0 +1,70 @@
+@charset "utf-8";
+/* CSS Document */
+body{
+	background:#fff;
+	width:100%;
+	font-family: 'Lato', sans-serif;
+	font-size:12px;
+}
+.bkrd{
+	background:#019090;
+}
+.container{
+	width:1170px;
+	margin:0px auto;
+}
+.container .form-div{
+	width:500px;
+	padding:50px;
+	margin:0px auto;
+	margin-top:150px;
+	text-align:center;
+}
+.padd{
+	padding-right:5px;
+}
+.container .form-div .text-box{
+	width:99%;
+	border:1px solid #fff;
+	margin-bottom:5px;
+	height:40px;
+	padding:5px;
+}
+.container .form-div .text-box placeholder{
+	color:#6edecb;
+	font-size:14px;
+}
+
+.container .form-div button{
+	text-align:center;
+	width:99%;
+	background:#6edecb;
+	color:#fff;
+	border:1px solid #6edecb;
+	height:35px;
+	font-size:16px;
+}
+.container .form-div button:hover{
+	background:#4bc9b4;
+}
+.form-div span{
+	font-size:13px;
+	color:#fff;
+	margin-bottom:30px;
+}
+h4{
+	color:#fff;
+	text-align:center;
+	font-size:35px;
+	font-family: 'Bitter', serif;
+	margin-bottom:2px;
+}
+h5{
+	padding-left:5px;
+	font-size:18px;
+	color:#6edecb;
+	font-size:25px;
+	font-family: 'Bitter', serif;
+}
+
+

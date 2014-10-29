@@ -1,0 +1,20 @@
+@charset "utf-8";
+@media (min-width: 240px) and (max-width: 480px){ 
+/* CSS Document */
+.container{
+	width:98%;
+}
+.container .form-div{
+	width:100%;
+	margin-top:50px;
+}
+
+h4{
+	font-size:27px;
+}
+h5{
+	font-size:22px;
+}
+
+
+}
