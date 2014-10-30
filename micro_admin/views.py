@@ -6,7 +6,6 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from micro_admin.models import User
 
 
-@csrf_exempt
 def index(request):
     data = {}
     return render_to_response('login.html',{'data':data})
