@@ -9,3 +9,8 @@ class BranchForm(forms.ModelForm):
         fields = ['name', 'opening_date', 'country', 'state', 'district', 'city', 'area', 'phone_number', 'pincode']
 
 
+class EditbranchForm(forms.ModelForm):
+
+    class Meta:
+        model = Branch
+        fields = ['country', 'state', 'district', 'city', 'area', 'phone_number', 'pincode']

@@ -3,7 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import login, authenticate, logout
 import json
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from micro_admin.models import User
+from micro_admin.models import User, Branch
+from micro_admin.forms import BranchForm, EditbranchForm
+import datetime
 
 
 def index(request):
@@ -32,12 +34,21 @@ def user_login(request):
         if request.user.is_authenticated():
             username = request.user
             user = User.objects.get(username=username)
-            return render_to_response('index.html', {'user': user})      
+            return render(request,'index.html', {'user': user})
 
 
+def user_logout(request):
+    if not request.user.is_authenticated():
+        return HttpResponse('')
+    logout(request)
+    return HttpResponseRedirect('/')
+
+
+@csrf_exempt
 def create_branch(request):
     if request.method == 'GET':
-        return render(request, 'branchcreate.html')
+        data = {}
+        return render(request, 'createbranch.html', {'data':data})
     else:
         form = BranchForm(request.POST)
         if form.is_valid():
@@ -53,6 +64,35 @@ def create_branch(request):
             phone_number = request.POST.get("phone_number")
             pincode = request.POST.get("pincode")
             branch = Branch.objects.create(name=name,opening_date=opening_date,country=country,state=state,district=district,city=city,area=area,phone_number=phone_number,pincode=pincode)
-            return render_to_response("branch_profile.html", {'branch':branch})
+            data = {'error':False, 'message':"Branch created sucessfully"}
+            return HttpResponse(json.dumps(data))
         else:
-            return HttpResponse("Invalid Data")
+            data = {'error':True, 'message':form.errors}
+            return HttpResponse(json.dumps(data))
+
+
+def edit_branch(request, branch_id):
+    if request.method == "GET":
+        branch = Branch.objects.get(id=branch_id)
+        return render(request, 'editbranchdetails.html', {'branch':branch})
+    else:
+        form = EditbranchForm(request.POST)
+        if form.is_valid():
+            branch = Branch.objects.get(id=branch_id)
+            branch.country = request.POST.get('country')
+            branch.state = request.POST.get('state')
+            branch.district = request.POST.get('district')
+            branch.city = request.POST.get('city')
+            branch.area = request.POST.get('area')
+            branch.phone_number = request.POST.get('phone_number')
+            branch.pincode = request.POST.get('pincode')
+            branch.save()
+            return HttpResponse("Branch Details Updated Successfully")
+        else:
+            print form.errors
+            return HttpResponse('Invalid Data')
+
+
+def branch_profile(request):
+    return HttpResponse("Branch Created Successfully")
+

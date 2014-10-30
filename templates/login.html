@@ -44,7 +44,7 @@
     <script src="/static/js/mf_script.js"></script>
     <script type="text/javascript">
       $(document).ready(function(){
-      $('#loginform').submit(function(e) {
+      $('.login-btn').click(function(e) {
         e.preventDefault();
         $.post('/login/', $('#loginform').serialize(), function(data) {
           if (data.error){
@@ -56,7 +56,7 @@
           }
         },"json");
       });
-      });    
+      });
     </script>
   </body>
 </html>

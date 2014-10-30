@@ -26,6 +26,7 @@ CLIENT_ROLES = (
         ('GroupMember', 'GroupMember')
     )
 
+
 class Branch(models.Model):
     name = models.CharField(max_length=100, unique=True)
     opening_date = models.DateField()

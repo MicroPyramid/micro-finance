@@ -1,0 +1,211 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* Stuff I added */
+.menu-outer:hover ~ .menu-close {
+  margin-right: -100px;
+}
+
+.menu-outer:hover .bar {
+  background: rgba(01,90,90,0.6);
+}
+
+.menu-outer > nav ul {
+  top: 15%;
+}
+
+/* The rest I chnaged parts but not most of it */
+
+html, body {
+}
+
+.menu-outer {
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  /* padding-right: 38px; */
+  font-family: 'Montserrat', serif;
+  z-index: 998;
+  width: 100%;
+  left: 100%;
+  margin-left: -54px;
+  height: 200%;
+  background: #ca3d6d;
+  -webkit-transition: all ease .5s;
+  -moz-transition: all ease .5s;
+  -ms-transition: all ease .5s;
+  -o-transition: all ease .5s;
+  transition: all ease .5s;
+  -webkit-transform-origin: top left;
+  -moz-transform-origin: top left;
+  -ms-transform-origin: top left;
+  -o-transform-origin: top left;
+  transform-origin: top left;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+.menu-outer:hover {
+  background: rgba(01,90,90,0.6);
+  left: 0;
+  margin-left: 0;
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  transform: rotate(0deg);
+}
+
+.menu-icon {
+  z-index: 999;
+  position: absolute;
+  top: 31px;
+  left: 5px;
+  width: 23px;
+  pointer-events: none;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+  -webkit-transition: all ease .5s;
+  -moz-transition: all ease .5s;
+  -ms-transition: all ease .5s;
+  -o-transition: all ease .5s;
+  transition: all ease .5s;
+}
+
+.menu-icon .bar {
+  background: rgba(250,250,250,1);
+  width: 100%;
+  height: 2px;
+  margin: 0 0 3px;
+  -webkit-transition: all ease .5s;
+  -moz-transition: all ease .5s;
+  -ms-transition: all ease .5s;
+  -o-transition: all ease .5s;
+  transition: all ease .5s;
+}
+
+.menu-outer:hover > .menu-icon {
+  opacity: 1;
+}
+
+nav ul {
+  position: absolute;
+  width: 100%;
+  padding: 0;
+  left: 10%;
+  ; /*prevents possible click when not oppened*/
+  -webkit-transition: all ease .5s;
+  -moz-transition: all ease .5s;
+  -ms-transition: all ease .5s;
+  -o-transition: all ease .5s;
+  transition: all ease .5s;
+}
+
+.menu-outer:hover > nav ul {
+  left: 0;
+}
+
+nav li {
+  list-style: none;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+nav li a {
+  font-size: 2em;
+  color: rgba(255,255,255,.8);
+  text-decoration: none;
+  margin: 0 auto;
+  padding: 20px;
+  display: block;
+  -webkit-transition: all ease .5s;
+  -moz-transition: all ease .5s;
+  -ms-transition: all ease .5s;
+  -o-transition: all ease .5s;
+  transition: all ease .5s;
+}
+
+nav li a:hover {
+  color: rgba(255,255,255,1);
+}
+
+@media screen and (max-width: 600px), screen and (max-height: 600px) {
+  nav ul {
+    font-size: .75em;
+  }
+
+  nav ul a {
+    padding: 10px;
+  }
+}
+
+.menu-close {
+  z-index: 9999;
+  position: fixed;
+  top: 0;
+  right: 100%;
+  width: 200px;
+  height: 200px;
+  background: #444;
+  cursor: pointer;
+  -webkit-transition: all ease .5s;
+  -moz-transition: all ease .5s;
+  -ms-transition: all ease .5s;
+  -o-transition: all ease .5s;
+  transition: all ease .5s;
+  -webkit-transform-origin: top right;
+  -moz-transform-origin: top right;
+  -ms-transform-origin: top right;
+  -o-transform-origin: top right;
+  transform-origin: top right;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.menu-close .menu-icon {
+  right: 15px;
+  left: auto;
+  top: 68px;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+.menu-close .bar {
+  background: #fff;
+  width: 100%;
+  height: 5px;
+  position: absolute;
+  -webkit-transform-origin: center;
+  -moz-transform-origin: center;
+  -ms-transform-origin: center;
+  -o-transform-origin: center;
+  transform-origin: center;
+}
+
+.menu-close .bar:first-child {
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.menu-close .bar:last-child {
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}

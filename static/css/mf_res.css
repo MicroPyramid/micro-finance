@@ -1,52 +1,80 @@
 @charset "utf-8";
 /* Large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px)
-{
+@media (min-width: 1200px) {
 }
 /* Medium devices (desktops, 992px and up) */
-@media (min-width: 992px)
-{
+@media (min-width: 992px) {
+  .container {
+    width: 80%;
+  }
 }
 
-@media (min-width: 992px)  and (max-width :1199px)
-{
+@media (min-width: 992px)  and (max-width :1199px) {
  /* CSS Document */
-  .container
-  {
+  .container {
     width: 80%;
   }
 
-  .container .form-div
-  {
+  .container .form-div {
     width: 70%;
+  }
+
+  .container .my-panel {
+    width: 75%;
   }
 }
 
-@media (min-width: 768px) and (max-width :991px)
-{
+@media (min-width: 768px) and (max-width :991px) {
  
-  .container
-  {
-    width: 80%;
+  .container {
+    width: 85%;
   }
 
-  .container .form-div
-  {
-    width: 70%;
+  .container .form-div {
+    width: 98%;
+  }
+
+  .container .my-panel {
+    width: 80%;
   }
 }
 
-@media (min-width: 481px) and (max-width: 767px)
-{
+@media (min-width: 481px) and (max-width: 767px) {
  
-  .container
-  {
-    width: 80%;
+  .container {
+    width: 100%;
   }
 
-  .container .form-div
-  {
+  .container .form-div {
     width: 98%;
     margin-top: 100px;
   }
+
+  .container .my-panel {
+    width: 95%;
+  }
+
+  .my-panel .pb-pad {
+    margin-left: 0px;
+  }
+/*nav*/
+  nav ul {
+    left: 15px;
+  }
+
+  .nav li {
+    text-align: left;
+  }
+
+  .navbar-default .navbar-nav .open .dropdown-menu>li>a {
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
+    background: #444;
+    color: #ddd;
+  }
+
+/*nav*/;
 }
