@@ -1,5 +1,6 @@
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
+from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
@@ -10,12 +11,12 @@ import datetime
 
 def index(request):
     data = {}
-    return render_to_response('login.html',{'data':data})
+    data.update(csrf(request))
+    return render_to_response('login.html',data)
 
 
-@csrf_exempt
 def user_login(request):
-    if request.method=="POST":
+    if request.method == "POST":
         user_name = request.POST.get('username')
         user_password = request.POST.get('password')
         user = authenticate(username=user_name, password=user_password)
@@ -37,7 +38,13 @@ def user_login(request):
             return render(request ,'index.html', {'user': user})
 
 
-@csrf_exempt
+def user_logout(request):
+    if not request.user.is_authenticated():
+        return HttpResponse('')
+    logout(request)
+    return HttpResponseRedirect('/')
+
+
 def create_branch(request):
     if request.method == 'GET':
         data = {}
@@ -86,14 +93,12 @@ def branch_profile(request):
     return HttpResponse("Branch created sucessfully")
 
 
-@csrf_exempt
 def create_user(request):
     if request.method == 'GET':
         data = {}
         branches = Branch.objects.all()
         return render(request, 'createuser.html', {'data':data, 'branches':branches})
     else:
-        print request.POST
         user_form = UserForm(request.POST)
         if user_form.is_valid():
             user_name = request.POST.get('username')
@@ -119,13 +124,36 @@ def create_user(request):
                 dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
                 user.date_of_birth = dateconvert
             user.save()
-            data = {'error':False, 'message':"Created Sucessfully"}
+            data = {'error':False, 'user_id':user.id}
             return HttpResponse(json.dumps(data))
         else:
-            print user_form.errors
             data = {'error':True, 'message':user_form.errors}
             return HttpResponse(json.dumps(data))
 
 
-def user_profile(request):
-    return HttpResponse("User created sucessfully")
+def edit_user(request, user_id):
+    if request.method == 'GET':
+        user = User.objects.get(id=user_id)
+        return render(request, 'edituser.html', {'user':user, 'user_id':user.id})
+    else:
+        user = User.objects.get(id=user_id)
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.country = request.POST.get('country')
+        user.state = request.POST.get('state')
+        user.district = request.POST.get('district')
+        user.city = request.POST.get('city')
+        user.area = request.POST.get('area')
+        user.pincode = request.POST.get('pincode')
+        mobile1 = request.POST.get('mobile')
+        if mobile1:
+            user.mobile = mobile1
+        user.save()
+        data = {'error':False, 'user_id':user.id}
+        return HttpResponse(json.dumps(data))
+
+
+def user_profile(request, user_id):
+    return HttpResponse("User Updated sucessfully")
+
+

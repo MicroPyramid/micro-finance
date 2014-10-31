@@ -14,3 +14,5 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'gender', 'branch', 'user_roles', 'username', 'password']
+
+
