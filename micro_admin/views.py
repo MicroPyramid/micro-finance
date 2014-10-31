@@ -2,7 +2,7 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import login, authenticate, logout
 import json
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.core.context_processors import csrf
 from micro_admin.models import User, Branch
 from micro_admin.forms import BranchForm, EditbranchForm
 import datetime
@@ -10,12 +10,12 @@ import datetime
 
 def index(request):
     data = {}
-    return render_to_response('login.html',{'data':data})
+    data.update(csrf(request))
+    return render_to_response('login.html',data)
 
 
-@csrf_exempt
 def user_login(request):
-    if request.method=="POST":
+    if request.method == "POST":
         user_name = request.POST.get('username')
         user_password = request.POST.get('password')
         user = authenticate(username=user_name, password=user_password)
@@ -44,7 +44,6 @@ def user_logout(request):
     return HttpResponseRedirect('/')
 
 
-@csrf_exempt
 def create_branch(request):
     if request.method == 'GET':
         data = {}
