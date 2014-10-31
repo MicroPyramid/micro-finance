@@ -16,3 +16,8 @@ class UserForm(forms.ModelForm):
         fields = ['email', 'first_name', 'gender', 'branch', 'user_roles', 'username', 'password']
 
 
+class EditbranchForm(forms.ModelForm):
+
+    class Meta:
+        model = Branch
+        fields = ['country', 'state', 'district', 'city', 'area', 'phone_number', 'pincode']

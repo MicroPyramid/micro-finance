@@ -29,7 +29,8 @@
           <h4>Micro Finance</h4>
           <span><em>Hope for better tomorrow</em></span>
           <h5>Login to your account</h5>
-          <form id="loginform" role="form" action="/login/" method="post">{% csrf_token %}
+          <form id="loginform" role="form" method="POST">
+          {% csrf_token %}
             <input type="text" class="text-box" name="username" placeholder="User name" />
             <input type="password" class="text-box" name="password" placeholder="password" />
             <div id="error"></div>
@@ -44,7 +45,7 @@
     <script src="/static/js/mf_script.js"></script>
     <script type="text/javascript">
       $(document).ready(function(){
-      $('#loginform').submit(function(e) {
+      $('.login-btn').click(function(e) {
         e.preventDefault();
         $.post('/login/', $('#loginform').serialize(), function(data) {
           if (data.error){

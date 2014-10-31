@@ -75,10 +75,10 @@
 <!--content ends above-->
 <script src="/static/js/mf_script.js"></script>
 <script type="text/javascript">
-  $(document).ready(function() {
-    $('#createbranchform').submit(function(e) {
+  $(document).ready(function () {
+    $('#createbranchform').submit(function (e) {
       e.preventDefault();
-      $.post('/createbranch/', $('#createbranchform').serialize(), function(data) {
+      $.post('/createbranch/', $('#createbranchform').serialize(), function (data) {
         if (data.error) {
           $("span.error").remove();
           if (data.message.name) {
@@ -89,7 +89,7 @@
         }
       }, "json");
     });
-    $('.cancel-btn').click(function(e){
+    $('.cancel-btn').click(function (e) {
       $("span.error").remove();
     });
   });

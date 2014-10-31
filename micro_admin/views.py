@@ -5,8 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 import json
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from micro_admin.models import User, Branch
-from micro_admin.forms import BranchForm, UserForm
-import datetime
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm
 
 
 def index(request):
@@ -35,7 +34,7 @@ def user_login(request):
         if request.user.is_authenticated():
             username = request.user
             user = User.objects.get(username=username)
-            return render(request ,'index.html', {'user': user})
+            return render(request, 'index.html', {'user': user})
 
 
 def user_logout(request):
@@ -76,7 +75,7 @@ def edit_branch(request, branch_id):
         branch = Branch.objects.get(id=branch_id)
         return render(request, 'editbranchdetails.html', {'branch':branch})
     else:
-        form = BranchForm(request.POST)
+        form = EditbranchForm(request.POST)
         if form.is_valid():
             branch = Branch.objects.get(id=branch_id)
             branch.country = request.POST.get('country')
@@ -87,10 +86,14 @@ def edit_branch(request, branch_id):
             branch.phone_number = request.POST.get('phone_number')
             branch.pincode = request.POST.get('pincode')
             branch.save()
+            return HttpResponse("Branch Details Updated Successfully")
+        else:
+            print form.errors
+            return HttpResponse('Invalid Data')
 
 
 def branch_profile(request):
-    return HttpResponse("Branch created sucessfully")
+    return HttpResponse("Branch Created Successfully")
 
 
 def create_user(request):
@@ -155,5 +158,3 @@ def edit_user(request, user_id):
 
 def user_profile(request, user_id):
     return HttpResponse("User Updated sucessfully")
-
-
