@@ -36,7 +36,7 @@
           <nav>
             <ul>
               <li><a href="{% url 'micro_admin:createbranch' %}">Branch</a></li>
-              <li><a href="#">User</a></li>
+              <li><a href="{% url 'micro_admin:createuser' %}">User</a></li>
               <li><a href="#">Group</a></li>
               <li><a href="#">Client</a></li>
               <li>
@@ -86,7 +86,7 @@
                     <ul class="col-lg-offset-8 col-lg-4 col-sm-offset-5 col-sm-7 col-md-offset-7 col-md-5 nav navbar-nav navbar-right">
                       <li><a href="#" class="menu-link home"><i class="fa fa-home padd"></i>Home</a></li>
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{user.username}} <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{ user.username }} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                           <li><a href="#"><i class="fa fa-user icon padd"></i>Profile</a></li>
                           <li><a href="#"><i class="fa fa-unlock-alt padd"></i>Change Password</a></li>

@@ -1,55 +1,89 @@
 @charset "utf-8";
 
-@media (min-width: 240px) and (max-width: 480px) {
+@media (min-width: 240px) and (max-width: 480px)
+{
  
 /* CSS Document */
-  .container {
+  .container
+  {
     width: 98%;
   }
 
-  .container .form-div {
+  .container .form-div
+  {
     width: 100%;
     margin-top: 50px;
   }
 
-  h4 {
+  h4
+  {
     font-size: 27px;
   }
 
-  h5 {
+  h5
+  {
     font-size: 22px;
   }
 /*nav*/
-  nav ul {
+  nav ul
+  {
     left: 15px;
   }
 
-  .nav li {
+  .nav li
+  {
     text-align: left;
   }
 
-  .navbar-collapse {
+  .navbar-collapse
+  {
     padding-right: 0px;
     padding-left: 0px;
   }
 
-  .navbar-default .navbar-nav .open .dropdown-menu>li>a {
+  .navbar-default .navbar-nav .open .dropdown-menu>li>a
+  {
     color: #fff;
     font-size: 14px;
   }
 
-  .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
+  .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover
+  {
     background: #444;
     color: #ddd;
   }
 /*nav*/
 /*branch*/
-  .container .my-panel {
+  .container .my-panel
+  {
     width: 98%;
   }
 
-  .my-panel .pb-pad {
+  .my-panel .pb-pad
+  {
     margin-left: 0px;
   }
-/*branch*/;
+/*branch*/
+/*user creation*/
+  .container .my-panel-2
+  {
+    width: auto;
+    margin-left: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  form .box-form
+  {
+    width: 98%;
+    float: left;
+    margin: 0px auto;
+  }
+/*user creation*/
+/*branch-profile*/
+  .container .my-panel-bprofile, .container .my-panel-bp
+  {
+    width: 99%;
+  }
+/*branch-profile*/;
 }

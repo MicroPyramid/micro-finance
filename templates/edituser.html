@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-2">
+    <div class="panel-heading">Edit User</div>
+    <div class="panel-body pb-pad">
+      <form id="edituserform" class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <!--div 1 0f form-->
+        <div class="box-form">
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">First Name</label>
+            <div class="col-sm-8">
+              <input type="hidden"  id="user_id" value="{{user.id}}" style="dispaly:none;">
+              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{user.first_name}}" name="first_name" required="True">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Last Name</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{user.last_name}}" name="last_name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Gender</label>
+            <div class="col-sm-8 mar-top-rad">
+              <select class="form-control query-style" name="gender" readonly>
+                <option value="{{ user.gender }}" selected="selected">{{ user.gender }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
+            <div class="col-sm-8">
+              <select class="form-control query-style" name="branch" readonly>
+                <option value="{{ user.branch }}" selected="selected">{{ user.branch.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">User Roles</label>
+            <div class="col-sm-8">
+              <select class="form-control query-style" name="user_roles" readonly>
+                <option value="{{ user.user_roles }}" selected="selected">{{ user.user_roles }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Email</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="email" readonly value="{{user.email}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Mobile</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="mobile" value="{{user.mobile}}">
+            </div>
+          </div>
+        </div>
+        <!--div 1 of fomr ends above-->
+        <!--div 2 of form starts below-->
+        <div class="box-form">
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Country</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="country" value="{{user.country}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">State</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="state" value="{{user.state}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">District</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="district" value="{{user.district}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">City</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="city" value="{{user.city}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Area</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="area" value="{{user.area}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Pin-Code</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="pincode" value="{{user.pincode}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">User Name</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="username" value="{{user.username}}" readonly="True">
+            </div>
+          </div>
+        </div>
+        <!--branch 2 ends above-->
+        <!--btn row-->
+        <div class="btns-row">
+          <div class="form-group btns align-btns">
+            <p id="edituserformerror"></p>
+            <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+            <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+          </div>
+        </div>
+        <!--btn row ends above-->
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#edituserform').submit(function(e) {
+      e.preventDefault();
+      $.post('/edituser/'+$('#user_id').val()+'/', $('#edituserform').serialize(), function(data) {
+        if (data.error == false) {
+          window.location = '/userprofile/'+data.user_id+'/';
+        }
+      }, "json");
+    });
+    $('.cancel-btn').click(function(e){
+      $("span.error").remove();
+    });
+  });
+</script>
+{% endblock %}

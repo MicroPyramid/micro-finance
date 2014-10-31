@@ -41,20 +41,21 @@ class Branch(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, branch=None, password=None):
+    def create_user(self, username, email, branch=None, password=None):
 
         if not username:
             raise ValueError('Users must have an username')
         user = self.model(username=username)
         user.set_password(password)
+        user.email = email
         user.branch = branch
         user.is_staff = True
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password, branch=None):
+    def create_superuser(self, username, email, password, branch=None):
 
-        user = self.create_user(username, password=password)
+        user = self.create_user(username, email, password=password)
         user.is_admin = True
         user.is_active = True
         user.save(using=self._db)
@@ -132,3 +133,4 @@ class Centers(models.Model):
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
     groups = models.ManyToManyField(Group, null=True,blank=True)
+
