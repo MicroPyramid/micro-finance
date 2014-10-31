@@ -6,7 +6,7 @@ import json
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from micro_admin.models import User, Branch
 from micro_admin.forms import BranchForm, UserForm, EditbranchForm
-
+import datetime
 
 def index(request):
     data = {}
@@ -157,4 +157,4 @@ def edit_user(request, user_id):
 
 
 def user_profile(request, user_id):
-    return HttpResponse("User Updated sucessfully")
+    return HttpResponse("User created sucessfully")
