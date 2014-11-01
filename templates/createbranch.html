@@ -18,7 +18,7 @@
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-4 control-label">Opening Date</label>
           <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="opening_date" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="opening_date" id="datepicker" required="True">
           </div>
         </div>
         <div class="form-group">
@@ -55,12 +55,14 @@
           <label for="inputEmail3" class="col-sm-4 control-label">Phone Number</label>
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form" name="phone_number" id="inputEmail3" required="True">
+            <p id="branchphonenumbererror"></p>
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-4 control-label">Pin Code</label>
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form" name="pincode" id="inputEmail3" required="True">
+            <p id="branchpincodeerror"></p>
           </div>
         </div>
         <div class="form-group btns">
@@ -84,8 +86,16 @@
           if (data.message.name) {
             $("#branchnameerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.name + "</span>");
           }
-        } else {
-          window.location = '/branchprofile/';
+          if (data.message.phone_number) {
+            $("#branchphonenumbererror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.phone_number + "</span>");
+          }
+          if (data.message.pincode) {
+            $("#branchpincodeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.pincode + "</span>");
+          }
+        }
+        else {
+          //alert("branch created successfully")
+          window.location = '/branchprofile/'+data.branch_id+'/';
         }
       }, "json");
     });

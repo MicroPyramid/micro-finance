@@ -24,35 +24,50 @@
   <body>
     <!--wrapper starts below-->
     <div class="wrapper">
-      <!--container starts  below-->
-      <div class="container">
-        <!--slide-menu-->
-        <div class="menu-outer">
-          <div class="menu-icon">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-          </div>
-          <nav>
-            <ul>
-              <li><a href="{% url 'micro_admin:createbranch' %}">Branch</a></li>
-              <li><a href="{% url 'micro_admin:createuser' %}">User</a></li>
-              <li><a href="#">Group</a></li>
-              <li><a href="#">Client</a></li>
-              <li>
-                <a href="#" onclick="toggleSlider();"></a>
-                <div id="panelThatSlides" style="display:none;background:inherit;padding:10px;padding-top:3px;">
-                  <div id="contentThatFades" style="opacity:0;filter:alpha(opacity=0);">
-                    <ul style="top:inherit;">
-                      <li></li>
-                      <li></li>
-                    </ul>
-                  </div>
-                </div>
-              </li>
-              <li><a href="#"></a></li>
-            </ul>
-          </nav>
+    <!--container starts  below-->
+    <div class="container">
+      <!--slide-menu-->
+      <div class="menu-outer">
+        <div class="menu-icon">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <nav>
+          <div class="list">
+            <div class="slide-div">
+              <a href="#" class="anc1"><i class="fa fa-sitemap padd"></i>Branch<i class="fa fa-caret-down padd-lft"></i></a>
+              <div id="tog-div1" class="tog-div">
+              {% if user.is_admin %}
+                <a href="{% url 'micro_admin:createbranch' %}"><i class="fa fa-plus padd"></i>Create Branch</a>
+                <a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
+              {% else %}
+                <a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
+              {% endif %}
+              </div>
+            </div>
+            <div class="slide-div">
+              <a href="#" class="anc2"><i class="fa fa-user padd-u"></i>User<i class="fa fa-caret-down padd-lft-u"></i></a>
+              <div id="tog-div2" class="tog-div">
+                <a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create User</a>
+                <a href="#"><i class="fa fa-eye padd"></i>View User</a>
+              </div>
+            </div>
+            <div class="slide-div">
+              <a href="#" class="anc3"><i class="fa fa-users padd"></i>Group<i class="fa fa-caret-down padd-lft-g"></i></a>
+              <div id="tog-div3" class="tog-div">
+                <a href="#"><i class="fa fa-plus padd"></i>Create Group</a>
+                <a href="#"><i class="fa fa-eye padd"></i>View Group</a>
+              </div>
+            </div>
+            <div class="slide-div">
+              <a href="#" class="anc4"><i class="fa fa-user padd"></i>Client<i class="fa fa-caret-down padd-lft-u"></i></a>
+              <div id="tog-div4" class="tog-div">
+                <a href="{% url 'micro_admin:createclient' %}"><i class="fa fa-plus padd"></i>Create Client</a>
+                <a href="#"><i class="fa fa-eye padd"></i>View Client</a>
+              </div>
+            </div>
+        </nav>
         </div>
         <a class="menu-close" onClick="return true">
           <div class="menu-icon">
@@ -92,7 +107,7 @@
                           <li><a href="#"><i class="fa fa-unlock-alt padd"></i>Change Password</a></li>
                         </ul>
                       </li>
-                      <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>Logout</a></li>
+                      <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>logout</a></li>
                     </ul>
                   </div>
                   <!-- /.navbar-collapse -->
