@@ -2,29 +2,24 @@
 /* CSS Document */
 
 /* Stuff I added */
-.menu-outer:hover ~ .menu-close
-{
+.menu-outer:hover ~ .menu-close {
   margin-right: -100px;
 }
 
-.menu-outer:hover .bar
-{
+.menu-outer:hover .bar {
   background: rgba(01,90,90,0.6);
 }
 
-.menu-outer > nav ul
-{
+.menu-outer > nav ul {
   top: 15%;
 }
 
 /* The rest I chnaged parts but not most of it */
 
-html, body
-{
+html, body {
 }
 
-.menu-outer
-{
+.menu-outer {
   overflow: hidden;
   position: fixed;
   top: 0;
@@ -53,8 +48,7 @@ html, body
   transform: rotate(-45deg);
 }
 
-.menu-outer:hover
-{
+.menu-outer:hover {
   background: rgba(01,90,90,0.6);
   left: 0;
   margin-left: 0;
@@ -65,8 +59,7 @@ html, body
   transform: rotate(0deg);
 }
 
-.menu-icon
-{
+.menu-icon {
   z-index: 999;
   position: absolute;
   top: 31px;
@@ -85,8 +78,7 @@ html, body
   transition: all ease .5s;
 }
 
-.menu-icon .bar
-{
+.menu-icon .bar {
   background: rgba(250,250,250,1);
   width: 100%;
   height: 2px;
@@ -98,13 +90,11 @@ html, body
   transition: all ease .5s;
 }
 
-.menu-outer:hover > .menu-icon
-{
+.menu-outer:hover > .menu-icon {
   opacity: 1;
 }
 
-nav ul
-{
+nav ul {
   position: absolute;
   width: 100%;
   padding: 0;
@@ -117,20 +107,17 @@ nav ul
   transition: all ease .5s;
 }
 
-.menu-outer:hover > nav ul
-{
+.menu-outer:hover > nav ul {
   left: 0;
 }
 
-nav li
-{
+nav li {
   list-style: none;
   text-align: center;
   text-transform: none;
 }
 
-nav li a
-{
+nav li a {
   font-size: 2em;
   color: rgba(255,255,255,.8);
   text-decoration: none;
@@ -144,13 +131,11 @@ nav li a
   transition: all ease .5s;
 }
 
-nav li a:hover
-{
+nav li a:hover {
   color: rgba(255,255,255,1);
 }
 
-nav li a
-{
+nav li a {
   font-size: 22px;
   color: rgba(255,255,255,.8);
   text-decoration: none;
@@ -164,32 +149,27 @@ nav li a
   transition: all ease .5s;
 }
 
-nav li a:hover
-{
+nav li a:hover {
   text-decoration: none;
   color: #ddd;
   background: #444;
 }
 
-nav li a:active
-{
+nav li a:active {
   background: #444;
   color: #ddd;
 }
 
-.menu-outer:hover > nav ul
-{
+.menu-outer:hover > nav ul {
   left: 0;
   margin-left: 45px;
 }
 
-.slide-bar-drop
-{
+.slide-bar-drop {
   padding-top: 0px;
 }
 
-.slide-bar-drop li a
-{
+.slide-bar-drop li a {
   padding: 4px;
   font-size: 16px;
   width: 20%;
@@ -197,21 +177,18 @@ nav li a:active
   margin-left: 720px;
 }
 
-nav .slide-div
-{
+nav .slide-div {
   width: 100;
   text-align: center;
   margin: 20px 0px;
   font-size: 19px;
 }
 
-.list
-{
+.list {
   margin-top: 150px;
 }
 
-nav .slide-div a
-{
+nav .slide-div a {
   display: block;
   width: 100%;
   color: #fff;
@@ -219,60 +196,49 @@ nav .slide-div a
   padding: 5px 0px;
 }
 
-nav .slide-div a:hover
-{
+nav .slide-div a:hover {
   color: #ddd;
   background: #444;
 }
 
-nav .list .tog-div
-{
+nav .list .tog-div {
   display: none;
   font-size: 17px;
   font-weight: 200;
 }
 
-nav .list .tog-div a
-{
+nav .list .tog-div a {
   margin-lft: 150px;
 }
 
-.padd-lft
-{
+.padd-lft {
   padding-left: 50px;
 }
 
-.padd-lft-u
-{
+.padd-lft-u {
   padding-left: 70px;
 }
 
-.padd-u
-{
+.padd-u {
   padding-right: 7px;
 }
 
-.padd-lft-g
-{
+.padd-lft-g {
   padding-left: 60px;
 }
 }
 
-@media screen and (max-width: 600px), screen and (max-height: 600px)
-{
-  nav ul
-  {
+@media screen and (max-width: 600px), screen and (max-height: 600px) {
+  nav ul {
     font-size: .75em;
   }
 
-  nav ul a
-  {
+  nav ul a {
     padding: 10px;
   }
 }
 
-.menu-close
-{
+.menu-close {
   z-index: 9999;
   position: fixed;
   top: 0;
@@ -298,8 +264,7 @@ nav .list .tog-div a
   transform: rotate(45deg);
 }
 
-.menu-close .menu-icon
-{
+.menu-close .menu-icon {
   right: 15px;
   left: auto;
   top: 68px;
@@ -310,8 +275,7 @@ nav .list .tog-div a
   transform: rotate(-45deg);
 }
 
-.menu-close .bar
-{
+.menu-close .bar {
   background: #fff;
   width: 100%;
   height: 5px;
@@ -323,8 +287,7 @@ nav .list .tog-div a
   transform-origin: center;
 }
 
-.menu-close .bar:first-child
-{
+.menu-close .bar:first-child {
   -webkit-transform: rotate(45deg);
   -moz-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -332,8 +295,7 @@ nav .list .tog-div a
   transform: rotate(45deg);
 }
 
-.menu-close .bar:last-child
-{
+.menu-close .bar:last-child {
   -webkit-transform: rotate(-45deg);
   -moz-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);

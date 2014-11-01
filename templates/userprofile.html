@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bp">
+    <div class="panel-heading">Staff
+      <span>
+      {% if user.id == selecteduser.id %}<a href="{% url 'micro_admin:edituser' selecteduser.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>{% endif %}
+      {% if user.is_admin %}<a href="{% url 'micro_admin:deleteuser' selecteduser.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>{% endif %}
+      </span>
+    </div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <tbody class="body-row-tb">
+            <tr class="wid-tab">
+              <th>User-Name</th>
+              <td>{{ selecteduser.username }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>First Name</th>
+              <td>{{ selecteduser.first_name }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Last Name</th>
+              <td>{% if selecteduser.last_name %}{{ selecteduser.last_name }}{% else %} None {% endif %}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Email ID</th>
+              <td>{{ selecteduser.email }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Branch</th>
+              <td>{{ selecteduser.branch.name }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Role</th>
+              <td>{{ selecteduser.user_roles }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>District</th>
+              <td>{% if selecteduser.district %}{{ selecteduser.district }}{% else %} None {% endif %}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>City</th>
+              <td>{% if selecteduser.city %}{{ selecteduser.city }}{% else %} None {% endif %}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Mobile Number</th>
+              <td>{{ selecteduser.mobile }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}
