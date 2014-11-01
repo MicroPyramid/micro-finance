@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from micro_admin.models import Branch, Client, User
+from micro_admin.models import Branch, User, Group, Client
 
 
 class BranchForm(forms.ModelForm):
@@ -22,6 +22,13 @@ class EditbranchForm(forms.ModelForm):
     class Meta:
         model = Branch
         fields = ["country", "state", "district", "city", "area", "phone_number", "pincode"]
+
+
+class GroupForm(forms.ModelForm):
+
+    class Meta:
+        model = Group
+        fields = ["name", "account_type", "account_number", "activation_date", "branch"]
 
 
 class ClientForm(forms.ModelForm):

@@ -47,16 +47,16 @@
               </div>
             </div>
             <div class="slide-div">
-              <a href="#" class="anc2"><i class="fa fa-user padd-u"></i>User<i class="fa fa-caret-down padd-lft-u"></i></a>
+              <a href="#" class="anc2"><i class="fa fa-user padd-u"></i>Staff<i class="fa fa-caret-down padd-lft-u"></i></a>
               <div id="tog-div2" class="tog-div">
-                <a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create User</a>
-                <a href="#"><i class="fa fa-eye padd"></i>View User</a>
+                <a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create Staff</a>
+                <a href="{% url 'micro_admin:userslist' %}"><i class="fa fa-eye padd"></i>View Staff</a>
               </div>
             </div>
             <div class="slide-div">
               <a href="#" class="anc3"><i class="fa fa-users padd"></i>Group<i class="fa fa-caret-down padd-lft-g"></i></a>
               <div id="tog-div3" class="tog-div">
-                <a href="#"><i class="fa fa-plus padd"></i>Create Group</a>
+                <a href="{% url 'micro_admin:creategroup' %}"><i class="fa fa-plus padd"></i>Create Group</a>
                 <a href="#"><i class="fa fa-eye padd"></i>View Group</a>
               </div>
             </div>
@@ -99,15 +99,15 @@
                   <!-- Collect the nav links, forms, and other content for toggling -->
                   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="col-lg-offset-8 col-lg-4 col-sm-offset-5 col-sm-7 col-md-offset-7 col-md-5 nav navbar-nav navbar-right">
-                      <li><a href="#" class="menu-link home"><i class="fa fa-home padd"></i>Home</a></li>
+                      <li><a href="{% url 'micro_admin:login' %}" class="menu-link home"><i class="fa fa-home padd"></i>Home</a></li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{ user.username }} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li><a href="#"><i class="fa fa-user icon padd"></i>Profile</a></li>
+                          <li><a href="{% url 'micro_admin:userprofile' user.id %}"><i class="fa fa-user icon padd"></i>Profile</a></li>
                           <li><a href="#"><i class="fa fa-unlock-alt padd"></i>Change Password</a></li>
                         </ul>
                       </li>
-                      <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>logout</a></li>
+                      <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>Logout</a></li>
                     </ul>
                   </div>
                   <!-- /.navbar-collapse -->

@@ -4,7 +4,7 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-2">
-    <div class="panel-heading">Edit User</div>
+    <div class="panel-heading">Edit Staff</div>
     <div class="panel-body pb-pad">
       <form id="edituserform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
@@ -26,7 +26,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Gender</label>
             <div class="col-sm-8 mar-top-rad">
-              <select class="form-control query-style" name="gender" readonly>
+              <select class="text-box wid-form" name="gender" readonly>
                 <option value="{{ user.gender }}" selected="selected">{{ user.gender }}</option>
               </select>
             </div>
@@ -34,7 +34,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
             <div class="col-sm-8">
-              <select class="form-control query-style" name="branch" readonly>
+              <select class="text-box wid-form" name="branch" readonly>
                 <option value="{{ user.branch }}" selected="selected">{{ user.branch.name }}</option>
               </select>
             </div>
@@ -42,7 +42,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">User Roles</label>
             <div class="col-sm-8">
-              <select class="form-control query-style" name="user_roles" readonly>
+              <select class="text-box wid-form" name="user_roles" readonly>
                 <option value="{{ user.user_roles }}" selected="selected">{{ user.user_roles }}</option>
               </select>
             </div>

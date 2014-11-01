@@ -70,11 +70,5 @@
   .container .my-panel-bprofile, .container .my-panel-bp {
     width: 99%;
   }
-/*branch-profile*/
-/*client-profile*/
-.wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div{
-	width: 100%;
-}
-
-/*client-profile*/
+/*branch-profile*/;
 }

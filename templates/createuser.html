@@ -4,7 +4,7 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-2">
-    <div class="panel-heading">User</div>
+    <div class="panel-heading">Staff</div>
     <div class="panel-body pb-pad">
       <form id="createuserform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
@@ -25,36 +25,39 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Gender</label>
             <div class="col-sm-8 mar-top-rad">
-              <input type="radio" name="gender" value="M">Male
+              <input type="radio" name="gender" value="M">Male &nbsp&nbsp
               <input type="radio" name="gender" value="F">Female
+              <p id="gendererror"></p>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
             <div class="col-sm-8">
-              <select class="form-control query-style" name="branch" required="True">
+              <select class="text-box wid-form" name="branch" required="True">
                 <option>Select Branch</option>
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.name }}</option>
                 {% endfor%}
               </select>
+              <p id="branchnameerror"></p>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">User Roles</label>
             <div class="col-sm-8">
-              <select class="form-control query-style" name="user_roles" required="True">
+              <select class="text-box wid-form" name="user_roles" required="True">
                 <option>Select Role</option>
                 <option>BranchManager</option>
                 <option>LoanOfficer</option>
                 <option>Cashier</option>
               </select>
+              <p id="userroleerror"></p>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Date of Birth</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="date_of_birth">
+              <input type="text" class="text-box wid-form" id="datepicker-dob" name="date_of_birth">
             </div>
           </div>
           <div class="form-group">
@@ -147,6 +150,15 @@
       $.post('/createuser/', $('#createuserform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
+          if (data.message.gender) {
+            $("#gendererror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.gender + "</span>");
+          }
+          if (data.message.branch) {
+            $("#branchnameerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.branch + "</span>");
+          }
+          if (data.message.user_roles) {
+            $("#userroleerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.user_roles + "</span>");
+          }
           if (data.message.username) {
             $("#usernameerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.username + "</span>");
           }

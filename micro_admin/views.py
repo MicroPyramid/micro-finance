@@ -3,9 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from django.core.context_processors import csrf
-from micro_admin.models import User, Branch, Client
-from micro_admin.forms import BranchForm, EditbranchForm, ClientForm, UserForm
+from micro_admin.models import User, Branch, Group, Client
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm,
 import datetime
 
 def index(request):
@@ -212,4 +211,40 @@ def edit_user(request, user_id):
 
 
 def user_profile(request, user_id):
-    return HttpResponse("User created sucessfully")
+    selecteduser = User.objects.get(id=user_id)
+    return render(request, "userprofile.html", {"selecteduser":selecteduser})
+
+
+def users_list (request):
+    list_of_users = User.objects.filter(is_admin=0)
+    return render(request,"listofusers.html", {"list_of_users":list_of_users})
+
+
+def delete_user(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.delete()
+    list_of_users = User.objects.filter(is_admin=0)
+    return render(request, "listofusers.html", {"list_of_users":list_of_users})
+
+
+def create_group(request):
+    if request.method == "GET":
+        data = {}
+        branches = Branch.objects.all()
+        return render(request, "creategroup.html", {"data":data, "branches":branches})
+    else:
+        group_form = GroupForm(request.POST)
+        if group_form.is_valid():
+            name = request.POST.get("name")
+            account_type = request.POST.get("account_type")
+            account_number = request.POST.get("account_number")
+            datestring_format = datetime.datetime.strptime(request.POST.get("activation_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            activation_date = dateconvert
+            branch = Branch.objects.get(id=request.POST.get("branch"))
+            group = Group.objects.create(name=name, account_type=account_type, account_number=account_number, activation_date=activation_date, branch=branch)
+            data = {"error":False, "message":"Created Sucessfully"}
+            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error":True, "message":group_form.errors}
+            return HttpResponse(json.dumps(data))

@@ -119,9 +119,5 @@
   .container .my-panel-bprofile, .container .my-panel-bp {
     width: 98%;
   }
-/*branch-profile*/
-.wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div{
-	width: 100%;
-}
-
+/*branch-profile*/;
 }
