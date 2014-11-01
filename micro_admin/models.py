@@ -38,6 +38,7 @@ class Branch(models.Model):
     area = models.CharField(max_length=150)
     phone_number = models.IntegerField()
     pincode = models.IntegerField()
+    is_active = models.BooleanField(default=True)
 
 
 class UserManager(BaseUserManager):
@@ -92,13 +93,13 @@ class User(AbstractBaseUser):
 class Client(models.Model):
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
-    email = models.EmailField(max_length=255, unique=True, null=True)
+    email = models.EmailField(max_length=255, null=True)
     account_type = models.CharField(choices=ACCOUNT_TYPES, max_length=20)
     account_number = models.CharField(max_length=50, unique=True)
     date_of_birth = models.DateField()
-    blood_group = models.CharField(max_length=10, null=True)
+    blood_group = models.CharField(max_length=10, default=True, null=True)
     gender = models.CharField(choices = GENDER_TYPES , max_length=10)
-    clent_role = models.CharField(choices=CLIENT_ROLES, max_length=20)
+    client_role = models.CharField(choices=CLIENT_ROLES, max_length=20)
     occupation = models.CharField(max_length=200)
     annual_income = models.BigIntegerField()
     joined_date = models.DateField()

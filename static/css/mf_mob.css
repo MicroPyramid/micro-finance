@@ -51,5 +51,24 @@
   .my-panel .pb-pad {
     margin-left: 0px;
   }
-/*branch*/;
+/*branch*/
+/*user creation*/
+  .container .my-panel-2 {
+    width: auto;
+    margin-left: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  form .box-form {
+    width: 98%;
+    float: left;
+    margin: 0px auto;
+  }
+/*user creation*/
+/*branch-profile*/
+  .container .my-panel-bprofile, .container .my-panel-bp {
+    width: 99%;
+  }
+/*branch-profile*/;
 }

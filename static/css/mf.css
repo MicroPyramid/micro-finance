@@ -36,6 +36,10 @@ body {
   padding-right: 5px;
 }
 
+.submit-btn i, .cancel-btn i {
+  color: #ecd73c;
+}
+
 .container .form-div .text-box {
   width: 99%;
   border: 1px solid #fff;
@@ -46,10 +50,10 @@ body {
 
 input, button, select, textarea {
   font-family: inherit;
-  font-size: 15px;
+  font-size: 13px;
   line-height: inherit;
   padding: 3px 2px;
-  border: 1px solid #eee;
+  border: 1px solid #ddd;
 }
 
 .container .form-div .text-box placeholder {
@@ -187,7 +191,7 @@ header {
 }
 
 .wid-form {
-  width: 96%;
+  width: 100%;
 }
 
 .btns {
@@ -279,3 +283,192 @@ input[type=radio], input[type=checkbox] {
   vertical-align: middle;
 }
 /*user creation*/
+/*date picker*/
+.ui-widget-header {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+  border: 1px solid #ddd;
+  background: #eee;
+  font-weight: normal;
+  color: inherit;
+}
+
+.ui-datepicker {
+  width: 17em;
+  padding: .2em .2em 0;
+  display: none;
+  margin-left: 30px;
+}
+/*date picker*/
+/*branch profile*/
+.container .my-panel-bprofile {
+  width: 95%;
+  margin: 0px auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-radius: 0px;
+}
+
+.head-row-tb {
+  font-size: 12px;
+}
+
+.head-row-tb th {
+  font-weight: 600;
+}
+
+.body-row-tb tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+
+.pb-table {
+  margin-top: 5px;
+  padding: 0px;
+}
+
+.container .my-panel-bp {
+  width: 58%;
+  margin: 0px auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-radius: 0px;
+}
+
+.body-row-tb tr th {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.body-row-tb tr td span {
+  float: right;
+}
+
+.body-row-tb tr td span a {
+  text-decoration: none;
+  color: #fff;
+  margin-right: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.edit-icon {
+  background: #ecd73c;
+  padding: 3px;
+}
+
+.edit-icon:hover {
+  background: #7f7212;
+}
+
+.trash-icon {
+  background: #f23674;
+  padding: 3px 4px;
+}
+
+.trash-icon:hover {
+  background: #a11140;
+}
+
+.wid-tab th {
+  width: 200px;
+}
+
+.wid-tab td {
+  width: 290px;
+}
+
+.ed {
+  text-align: left;
+  width: 190px;
+}
+
+.ed a {
+  text-decoration: none;
+  color: #fff;
+  margin-right: 5px;
+}
+
+.body-row-tb tr td a {
+  text-decoration: none;
+  color: #000;
+}
+
+.panel-heading span {
+  float: right;
+}
+
+.panel-heading span button {
+  margin-right: 5px;
+  padding: 5px 8px;
+  color: #fff;
+  border: none;
+}
+
+.panel-heading span .ed-btn {
+  background: #607aab;
+}
+
+.panel-heading span .del-btn {
+  background: #f23674;
+}
+
+.panel-heading span .ed-btn:hover {
+  background: #354f82;
+}
+
+.panel-heading span .del-btn:hover {
+  background: #a11140;
+}
+}
+/*branch profile*/
+/*client profile*/
+.wrap-cp-div {
+  width: 80%;
+  margin: 0px auto;
+  margin-top: 30px;
+}
+
+.wrap-cp-div .btn-row {
+  text-align: center;
+}
+
+.wrap-cp-div .btn-row button {
+  border: none;
+  background: #607aab;
+  color: #fff;
+  padding: 5px 8px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+
+.wrap-cp-div .btn-row button:hover {
+  background: #354f82;
+}
+
+.red {
+  color: red;
+  padding-left: 10px;
+}
+
+.green {
+  color: green;
+  padding-left: 10px;
+}
+
+.body-row-tb tr td span {
+  text-align: left;
+}
+
+.body-row-tb tr td a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #fff;
+}
+
+ 
+/*client profile*/

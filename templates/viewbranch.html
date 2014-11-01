@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile">
+    <div class="panel-heading">Branch-List</div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr class="head-row-tb">
+              <th>Branch Name</th>
+              <th>Opening Date</th>
+              <th>Phone Number</th>
+              <th>Status</th>
+              <th>Edit/Delete</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for branch in branch_list %}
+            <tr>
+              <td><a href="{% url 'micro_admin:branchprofile' branch.id %}" style="color:#000">{{ branch.name }}</a></td>
+              <td>{{ branch.opening_date }}</td>
+              <td>{{ branch.phone_number }}</td>
+              {% if branch.is_active %}
+              <td><i class="fa fa-circle icon-squa green"></i></td>
+              {% else %}
+              <td><i class="fa fa-circle icon-squa red"></i></td>
+              {% endif %}
+              <td class="ed"> &nbsp&nbsp&nbsp<a href="{% url 'micro_admin:editbranch' branch.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+                <a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+</div>
+<!--wrapper ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

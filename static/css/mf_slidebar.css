@@ -114,7 +114,7 @@ nav ul {
 nav li {
   list-style: none;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 nav li a {
@@ -133,6 +133,99 @@ nav li a {
 
 nav li a:hover {
   color: rgba(255,255,255,1);
+}
+
+nav li a {
+  font-size: 22px;
+  color: rgba(255,255,255,.8);
+  text-decoration: none;
+  margin: 0 auto;
+  padding: 8px;
+  display: block;
+  -webkit-transition: all ease .5s;
+  -moz-transition: all ease .5s;
+  -ms-transition: all ease .5s;
+  -o-transition: all ease .5s;
+  transition: all ease .5s;
+}
+
+nav li a:hover {
+  text-decoration: none;
+  color: #ddd;
+  background: #444;
+}
+
+nav li a:active {
+  background: #444;
+  color: #ddd;
+}
+
+.menu-outer:hover > nav ul {
+  left: 0;
+  margin-left: 45px;
+}
+
+.slide-bar-drop {
+  padding-top: 0px;
+}
+
+.slide-bar-drop li a {
+  padding: 4px;
+  font-size: 16px;
+  width: 20%;
+  text-align: left;
+  margin-left: 720px;
+}
+
+nav .slide-div {
+  width: 100;
+  text-align: center;
+  margin: 20px 0px;
+  font-size: 19px;
+}
+
+.list {
+  margin-top: 150px;
+}
+
+nav .slide-div a {
+  display: block;
+  width: 100%;
+  color: #fff;
+  text-decoration: none;
+  padding: 5px 0px;
+}
+
+nav .slide-div a:hover {
+  color: #ddd;
+  background: #444;
+}
+
+nav .list .tog-div {
+  display: none;
+  font-size: 17px;
+  font-weight: 200;
+}
+
+nav .list .tog-div a {
+  margin-lft: 150px;
+}
+
+.padd-lft {
+  padding-left: 50px;
+}
+
+.padd-lft-u {
+  padding-left: 70px;
+}
+
+.padd-u {
+  padding-right: 7px;
+}
+
+.padd-lft-g {
+  padding-left: 60px;
+}
 }
 
 @media screen and (max-width: 600px), screen and (max-height: 600px) {
