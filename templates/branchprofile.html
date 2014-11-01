@@ -6,8 +6,10 @@
   <div class="panel panel-default my-panel-bp">
     <div class="panel-heading">{{ branch.name }}
       <span>
+      {% if user.is_admin %}
       <a href="{% url 'micro_admin:editbranch' branch.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
       <a href="{% url 'micro_admin:deletebranch' branch.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>
+      {% endif %}
       </span>
     </div>
     <div class="panel-body pb-table">

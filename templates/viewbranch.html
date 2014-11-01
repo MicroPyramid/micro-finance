@@ -14,7 +14,9 @@
               <th>Opening Date</th>
               <th>Phone Number</th>
               <th>Status</th>
-              <th>Edit/Delete</th>
+              {% if user.is_admin %}
+                <th>Edit/Delete</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody class="body-row-tb">
@@ -28,9 +30,11 @@
               {% else %}
               <td><i class="fa fa-circle icon-squa red"></i></td>
               {% endif %}
+              {% if user.is_admin %}
               <td class="ed"> &nbsp&nbsp&nbsp<a href="{% url 'micro_admin:editbranch' branch.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
                 <a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
               </td>
+              {% endif %}
             </tr>
             {% endfor %}
           </tbody>

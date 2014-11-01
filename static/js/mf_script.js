@@ -33,13 +33,12 @@ $(document).ready(function (e) {
       selectOtherMonths: true
     });
   });
-  $(function () {
-    $("#datepicker-dob").datepicker({
-      changeMonth: true,
-      changeYear: true
-    });
-  });
-
+$(function() {
+$( "#datepicker-dob" ).datepicker({
+changeMonth: true,
+changeYear: true
+});
+});
   //datepicker
   //slide togle
   $(".anc1").click(function () {

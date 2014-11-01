@@ -42,6 +42,7 @@ ROOT_URLCONF = 'microfinance.urls'
 WSGI_APPLICATION = 'microfinance.wsgi.application'
 
 AUTH_USER_MODEL = 'micro_admin.User'
+
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
