@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bp">
+    <div class="panel-heading">{{ branch.name }}
+      <span>
+      {% if user.is_admin %}
+      <a href="{% url 'micro_admin:editbranch' branch.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
+      <a href="{% url 'micro_admin:deletebranch' branch.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>
+      {% endif %}
+      </span>
+    </div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <tbody class="body-row-tb">
+            <tr class="wid-tab">
+              <th>Branch-Name</th>
+              <td>{{ branch.name }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Opening Date</th>
+              <td>{{ branch.opening_date }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Country</th>
+              <td>{{ branch.country }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>State</th>
+              <td>{{ branch.state }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>District</th>
+              <td>{{ branch.district }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Area</th>
+              <td>{{ branch.area }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Pin-Code</th>
+              <td>{{ branch.pincode }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Phone Number</th>
+              <td>{{ branch.phone_number }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+</div>
+<!--wrapper ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

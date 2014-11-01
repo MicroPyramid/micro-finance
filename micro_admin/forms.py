@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
-from micro_admin.models import Branch, User, Group
+from micro_admin.models import Branch, User, Group, Client
+
 
 class BranchForm(forms.ModelForm):
 
@@ -28,3 +29,10 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ["name", "account_type", "account_number", "activation_date", "branch"]
+
+
+class ClientForm(forms.ModelForm):
+
+    class Meta:
+        model = Client
+        exclude = ["email", "mobile", "pincode", "photo", "signature", "blood_group"]

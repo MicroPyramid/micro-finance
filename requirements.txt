@@ -1,0 +1,6 @@
+Django==1.7.1
+Pillow==2.6.1
+argparse==1.2.1
+django-debug-toolbar==1.2.2
+sqlparse==0.1.13
+wsgiref==0.1.2

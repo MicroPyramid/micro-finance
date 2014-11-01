@@ -3,9 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from micro_admin.models import User, Branch, Group
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm
+from micro_admin.models import User, Branch, Group, Client
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm,
 import datetime
 
 def index(request):
@@ -52,7 +51,7 @@ def create_branch(request):
         form = BranchForm(request.POST)
         if form.is_valid():
             name = request.POST.get("name")
-            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),"%m/%d/%Y").strftime("%Y-%m-%d")
             dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             opening_date = dateconvert
             country = request.POST.get("country")
@@ -63,7 +62,7 @@ def create_branch(request):
             phone_number = request.POST.get("phone_number")
             pincode = request.POST.get("pincode")
             branch = Branch.objects.create(name=name,opening_date=opening_date,country=country,state=state,district=district,city=city,area=area,phone_number=phone_number,pincode=pincode)
-            data = {"error":False, "message":"Created Sucessfully"}
+            data = {"error":False, "branch_id":branch.id}
             return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "message":form.errors}
@@ -82,18 +81,73 @@ def edit_branch(request, branch_id):
             branch.state = request.POST.get("state")
             branch.district = request.POST.get("district")
             branch.city = request.POST.get("city")
-            branch.area = request.POST.get('area')
+            branch.area = request.POST.get("area")
             branch.phone_number = request.POST.get("phone_number")
             branch.pincode = request.POST.get("pincode")
             branch.save()
             return HttpResponse("Branch Details Updated Successfully")
         else:
-            print form.errors
             return HttpResponse("Invalid Data")
 
 
-def branch_profile(request):
-    return HttpResponse("Branch Created Successfully")
+def branch_profile(request,branch_id):
+    branch = Branch.objects.get(id=branch_id)
+    return render(request,"branchprofile.html", {"branch":branch})
+
+
+def view_branch(request):
+    branch_list = Branch.objects.all()
+    return render(request,"viewbranch.html",{"branch_list":branch_list })
+
+
+def delete_branch(request,branch_id):
+    branch = Branch.objects.get(id=branch_id)
+    branch.delete()
+    return HttpResponse("Deleted Branch Profile")
+
+
+def create_client(request):
+    if request.method == "GET":
+        data = {}
+        branch = Branch.objects.all()
+        return render(request,"createclient.html", {"data":data, "branch":branch})
+    else:
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            first_name = request.POST.get("first_name")
+            last_name = request.POST.get("last_name")
+            email = request.POST.get("email")
+            account_type = request.POST.get("account_type")
+            account_number = request.POST.get("account_number")
+            blood_group = request.POST.get("blood_group")
+            gender = request.POST.get("gender")
+            client_role = request.POST.get("client_role")
+            occupation = request.POST.get("occupation")
+            annual_income = request.POST.get("annual_income")
+            country = request.POST.get("country")
+            state = request.POST.get("state")
+            district = request.POST.get("district")
+            city = request.POST.get("city")
+            area = request.POST.get("area")
+            mobile = request.POST.get("mobile")
+            pincode = request.POST.get("pincode")
+            branch = Branch.objects.get(id=request.POST.get('branch'))
+            birth_datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            birth_dateconvert = datetime.datetime.strptime(birth_datestring_format, "%Y-%m-%d")
+            date_of_birth = birth_dateconvert
+            datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            joined_date = dateconvert
+            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, account_type=account_type, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
+            data = {"error":False, "message":"Client Created Successfully"}
+            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error":True, "message":form.errors}
+            return HttpResponse(json.dumps(data))
+
+
+def client_profile(request):
+    return HttpResponse("client created Successfully")
 
 
 def create_user(request):
@@ -123,7 +177,7 @@ def create_user(request):
             if mobile1:
                 user.mobile = mobile1
             if date_of_birth1:
-                datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
+                datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),"%m/%d/%Y").strftime('%Y-%m-%d')
                 dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
                 user.date_of_birth = dateconvert
             user.save()
