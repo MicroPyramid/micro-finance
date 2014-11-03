@@ -54,9 +54,9 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, password, branch=None):
+    def create_superuser(self, username, password, branch=None):
 
-        user = self.create_user(username, email, password=password)
+        user = self.create_user(username, email="", password=password)
         user.is_admin = True
         user.is_active = True
         user.save(using=self._db)
@@ -115,7 +115,7 @@ class Client(models.Model):
     signature = models.ImageField(upload_to =settings.SIGNATURE_PATH, null=True)
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
-    status = models.CharField(max_length=50, default="UnAssigned")
+    status = models.CharField(max_length=50, default="UnAssigned", null=True)
 
 
 class Group(models.Model):
@@ -127,6 +127,7 @@ class Group(models.Model):
     branch = models.ForeignKey(Branch)
     staff = models.ManyToManyField(User, null=True, blank=True)
     clients = models.ManyToManyField(Client, null=True, blank=True)
+    status = models.CharField(max_length=50, default="UnAssigned")
 
 
 class Centers(models.Model):

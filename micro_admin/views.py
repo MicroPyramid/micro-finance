@@ -281,8 +281,36 @@ def create_group(request):
             activation_date = dateconvert
             branch = Branch.objects.get(id=request.POST.get("branch"))
             group = Group.objects.create(name=name, account_type=account_type, account_number=account_number, activation_date=activation_date, branch=branch)
-            data = {"error":False, "message":"Created Sucessfully"}
+            data = {"error":False, "group_id":group.id}
             return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "message":group_form.errors}
             return HttpResponse(json.dumps(data))
+
+
+def edit_group(request, group_id):
+    if request.method == "GET":
+        group = Group.objects.get(id=group_id)
+        return render(request, "editgroup.html", {"group":group, "group_id":group.id})
+
+
+def group_profile(request, group_id):
+    group = Group.objects.get(id=group_id)
+    clients_list = group.clients.all()
+    staff = group.staff.all()
+    clients_count = group.clients.all().count()
+    return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count, "staff":staff})
+
+def assign_staff_to_group(request, group_id):
+    if request.method == "GET":
+        group = Group.objects.get(id=group_id)
+        users_list = User.objects.filter(is_admin=0)
+        return render(request, "assignstaff.html", {"group":group, "users_list":users_list})
+    else:
+        staff_id = request.POST.get("staff")
+        user = User.objects.get(id=staff_id)
+        group = Group.objects.get(id=group_id)
+        group.staff.add(user)
+        group.save()
+        data = {"error":False, "group_id":group.id}
+        return HttpResponse(json.dumps(data))

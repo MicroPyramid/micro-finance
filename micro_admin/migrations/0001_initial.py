@@ -99,7 +99,11 @@ class Migration(migrations.Migration):
                 ('photo', models.ImageField(null=True, upload_to=b'static/images/users')),
                 ('signature', models.ImageField(null=True, upload_to=b'static/images/signatures')),
                 ('is_active', models.BooleanField(default=True)),
+<<<<<<< HEAD
                 ('status', models.CharField(default=b'UnAssigned', max_length=50)),
+=======
+                ('status', models.CharField(default=b'UnAssigned', max_length=50, null=True)),
+>>>>>>> 55c06fd94d3a749370e4d0525668cd3f4227827f
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
             ],
             options={
@@ -115,6 +119,7 @@ class Migration(migrations.Migration):
                 ('account_number', models.CharField(unique=True, max_length=50)),
                 ('activation_date', models.DateField()),
                 ('is_active', models.BooleanField(default=True)),
+                ('status', models.CharField(default=b'UnAssigned', max_length=50)),
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
                 ('clients', models.ManyToManyField(to='micro_admin.Client', null=True, blank=True)),
                 ('staff', models.ManyToManyField(to=settings.AUTH_USER_MODEL, null=True, blank=True)),
