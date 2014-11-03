@@ -115,6 +115,7 @@ class Client(models.Model):
     signature = models.ImageField(upload_to =settings.SIGNATURE_PATH, null=True)
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
+    status = models.CharField(max_length=50, default="UnAssigned")
 
 
 class Group(models.Model):

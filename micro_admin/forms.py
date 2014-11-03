@@ -35,4 +35,11 @@ class ClientForm(forms.ModelForm):
 
     class Meta:
         model = Client
-        exclude = ["email", "mobile", "pincode", "photo", "signature", "blood_group"]
+        fields = ["first_name", "last_name", "account_type", "date_of_birth", "joined_date", "branch", "account_number", "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
+
+
+class EditclientForm(forms.ModelForm):
+
+    class Meta:
+        model = Client
+        fields = ["client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]

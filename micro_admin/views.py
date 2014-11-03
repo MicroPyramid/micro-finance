@@ -3,9 +3,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm,
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, EditclientForm
 import datetime
+
 
 def index(request):
     data = {}
@@ -72,7 +73,7 @@ def create_branch(request):
 def edit_branch(request, branch_id):
     if request.method == "GET":
         branch = Branch.objects.get(id=branch_id)
-        return render(request, "editbranchdetails.html", {"branch":branch})
+        return render(request, "editbranchdetails.html", {"branch":branch, "branch_id":branch_id})
     else:
         form = EditbranchForm(request.POST)
         if form.is_valid():
@@ -85,9 +86,8 @@ def edit_branch(request, branch_id):
             branch.phone_number = request.POST.get("phone_number")
             branch.pincode = request.POST.get("pincode")
             branch.save()
-            return HttpResponse("Branch Details Updated Successfully")
-        else:
-            return HttpResponse("Invalid Data")
+            data = {"error":False, "branch_id":branch.id}
+            return HttpResponse(json.dumps(data))
 
 
 def branch_profile(request,branch_id):
@@ -139,15 +139,53 @@ def create_client(request):
             dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             joined_date = dateconvert
             client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, account_type=account_type, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
-            data = {"error":False, "message":"Client Created Successfully"}
+            data = {"error":False, "client_id":client.id}
             return HttpResponse(json.dumps(data))
         else:
+            print form.errors
             data = {"error":True, "message":form.errors}
             return HttpResponse(json.dumps(data))
 
 
-def client_profile(request):
-    return HttpResponse("client created Successfully")
+def client_profile(request,client_id):
+    client = Client.objects.get(id=client_id)
+    branch = Branch.objects.all()
+    return render(request,"clientprofile.html", {"client":client, "branch":branch})
+
+
+def edit_client(request,client_id):
+    if request.method =="GET":
+        client = Client.objects.get(id=client_id)
+        l = []
+        for i in CLIENT_ROLES:
+            l.append(i[0])
+        branch = Branch.objects.all()
+        return render(request,"editclient.html", {"client":client, "branch":branch, "client_id":client_id, "CLIENT_ROLES":CLIENT_ROLES, "l":l})
+    else:
+        form = EditclientForm(request.POST)
+        if form.is_valid():
+            client = Client.objects.get(id=client_id)
+            client.client_role = request.POST.get("client_role")
+            client.occupation = request.POST.get("occupation")
+            client.blood_group = request.POST.get("blood_group")
+            client.annual_income = request.POST.get("annual_income")
+            client.email = request.POST.get("email")
+            client.mobile = request.POST.get("mobile")
+            client.country = request.POST.get("country")
+            client.state = request.POST.get("state")
+            client.district = request.POST.get("district")
+            client.city = request.POST.get("city")
+            client.area = request.POST.get("area")
+            client.pincode = request.POST.get("pincode")
+            client.save()
+            data = {"error":False, "client_id":client.id}
+            return HttpResponse(json.dumps(data))
+
+
+def delete_client(request,client_id):
+    client = Client.objects.get(id=client_id)
+    client.delete()
+    return HttpResponse("Deleted client Profile")
 
 
 def create_user(request):

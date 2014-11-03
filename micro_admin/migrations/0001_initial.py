@@ -99,6 +99,7 @@ class Migration(migrations.Migration):
                 ('photo', models.ImageField(null=True, upload_to=b'static/images/users')),
                 ('signature', models.ImageField(null=True, upload_to=b'static/images/signatures')),
                 ('is_active', models.BooleanField(default=True)),
+                ('status', models.CharField(default=b'UnAssigned', max_length=50)),
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
             ],
             options={

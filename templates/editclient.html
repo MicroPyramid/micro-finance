@@ -4,89 +4,86 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-2">
-    <div class="panel-heading">Client</div>
+    <div class="panel-heading">Edit Client</div>
     <div class="panel-body pb-pad">
-      <form id="createclientform" class="form-horizontal" role="form" method="post">
+      <form id="editclientform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
         <!--div 1 0f form-->
         <div class="box-form">
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">First Name<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="first_name" required="True">
+              <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="first_name" value="{{ client.first_name }}" readonly >
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Last Name<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="last_name" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="last_name" value="{{ client.last_name }}" readonly>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Gender</label>
             <div class="col-sm-8 mar-top-rad">
-              <input type="radio" name="gender" value="M">Male &nbsp&nbsp
-              <input type="radio" name="gender" value="F">Female
-              <p id="clientgendererror"></p>
-            </div>
-          </div>
-          <div class="form-group" style="margin-top: -10px;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
-            <div class="col-sm-8">
-              <select class="text-box wid-form" name="branch">
-                <option>Select Branch</option>
-                {% for entry in branch %}
-                <option value="{{ entry.id }}">{{ entry.name }}</option>
-                {% endfor %}
+              <select class="text-box wid-form" name="gender" readonly>
+                <option value="{{ client.gender }}" selected="selected">{{ client.gender }}</option>
               </select>
-              <p id="selectbrancherror"></p>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Client Roles</label>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Branch<span>*</span></label>
+            <div class="col-sm-8">
+              <select class="text-box wid-form" name="branch" readonly>
+                <option value="{{ client.branch }}" selected="selected">{{ client.branch.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Client Roles<span>*</span></label>
             <div class="col-sm-8">
               <select class="text-box wid-form" name="client_role">
-                <option>Select Client Roles</option>
-                <option>FirstLeader</option>
-                <option>SecondLeader</option>
-                <option>GroupMember</option>
+                <option>Select Client Role</option>
+                {% for l in l %}
+                {% ifequal l client.client_role %}
+                <option value="{{ l }}" selected="selected">{{ l }}</option>
+                {% else %}
+                <option value="{{ l }}">{{ l }}</option>
+                {% endifequal %}
+                {% endfor %}
               </select>
-              <p id="selectclientroleerror"></p>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Joined Date<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="date-picker-cc" name="joined_date" required="True">
+              <input type="text" class="text-box wid-form" id="date-picker-cc" name="joined_date" value="{{ client.joined_date }}" readonly>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Date Of Birth<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="datepicker-dob" name="date_of_birth" required="True">
+              <input type="text" class="text-box wid-form" id="datepicker-dob" name="date_of_birth" value="{{ client.date_of_birth }}" readonly>
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Account Type</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Account Type<span>*</span></label>
             <div class="col-sm-8">
-              <select class="text-box wid-form" name="account_type" required="True">
-                <option>Select Account Type</option>
-                <option>SavingsAccount</option>
-                <option>LoanAccount</option>
+              <select class="text-box wid-form" name="account_type" required="True" readonly>
+                <option value="{{ client.account_type }}" selected="selected">{{ client.account_type }}</option>
               </select>
-              <p id="selectaccounttypeerror"></p>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Account Number<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="account_number" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="account_number" value="{{ client.account_number }}" readonly>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Occupation<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="occupation" required="True" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="occupation" required="True" value="{{ client.occupation }}" id="inputEmail3">
             </div>
           </div>
         </div>
@@ -96,62 +93,61 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Blood Group</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="blood_group" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="blood_group" value="{{ client.blood_group }}" id="inputEmail3">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Annual Income<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="annual_income" required="True" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="annual_income" required="True" value="{{ client.annual_income }}" id="inputEmail3">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Email</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="email" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="email" value="{{ client.email }}" id="inputEmail3">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Mobile</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="mobile" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="mobile" value="{{ client.mobile }}" id="inputEmail3">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Country<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="country" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="country" value="{{ client.country }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">State<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="state" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="state" value="{{ client.state }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">District<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="district" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="district" value="{{ client.district }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">City<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="city" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="city" value="{{ client.city }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Area<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="area" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="area" value="{{ client.area }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Pin-Code</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="pincode" id="inputEmail3">
-
+              <input type="text" class="text-box wid-form" name="pincode" value="{{ client.pincode }}" id="inputEmail3">
             </div>
           </div>
         </div>
@@ -175,31 +171,16 @@
 <!--wrapper ends above-->
 <script src="/static/js/mf_script.js"></script>
 <script type="text/javascript">
-  $(document).ready(function () {
-    $('#createclientform').submit(function (e) {
+  $(document).ready(function() {
+    $('#editclientform').submit(function(e) {
       e.preventDefault();
-      $.post('/createclient/', $('#createclientform').serialize(), function (data) {
-        if (data.error) {
-          $("span.error").remove();
-          if (data.message.gender) {
-            $("#clientgendererror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.gender + "</span>");
-          }
-          if (data.message.branch) {
-            $("#selectbrancherror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.branch + "</span>");
-          }
-          if (data.message.client_role) {
-            $("#selectclientroleerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.client_role + "</span>");
-          }
-          if (data.message.account_type) {
-            $("#selectaccounttypeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.account_type + "</span>");
-          }
-        }
-        else {
+      $.post('/editclient/'+$('#client_id').val()+'/', $('#editclientform').serialize(), function(data) {
+        if (data.error == false) {
           window.location = '/clientprofile/'+data.client_id+'/';
         }
       }, "json");
     });
-    $('.cancel-btn').click(function (e) {
+    $('.cancel-btn').click(function(e){
       $("span.error").remove();
     });
   });
