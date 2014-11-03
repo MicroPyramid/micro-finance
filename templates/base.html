@@ -38,18 +38,20 @@
             <div class="slide-div">
               <a href="#" class="anc1"><i class="fa fa-sitemap padd"></i>Branch<i class="fa fa-caret-down padd-lft"></i></a>
               <div id="tog-div1" class="tog-div">
-              {% if user.is_admin %}
+                {% if user.is_admin %}
                 <a href="{% url 'micro_admin:createbranch' %}"><i class="fa fa-plus padd"></i>Create Branch</a>
                 <a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
-              {% else %}
+                {% else %}
                 <a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
-              {% endif %}
+                {% endif %}
               </div>
             </div>
             <div class="slide-div">
               <a href="#" class="anc2"><i class="fa fa-user padd-u"></i>Staff<i class="fa fa-caret-down padd-lft-u"></i></a>
               <div id="tog-div2" class="tog-div">
+                {% if user.is_admin %}
                 <a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create Staff</a>
+                {% endif %}
                 <a href="{% url 'micro_admin:userslist' %}"><i class="fa fa-eye padd"></i>View Staff</a>
               </div>
             </div>
@@ -127,3 +129,5 @@
     </div>
     <!--wrapper ends above-->
     <script src="/static/js/mf_script.js"></script>
+  </body>
+</html>

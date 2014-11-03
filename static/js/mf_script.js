@@ -39,7 +39,6 @@ $(document).ready(function (e) {
       changeYear: true
     });
   });
-
   //datepicker
   //slide togle
   $(".anc1").click(function () {
@@ -58,8 +57,31 @@ $(document).ready(function (e) {
     });
   });
   $(".anc4").click(function () {
-    $("#tog-div4").slideToggle();
+    $("#tog-div4").slideToggle('slow', function () {
+    });
   });
   //slide togle
+  //vertical bar
+  $(".toggle-btn").click(function () {
+    $(".nav-2").animate({
+      width: 'toggle'
+    });
+  });
+  $(".mem").click(function () {
+    $(".mem-drop").slideToggle('slow', function () {});
+  });
+  $(".acc").click(function () {
+    $(".acc-drop").slideToggle('slow', function () {});
+  });
+  $(".sav").click(function () {
+    $(".sav-drop").slideToggle('slow', function () {});
+  });
+  $(".loan").click(function () {
+    $(".loan-drop").slideToggle('slow', function () {});
+  });
+  $(".more").click(function () {
+    $(".more-drop").slideToggle('slow', function () {});
+  });
+  //vertical bar
   //ready function ended below
 });
