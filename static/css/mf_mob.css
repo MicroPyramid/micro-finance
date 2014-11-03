@@ -70,5 +70,39 @@
   .container .my-panel-bprofile, .container .my-panel-bp {
     width: 99%;
   }
-/*branch-profile*/;
+/*branch-profile*/
+/*client-profile*/
+  .wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div {
+    width: 100%;
+  }
+
+/*client-profile*/
+/*group-profile*/
+  .nav-2 {
+    width: 200px;
+    float: left;
+    background: #343435;
+    height: auto;
+    position: relative;
+  }
+
+  .tog-btn {
+    display: none;
+    float: left;
+    margin-left: 200px;
+  }
+
+  .panel-hdg {
+    width: 89%;
+    margin: 0px auto;
+  }
+
+  .home-div-gp {
+    position: relative;
+    height: auto;
+    margin-top: 40px;
+    float: left;
+    width: 91%;
+  }
+/*group-profile*/;
 }

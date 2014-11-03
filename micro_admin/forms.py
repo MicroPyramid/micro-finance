@@ -35,4 +35,4 @@ class ClientForm(forms.ModelForm):
 
     class Meta:
         model = Client
-        exclude = ["email", "mobile", "pincode", "photo", "signature", "blood_group"]
+        exclude = ["email", "mobile", "pincode", "photo", "signature", "blood_group", "status"]

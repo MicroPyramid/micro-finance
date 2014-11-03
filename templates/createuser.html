@@ -11,7 +11,7 @@
         <!--div 1 0f form-->
         <div class="box-form">
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">First Name</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">First Name <span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="first_name" required="True">
             </div>
@@ -23,7 +23,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Gender</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Gender <span>*</span></label>
             <div class="col-sm-8 mar-top-rad">
               <input type="radio" name="gender" value="M">Male &nbsp&nbsp
               <input type="radio" name="gender" value="F">Female
@@ -31,7 +31,7 @@
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Branch <span>*</span></label>
             <div class="col-sm-8">
               <select class="text-box wid-form" name="branch" required="True">
                 <option>Select Branch</option>
@@ -43,7 +43,7 @@
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
-            <label for="inputEmail3" class="col-sm-4 control-label">User Roles</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">User Roles <span>*</span></label>
             <div class="col-sm-8">
               <select class="text-box wid-form" name="user_roles" required="True">
                 <option>Select Role</option>
@@ -61,7 +61,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Email</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Email <span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="email" required="True">
               <p id="emailerror"></p>
@@ -114,14 +114,14 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">User Name</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">User Name <span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="username" required="True">
               <p id="usernameerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Password</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Password <span>*</span></label>
             <div class="col-sm-8">
               <input type="password" class="text-box wid-form" id="inputEmail3" name="password" required="True">
             </div>
@@ -129,6 +129,7 @@
         </div>
         <!--branch 2 ends above-->
         <!--btn row-->
+        <br clear="all" />
         <div class="btns-row">
           <div class="form-group btns align-btns">
             <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>

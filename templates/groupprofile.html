@@ -1,0 +1,76 @@
+{% extends 'groupbase.html' %}
+{% block groupstage %}
+<div class="home-div-gp">
+  <div class="panel panel-default panel-hdg">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
+        {{ group.name }}
+      </h3>
+    </div>
+    <div class="panel-body">
+      <!--panel body starts above-->
+      <form class="form-horizontal" role="form">
+      <!--div 1 0f form-->
+      <div class="box-form">
+        <div class="form-group grp-view">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Branch Name :</label><span class="col-lg-6 mar-top">{{ group.branch.name }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Account Number :</label><span class="col-lg-6 mar-top">{{ group.account_number }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Members :</label><span class="col-lg-6 mar-top">{{ clients_count }}</span>
+        </div>
+      </div>
+      <!--div 1 of fomr ends above-->
+      <!--div 2 of form starts below-->
+      <div class="box-form">
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Activation Date :</label><span class="col-lg-6 mar-top">{{ group.activation_date }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Staff :</label>
+          <span class="col-lg-6 mar-top">
+          {% if staff.first_name %}
+          {{ staff.first_name }}
+          {% else %}
+          <a href="{% url 'micro_admin:assignstaff' group.id %}" title="Assign Staff">UnAssigned</a>
+          {% endif %}
+          </span>
+        </div>
+      </div>
+      <br clear="all" />
+      <div class="hg-table">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>A/C Number</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for client in clients_list %}
+              <tr>
+                <td>{{ client.first_name }}</td>
+                <td>{{ client.account_number }}</td>
+                {% if client.is_active %}
+                <td><i class="fa fa-square green padd"></i>Active</td>
+                {% else %}
+                <td><i class="fa fa-square red padd"></i>InActive</td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!--panel body ends below crct-->
+  </div>
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

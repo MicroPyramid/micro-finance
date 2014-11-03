@@ -26,9 +26,9 @@
               <td>{{ userobject.user_roles }}l</td>
               <td>{{ userobject.branch.name }}</td>
               {% if userobject.is_active %}
-              <td><i class="fa fa-circle green"></i></td>
+              <td><i class="fa fa-circle green pad-lt"></i></td>
               {% else %}
-              <td><i class="fa fa-circle red"></i></td>
+              <td><i class="fa fa-circle red pad-lt"></i></td>
               {% endif %}
               {% if user.is_admin %}
               <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}" style="color:#000"><i class="fa fa-trash-o trash-icon"></i></a></td>

@@ -20,6 +20,14 @@
               </td>
             </tr>
             <tr class="wid-tab">
+              <th>Status</th>
+              {% if selecteduser.is_active %}
+              <td><i class="fa fa-square green padd"></i>Active</td>
+              {% else %}
+              <td><i class="fa fa-square red padd"></i>InActive</td>
+              {% endif %}
+            </tr>
+            <tr class="wid-tab">
               <th>First Name</th>
               <td>{{ selecteduser.first_name }}
               </td>
