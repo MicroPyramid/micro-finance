@@ -1,21 +1,19 @@
 {% extends 'base.html' %}
-{% load customtemplatetags %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile">
-    <div class="panel-heading">Groups-List</div>
+    <div class="panel-heading">Client-List</div>
     <div class="panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
-              <th>Group Name</th>
-              <th>Account Number</th>
+              <th>Client Name</th>
               <th>Branch Name</th>
-              <th>Staff</th>
-              <th>Members Count</th>
+              <th>Account Number</th>
+              <th>Role</th>
               <th>Status</th>
               {% if user.is_admin %}
               <th>Edit/Delete</th>
@@ -25,22 +23,21 @@
             </tr>
           </thead>
           <tbody class="body-row-tb">
-            {% for group in groups_list %}
+            {% for client in client_list %}
             <tr>
-              <td><a href="{% url 'micro_admin:groupprofile' group.id %}" style="color:#000">{{ group.name }}</a></td>
-              <td>{{ group.account_number  }}l</td>
-              <td>{{ group.branch.name }}</td>
-              <td class="a-color">{% if group.staff.first_name %}{{ group.staff.first_name }}{% else %}<a href="{% url 'micro_admin:assignstaff' group.id %}" title="Assign Staff">Not Assigned</a>{% endif %}</td>
-              <td>{{ group.id|get_members_count }}</td>
-              {% if group.is_active %}
+              <td><a href="{% url 'micro_admin:clientprofile' client.id %}" style="color:#000">{{ client.first_name }}</a></td>
+              <td>{{ client.branch.name }}</td>
+              <td>{{ client.account_number }}</td>
+              <td>{{ client.client_role }}</td>
+              {% if client.is_active %}
               <td><i class="fa fa-circle green pad-lt"></i></td>
               {% else %}
               <td><i class="fa fa-circle red pad-lt"></i></td>
               {% endif %}
-              <td>
-                <a href="#"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+              <td class="ed">
+                <a href="{% url 'micro_admin:editclient' client.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
                 {% if user.is_admin %}
-                <a id="deletegroup" href="{% url 'micro_admin:deletegroup' group.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+                <a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
                 {% endif %}
               </td>
             </tr>

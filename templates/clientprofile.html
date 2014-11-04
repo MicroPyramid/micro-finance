@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="wrap-cp-div">
+    <div class="btn-row">
+      <a href="{% url 'micro_admin:editclient' client.id %}"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
+      <a href="#"><button><i class="fa fa-location-arrow padd"></i>Transfer Client</button></a>
+      <a href="{% url 'micro_admin:updateclientprofile' client.id %}"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
+      {% if user.is_admin %}
+      <a href="{% url 'micro_admin:deleteclient' client.id %}"><button><i class="fa fa-trash-o padd"></i>Delete</button></a>
+      {% endif %}
+      <br clear="all" />
+    </div>
+    <div class="clr-div">
+      <div class="img-div">
+        <h3>{{ client.first_name }}</h3>
+        <img src="/{{ client.photo }}/" alt="Client Photo" /><br /><br />
+        <img src="/{{client.signature}}/" style="width:101px; height:35px; margin-top:0px;" alt="Client signature" />
+        <br clear="all" />
+      </div>
+      <div class="details-div">
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 cl-md-6 col-sm-12 control-label">Branch Name : </label>
+          {{ client.branch.name }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Status : </label>
+          {% if client.is_active %}
+          <td><i class="fa fa-square icon-squa green padd"></i>Active</td>
+          {% else %}
+          <td><i class="fa fa-square icon-squa red padd"></i>InActive</td>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Joined Date : </label>
+          {{ client.joined_date }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Account Number : </label>
+          {{ client.account_number }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Client Role : </label>
+          {{ client.client_role }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">District : </label>
+          {{ client.district }}
+        </div>
+      </div>
+      <br clear="all" />
+    </div>
+    <!--form div ends above-->
+  </div>
+  <!--content ends above-->
+</div>
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}
