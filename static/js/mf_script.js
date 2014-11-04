@@ -58,14 +58,24 @@ $(document).ready(function (e) {
   });
   $(".anc4").click(function () {
     $("#tog-div4").slideToggle('slow', function () {
+
     });
   });
   //slide togle
   //vertical bar
-  $(".toggle-btn").click(function () {
-    $(".nav-2").animate({
-      width: 'toggle'
-    });
+  $("#togg-btn").click(function (e) {
+    if ($("#togg-btn").hasClass("margin-lft")) {
+      $(".nav-2").animate({
+        left: '-200px'
+      });
+      $("#togg-btn").removeClass("margin-lft");
+    } else {
+      $(".nav-2").animate({
+        left: '0px'
+      });
+      $("#togg-btn").addClass("margin-lft");
+      $("#togg-btn").css("transition", "0.5s");
+    }
   });
   $(".mem").click(function () {
     $(".mem-drop").slideToggle('slow', function () {});

@@ -26,9 +26,9 @@
               <td>{{ branch.opening_date }}</td>
               <td>{{ branch.phone_number }}</td>
               {% if branch.is_active %}
-              <td><i class="fa fa-circle icon-squa green"></i></td>
+              <td><i class="fa fa-circle icon-squa green pad-lt"></i></td>
               {% else %}
-              <td><i class="fa fa-circle icon-squa red"></i></td>
+              <td><i class="fa fa-circle icon-squa red pad-lt"></i></td>
               {% endif %}
               {% if user.is_admin %}
               <td class="ed"> &nbsp&nbsp&nbsp<a href="{% url 'micro_admin:editbranch' branch.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>

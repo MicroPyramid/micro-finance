@@ -40,10 +40,6 @@ body {
   padding-right: 5px;
 }
 
-.submit-btn i, .cancel-btn i {
-  color: #ecd73c;
-}
-
 .container .form-div .text-box {
   width: 99%;
   border: 1px solid #fff;
@@ -330,6 +326,10 @@ input[type=radio], input[type=checkbox] {
   background: #f9f9f9;
 }
 
+.color-back-tb tr:nt-child(odd) {
+  background: #f9f9f9;
+}
+
 .pb-table {
   margin-top: 5px;
   padding: 0px;
@@ -428,7 +428,7 @@ input[type=radio], input[type=checkbox] {
 .panel-heading span .del-btn:hover {
   background: #a11140;
 }
-}
+
 /*branch profile*/
 /*client profile*/
 .wrap-cp-div {
@@ -500,12 +500,12 @@ input[type=radio], input[type=checkbox] {
   margin: 30px 10px;
 }
 
-.red {
-  color: red;
+red {
+  color: #f40c0c;
 }
 
 .green {
-  color: green;
+  color: #46f111;
 }
 
 .body-row-tb tr td a {
@@ -514,18 +514,20 @@ input[type=radio], input[type=checkbox] {
   color: #fff;
 }
 
-.pad-lt {
+.pat-lt {
   padding-left: 10px;
 }
 /*client profile*/
 /*vertical bar*/
+.wrapper-gp {
+  height: 100%;
+}
+
 .nav-2 {
   width: 200px;
-  float: left;
-  left: 0px;
-  top: 0px;
   background: #343435;
-  min-height: 630px;
+  height: 100%;
+  position: fixed;
 }
 
 .nav-2 ul {
@@ -578,11 +580,13 @@ input[type=radio], input[type=checkbox] {
   border: 1px solid #ca3d6d;
   color: #fff;
   padding: 5px;
+  transition: 0s;
 }
 
-.wrapper-gp {
-  min-height: 630px;
+.margin-lft {
+  margin-left: 200px;
 }
+
 /*vertical-bar*/
 /*client-group content*/
 .home-div-gp {
@@ -610,7 +614,7 @@ input[type=radio], input[type=checkbox] {
   color: #3399ff;
   background: #f6f8f8;
 }
-/*client group content*/
+
 .mar-top {
   margin-top: 8px;
 }
@@ -620,3 +624,8 @@ form .box-form-as {
   width: 95%;
   text-align: center;
 }
+
+.pad-lt {
+  padding-left: 10px;
+}
+/*client group content*/

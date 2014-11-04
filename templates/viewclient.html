@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile">
+    <div class="panel-heading">Client-List</div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr class="head-row-tb">
+              <th>Client Name</th>
+              <th>Branch Name</th>
+              <th>Account Number</th>
+              <th>Role</th>
+              <th>Status</th>
+              {% if user.is_admin %}
+              <th>Edit/Delete</th>
+              {% else %}
+              <th>Edit</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for client in client_list %}
+            <tr>
+              <td><a href="{% url 'micro_admin:clientprofile' client.id %}" style="color:#000">{{ client.first_name }}</a></td>
+              <td>{{ client.branch.name }}</td>
+              <td>{{ client.account_number }}</td>
+              <td>{{ client.client_role }}</td>
+              {% if client.is_active %}
+              <td><i class="fa fa-circle green pad-lt"></i></td>
+              {% else %}
+              <td><i class="fa fa-circle red pad-lt"></i></td>
+              {% endif %}
+              <td class="ed">
+                <a href="{% url 'micro_admin:editclient' client.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+                {% if user.is_admin %}
+                  <a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}
