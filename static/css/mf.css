@@ -326,6 +326,10 @@ input[type=radio], input[type=checkbox] {
   background: #f9f9f9;
 }
 
+.color-back-tb tr:nt-child(odd) {
+  background: #f9f9f9;
+}
+
 .pb-table {
   margin-top: 5px;
   padding: 0px;
@@ -516,16 +520,14 @@ red {
 /*client profile*/
 /*vertical bar*/
 .wrapper-gp {
-  height: 800px;
+  height: 100%;
 }
 
 .nav-2 {
   width: 200px;
-  float: left;
-  left: 0px;
-  top: 0px;
   background: #343435;
   height: 100%;
+  position: fixed;
 }
 
 .nav-2 ul {
@@ -578,7 +580,13 @@ red {
   border: 1px solid #ca3d6d;
   color: #fff;
   padding: 5px;
+  transition: 0s;
 }
+
+.margin-lft {
+  margin-left: 200px;
+}
+
 /*vertical-bar*/
 /*client-group content*/
 .home-div-gp {
@@ -617,4 +625,7 @@ form .box-form-as {
   text-align: center;
 }
 
+.pad-lt {
+  padding-left: 10px;
+}
 /*client group content*/

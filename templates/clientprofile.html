@@ -7,7 +7,7 @@
     <div class="btn-row">
       <a href="{% url 'micro_admin:editclient' client.id %}"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
       <a href="#"><button><i class="fa fa-location-arrow padd"></i>Transfer Client</button></a>
-      <a href="#"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
+      <a href="{% url 'micro_admin:updateclientprofile' client.id %}"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
       {% if user.is_admin %}
       <a href="{% url 'micro_admin:deleteclient' client.id %}"><button><i class="fa fa-trash-o padd"></i>Delete</button></a>
       {% endif %}
@@ -16,8 +16,8 @@
     <div class="clr-div">
       <div class="img-div">
         <h3>{{ client.first_name }}</h3>
-        <img  /><br /><br />
-        <a href="#">View client Signature</a>
+        <img src="/{{ client.photo }}/" alt="Client Photo" /><br /><br />
+        <img src="/{{client.signature}}/" style="width:101px; height:35px; margin-top:0px;" alt="Client signature" />
         <br clear="all" />
       </div>
       <div class="details-div">

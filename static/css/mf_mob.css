@@ -83,7 +83,7 @@
     float: left;
     background: #343435;
     height: auto;
-    position: relative;
+    position: fixed;
   }
 
   .tog-btn {

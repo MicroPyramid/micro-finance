@@ -4,24 +4,25 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel">
-    <div class="panel-heading">Update Profile</div>
+    <div class="panel-heading">{{ client.first_name }}</div>
     <div class="panel-body pb-pad">
-      <form class="form-horizontal" role="form">
+      <form id="updateclientprofileform" enctype="multipart/form-data" class="form-horizontal" role="form" action="{% url 'micro_admin:updateclientprofile' client.id %}" method="post" >
+        {% csrf_token %}
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-4 control-label">Upload Image</label>
           <div class="col-sm-8">
-            <button class="upl-img"><i class="fa fa-folder-open-o padd"></i>Browse</button>
+            <input type="file" accept="image/*" name="photo" />
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-4 control-label">Upload Signature</label>
           <div class="col-sm-8">
-            <button class="upl-img"><i class="fa fa-folder-open-o padd"></i>Browse</button>
+            <input type="file" accept="image/*"  name="signature"/>
           </div>
         </div>
         <div class="form-group btns">
           <button class="submit-btn"><i class="fa fa-check padd"></i>Submit</button>
-          <button class="cancel-btn"><i class="fa fa-times padd"></i>Cancel</button>
+          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
         </div>
       </form>
     </div>

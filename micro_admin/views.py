@@ -97,13 +97,14 @@ def branch_profile(request,branch_id):
 
 def view_branch(request):
     branch_list = Branch.objects.all()
-    return render(request,"viewbranch.html",{"branch_list":branch_list })
+    return render(request,"viewbranch.html",{"branch_list":branch_list})
 
 
 def delete_branch(request,branch_id):
     branch = Branch.objects.get(id=branch_id)
+    branch_list = Branch.objects.all()
     branch.delete()
-    return HttpResponse("Deleted Branch Profile")
+    return render(request,"viewbranch.html", {"branch_list":branch_list})
 
 
 def create_client(request):
@@ -182,10 +183,30 @@ def edit_client(request,client_id):
             return HttpResponse(json.dumps(data))
 
 
+def update_clientprofile(request,client_id):
+    if request.method == "GET":
+        client = Client.objects.get(id=client_id)
+        return render(request,"updateclientprofile.html",{"client":client, "client_id":client_id})
+    else:
+        client = Client.objects.get(id=client_id)
+        client.photo=request.FILES.get("photo")
+        client.signature = request.FILES.get("signature")
+        client.save()
+        print request.FILES.get("photo")
+        return HttpResponseRedirect('/clientprofile/'+client_id+'/')
+
+
+def view_client(request):
+    branch_list = Branch.objects.all()
+    client_list = Client.objects.all()
+    return render(request,"viewclient.html",{"branch_list":branch_list, "client_list":client_list})
+
+
 def delete_client(request,client_id):
     client = Client.objects.get(id=client_id)
+    client_list = Client.objects.all()
     client.delete()
-    return HttpResponse("Deleted client Profile")
+    return render(request,"viewclient.html", {"client_list":client_list})
 
 
 def create_user(request):
@@ -300,6 +321,7 @@ def group_profile(request, group_id):
     staff = group.staff.all()
     clients_count = group.clients.all().count()
     return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count, "staff":staff})
+
 
 def assign_staff_to_group(request, group_id):
     if request.method == "GET":

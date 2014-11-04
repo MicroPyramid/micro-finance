@@ -18,10 +18,12 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^groupprofile/(?P<group_id>\d+)/$', 'group_profile', name='groupprofile'),
     url(r'^userslist/$', 'users_list', name='userslist'),
     url(r'^viewbranch/$', 'view_branch', name='viewbranch'),
+    url(r'^viewclient/$', 'view_client', name='viewclient'),
     url(r'^deletebranch/(?P<branch_id>\d+)/$', 'delete_branch', name='deletebranch'),
     url(r'^deleteuser/(?P<user_id>\d+)/$', 'delete_user', name='deleteuser'),
     url(r'^deleteclient/(?P<client_id>\d+)/$', 'delete_client', name='deleteclient'),
     url(r'^assignstaff/(?P<group_id>\d+)/$', 'assign_staff_to_group', name='assignstaff'),
+    url(r'^updateclientprofile/(?P<client_id>\d+)/$','update_clientprofile',name='updateclientprofile'),
     url(r'^logout/$', 'user_logout', name="logout"),
 
 )
