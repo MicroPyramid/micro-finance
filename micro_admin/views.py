@@ -4,7 +4,7 @@ from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
 from micro_admin.models import User, Branch, Group, Client
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm
 import datetime
 
 def index(request):
@@ -259,9 +259,9 @@ def edit_group(request, group_id):
 def group_profile(request, group_id):
     group = Group.objects.get(id=group_id)
     clients_list = group.clients.all()
-    staff = group.staff.all()
     clients_count = group.clients.all().count()
-    return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count, "staff":staff})
+    return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
+
 
 def assign_staff_to_group(request, group_id):
     if request.method == "GET":
@@ -272,7 +272,63 @@ def assign_staff_to_group(request, group_id):
         staff_id = request.POST.get("staff")
         user = User.objects.get(id=staff_id)
         group = Group.objects.get(id=group_id)
-        group.staff.add(user)
+        group.staff = user
         group.save()
         data = {"error":False, "group_id":group.id}
         return HttpResponse(json.dumps(data))
+
+
+def addmembers_to_group(request, group_id):
+    if request.method == "GET":
+        group = Group.objects.get(id=group_id)
+        clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
+        return render(request, "addmember.html", {"group":group, "clients_list":clients_list})
+    else:
+        addmember_form = AddMemberForm(request.POST)
+        if addmember_form.is_valid():
+            group = Group.objects.get(id=group_id)
+            clients = request.POST.getlist("clients")
+            for client in clients:
+                client = Client.objects.get(id=client)
+                group.clients.add(client)
+                group.save()
+                client.status = "Assigned"
+                client.save()
+            data = {"error":False, "group_id":group.id}
+            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error":True, "message":addmember_form.errors}
+            return HttpResponse(json.dumps(data))
+
+
+def viewmembers_under_group(request, group_id):
+    group = Group.objects.get(id=group_id)
+    clients_list = group.clients.all()
+    clients_count = group.clients.all().count()
+    return render(request, "viewmembers.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
+
+
+def groups_list(request):
+    groups_list = Group.objects.all()
+    return render(request, "listofgroups.html", {"groups_list":groups_list})
+
+
+def delete_group(request, group_id):
+    group = Group.objects.get(id=group_id)
+    if group.staff and group.clients.all().count():
+        return HttpResponse("This group can't be deleted")
+    else:
+        if not group.staff and not group.clients.all().count():
+            print group.clients.all().count()
+            group.delete()
+            return HttpResponse("Group deleted suceefully")
+
+
+def removemembers_from_group(request, group_id, client_id):
+    group = Group.objects.get(id=group_id)
+    client = Client.objects.get(id=client_id)
+    group.clients.remove(client)
+    group.save()
+    clients_list = group.clients.all()
+    clients_count = group.clients.all().count()
+    return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})

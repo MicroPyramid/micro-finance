@@ -125,7 +125,7 @@ class Group(models.Model):
     activation_date = models.DateField()
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
-    staff = models.ManyToManyField(User, null=True, blank=True)
+    staff = models.ForeignKey(User, null=True, blank=True)
     clients = models.ManyToManyField(Client, null=True, blank=True)
     status = models.CharField(max_length=50, default="UnAssigned")
 

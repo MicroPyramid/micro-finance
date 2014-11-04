@@ -13,33 +13,11 @@
       <form class="form-horizontal" role="form">
       <!--div 1 0f form-->
       <div class="box-form">
-        <div class="form-group grp-view">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Branch Name :</label><span class="col-lg-6 mar-top">{{ group.branch.name }}</span>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Account Number :</label><span class="col-lg-6 mar-top">{{ group.account_number }}</span>
-        </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Members :</label><span class="col-lg-6 mar-top">{{ clients_count }}</span>
         </div>
       </div>
       <!--div 1 of fomr ends above-->
-      <!--div 2 of form starts below-->
-      <div class="box-form">
-        <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Activation Date :</label><span class="col-lg-6 mar-top">{{ group.activation_date }}</span>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Staff :</label>
-          <span class="col-lg-6 mar-top">
-          {% if group.staff.first_name %}
-          {{ group.staff.first_name }}
-          {% else %}
-          <a href="{% url 'micro_admin:assignstaff' group.id %}" title="Assign Staff">UnAssigned</a>
-          {% endif %}
-          </span>
-        </div>
-      </div>
       <br clear="all" />
       <div class="hg-table">
         <div class="table-responsive">
@@ -49,6 +27,8 @@
                 <th>Name</th>
                 <th>A/C Number</th>
                 <th>Status</th>
+                <th>Role</th>
+                <th>Branch Name</th>
                 {% if user.is_admin %}
                 <th>Delete</th>
                 {% endif %}
@@ -64,9 +44,12 @@
                 {% else %}
                 <td><i class="fa fa-square red padd"></i>InActive</td>
                 {% endif %}
+                <td>{{ client.client_role }}</td>
+                <td>{{ client.branch.name }}</td>
                 {% if user.is_admin %}
                 <td class="anchr-trash"><a href="{% url 'micro_admin:removemember' group.id client.id %}"><i class="fa fa-trash-o trash-icon"></i></a></td>
                 {% endif %}
+
               </tr>
               {% endfor %}
             </tbody>

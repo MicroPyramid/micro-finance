@@ -118,7 +118,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default=b'UnAssigned', max_length=50)),
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
                 ('clients', models.ManyToManyField(to='micro_admin.Client', null=True, blank=True)),
-                ('staff', models.ManyToManyField(to=settings.AUTH_USER_MODEL, null=True, blank=True)),
+                ('staff', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
             },

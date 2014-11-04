@@ -6,8 +6,8 @@
     <li>
       <a href="#" class="mem"><i class="fa fa-users padd"></i>Members<span><i class="fa fa-caret-down"></i></span></a>
       <ul class="mem-drop">
-        <li><a href="#"><i class="fa fa-plus padd"></i>Add New Member</a></li>
-        <li><a href="#"><i class="fa fa-eye padd"></i>View Members</a></li>
+        <li><a href="{% url 'micro_admin:addmember' group.id %}"><i class="fa fa-plus padd"></i>Add New Member</a></li>
+        <li><a href="{% url 'micro_admin:viewmembers' group.id %}"><i class="fa fa-eye padd"></i>View Members</a></li>
       </ul>
     </li>
     <li>
@@ -21,11 +21,17 @@
         </li>
       </ul>
     </li>
-    <li><a href="#"><i class="fa fa-user padd"></i>Assign Staff</a></li>
+    <li>
+    {% if group.staff %}
+      <a href="{% url 'micro_admin:assignstaff' group.id %}"><i class="fa fa-user padd"></i>Re-Assign Staff</a>
+    {% else %}
+      <a href="{% url 'micro_admin:assignstaff' group.id %}"><i class="fa fa-user padd"></i>Assign Staff</a>
+    {% endif %}
+    </li>
     <li>
       <a href="#" class="more"><i class="fa fa-plus padd"></i>More<span><i class="fa fa-caret-down"></i></span></a>
       <ul class="more-drop">
-        <li><a href="#"><i class="fa fa-users padd"></i>Group Profile</a></li>
+        <li><a href="{% url 'micro_admin:groupprofile' group.id %}"><i class="fa fa-users padd"></i>Group Profile</a></li>
         <li><a href="#"><i class="fa fa-times padd"></i>Close</a></li>
       </ul>
     </li>
