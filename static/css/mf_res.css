@@ -123,4 +123,12 @@
   .wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div {
     width: 100%;
   }
+
+  .home-div-gp {
+    position: relative;
+    height: auto;
+    margin-top: 40px;
+    float: left;
+    width: 85%;
+  }
 }

@@ -7,7 +7,7 @@
 }
 
 .menu-outer:hover .bar {
-  background: rgba(01,90,90,0.6);
+  background: rgba(66,59,51,0.6);
 }
 
 .menu-outer > nav ul {
@@ -49,7 +49,7 @@ html, body {
 }
 
 .menu-outer:hover {
-  background: rgba(01,90,90,0.6);
+  background: rgba(66,59,51,0.6);
   left: 0;
   margin-left: 0;
   -webkit-transform: rotate(0deg);

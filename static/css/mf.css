@@ -500,7 +500,7 @@ input[type=radio], input[type=checkbox] {
   margin: 30px 10px;
 }
 
-red {
+.red {
   color: #f40c0c;
 }
 
@@ -525,9 +525,10 @@ red {
 
 .nav-2 {
   width: 200px;
-  background: #343435;
+  background: #423b33;
   height: 100%;
   position: fixed;
+  z-index: 2;
 }
 
 .nav-2 ul {
@@ -545,7 +546,7 @@ red {
 
 .nav-2 ul li a {
   text-decoration: none;
-  color: #a49f9f;
+  color: #ddd;
   display: block;
   padding: 15px 0px;
   padding-left: 15px;
@@ -576,8 +577,8 @@ red {
 
 .toggle-btn {
   float: left;
-  background: #ca3d6d;
-  border: 1px solid #ca3d6d;
+  background: #ff6138;
+  border: 1px solid #ff6138;
   color: #fff;
   padding: 5px;
   transition: 0s;
@@ -627,5 +628,15 @@ form .box-form-as {
 
 .pad-lt {
   padding-left: 10px;
+}
+
+.body-row-tb tr .a-color a {
+  color: #428bca;
+  text-decoration: none;
+}
+
+.hg-table table tbody .anchr-trash a {
+  text-decoration: none;
+  color: #fff;
 }
 /*client group content*/

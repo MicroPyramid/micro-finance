@@ -31,7 +31,7 @@
               <td><i class="fa fa-circle red pad-lt"></i></td>
               {% endif %}
               {% if user.is_admin %}
-              <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}" style="color:#000"><i class="fa fa-trash-o trash-icon"></i></a></td>
+              <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-trash-o trash-icon"></i></a></td>
               {% endif %}
             </tr>
             {% endfor %}

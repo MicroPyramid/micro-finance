@@ -1,0 +1,84 @@
+{% extends 'groupbase.html' %}
+{% block groupstage %}
+<!--content goes below-->
+<div class="home-div-gp">
+  <div class="panel panel-default panel-hdg">
+    <div class="panel-heading">
+      <h3 class="panel-title">Add Members to: {{ group.name }}</h3>
+    </div>
+    <div class="panel-body">
+      <!--panel body starts above-->
+      <form id="addmembersform" class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <!--div 1 0f form-->
+        <br clear="all" />
+        <div class="hg-table">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Select</th>
+                  <th>Name</th>
+                  <th>A/c Number</th>
+                  <th>Status</th>
+                  <th>Role</th>
+                  <th>Branch</th>
+                </tr>
+              </thead>
+              <tbody class="color-back-tb">
+                {% for client in clients_list %}
+                <tr>
+                  <td><input type="checkbox" name="clients" value="{{ client.id }}"/></td>
+                  <td>{{ client.first_name }}</td>
+                  <td>{{ client.account_number }}</td>
+                  {% if client.is_active %}
+                  <td><i class="fa fa-square green padd"></i>Active</td>
+                  {% else %}
+                  <td><i class="fa fa-square red padd">InActive</i></td>
+                  {% endif %}
+                  <td>{{ client.client_role }}</td>
+                  <td>{{ client.branch.name }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <p id="clientserror"></p>
+            <div><input type="hidden"  id="group_id" value="{{group.id}}" style="dispaly:none;"></div>
+          </div>
+        </div>
+    </div>
+    <div class="btns-row" style="margin-top: -10px;">
+    <div class="form-group btns align-btns">
+    <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+    <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+    </div>
+    </div>
+    </form>
+    <!--panel body ends below crct-->
+  </div>
+</div>
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#addmembersform').submit(function(e) {
+      e.preventDefault();
+      $.post('/addmember/'+$('#group_id').val()+'/', $('#addmembersform').serialize(), function(data) {
+        if (data.error) {
+          $("span.error").remove();
+          if (data.message.clients) {
+            $("#clientserror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.clients + "</span>");
+          }
+        }
+        else {
+          window.location = '/groupprofile/'+data.group_id+'/';
+        }
+      }, "json");
+    });
+    $('.cancel-btn').click(function(e){
+      $("span.error").remove();
+    });
+  });
+</script>
+{% endblock %}
