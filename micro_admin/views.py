@@ -309,12 +309,6 @@ def create_group(request):
             return HttpResponse(json.dumps(data))
 
 
-def edit_group(request, group_id):
-    if request.method == "GET":
-        group = Group.objects.get(id=group_id)
-        return render(request, "editgroup.html", {"group":group, "group_id":group.id})
-
-
 def group_profile(request, group_id):
     group = Group.objects.get(id=group_id)
     clients_list = group.clients.all()
@@ -388,6 +382,8 @@ def removemembers_from_group(request, group_id, client_id):
     client = Client.objects.get(id=client_id)
     group.clients.remove(client)
     group.save()
+    client.status = "UnAssigned"
+    client.save()
     clients_list = group.clients.all()
     clients_count = group.clients.all().count()
     return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})

@@ -10,8 +10,9 @@ $(document).ready(function (e) {
   //text-box focus ends above
   //login form replace div
   $("#frgt-btn").click(function (e) {
-    $(".login-form").css("display", "none")
-    $(".reset-form").css("display", "block")
+    $(".login-form").css("display", "none");
+    $(".reset-form").css("display", "block");
+
   });
   //login form replace div
   //date picker
@@ -41,56 +42,82 @@ $(document).ready(function (e) {
   });
   //datepicker
   //slide togle
-  $(".anc1").click(function () {
+  $(".anc1").unbind('click').bind("click", function () {
     $("#tog-div1").slideToggle('slow', function () {
 
+      return false;
     });
+    return false;
   });
-  $(".anc2").click(function () {
+
+  $(".anc2").unbind('click').bind("click", function () {
     $("#tog-div2").slideToggle('slow', function () {
-
+      return false;
     });
+    return false;
   });
-  $(".anc3").click(function () {
+  $(".anc3").unbind('click').bind("click", function () {
     $("#tog-div3").slideToggle('slow', function () {
-
+      return false;
     });
+    return false;
   });
-  $(".anc4").click(function () {
+  $(".anc4").unbind('click').bind("click", function () {
     $("#tog-div4").slideToggle('slow', function () {
-
+      return false;
     });
+    return false;
   });
   //slide togle
   //vertical bar
-  $("#togg-btn").click(function (e) {
+  $("#togg-btn").unbind('click').bind("click", function () {
     if ($("#togg-btn").hasClass("margin-lft")) {
       $(".nav-2").animate({
         left: '-200px'
       });
       $("#togg-btn").removeClass("margin-lft");
+      return false;
     } else {
       $(".nav-2").animate({
         left: '0px'
       });
       $("#togg-btn").addClass("margin-lft");
       $("#togg-btn").css("transition", "0.5s");
+      return false;
     }
+    return false;
   });
-  $(".mem").click(function () {
-    $(".mem-drop").slideToggle('slow', function () {});
+  $(".mem").unbind('click').bind("click", function () {
+    console.log("click")
+    $(".mem-drop").slideToggle('slow', function () {
+      console.log("toggle")
+      return false;
+    });
+    return false;
   });
-  $(".acc").click(function () {
-    $(".acc-drop").slideToggle('slow', function () {});
+  $(".acc").unbind('click').bind("click", function () {
+    $(".acc-drop").slideToggle('slow', function () {
+      return false;
+    });
+    return false;
   });
-  $(".sav").click(function () {
-    $(".sav-drop").slideToggle('slow', function () {});
+  $(".sav").unbind('click').bind("click", function () {
+    $(".sav-drop").slideToggle('slow', function () {
+      return false;
+    });
+    return false;
   });
-  $(".loan").click(function () {
-    $(".loan-drop").slideToggle('slow', function () {});
+  $(".loan").unbind('click').bind("click", function () {
+    $(".loan-drop").slideToggle('slow', function () {
+      return false;
+    });
+    return false;
   });
-  $(".more").click(function () {
-    $(".more-drop").slideToggle('slow', function () {});
+  $(".more").unbind('click').bind("click", function () {
+    $(".more-drop").slideToggle('slow', function () {
+      return false;
+    });
+    return false;
   });
   //vertical bar
   //ready function ended below
