@@ -18,9 +18,7 @@
               <th>Members Count</th>
               <th>Status</th>
               {% if user.is_admin %}
-              <th>Edit/Delete</th>
-              {% else %}
-              <th>Edit</th>
+              <th>Delete</th>
               {% endif %}
             </tr>
           </thead>
@@ -38,7 +36,6 @@
               <td><i class="fa fa-circle red pad-lt"></i></td>
               {% endif %}
               <td>
-                <a href="#"><i class="fa fa-pencil-square-o edit-icon"></i></a>
                 {% if user.is_admin %}
                 <a id="deletegroup" href="{% url 'micro_admin:deletegroup' group.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
                 {% endif %}
