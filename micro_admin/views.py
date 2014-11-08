@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings
 from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm
 import datetime
 
@@ -313,7 +313,11 @@ def group_profile(request, group_id):
     group = Group.objects.get(id=group_id)
     clients_list = group.clients.all()
     clients_count = group.clients.all().count()
-    return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
+    if GroupMeetings.objects.filter(group_id=group.id):
+        latest_group_meeting = GroupMeetings.objects.filter(group_id=group.id).order_by('-id')[0]
+        return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count, "latest_group_meeting":latest_group_meeting})
+    else:
+        return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
 
 
 def assign_staff_to_group(request, group_id):
@@ -384,6 +388,27 @@ def removemembers_from_group(request, group_id, client_id):
     group.save()
     client.status = "UnAssigned"
     client.save()
-    clients_list = group.clients.all()
-    clients_count = group.clients.all().count()
-    return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
+    return HttpResponseRedirect('/groupprofile/'+group_id+'/')
+
+
+def group_meetings(request, group_id):
+    group = Group.objects.get(id=group_id)
+    return HttpResponse("List of Group of Meetings")
+
+
+def add_group_meeting(request, group_id):
+    if request.method == "GET":
+        group = Group.objects.get(id=group_id)
+        if GroupMeetings.objects.filter(group_id=group.id):
+            latest_group_meeting = GroupMeetings.objects.filter(group_id=group.id).order_by('-id')[0]
+            return render(request, "add_group_meeting.html", {"group":group, "latest_group_meeting":latest_group_meeting})
+        else:
+            return render(request, "add_group_meeting.html", {"group":group})
+    else:
+        group = Group.objects.get(id=group_id)
+        datestring_format = datetime.datetime.strptime(request.POST.get("meeting_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+        dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+        meeting_date = dateconvert
+        meeting_time = request.POST.get("meeting_time")
+        group_meeting = GroupMeetings.objects.create(meeting_date=meeting_date, meeting_time=meeting_time, group=group)
+        return HttpResponseRedirect('/groupprofile/'+group_id+'/')

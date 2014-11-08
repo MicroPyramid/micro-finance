@@ -124,6 +124,18 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
+        migrations.CreateModel(
+            name='GroupMeetings',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('meeting_date', models.DateField()),
+                ('meeting_time', models.CharField(max_length=20)),
+                ('group', models.ForeignKey(to='micro_admin.Group')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
         migrations.AddField(
             model_name='centers',
             name='groups',

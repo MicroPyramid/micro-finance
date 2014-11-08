@@ -28,6 +28,8 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^viewmembers/(?P<group_id>\d+)/$', 'viewmembers_under_group', name='viewmembers'),
     url(r'^removemember/(?P<group_id>\d+)/(?P<client_id>\d+)/$', 'removemembers_from_group', name='removemember'),
     url(r'^updateclientprofile/(?P<client_id>\d+)/$','update_clientprofile',name='updateclientprofile'),
+    url(r'^groupmeetings/(?P<group_id>\d+)/$','group_meetings',name='groupmeetings'),
+    url(r'^addgroupmeeting/(?P<group_id>\d+)/$','add_group_meeting',name='addgroupmeeting'),
     url(r'^logout/$', 'user_logout', name="logout"),
 
 )

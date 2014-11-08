@@ -11,14 +11,14 @@
         <!--div 1 0f form-->
         <div class="box-form">
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">First Name<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">First Name</label>
             <div class="col-sm-8">
               <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="first_name" value="{{ client.first_name }}" readonly >
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Last Name<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Last Name</label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="last_name" value="{{ client.last_name }}" readonly>
             </div>
@@ -32,7 +32,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Branch<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
             <div class="col-sm-8">
               <select class="text-box wid-form" name="branch" readonly>
                 <option value="{{ client.branch }}" selected="selected">{{ client.branch.name }}</option>
@@ -55,19 +55,19 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Joined Date<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Joined Date</label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="date-picker-cc" name="joined_date" value="{{ client.joined_date }}" readonly>
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Date Of Birth<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Date Of Birth</label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="datepicker-dob" name="date_of_birth" value="{{ client.date_of_birth }}" readonly>
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Account Type<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Account Type</label>
             <div class="col-sm-8">
               <select class="text-box wid-form" name="account_type" required="True" readonly>
                 <option value="{{ client.account_type }}" selected="selected">{{ client.account_type }}</option>
@@ -75,7 +75,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Account Number<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Account Number</label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="account_number" value="{{ client.account_number }}" readonly>
             </div>
@@ -105,7 +105,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Email</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="email" value="{{ client.email }}" id="inputEmail3">
+              <input type="email" class="text-box wid-form" name="email" value="{{ client.email }}" id="inputEmail3">
             </div>
           </div>
           <div class="form-group">
