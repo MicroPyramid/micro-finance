@@ -137,3 +137,9 @@ class Centers(models.Model):
     branch = models.ForeignKey(Branch)
     groups = models.ManyToManyField(Group, null=True,blank=True)
 
+
+class GroupMeetings(models.Model):
+    meeting_date = models.DateField()
+    meeting_time = models.CharField(max_length=20)
+    group = models.ForeignKey(Group)
+

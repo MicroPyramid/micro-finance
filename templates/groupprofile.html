@@ -39,6 +39,9 @@
           {% endif %}
           </span>
         </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Meeting Date :</label><span class="col-lg-6 mar-top">{{ latest_group_meeting.meeting_date }}<a href="{% url 'micro_admin:addgroupmeeting' group.id %}" style="text-decoration:none; color:#fff; margin-left:3px;"><i class="fa fa-pencil-square-o trash-icon"></i></a></span>
+        </div>
       </div>
       <br clear="all" />
       <div class="hg-table">
