@@ -118,7 +118,7 @@ def create_client(request):
             first_name = request.POST.get("first_name")
             last_name = request.POST.get("last_name")
             email = request.POST.get("email")
-            account_type = request.POST.get("account_type")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
             account_number = request.POST.get("account_number")
             blood_group = request.POST.get("blood_group")
             gender = request.POST.get("gender")
@@ -139,7 +139,7 @@ def create_client(request):
             datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
             dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             joined_date = dateconvert
-            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, account_type=account_type, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
+            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, created_by=created_by, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
             data = {"error":False, "client_id":client.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -295,13 +295,13 @@ def create_group(request):
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
             name = request.POST.get("name")
-            account_type = request.POST.get("account_type")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
             account_number = request.POST.get("account_number")
             datestring_format = datetime.datetime.strptime(request.POST.get("activation_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
             dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             activation_date = dateconvert
             branch = Branch.objects.get(id=request.POST.get("branch"))
-            group = Group.objects.create(name=name, account_type=account_type, account_number=account_number, activation_date=activation_date, branch=branch)
+            group = Group.objects.create(name=name, created_by=created_by, account_number=account_number, activation_date=activation_date, branch=branch)
             data = {"error":False, "group_id":group.id}
             return HttpResponse(json.dumps(data))
         else:

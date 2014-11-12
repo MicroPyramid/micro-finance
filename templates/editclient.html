@@ -61,17 +61,9 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Date Of Birth</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Annual Income<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="datepicker-dob" name="date_of_birth" value="{{ client.date_of_birth }}" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Account Type</label>
-            <div class="col-sm-8">
-              <select class="text-box wid-form" name="account_type" required="True" readonly>
-                <option value="{{ client.account_type }}" selected="selected">{{ client.account_type }}</option>
-              </select>
+              <input type="text" class="text-box wid-form" name="annual_income" required="True" value="{{ client.annual_income }}" id="inputEmail3">
             </div>
           </div>
           <div class="form-group">
@@ -94,12 +86,6 @@
             <label for="inputEmail3" class="col-sm-4 control-label">Blood Group</label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" name="blood_group" value="{{ client.blood_group }}" id="inputEmail3">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Annual Income<span>*</span></label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="annual_income" required="True" value="{{ client.annual_income }}" id="inputEmail3">
             </div>
           </div>
           <div class="form-group">

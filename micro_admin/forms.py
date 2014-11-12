@@ -28,14 +28,14 @@ class GroupForm(forms.ModelForm):
 
     class Meta:
         model = Group
-        fields = ["name", "account_type", "account_number", "activation_date", "branch"]
+        fields = ["name", "account_number", "activation_date", "branch"]
 
 
 class ClientForm(forms.ModelForm):
 
     class Meta:
         model = Client
-        fields = ["first_name", "last_name", "account_type", "date_of_birth", "joined_date", "branch", "account_number", "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
+        fields = ["first_name", "last_name", "date_of_birth", "joined_date", "branch", "account_number", "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
 
 
 class AddMemberForm(forms.ModelForm):
