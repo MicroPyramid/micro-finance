@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount
 from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm
 import datetime
 
@@ -411,4 +411,26 @@ def add_group_meeting(request, group_id):
         meeting_date = dateconvert
         meeting_time = request.POST.get("meeting_time")
         group_meeting = GroupMeetings.objects.create(meeting_date=meeting_date, meeting_time=meeting_time, group=group)
+        return HttpResponseRedirect('/groupprofile/'+group_id+'/')
+
+
+def group_savings_application(request, group_id):
+    if request.method == "GET":
+        group = Group.objects.get(id=group_id)
+        count = SavingsAccount.objects.all().count()
+        account_no = "%s%s%d" % ("00B00",group.branch.id,count+1)
+        return render(request, "group_savings_application.html", {"group":group, "account_no":account_no})
+    else:
+        group = Group.objects.get(id=group_id)
+        account_no = request.POST.get("account_no")
+        created_by = User.objects.get(username=request.POST.get("created_by"))
+        datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+        dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+        opening_date = dateconvert
+        min_required_balance = request.POST.get("min_required_balance")
+        annual_interest_rate = request.POST.get("annual_interest_rate")
+        savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
+        if request.POST.get("savings_balance"):
+            savings_account.savings_balance=request.POST.get("savings_balance")
+            savings_account.save()
         return HttpResponseRedirect('/groupprofile/'+group_id+'/')

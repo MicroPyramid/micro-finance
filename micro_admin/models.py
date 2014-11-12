@@ -25,6 +25,7 @@ CLIENT_ROLES = (
         ('SecondLeader', 'SecondLeader'),
         ('GroupMember', 'GroupMember')
     )
+
 ACCOUNT_STATUS = (
         ('Applied', 'Applied'),
         ('Withdrawn', 'Withdrawn'),
@@ -160,5 +161,5 @@ class SavingsAccount(models.Model):
     min_required_balance = models.DecimalField(max_digits=5, decimal_places=2)
     savings_balance = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
-    total_deposits = models.DecimalField(max_digits=19, decimal_places=6)
-    total_withdrawals = models.DecimalField(max_digits=19, decimal_places=6)
+    total_deposits = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    total_withdrawals = models.DecimalField(max_digits=19, decimal_places=6, default=0)
