@@ -25,7 +25,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Gender<span>*</span></label>
             <div class="col-sm-8 mar-top-rad">
-              <input type="radio" name="gender" value="M">Male &nbsp&nbsp
+              <input type="radio" name="gender" value="M">Male &nbsp;&nbsp;
               <input type="radio" name="gender" value="F">Female
               <p id="clientgendererror"></p>
             </div>
@@ -69,11 +69,10 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Created By<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" value="{{ user.username }}" name="created_by" required="True">
-              <p id="selectcreatedbyerror"></p>
+              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ user.username }}" name="created_by" readonly>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Account Number<span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="account_number" required="True">
@@ -184,9 +183,6 @@
           }
           if (data.message.client_role) {
             $("#selectclientroleerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.client_role + "</span>");
-          }
-          if (data.message.created_by) {
-            $("#selectcreatedbyerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.created_by + "</span>");
           }
         }
         else {

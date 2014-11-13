@@ -27,12 +27,13 @@ CLIENT_ROLES = (
     )
 
 ACCOUNT_STATUS = (
-       ('Applied', 'Applied'),
-       ('Withdrawn', 'Withdrawn'),
-       ('Approved', 'Approved'),
-       ('Rejected', 'Rejected'),
-       ('Closed', 'Closed'),
-   )
+
+        ('Applied', 'Applied'),
+        ('Withdrawn', 'Withdrawn'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+        ('Closed', 'Closed'),
+    )
 
 
 class Branch(models.Model):
@@ -128,7 +129,7 @@ class Client(models.Model):
 
 class Group(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    account_type = models.CharField(choices=ACCOUNT_TYPES, max_length=20)
+    created_by = models.ForeignKey(User, related_name="group_created_by")
     account_number = models.CharField(max_length=50, unique=True)
     activation_date = models.DateField()
     is_active = models.BooleanField(default=True)

@@ -28,7 +28,7 @@ class GroupForm(forms.ModelForm):
 
     class Meta:
         model = Group
-        fields = ["name", "account_type", "account_number", "activation_date", "branch"]
+        fields = ["name", "account_number", "activation_date", "branch"]
 
 
 class ClientForm(forms.ModelForm):
@@ -57,3 +57,10 @@ class ClientSavingsAccountForm(forms.ModelForm):
     class Meta:
         model = SavingsAccount
         fields = ["account_no", "opening_date", "min_required_balance", "annual_interest_rate", "savings_balance"]
+
+
+class GroupSavingsAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = SavingsAccount
+        fields = ["account_no", "opening_date", "min_required_balance", "savings_balance", "annual_interest_rate"]

@@ -111,13 +111,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=200)),
-                ('account_type', models.CharField(max_length=20, choices=[(b'SavingsAccount', b'SavingsAccount'), (b'LoanAccount', b'LoanAccount')])),
                 ('account_number', models.CharField(unique=True, max_length=50)),
                 ('activation_date', models.DateField()),
                 ('is_active', models.BooleanField(default=True)),
                 ('status', models.CharField(default=b'UnAssigned', max_length=50)),
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
                 ('clients', models.ManyToManyField(to='micro_admin.Client', null=True, blank=True)),
+                ('created_by', models.ForeignKey(related_name='group_created_by', to=settings.AUTH_USER_MODEL)),
                 ('staff', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
