@@ -4,7 +4,7 @@ from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
 from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm
 import datetime
 
 
@@ -376,7 +376,6 @@ def delete_group(request, group_id):
         return HttpResponse("This group can't be deleted")
     else:
         if not group.staff and not group.clients.all().count():
-            print group.clients.all().count()
             group.delete()
             return HttpResponse("Group deleted suceefully")
 
@@ -421,16 +420,27 @@ def group_savings_application(request, group_id):
         account_no = "%s%s%d" % ("00B00",group.branch.id,count+1)
         return render(request, "group_savings_application.html", {"group":group, "account_no":account_no})
     else:
-        group = Group.objects.get(id=group_id)
-        account_no = request.POST.get("account_no")
-        created_by = User.objects.get(username=request.POST.get("created_by"))
-        datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
-        dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-        opening_date = dateconvert
-        min_required_balance = request.POST.get("min_required_balance")
-        annual_interest_rate = request.POST.get("annual_interest_rate")
-        savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
-        if request.POST.get("savings_balance"):
-            savings_account.savings_balance=request.POST.get("savings_balance")
-            savings_account.save()
-        return HttpResponseRedirect('/groupprofile/'+group_id+'/')
+        group_savingsaccount_form = GroupSavingsAccountForm(request.POST)
+        if group_savingsaccount_form:
+            group = Group.objects.get(id=group_id)
+            account_no = request.POST.get("account_no")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
+            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            opening_date = dateconvert
+            min_required_balance = request.POST.get("min_required_balance")
+            annual_interest_rate = request.POST.get("annual_interest_rate")
+            savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
+            if request.POST.get("savings_balance"):
+                savings_account.savings_balance=request.POST.get("savings_balance")
+                savings_account.save()
+            return HttpResponseRedirect('/groupsavingsaccount/'+group_id+'/')
+        else:
+            return HttpResponse("Form is invalid")
+
+
+def group_savings_account(request, group_id):
+    group = Group.objects.get(id=group_id)
+    savings_account = SavingsAccount.objects.get(group=group)
+    return render(request, "group_savings_account.html", {"group":group, "savings_account":savings_account})
+

@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from micro_admin.models import Branch, User, Group, Client
+from micro_admin.models import Branch, User, Group, Client, SavingsAccount
 
 
 class BranchForm(forms.ModelForm):
@@ -50,3 +50,10 @@ class EditclientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ["client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
+
+
+class GroupSavingsAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = SavingsAccount
+        fields = ["account_no", "opening_date", "min_required_balance", "savings_balance", "annual_interest_rate"]
