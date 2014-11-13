@@ -3,8 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, ClientSavingsAccountForm
 import datetime
 
 
@@ -16,9 +16,7 @@ def index(request):
 
 def user_login(request):
     if request.method == "POST":
-        user_name = request.POST.get("username")
-        user_password = request.POST.get("password")
-        user = authenticate(username=user_name, password=user_password)
+        user = authenticate(username=request.POST.get("username"), password=request.POST.get("password"))
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
@@ -118,7 +116,7 @@ def create_client(request):
             first_name = request.POST.get("first_name")
             last_name = request.POST.get("last_name")
             email = request.POST.get("email")
-            account_type = request.POST.get("account_type")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
             account_number = request.POST.get("account_number")
             blood_group = request.POST.get("blood_group")
             gender = request.POST.get("gender")
@@ -139,7 +137,7 @@ def create_client(request):
             datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
             dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             joined_date = dateconvert
-            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, account_type=account_type, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
+            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, created_by=created_by, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
             data = {"error":False, "client_id":client.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -378,7 +376,7 @@ def delete_group(request, group_id):
         if not group.staff and not group.clients.all().count():
             print group.clients.all().count()
             group.delete()
-            return HttpResponse("Group deleted suceefully")
+            return HttpResponse("Group deleted successfully")
 
 
 def removemembers_from_group(request, group_id, client_id):
@@ -412,3 +410,44 @@ def add_group_meeting(request, group_id):
         meeting_time = request.POST.get("meeting_time")
         group_meeting = GroupMeetings.objects.create(meeting_date=meeting_date, meeting_time=meeting_time, group=group)
         return HttpResponseRedirect('/groupprofile/'+group_id+'/')
+
+
+def client_savings_application(request, client_id):
+    if request.method == "GET":
+        client = Client.objects.get(id=client_id)
+        count = SavingsAccount.objects.all().count()
+        account_no = "%s%s%d" % ("00B00", client.branch.id,count+1)
+        return render(request, "client_savings_application.html", {"client":client, "account_no":account_no})
+    else:
+        form = ClientSavingsAccountForm(request.POST)
+        if form.is_valid():
+            client = Client.objects.get(id=client_id)
+            account_no = request.POST.get("account_no")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
+            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            opening_date = dateconvert
+            min_required_balance = request.POST.get("min_required_balance")
+            annual_interest_rate = request.POST.get("annual_interest_rate")
+            savingsaccount = SavingsAccount.objects.create(account_no=account_no, client=client, status="Applied", created_by=created_by, opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
+            if request.POST.get("savings_balance"):
+                savingsaccount.savings_balance = request.POST.get("savings_balance")
+                savingsaccount.save()
+            return HttpResponseRedirect('/clientprofile/'+client_id+'/')
+        else:
+            print form.errors
+            return HttpResponse("Invalid Data")
+
+
+def client_savings_account(request,client_id):
+    client = Client.objects.get(id=client_id)
+    savingsaccount = SavingsAccount.objects.get(client=client)
+    return render(request, "client_savings_account.html", {"client":client, "savingsaccount":savingsaccount})
+
+
+def approve_savings(request,savingsaccount_id,client_id):
+    savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
+    savingsaccount.status = "Approved"
+    savingsaccount.save()
+    client_id = str(savingsaccount.client.id)
+    return HttpResponseRedirect('/clientsavingsaccount/'+client_id+'/')

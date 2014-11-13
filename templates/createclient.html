@@ -67,14 +67,10 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Account Type<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Created By<span>*</span></label>
             <div class="col-sm-8">
-              <select class="text-box wid-form" name="account_type" required="True">
-                <option>Select Account Type</option>
-                <option>SavingsAccount</option>
-                <option>LoanAccount</option>
-              </select>
-              <p id="selectaccounttypeerror"></p>
+              <input type="text" class="text-box wid-form" value="{{ user.username }}" name="created_by" required="True">
+              <p id="selectcreatedbyerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
@@ -189,8 +185,8 @@
           if (data.message.client_role) {
             $("#selectclientroleerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.client_role + "</span>");
           }
-          if (data.message.account_type) {
-            $("#selectaccounttypeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.account_type + "</span>");
+          if (data.message.created_by) {
+            $("#selectcreatedbyerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.created_by + "</span>");
           }
         }
         else {

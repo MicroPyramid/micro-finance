@@ -30,6 +30,9 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^updateclientprofile/(?P<client_id>\d+)/$','update_clientprofile',name='updateclientprofile'),
     url(r'^groupmeetings/(?P<group_id>\d+)/$','group_meetings',name='groupmeetings'),
     url(r'^addgroupmeeting/(?P<group_id>\d+)/$','add_group_meeting',name='addgroupmeeting'),
+    url(r'^clientsavingsapplication/(?P<client_id>\d+)/$', 'client_savings_application', name='clientsavingsapplication'),
+    url(r'^clientsavingsaccount/(?P<client_id>\d+)/$', 'client_savings_account', name='clientsavingsaccount'),
+    url(r'^approvesavings/(?P<savingsaccount_id>\d+)/(?P<client_id>\d+)/$', 'approve_savings', name='approvesavings'),
     url(r'^logout/$', 'user_logout', name="logout"),
 
 )

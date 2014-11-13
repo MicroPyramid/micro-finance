@@ -21,15 +21,15 @@
             <select class="text-box wid-form" name="staff" required="True">
               <option>Select Staff</option>
               {% for user in users_list %}
-                {% if group.staff %}
-                  {% ifequal user.id group.staff.id %}
-                    <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
-                  {% else %}
-                    <option value="{{ user.id }}">{{ user.first_name }}</option>
-                  {% endifequal %}
-                {% else %}
-                  <option value="{{ user.id }}">{{ user.first_name }}</option>
-                {% endif %}
+              {% if group.staff %}
+              {% ifequal user.id group.staff.id %}
+              <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
+              {% else %}
+              <option value="{{ user.id }}">{{ user.first_name }}</option>
+              {% endifequal %}
+              {% else %}
+              <option value="{{ user.id }}">{{ user.first_name }}</option>
+              {% endif %}
               {% endfor%}
             </select>
             <p id="stafferror"></p>

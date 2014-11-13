@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel">
+    <div class="panel-heading">Client Savings</div>
+    <div class="panel-body pb-pad">
+      <form  class="form-horizontal" role="form" method="post" action="{% url 'micro_admin:clientsavingsapplication' client.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Account Number</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="account_no" value="{{ account_no }}" id="inputEmail3" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Created By</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="created_by" value="{{ user.username }}" id="inputEmail3" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Opened On<span>*</span></label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="opening_date" id="date-picker-cc" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Minimum Balance<span>*</span></label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="min_required_balance" id="inputEmail3" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Savings Balance</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="savings_balance">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Annual Intrest Rate<span>*</span></label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="annual_interest_rate" required="True">
+          </div>
+        </div>
+        <div class="form-group btns">
+          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}
