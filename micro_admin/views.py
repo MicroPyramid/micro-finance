@@ -3,8 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm
 import datetime
 
 
@@ -118,7 +118,7 @@ def create_client(request):
             first_name = request.POST.get("first_name")
             last_name = request.POST.get("last_name")
             email = request.POST.get("email")
-            account_type = request.POST.get("account_type")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
             account_number = request.POST.get("account_number")
             blood_group = request.POST.get("blood_group")
             gender = request.POST.get("gender")
@@ -139,7 +139,7 @@ def create_client(request):
             datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
             dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             joined_date = dateconvert
-            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, account_type=account_type, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
+            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, created_by=created_by, account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
             data = {"error":False, "client_id":client.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -295,13 +295,13 @@ def create_group(request):
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
             name = request.POST.get("name")
-            account_type = request.POST.get("account_type")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
             account_number = request.POST.get("account_number")
             datestring_format = datetime.datetime.strptime(request.POST.get("activation_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
             dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             activation_date = dateconvert
             branch = Branch.objects.get(id=request.POST.get("branch"))
-            group = Group.objects.create(name=name, account_type=account_type, account_number=account_number, activation_date=activation_date, branch=branch)
+            group = Group.objects.create(name=name, created_by=created_by, account_number=account_number, activation_date=activation_date, branch=branch)
             data = {"error":False, "group_id":group.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -376,7 +376,6 @@ def delete_group(request, group_id):
         return HttpResponse("This group can't be deleted")
     else:
         if not group.staff and not group.clients.all().count():
-            print group.clients.all().count()
             group.delete()
             return HttpResponse("Group deleted suceefully")
 
@@ -412,3 +411,36 @@ def add_group_meeting(request, group_id):
         meeting_time = request.POST.get("meeting_time")
         group_meeting = GroupMeetings.objects.create(meeting_date=meeting_date, meeting_time=meeting_time, group=group)
         return HttpResponseRedirect('/groupprofile/'+group_id+'/')
+
+
+def group_savings_application(request, group_id):
+    if request.method == "GET":
+        group = Group.objects.get(id=group_id)
+        count = SavingsAccount.objects.all().count()
+        account_no = "%s%s%d" % ("00B00",group.branch.id,count+1)
+        return render(request, "group_savings_application.html", {"group":group, "account_no":account_no})
+    else:
+        group_savingsaccount_form = GroupSavingsAccountForm(request.POST)
+        if group_savingsaccount_form:
+            group = Group.objects.get(id=group_id)
+            account_no = request.POST.get("account_no")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
+            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            opening_date = dateconvert
+            min_required_balance = request.POST.get("min_required_balance")
+            annual_interest_rate = request.POST.get("annual_interest_rate")
+            savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
+            if request.POST.get("savings_balance"):
+                savings_account.savings_balance=request.POST.get("savings_balance")
+                savings_account.save()
+            return HttpResponseRedirect('/groupsavingsaccount/'+group_id+'/')
+        else:
+            return HttpResponse("Form is invalid")
+
+
+def group_savings_account(request, group_id):
+    group = Group.objects.get(id=group_id)
+    savings_account = SavingsAccount.objects.get(group=group)
+    return render(request, "group_savings_account.html", {"group":group, "savings_account":savings_account})
+

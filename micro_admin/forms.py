@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from micro_admin.models import Branch, User, Group, Client
+from micro_admin.models import Branch, User, Group, Client, SavingsAccount
 
 
 class BranchForm(forms.ModelForm):
@@ -28,14 +28,14 @@ class GroupForm(forms.ModelForm):
 
     class Meta:
         model = Group
-        fields = ["name", "account_type", "account_number", "activation_date", "branch"]
+        fields = ["name", "account_number", "activation_date", "branch"]
 
 
 class ClientForm(forms.ModelForm):
 
     class Meta:
         model = Client
-        fields = ["first_name", "last_name", "account_type", "date_of_birth", "joined_date", "branch", "account_number", "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
+        fields = ["first_name", "last_name", "date_of_birth", "joined_date", "branch", "account_number", "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
 
 
 class AddMemberForm(forms.ModelForm):
@@ -50,3 +50,10 @@ class EditclientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ["client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
+
+
+class GroupSavingsAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = SavingsAccount
+        fields = ["account_no", "opening_date", "min_required_balance", "savings_balance", "annual_interest_rate"]

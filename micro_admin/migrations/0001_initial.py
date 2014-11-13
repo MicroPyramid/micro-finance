@@ -80,7 +80,6 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=200)),
                 ('last_name', models.CharField(max_length=200)),
                 ('email', models.EmailField(max_length=255, null=True)),
-                ('account_type', models.CharField(max_length=20, choices=[(b'SavingsAccount', b'SavingsAccount'), (b'LoanAccount', b'LoanAccount')])),
                 ('account_number', models.CharField(unique=True, max_length=50)),
                 ('date_of_birth', models.DateField()),
                 ('blood_group', models.CharField(default=True, max_length=10, null=True)),
@@ -101,6 +100,7 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True)),
                 ('status', models.CharField(default=b'UnAssigned', max_length=50, null=True)),
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
+                ('created_by', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
             },
@@ -111,13 +111,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=200)),
-                ('account_type', models.CharField(max_length=20, choices=[(b'SavingsAccount', b'SavingsAccount'), (b'LoanAccount', b'LoanAccount')])),
                 ('account_number', models.CharField(unique=True, max_length=50)),
                 ('activation_date', models.DateField()),
                 ('is_active', models.BooleanField(default=True)),
                 ('status', models.CharField(default=b'UnAssigned', max_length=50)),
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
                 ('clients', models.ManyToManyField(to='micro_admin.Client', null=True, blank=True)),
+                ('created_by', models.ForeignKey(related_name='group_created_by', to=settings.AUTH_USER_MODEL)),
                 ('staff', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
@@ -131,6 +131,26 @@ class Migration(migrations.Migration):
                 ('meeting_date', models.DateField()),
                 ('meeting_time', models.CharField(max_length=20)),
                 ('group', models.ForeignKey(to='micro_admin.Group')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SavingsAccount',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('account_no', models.CharField(unique=True, max_length=50)),
+                ('status', models.CharField(max_length=20, choices=[(b'Applied', b'Applied'), (b'Withdrawn', b'Withdrawn'), (b'Approved', b'Approved'), (b'Rejected', b'Rejected'), (b'Closed', b'Closed')])),
+                ('opening_date', models.DateField()),
+                ('min_required_balance', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('savings_balance', models.DecimalField(default=0, max_digits=19, decimal_places=6)),
+                ('annual_interest_rate', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('total_deposits', models.DecimalField(max_digits=19, decimal_places=6)),
+                ('total_withdrawals', models.DecimalField(max_digits=19, decimal_places=6)),
+                ('client', models.ForeignKey(blank=True, to='micro_admin.Client', null=True)),
+                ('created_by', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('group', models.ForeignKey(blank=True, to='micro_admin.Group', null=True)),
             ],
             options={
             },

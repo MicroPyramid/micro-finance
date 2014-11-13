@@ -26,6 +26,13 @@ CLIENT_ROLES = (
         ('GroupMember', 'GroupMember')
     )
 
+ACCOUNT_STATUS = (
+        ('Applied', 'Applied'),
+        ('Withdrawn', 'Withdrawn'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+        ('Closed', 'Closed'),
+    )
 
 class Branch(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -95,7 +102,7 @@ class Client(models.Model):
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     email = models.EmailField(max_length=255, null=True)
-    account_type = models.CharField(choices=ACCOUNT_TYPES, max_length=20)
+    created_by = models.ForeignKey(User)
     account_number = models.CharField(max_length=50, unique=True)
     date_of_birth = models.DateField()
     blood_group = models.CharField(max_length=10, default=True, null=True)
@@ -120,7 +127,7 @@ class Client(models.Model):
 
 class Group(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    account_type = models.CharField(choices=ACCOUNT_TYPES, max_length=20)
+    created_by = models.ForeignKey(User, related_name="group_created_by")
     account_number = models.CharField(max_length=50, unique=True)
     activation_date = models.DateField()
     is_active = models.BooleanField(default=True)
@@ -143,3 +150,16 @@ class GroupMeetings(models.Model):
     meeting_time = models.CharField(max_length=20)
     group = models.ForeignKey(Group)
 
+
+class SavingsAccount(models.Model):
+    account_no = models.CharField(max_length=50, unique=True)
+    client = models.ForeignKey(Client, null=True, blank=True)
+    group = models.ForeignKey(Group, null=True, blank=True)
+    created_by = models.ForeignKey(User)
+    status = models.CharField(choices=ACCOUNT_STATUS, max_length=20)
+    opening_date = models.DateField()
+    min_required_balance = models.DecimalField(max_digits=5, decimal_places=2)
+    savings_balance = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    total_deposits = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    total_withdrawals = models.DecimalField(max_digits=19, decimal_places=6, default=0)

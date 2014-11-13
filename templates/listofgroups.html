@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load customtemplatetags %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
@@ -29,7 +28,7 @@
               <td>{{ group.account_number  }}l</td>
               <td>{{ group.branch.name }}</td>
               <td class="a-color">{% if group.staff.first_name %}{{ group.staff.first_name }}{% else %}<a href="{% url 'micro_admin:assignstaff' group.id %}" title="Assign Staff">Not Assigned</a>{% endif %}</td>
-              <td>{{ group.id|get_members_count }}</td>
+              <td>{{ group.clients.all.count }}<span style="text-align:left; float:none; padding-left:10px;">Member{{ group.clients.all.count|pluralize }}</span></td>
               {% if group.is_active %}
               <td><i class="fa fa-circle green pad-lt"></i></td>
               {% else %}

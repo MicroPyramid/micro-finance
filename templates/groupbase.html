@@ -14,12 +14,12 @@
       <li>
         <a href="#" class="acc"><i class="fa fa-database padd"></i>Accounts<span><i class="fa fa-caret-down"></i></span></a>
         <ul class="acc-drop">
-          <li>
-            <a href="#" class="sav"><i class="fa fa-money padd"></i>Savings<span><i class="fa fa-caret-down"></i></span></a>
-          </li>
-          <li>
-            <a href="#" class="loan"><i class="fa fa-money padd"></i>Loan<span><i class="fa fa-caret-down"></i></span></a>
-          </li>
+          {% if group.savingsaccount_set.count %}
+          <li><a href="{% url 'micro_admin:groupsavingsaccount' group.id %}"><i class="fa fa-money padd"></i>View Savings</a></li>
+          {% else %}
+          <li><a href="{% url 'micro_admin:groupsavingsapplication' group.id %}"><i class="fa fa-plus padd"></i>New Savings</a></li>
+          {% endif %}
+          <li><a href="#" class="loan"><i class="fa fa-money padd"></i>Loan</a></li>
         </ul>
       </li>
       <li>
