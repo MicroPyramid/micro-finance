@@ -32,6 +32,10 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^addgroupmeeting/(?P<group_id>\d+)/$','add_group_meeting',name='addgroupmeeting'),
     url(r'^groupsavingsapplication/(?P<group_id>\d+)/$','group_savings_application',name='groupsavingsapplication'),
     url(r'^groupsavingsaccount/(?P<group_id>\d+)/$','group_savings_account',name='groupsavingsaccount'),
+    url(r'^approvesavings/(?P<savingsaccount_id>\d+)/$','approve_savings',name='approvesavings'),
+    url(r'^rejectsavings/(?P<savingsaccount_id>\d+)/$','reject_savings',name='rejectsavings'),
+    url(r'^closesavings/(?P<savingsaccount_id>\d+)/$','close_savings',name='closesavings'),
+    url(r'^withdrawsavings/(?P<savingsaccount_id>\d+)/$','withdraw_savings',name='withdrawsavings'),
     url(r'^logout/$', 'user_logout', name="logout"),
 
 )
