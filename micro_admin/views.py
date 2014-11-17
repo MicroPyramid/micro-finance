@@ -195,7 +195,8 @@ def update_clientprofile(request,client_id):
 def view_client(request):
     branch_list = Branch.objects.all()
     client_list = Client.objects.all()
-    return render(request,"viewclient.html",{"branch_list":branch_list, "client_list":client_list})
+    group = Group.objects.all()
+    return render(request,"viewclient.html",{"branch_list":branch_list, "client_list":client_list, "group":group})
 
 
 def delete_client(request,client_id):
@@ -443,10 +444,41 @@ def client_savings_account(request,client_id):
 
 def approve_savings(request,savingsaccount_id,client_id):
     savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
-    savingsaccount.status = "Approved"
-    savingsaccount.save()
-    client_id = str(savingsaccount.client.id)
-    return HttpResponseRedirect('/clientsavingsaccount/'+client_id+'/')
+    if savingsaccount:
+        savingsaccount.status = "Approved"
+        savingsaccount.save()
+        client_id = str(savingsaccount.client.id)
+        data = {"error":False, "client_id":client_id}
+        return HttpResponse(json.dumps(data))
+    else:
+        data = {"error":True,"client_id":client_id}
+        return HttpResponse(json.dumps(data))
+
+
+def withdraw_savings(request,savingsaccount_id,client_id):
+    savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
+    if savingsaccount:
+        savingsaccount.status = "Withdrawn"
+        savingsaccount.save()
+        client_id = str(savingsaccount.client.id)
+        data = {"error":False, "client_id":client_id}
+        return HttpResponse(json.dumps(data))
+    else:
+        data = {"error":True,"client_id":client_id}
+        return HttpResponse(json.dumps(data))
+
+
+def reject_savings(request,savingsaccount_id,client_id):
+    savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
+    if savingsaccount:
+        savingsaccount.status = "Rejected"
+        savingsaccount.save()
+        client_id = str(savingsaccount.client.id)
+        data = {"error":False, "client_id":client_id}
+        return HttpResponse(json.dumps(data))
+    else:
+        data = {"error":True,"client_id":client_id}
+        return HttpResponse(json.dumps(data))
 
 
 def group_savings_application(request, group_id):

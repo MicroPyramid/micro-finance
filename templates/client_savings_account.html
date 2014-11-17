@@ -4,11 +4,31 @@
   {% if user.is_admin %}
   <div class="wrap-cp-div">
     <div class="btn-row" style="margin-left:185px; margin-top:-10px;">
+    <form id="clientsavingsaccountform"  class="form-horizontal" role="form" method="post">
+      {% csrf_token %}
+      <input type="hidden"  id="savingsaccount_id" value="{{savingsaccount.id}}" style="dispaly:none;">
+      <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
       <a href="#"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
-      <a href="{% url 'micro_admin:approvesavings' savingsaccount.id client.id %}"><button><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
-      <a href="#"><button><i class="fa fa-times-circle-o padd"></i>Rejected</button></a>
+      {% if user.is_admin %}
+      {% if savingsaccount.status == "Approved" %}
+      <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
+      {% else %}
+      <a href="{% url 'micro_admin:approvesavings' savingsaccount.id client.id %}"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+      {% endif %}
+      {% if savingsaccount.status == "Withdrawn" %}
+      <button title="Already Withrawn"><i class="fa fa-arrow-circle-o-down"></i>Withdrawn</button>
+      {% else %}
+      <a href="{% url 'micro_admin:withdrawnsavings' savingsaccount.id client.id %}"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down"></i>Withdraw</button></a>
+      {% endif %}
+      {% if savingsaccount.status == "Rejected" %}
+      <button title="Already Rejected"><i class="fa fa-times-circle-o padd"></i>Rejected</button>
+      {% else %}
+      <a href="{% url 'micro_admin:rejectsavings' savingsaccount.id client.id %}"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+      {% endif %}
+      {% endif %}
       <a href="#"><button><i class="fa fa-trash-o padd"></i>Close</button></a> 
       <br clear="all" />
+    </form>
     </div>
   </div>
   {% endif %} 
@@ -73,4 +93,54 @@
 </div>
 <!--content ends above-->
 <script src="/static/js/mf_script.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#approve-button').click(function(e) {
+      e.preventDefault();
+      $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsaccountform').serialize(), function(data) {
+        if (data.error) {
+          alert("Savings Account Not Approved")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Approved successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+
+      }, "json");
+    });
+  });
+  $(document).ready(function() {
+    $('#withdraw-button').click(function(e) {
+      e.preventDefault();
+      $.post('/withdrawnsavings/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsaccountform').serialize(), function(data) {
+        if (data.error) {
+          alert("Savings Account cannot withdraw")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Withdrawn successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+
+      }, "json");
+    });
+  });
+  $(document).ready(function() {
+    $('#reject-button').click(function(e) {
+      e.preventDefault();
+      $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsaccountform').serialize(), function(data) {
+        if (data.error) {
+          alert("Savings Account cannot reject")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Rejected successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+
+      }, "json");
+    });
+  });
+</script>
 {% endblock %}
