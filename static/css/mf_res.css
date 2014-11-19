@@ -61,6 +61,19 @@
   .container .my-panel-bprofile, .container .my-panel-bp {
     width: 98%;
   }
+  .panel-23 {
+width:100%;
+margin-left:0px;
+}
+.panel-3{
+  float:left;
+  margin-left:0px;
+}
+.navbar-right{
+  margin-right:0px;
+}
+.navbar-collapse .navbar-nav.navbar-right:last-child {
+ margin-right: 0px;
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
@@ -120,15 +133,22 @@
     width: 98%;
   }
 /*branch-profile*/
-  .wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div {
-    width: 100%;
-  }
-
-  .home-div-gp {
-    position: relative;
-    height: auto;
-    margin-top: 40px;
-    float: left;
-    width: 85%;
-  }
+.wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div{
+  width: 100%;
+}
+.home-div-gp {
+  position: relative;
+  height: auto;
+  margin-top: 40px;
+  float: left;
+  width: 85%;
+}
+.panel-23 {
+  width:100%;
+  margin-left:0px;
+}
+.panel-3{
+  float:left;
+  margin-left:0px;
+}
 }

@@ -48,6 +48,7 @@
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form" name="annual_interest_rate" id="inputEmail3" required="True">
             <p id="annualinterestrateerror"></p>
+            <p id="savingsminerror"></p>
           </div>
         </div>
         <div class="form-group btns" style="margin-top: -10px;">
@@ -76,6 +77,9 @@
           }
           if (data.message.annual_interest_rate) {
             $("#annualinterestrateerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.annual_interest_rate + "</span>");
+          }
+          if (data.message) {
+            $("#savingsminerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message + "</span>");
           }
         }
         else {

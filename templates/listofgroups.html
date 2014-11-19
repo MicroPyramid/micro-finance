@@ -25,7 +25,7 @@
             {% for group in groups_list %}
             <tr>
               <td><a href="{% url 'micro_admin:groupprofile' group.id %}" style="color:#000">{{ group.name }}</a></td>
-              <td>{{ group.account_number  }}l</td>
+              <td>{{ group.account_number  }}</td>
               <td>{{ group.branch.name }}</td>
               <td class="a-color">{% if group.staff.first_name %}{{ group.staff.first_name }}{% else %}<a href="{% url 'micro_admin:assignstaff' group.id %}" title="Assign Staff">Not Assigned</a>{% endif %}</td>
               <td>{{ group.clients.all.count }}<span style="text-align:left; float:none; padding-left:10px;">Member{{ group.clients.all.count|pluralize }}</span></td>
@@ -34,7 +34,7 @@
               {% else %}
               <td><i class="fa fa-circle red pad-lt"></i></td>
               {% endif %}
-              <td>
+              <td style="padding-left: 18px;">
                 {% if user.is_admin %}
                 <a id="deletegroup" href="{% url 'micro_admin:deletegroup' group.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
                 {% endif %}

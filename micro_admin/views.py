@@ -3,9 +3,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, SavingsTransactions, LoanAccount
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm, GroupLoanAccountForm
 import datetime
+import decimal
 
 
 def index(request):
@@ -430,12 +431,16 @@ def group_savings_application(request, group_id):
             opening_date = dateconvert
             min_required_balance = request.POST.get("min_required_balance")
             annual_interest_rate = request.POST.get("annual_interest_rate")
-            savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
-            if request.POST.get("savings_balance"):
-                savings_account.savings_balance=request.POST.get("savings_balance")
+            if request.POST.get("savings_balance") < min_required_balance:
+                data = {"error":True, "message":"Balance should be greater than or equal to minimun required balance"}
+                return HttpResponse(json.dumps(data))
+            elif request.POST.get("savings_balance") >= min_required_balance:
+                savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
+                savings_account.savings_balance = request.POST.get("savings_balance")
+                savings_account.total_deposits = request.POST.get("savings_balance")
                 savings_account.save()
                 data = {"error":False, "group_id":group.id}
-            return HttpResponse(json.dumps(data))
+                return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "message":group_savingsaccount_form.errors}
             return HttpResponse(json.dumps(data))
@@ -496,4 +501,55 @@ def withdraw_savings(request, savingsaccount_id):
             return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "group_id":savings_account.group.id}
+            return HttpResponse(json.dumps(data))
+
+
+def group_savings_transactions(request, savingsaccount_id):
+    if request.method == "POST":
+        savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
+        staff = User.objects.get(username=request.user)
+        transaction_type = request.POST.get("transaction_type")
+        transaction_amount = request.POST.get("transaction_amount")
+        if savings_account.group:
+            if request.POST.get("transaction_type") == "Deposit":
+                savings_transactions = SavingsTransactions.objects.create(savings_account=savings_account, transaction_type=transaction_type, transaction_amount=transaction_amount, staff=staff)
+                savings_account.savings_balance += decimal.Decimal(transaction_amount)
+                savings_account.total_deposits += decimal.Decimal(transaction_amount)
+                savings_account.save()
+                data = {"error":False, "group_id":savings_account.group.id}
+                return HttpResponse(json.dumps(data))
+
+            elif request.POST.get("transaction_type") == "Withdraw":
+                savings_transactions = SavingsTransactions.objects.create(savings_account=savings_account, transaction_type=transaction_type, transaction_amount=transaction_amount, staff=staff)
+                savings_account.savings_balance -= decimal.Decimal(transaction_amount)
+                savings_account.total_withdrawals += decimal.Decimal(transaction_amount)
+                savings_account.save()
+                data = {"error":False, "group_id":savings_account.group.id}
+                return HttpResponse(json.dumps(data))
+        else:
+            return HttpResponse("No Group")
+
+
+def group_loan_application(request, group_id):
+    if request.method == "GET":
+        group = Group.objects.get(id=group_id)
+        count = LoanAccount.objects.all().count()
+        account_no = "%s%s%d" % ("00B00",group.branch.id,count+1)
+        return render(request, "group_loan_application.html", {"group":group, "account_no":account_no})
+    else:
+        group_loanaccount_form = GroupLoanAccountForm(request.POST)
+        if group_loanaccount_form.is_valid():
+            group = Group.objects.get(id=group_id)
+            account_no = request.POST.get("account_no")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
+            loan_amount = request.POST.get("loan_amount")
+            loan_repayment_period = request.POST.get("loan_repayment_period")
+            loan_repayment_every = request.POST.get("loan_repayment_every")
+            annual_interest_rate = request.POST.get("annual_interest_rate")
+            loanpurpose_description = request.POST.get("loanpurpose_description")
+            loan_account = LoanAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", loan_amount=loan_amount, loan_repayment_period=loan_repayment_period, loan_repayment_every=loan_repayment_every, annual_interest_rate=annual_interest_rate, loanpurpose_description=loanpurpose_description)
+            data = {"error":False, "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error":True, "message":group_loanaccount_form.errors}
             return HttpResponse(json.dumps(data))
