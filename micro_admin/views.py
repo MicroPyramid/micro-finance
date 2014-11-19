@@ -3,9 +3,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, ClientSavingsAccountForm, GroupSavingsAccountForm
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, SavingsTransactions, LoanAccount
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, ClientSavingsAccountForm, GroupSavingsAccountForm, ClientLoanAccountForm
 import datetime
+import decimal
 
 
 def index(request):
@@ -431,7 +432,7 @@ def client_savings_application(request, client_id):
             if request.POST.get("savings_balance"):
                 savingsaccount.savings_balance = request.POST.get("savings_balance")
                 savingsaccount.save()
-            return HttpResponseRedirect('/clientprofile/'+client_id+'/')
+                return HttpResponseRedirect('/clientprofile/'+client_id+'/')
         else:
             return HttpResponse("Invalid Data")
 
@@ -481,6 +482,19 @@ def reject_savings(request,savingsaccount_id,client_id):
         return HttpResponse(json.dumps(data))
 
 
+def close_savings(request,savingsaccount_id,client_id):
+    savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
+    if savingsaccount:
+        savingsaccount.status = "Closed"
+        savingsaccount.save()
+        client_id = str(savingsaccount.client.id)
+        data = {"error":False, "client_id":client_id}
+        return HttpResponse(json.dumps(data))
+    else:
+        data = {"error":True,"client_id":client_id}
+        return HttpResponse(json.dumps(data))
+
+
 def group_savings_application(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
@@ -511,3 +525,60 @@ def group_savings_account(request, group_id):
     group = Group.objects.get(id=group_id)
     savings_account = SavingsAccount.objects.get(group=group)
     return render(request, "group_savings_account.html", {"group":group, "savings_account":savings_account})
+
+
+def clientsavingstransaction(request,savingsaccount_id,client_id):
+    if request.method == "POST":
+        client = Client.objects.get(id=client_id)
+        savingsaccount = SavingsAccount.objects.get(client=client)
+        transaction_type = request.POST.get("transaction_type")
+        staff = User.objects.get(username=request.user)
+        if transaction_type == "Deposit":
+            transaction_amount = request.POST.get("transaction_amount")
+            savingstransactions = SavingsTransactions.objects.create(staff=staff, transaction_type=transaction_type, savings_account=savingsaccount, transaction_amount=transaction_amount)
+            savings_balance = savingsaccount.savings_balance
+            savingsaccount.savings_balance = decimal.Decimal(savings_balance) + decimal.Decimal(transaction_amount)
+            savingsaccount.save()
+            savingsaccount.total_deposits = savingsaccount.savings_balance
+            savingsaccount.save()
+            data = {"error":False, "client_id":client_id}
+            return HttpResponse(json.dumps(data))
+        elif transaction_type == "Withdraw":
+            transaction_amount = request.POST.get("transaction_amount")
+            savingstransactions = SavingsTransactions.objects.create(staff=staff, transaction_type=transaction_type, savings_account=savingsaccount, transaction_amount=transaction_amount)
+            savings_balance = savingsaccount.savings_balance
+            savingsaccount.savings_balance = decimal.Decimal(savings_balance) - decimal.Decimal(transaction_amount)
+            savingsaccount.save()
+            savingsaccount.total_withdrawals = decimal.Decimal(savingsaccount.total_withdrawals) + decimal.Decimal(transaction_amount)
+            savingsaccount.save()
+            data = {"error":False, "client_id":client_id}
+            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error":True,"client_id":client_id}
+            return HttpResponse(json.dumps(data))
+            
+    
+def client_loan_application(request, client_id):
+    if request.method == "GET":
+        client = Client.objects.get(id=client_id)
+        count = LoanAccount.objects.all().count()
+        account_no = "%s%s%d" % ("00B00",client.branch.id,count+1)
+        return render(request, "client_loan_application.html", {"client":client, "account_no":account_no})
+    else:
+        form = ClientLoanAccountForm(request.POST)
+        if form.is_valid():
+            client = Client.objects.get(id=client_id)
+            account_no = request.POST.get("account_no")
+            created_by = User.objects.get(username=request.POST.get("created_by"))
+            loan_amount = request.POST.get("loan_amount")
+            loan_repayment_period = request.POST.get("loan_repayment_period")
+            loan_repayment_every = request.POST.get("loan_repayment_every")
+            annual_interest_rate = request.POST.get("annual_interest_rate")
+            loanpurpose_description = request.POST.get("loanpurpose_description")
+            loanaccount = LoanAccount.objects.create(account_no=account_no, client=client, status="Applied", created_by=created_by, loan_amount=loan_amount, loan_repayment_period=loan_repayment_period, loan_repayment_every=loan_repayment_every, annual_interest_rate=annual_interest_rate, loanpurpose_description=loanpurpose_description)
+            return HttpResponseRedirect('/clientprofile/'+client_id+'/')
+        else:
+            return HttpResponse("Invalid Data")
+
+
+

@@ -72,37 +72,34 @@
   }
 /*branch-profile*/
 /*client-profile*/
-  .wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div {
-    width: 100%;
+.wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div{
+  width: 100%;
   }
 
 /*client-profile*/
 /*group-profile*/
-  .nav-2 {
-    width: 200px;
-    float: left;
-    background: #343435;
-    height: auto;
-    position: fixed;
+.nav-2{
+  width:200px;
+  float:left;
+  background:#343435;
+  height:auto;
+  position:fixed;
   }
-
-  .tog-btn {
-    display: none;
-    float: left;
-    margin-left: 200px;
+.tog-btn{
+  display:none;
+  float:left;
+  margin-left:200px;
   }
-
-  .panel-hdg {
-    width: 89%;
-    margin: 0px auto;
+.panel-hdg {
+  width: 89%;
+  margin: 0px auto;
   }
-
-  .home-div-gp {
-    position: relative;
-    height: auto;
-    margin-top: 40px;
-    float: left;
-    width: 91%;
+.home-div-gp {
+  position: relative;
+  height: auto;
+  margin-top: 40px;
+  float: left;
+  width: 91%;
   }
-/*group-profile*/;
+/*group-profile*/
 }
