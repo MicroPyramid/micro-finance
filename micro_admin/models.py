@@ -27,12 +27,18 @@ CLIENT_ROLES = (
     )
 
 ACCOUNT_STATUS = (
+
         ('Applied', 'Applied'),
         ('Withdrawn', 'Withdrawn'),
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
         ('Closed', 'Closed'),
     )
+
+TRANSACTION_TYPES = (
+       ('Deposit', 'Deposit'),
+       ('Withdraw', 'Withdraw'),
+   )
 
 class Branch(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -163,3 +169,34 @@ class SavingsAccount(models.Model):
     annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     total_deposits = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     total_withdrawals = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+
+
+class SavingsTransactions(models.Model):
+    savings_account = models.ForeignKey(SavingsAccount)
+    transaction_type = models.CharField(choices=TRANSACTION_TYPES, max_length=20)
+    transaction_date = models.DateTimeField(auto_now_add=True, blank=True)
+    transaction_amount = models.DecimalField(max_digits=19, decimal_places=6)
+    staff = models.ForeignKey(User)
+
+
+class LoanAccount(models.Model):
+    account_no = models.CharField(max_length=50, unique=True)
+    client = models.ForeignKey(Client, null=True, blank=True)
+    group = models.ForeignKey(Group, null=True, blank=True)
+    created_by = models.ForeignKey(User)
+    status = models.CharField(choices=ACCOUNT_STATUS, max_length=20)
+    opening_date = models.DateField(auto_now_add=True, blank=True)
+    approved_date = models.DateField(null=True, blank=True)
+    loan_issued_date = models.DateField(null=True, blank=True)
+    loan_issued_by = models.ForeignKey(User, null=True, blank=True, related_name="loan_issued_by")
+    closed_date = models.DateField(null=True, blank=True)
+    loan_amount = models.DecimalField(max_digits=19, decimal_places=6)
+    loan_repayment_period = models.IntegerField()
+    loan_repayment_every = models.IntegerField()
+    loan_repayment_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
+    total_loan_amount_repaid = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    loanpurpose_description = models.TextField()
+    annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    interest_charged = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    total_interest_repaid = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    
