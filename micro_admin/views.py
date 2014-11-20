@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, SavingsTransactions, LoanAccount
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, SavingsTransactions, LoanAccount, LoanTransactions
 from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm, GroupLoanAccountForm, ClientSavingsAccountForm, ClientLoanAccountForm
 import datetime
 import decimal
@@ -460,17 +460,19 @@ def group_savings_application(request, group_id):
             opening_date = dateconvert
             min_required_balance = request.POST.get("min_required_balance")
             annual_interest_rate = request.POST.get("annual_interest_rate")
-            if request.POST.get("savings_balance") < min_required_balance:
-                data = {"error":True, "message":"Balance should be greater than or equal to minimun required balance"}
-                return HttpResponse(json.dumps(data))
-            elif request.POST.get("savings_balance") >= min_required_balance:
+            savings_balance = request.POST.get("savings_balance")
+            if decimal.Decimal(savings_balance) >= decimal.Decimal(min_required_balance) :
                 savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
                 savings_account.savings_balance = request.POST.get("savings_balance")
                 savings_account.total_deposits = request.POST.get("savings_balance")
                 savings_account.save()
                 data = {"error":False, "group_id":group.id}
                 return HttpResponse(json.dumps(data))
+            elif decimal.Decimal(savings_balance) < decimal.Decimal(min_required_balance) :
+                data = {"error":True, "message":"Balance should be greater than or equal to minimun required balance"}
+                return HttpResponse(json.dumps(data))
         else:
+            print group_savingsaccount_form.errors
             data = {"error":True, "message":group_savingsaccount_form.errors}
             return HttpResponse(json.dumps(data))
 
@@ -585,6 +587,10 @@ def group_loan_application(request, group_id):
             annual_interest_rate = request.POST.get("annual_interest_rate")
             loanpurpose_description = request.POST.get("loanpurpose_description")
             loan_account = LoanAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", loan_amount=loan_amount, loan_repayment_period=loan_repayment_period, loan_repayment_every=loan_repayment_every, annual_interest_rate=annual_interest_rate, loanpurpose_description=loanpurpose_description)
+            loan_account.interest_charged = decimal.Decimal((decimal.Decimal(loan_account.loan_amount) * decimal.Decimal(int(loan_account.loan_repayment_period) / 12) * decimal.Decimal(loan_account.annual_interest_rate)) / 100)
+            total_loan_repayable = decimal.Decimal(loan_account.interest_charged) + decimal.Decimal(loan_account.loan_amount)
+            loan_account.loan_repayment_amount = decimal.Decimal(int(loan_account.loan_repayment_every) * (decimal.Decimal(total_loan_repayable) / decimal.Decimal(loan_account.loan_repayment_period)))
+            loan_account.save()
             data = {"error":False, "group_id":loan_account.group.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -644,4 +650,95 @@ def client_loan_application(request, client_id):
             return HttpResponseRedirect('/clientprofile/'+client_id+'/')
         else:
             return HttpResponse("Invalid Data")
+
+
+def group_loan_account(request, group_id):
+    group = Group.objects.get(id=group_id)
+    loan_account = LoanAccount.objects.get(group=group)
+    total_repaid = decimal.Decimal(decimal.Decimal(loan_account.total_loan_amount_repaid) + decimal.Decimal(loan_account.total_interest_repaid))
+    balance = decimal.Decimal(decimal.Decimal(loan_account.interest_charged) + decimal.Decimal(loan_account.loan_amount)) - decimal.Decimal(total_repaid)
+    return render(request, "group_loan_account.html", {"group":group, "loan_account":loan_account, "balance":balance, "total_repaid":total_repaid})
+
+
+def approve_loan(request, loanaccount_id):
+    if request.method == "POST":
+        loan_account = LoanAccount.objects.get(id=loanaccount_id)
+        if loan_account.group:
+            loan_account.status = "Approved"
+            loan_account.approved_date = datetime.datetime.now()
+            loan_account.save()
+            data = {"error":False, "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
+        elif loan_account.client:
+            loan_account.status = "Approved"
+            loan_account.save()
+            data = {"error":False, "client_id":loan_account.client.id}
+            return HttpResponse(json.dumps(data))
+
+
+def reject_loan(request, loanaccount_id):
+    if request.method == "POST":
+        loan_account = LoanAccount.objects.get(id=loanaccount_id)
+        if loan_account.group:
+            loan_account.status = "Rejected"
+            loan_account.save()
+            data = {"error":False, "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
+        elif loan_account.client:
+            loan_account.status = "Rejected"
+            loan_account.save()
+            data = {"error":False, "client_id":loan_account.client.id}
+            return HttpResponse(json.dumps(data))
+
+
+def close_loan(request, loanaccount_id):
+    if request.method == "POST":
+        loan_account = LoanAccount.objects.get(id=loanaccount_id)
+        if loan_account.group:
+            loan_account.status = "Closed"
+            loan_account.save()
+            data = {"error":False, "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
+        elif loan_account.client:
+            loan_account.status = "Closed"
+            loan_account.save()
+            data = {"error":False, "client_id":loan_account.client.id}
+            return HttpResponse(json.dumps(data))
+
+
+def withdraw_loan(request, loanaccount_id):
+    if request.method == "POST":
+        loan_account = LoanAccount.objects.get(id=loanaccount_id)
+        if loan_account.group:
+            loan_account.status = "Withdrawn"
+            loan_account.save()
+            data = {"error":False, "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
+        elif loan_account.client:
+            loan_account.status = "Withdrawn"
+            loan_account.save()
+            data = {"error":False, "client_id":loan_account.client.id}
+            return HttpResponse(json.dumps(data))
+
+
+def group_loan_transactions(request, loanaccount_id):
+    if request.method == "POST":
+        loan_account = LoanAccount.objects.get(id=loanaccount_id)
+        staff = User.objects.get(username=request.user)
+        transaction_amount = request.POST.get("transaction_amount")
+        if loan_account.group:
+            if decimal.Decimal(transaction_amount) == decimal.Decimal(loan_account.loan_repayment_amount) :
+                loan_transaction = LoanTransactions.objects.create(loan_account=loan_account, transaction_amount=transaction_amount, staff=staff)
+                interest_paid = decimal.Decimal(int(loan_account.loan_repayment_every) *(decimal.Decimal(loan_account.interest_charged) / decimal.Decimal(loan_account.loan_repayment_period)))
+                loan_amount_paid = decimal.Decimal(transaction_amount) - decimal.Decimal(interest_paid)
+                loan_account.total_loan_amount_repaid += decimal.Decimal(loan_amount_paid)
+                loan_account.total_interest_repaid += decimal.Decimal(interest_paid)
+                loan_account.save()
+                data = {"error":False, "group_id":loan_account.group.id}
+                return HttpResponse(json.dumps(data))
+            else:
+                data = {"error":True, "message":"Loan Amount must be equal to the Repayment Amount"}
+                return HttpResponse(json.dumps(data))
+        else:
+            return HttpResponse("No Group")
 
