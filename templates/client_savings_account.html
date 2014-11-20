@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <div class="wrap-cp-div btn-usa-div">
+    <div class="btn-row" >
+      {% if user.is_admin %}
+      <span><a href="#"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a></span>
+      {% if savingsaccount.status == "Approved" %}
+      <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
+      {% else %}
+      <a href="{% url 'micro_admin:approvesavings' savingsaccount.id client.id %}"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+      {% endif %}
+      {% if savingsaccount.status == "Withdrawn" %}
+      <button title="Already Withrawn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button>
+      {% else %}
+      <a href="{% url 'micro_admin:withdrawnsavings' savingsaccount.id client.id %}"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+      {% endif %}
+      {% if savingsaccount.status == "Rejected" %}
+      <button title="Already Rejected"><i class="fa fa-times-circle-o padd"></i>Rejected</button>
+      {% else %}
+      <a href="{% url 'micro_admin:rejectsavings' savingsaccount.id client.id %}"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+      {% endif %}
+      {% if savingsaccount.status == "Closed" %}
+      <button title = "Already Closed"><i class="fa fa-trash-o padd"></i>Closed</button>
+      {% else %} 
+      <a href="{% url 'micro_admin:closesavings' savingsaccount.id client.id %}"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
+      {% endif %}
+      <br clear="all" />
+      {% endif %}
+    </div>
+  </div>
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel my-panel-cas">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        {% if client.is_active %}
+        <i class="fa fa-square green padd"></i>
+        {% else %}
+        <i class="fa fa-square red padd"></i>{% endif %}
+        {{ client.first_name }} Savings Account
+        {% if not user.is_admin %}
+        <a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a> 
+        {% if savingsaccount.status == "Withdrawn" %}
+        <a  title="Already Withrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a>
+        {% else %}
+        <a href="{% url 'micro_admin:withdrawnsavings' savingsaccount.id client.id %}"><button id="withdraw-button" class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+        {% endif %}
+        {% endif %}
+      </h3>
+    </div>
+    <div class="panel-body pb-pad">
+      <form id="clientsavingsaccountform"  class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <input type="hidden"  id="savingsaccount_id" value="{{savingsaccount.id}}" style="dispaly:none;">
+        <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-6 control-label">Account Number</label>
+          <div class="col-sm-6">
+            <label for="inputEmail3" class="control-label">{{ savingsaccount.account_no }}</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-6 control-label">Applied By Staff</label>
+          <div class="col-sm-6">
+            <label for="inputEmail3" class="control-label">{{ savingsaccount.created_by|capfirst }}</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-6 control-label">Savings Balance</label>
+          <div class="col-sm-6">
+            <label for="inputEmail3" class="control-label">{{ savingsaccount.savings_balance }}</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-6 control-label">Activation date</label>
+          <div class="col-sm-6">
+            <label for="inputEmail3" class="control-label">{{ savingsaccount.opening_date }}</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-6 control-label">Status</label>
+          <div class="col-sm-6">
+            {% if savingsaccount.status == "Applied" %}
+            <label for="inputEmail3" class="control-label" style="color:#337ab7;">
+            {% elif savingsaccount.status == "Withdrawn" %}
+            <label for="inputEmail3" class="control-label" style="color:#FF6600;">
+            {% elif savingsaccount.status == "Approved" %}
+            <label for="inputEmail3" class="control-label" style="color:#008000;">
+            {% elif savingsaccount.status == "Rejected" %}
+            <label for="inputEmail3" class="control-label red">
+            {% elif savingsaccount.status == "Closed" %}
+            <label for="inputEmail3" class="control-label" style="color:#660099;">
+            {% endif %}
+            {{ savingsaccount.status }}
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-6 control-label">Annual Intrest Rate</label>
+          <div class="col-sm-6">
+            <label for="inputEmail3" class="control-label">{{ savingsaccount.annual_interest_rate }} %</label>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+  <!--table1 starts below-->
+  <div class="table-usa-div">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Deposit<span><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Deposits </button></span>
+      </div>
+      <div class="panel-body">
+        <form id="clientsavingsdepositform" class="form-horizontal" role="form">
+          {% csrf_token %}
+          <div class="form-group">
+            <input type="hidden"  name="transaction_type" value="Deposit" style="dispaly:none;">
+            <label for="inputEmail3" class="col-sm-4 control-label">Total Savings</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" name="savings_balance" value="{{ savingsaccount.savings_balance}}" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Deposit Amount</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" name="transaction_amount" >
+            </div>
+          </div>
+          <div class="form-group btns">
+            <a href="#"><button id="deposit-button" class="with-dep-btn"><i class="fa fa-arrow-circle-o-up padd"></i>Deposit</button></a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!--table 1 enda above-->
+  <!--table2 starts below-->
+  <div class="table-usa-div">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Withdraw<span><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Withdraws </button></span>
+      </div>
+      <div class="panel-body">
+        <form id="clientsavingswithdrawform" class="form-horizontal" role="form">
+          {% csrf_token %}
+          <div class="form-group">
+            <input type="hidden"  name="transaction_type" value="Withdraw" style="dispaly:none;">
+            <label for="inputEmail3" class="col-sm-4 control-label">Total Withdraws</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" name="total_withdrawals" value="{{ savingsaccount.total_withdrawals}}" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Withdraw Amount</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" name="transaction_amount" >
+            </div>
+          </div>
+          <div class="form-group btns">
+            <a href="#"><button id="withdrawbutton" class="with-dep-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!--table2 ends above-->
+</div>
+<!--wrapper ends above-->
+<script src="/static/js/mf_script.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#approve-button').click(function(e) {
+      e.preventDefault();
+      $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
+        if (data.error) {
+          alert("Savings Account Not Approved")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Approved successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+      }, "json");
+    });
+  });
+  $(document).ready(function() {
+    $('#withdraw-button').click(function(e) {
+      e.preventDefault();
+      $.post('/withdrawnsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
+        if (data.error) {
+          alert("Savings Account cannot withdraw")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Withdrawn successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+      }, "json");
+    });
+  });
+  $(document).ready(function() {
+    $('#reject-button').click(function(e) {
+      e.preventDefault();
+      $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
+        if (data.error) {
+          alert("Savings Account cannot reject")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Rejected successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+      }, "json");
+    });
+  });
+  $(document).ready(function() {
+    $('#close-button').click(function(e) {
+      e.preventDefault();
+      $.post('/closesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
+        if (data.error) {
+          alert("Savings Account cannot close")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Closed successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+      }, "json");
+    });
+  });
+  $(document).ready(function() {
+    $('#deposit-button').click(function(e) {
+      e.preventDefault();
+      $.post('/clientsavingstransaction/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsdepositform').serialize(), function(data) {
+        if (data.error) {
+          alert("Not Deposited")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Money Deposited successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+      }, "json");
+    });
+  });
+  $(document).ready(function() {
+    $('#withdrawbutton').click(function(e) {
+      e.preventDefault();
+      $.post('/clientsavingstransaction/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingswithdrawform').serialize(), function(data) {
+        if (data.error) {
+          alert("Money has not been Withdrawn")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+        else {
+          alert("Money Withdrawn successfully")
+          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+        }
+      }, "json");
+    });
+  });
+</script>
+{% endblock %}

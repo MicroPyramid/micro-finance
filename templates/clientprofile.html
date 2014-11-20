@@ -6,7 +6,16 @@
   <div class="wrap-cp-div">
     <div class="btn-row">
       <a href="{% url 'micro_admin:editclient' client.id %}"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
-      <a href="#"><button><i class="fa fa-location-arrow padd"></i>Transfer Client</button></a>
+      {% if client.savingsaccount_set.count %}
+      <a href="{% url 'micro_admin:clientsavingsaccount' client.id %}"><button><i class="fa fa-money padd"></i>View Savings</button></a>
+      {% else %}
+      <a href="{% url 'micro_admin:clientsavingsapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Savings Application</button></a>
+      {% endif %}
+      {% if client.loanaccount_set.count %}
+      <a href="#"><button><i class="fa fa-money padd"></i>View Loans</button></a>
+      {% else %}
+      <a href="{% url 'micro_admin:clientloanapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Loan Application</button></a>
+      {% endif %}
       <a href="{% url 'micro_admin:updateclientprofile' client.id %}"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
       {% if user.is_admin %}
       <a href="{% url 'micro_admin:deleteclient' client.id %}"><button><i class="fa fa-trash-o padd"></i>Delete</button></a>

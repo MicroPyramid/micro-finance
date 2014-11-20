@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel wid-panel-form">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+      {% if client.is_active %}
+      <i class="fa fa-square green padd"></i>
+      {% else %}
+      <i class="fa fa-square red padd"></i>
+      {% endif %}{{ client.first_name }} Loan Application
+    </div>
+    <div class="panel-body pb-pad">
+      <form id="clientloanapplicationform" class="form-horizontal" role="form" method="post" action="{% url 'micro_admin:clientloanapplication' client.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Account Number</label>
+          <div class="col-sm-7">
+            <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
+            <input type="text" class="text-box wid-form" name="account_no" value="{{ account_no }}" id="inputEmail3" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Created By</label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="created_by" value="{{ user.username }}" id="inputEmail3" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Loan Amount<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="loan_amount" required="True">
+            <p id="loanamounterror"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Period (in months)<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="loan_repayment_period" id="inputEmail3" required="True">
+            <p id="loanrepaymentperioderror"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Every (in months)<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="loan_repayment_every" required="True">
+            <p id="loanrepaymenteveryerror"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Annual Intrest Rate<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="annual_interest_rate" required="True">
+            <p id="annualinterestrateerror"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="textarea" class="text-box wid-form" name="loanpurpose_description" required="True">
+            <p id="loanpurposeerror"></p>
+          </div>
+        </div>
+        <div class="form-group btns">
+          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}
