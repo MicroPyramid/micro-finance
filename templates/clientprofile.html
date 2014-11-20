@@ -12,7 +12,7 @@
       <a href="{% url 'micro_admin:clientsavingsapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Savings Application</button></a>
       {% endif %}
       {% if client.loanaccount_set.count %}
-      <a href="#"><button><i class="fa fa-money padd"></i>View Loans</button></a>
+      <a href="{% url 'micro_admin:clientloanaccount' client.id %}"><button><i class="fa fa-money padd"></i>View Loans</button></a>
       {% else %}
       <a href="{% url 'micro_admin:clientloanapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Loan Application</button></a>
       {% endif %}
