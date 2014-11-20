@@ -411,38 +411,43 @@ input[type=radio], input[type=checkbox] {
   padding: 5px 8px;
   color: #fff;
   border: none;
-  margin-top:-3px;
-  margin-left:6px;
+  margin-top: -3px;
+  margin-left: 6px;
 }
 
-.panel-heading span .ed-btn{
+.panel-heading span .ed-btn {
   background: #607aab;
 }
-.with-dep-btn{
-  color:#fff;
-  padding:5px 8px;
-  background:#5caf69;
+
+.with-dep-btn {
+  color: #fff;
+  padding: 5px 8px;
+  background: #5caf69;
 }
+
 .with-dep-btn:hover {
-  background:#3dad4f;
+  background: #3dad4f;
 }
+
 .panel-heading span .del-btn {
   background: #f23674;
 }
 
-.panel-heading span .ed-btn:hover{
+.panel-heading span .ed-btn:hover {
   background: #354f82;
 }
 
 .panel-heading span .del-btn:hover {
   background: #a11140;
 }
-.view-tab-btn{
-  background:#b68b57;
-  border:none;
+
+.view-tab-btn {
+  background: #b68b57;
+  border: none;
 }
-.view-tab-btn:hover{
-  background:#b57323;
+
+.view-tab-btn:hover {
+  background: #b57323;
 }
 
 /*branch profile*/
@@ -609,7 +614,7 @@ input[type=radio], input[type=checkbox] {
 .home-div-gp {
   position: relative;
   height: auto;
-  margin-top: 40px;
+  margin-top: 20px;
   float: left;
   width: 70%;
 }
@@ -617,7 +622,6 @@ input[type=radio], input[type=checkbox] {
 .panel-hdg {
   width: 100%;
   margin: 0px auto;
-  margin-left: 4%;
 }
 
 .hg-table {
@@ -658,45 +662,53 @@ form .box-form-as {
 }
 /*client group content*/
 /*client-acc-savings*/
-.btn-usa-div{
-	margin-top: 24px;
-text-align: center;
-margin-left: -12px;
+.btn-usa-div {
+  margin-top: 24px;
+  text-align: center;
+  margin-left: -12px;
 }
-.container .my-panel-cas{
+
+.container .my-panel-cas {
   margin-left: -70px;
-  width:50%;
-  float:left;
-  min-height:500px;
-  margin-top:10px;
+  width: 50%;
+  float: left;
+  min-height: 500px;
+  margin-top: 10px;
 }
-.container .table-usa-div{
-  width:55%;
-  float:left;
-  margin-top:10px;
-  margin-left:15px;
+
+.container .table-usa-div {
+  width: 55%;
+  float: left;
+  margin-top: 10px;
+  margin-left: 15px;
 }
-.container .table-usa-div .panel{
-  border-radius:0px;
+
+.container .table-usa-div .panel {
+  border-radius: 0px;
 }
 
 /*client savings account*/
 /*group-savings-acc*/
-.panel-23{
-  width:47%;
-  float:left;
-  margin-left:4%;
-}
-.panel-3{
-  float: right;
-  margin-right: -37px;
+.panel-23 {
+  width: 47%;
+  float: left;
 }
 
-.panel-23 .panel{
-  margin-top:20px;
-  border-radius:0px;
+.panel-3 {
+  float: right;
 }
-.container .wid-panel-form{
+
+.panel-23 .panel {
+  margin-top: 20px;
+  border-radius: 0px;
+}
+
+.container .wid-panel-form {
   width: 60%;
 }
+
+.wid-ass-stf {
+  width: 43%;
+}
+
 /*group savings acc*/

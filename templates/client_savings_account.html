@@ -173,7 +173,7 @@
   $(document).ready(function() {
     $('#approve-button').click(function(e) {
       e.preventDefault();
-      $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsaccountform').serialize(), function(data) {
+      $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Savings Account Not Approved")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
@@ -182,14 +182,13 @@
           alert("Approved successfully")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
-  
       }, "json");
     });
   });
   $(document).ready(function() {
     $('#withdraw-button').click(function(e) {
       e.preventDefault();
-      $.post('/withdrawnsavings/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsaccountform').serialize(), function(data) {
+      $.post('/withdrawnsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Savings Account cannot withdraw")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
@@ -198,14 +197,13 @@
           alert("Withdrawn successfully")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
-  
       }, "json");
     });
   });
   $(document).ready(function() {
     $('#reject-button').click(function(e) {
       e.preventDefault();
-      $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsaccountform').serialize(), function(data) {
+      $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Savings Account cannot reject")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
@@ -214,14 +212,13 @@
           alert("Rejected successfully")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
-  
       }, "json");
     });
   });
   $(document).ready(function() {
     $('#close-button').click(function(e) {
       e.preventDefault();
-      $.post('/closesavings/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsaccountform').serialize(), function(data) {
+      $.post('/closesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Savings Account cannot close")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
@@ -230,7 +227,6 @@
           alert("Closed successfully")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
-  
       }, "json");
     });
   });
@@ -246,7 +242,6 @@
           alert("Money Deposited successfully")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
-  
       }, "json");
     });
   });
@@ -262,7 +257,6 @@
           alert("Money Withdrawn successfully")
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
-  
       }, "json");
     });
   });

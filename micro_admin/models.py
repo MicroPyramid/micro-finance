@@ -27,7 +27,6 @@ CLIENT_ROLES = (
     )
 
 ACCOUNT_STATUS = (
-
         ('Applied', 'Applied'),
         ('Withdrawn', 'Withdrawn'),
         ('Approved', 'Approved'),
@@ -36,9 +35,10 @@ ACCOUNT_STATUS = (
     )
 
 TRANSACTION_TYPES = (
-       ('Deposit', 'Deposit'),
-       ('Withdraw', 'Withdraw'),
-   )
+        ('Deposit', 'Deposit'),
+        ('Withdraw', 'Withdraw'),
+    )
+
 
 class Branch(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -199,4 +199,3 @@ class LoanAccount(models.Model):
     annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     interest_charged = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     total_interest_repaid = models.DecimalField(max_digits=19, decimal_places=6, default=0)
-    

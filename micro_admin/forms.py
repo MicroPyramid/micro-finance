@@ -66,9 +66,16 @@ class GroupSavingsAccountForm(forms.ModelForm):
         fields = ["account_no", "opening_date", "min_required_balance", "savings_balance", "annual_interest_rate"]
 
 
+class GroupLoanAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = LoanAccount
+        fields = ["account_no", "loan_amount", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
+
+
 class ClientLoanAccountForm(forms.ModelForm):
 
     class Meta:
         model = LoanAccount
         fields = ["account_no", "loan_amount", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
-        
+

@@ -17,9 +17,13 @@
           {% if group.savingsaccount_set.count %}
           <li><a href="{% url 'micro_admin:groupsavingsaccount' group.id %}"><i class="fa fa-money padd"></i>View Savings</a></li>
           {% else %}
-          <li><a href="{% url 'micro_admin:groupsavingsapplication' group.id %}"><i class="fa fa-plus padd"></i>New Savings</a></li>
+          <li><a href="{% url 'micro_admin:groupsavingsapplication' group.id %}"><i class="fa fa-plus padd"></i>Savings Application</a></li>
           {% endif %}
-          <li><a href="#" class="loan"><i class="fa fa-money padd"></i>Loan</a></li>
+          {% if group.loanaccount_set.count %}
+          <li><a href="#" class="loan"><i class="fa fa-money padd"></i>View Loan</a></li>
+          {% else %}
+          <li><a href="{% url 'micro_admin:grouploanapplication' group.id %}"><i class="fa fa-plus padd"></i>Loan Application</a></li>
+          {% endif %}
         </ul>
       </li>
       <li>
