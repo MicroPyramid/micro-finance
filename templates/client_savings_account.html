@@ -9,22 +9,22 @@
       {% if savingsaccount.status == "Approved" %}
       <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
       {% else %}
-      <a href="{% url 'micro_admin:approvesavings' savingsaccount.id client.id %}"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+      <a href="{% url 'micro_admin:approvesavings' savingsaccount.id %}"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
       {% endif %}
       {% if savingsaccount.status == "Withdrawn" %}
       <button title="Already Withrawn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button>
       {% else %}
-      <a href="{% url 'micro_admin:withdrawnsavings' savingsaccount.id client.id %}"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+      <a href="{% url 'micro_admin:withdrawsavings' savingsaccount.id %}"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
       {% endif %}
       {% if savingsaccount.status == "Rejected" %}
       <button title="Already Rejected"><i class="fa fa-times-circle-o padd"></i>Rejected</button>
       {% else %}
-      <a href="{% url 'micro_admin:rejectsavings' savingsaccount.id client.id %}"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+      <a href="{% url 'micro_admin:rejectsavings' savingsaccount.id %}"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
       {% endif %}
       {% if savingsaccount.status == "Closed" %}
       <button title = "Already Closed"><i class="fa fa-trash-o padd"></i>Closed</button>
-      {% else %} 
-      <a href="{% url 'micro_admin:closesavings' savingsaccount.id client.id %}"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
+      {% else %}
+      <a href="{% url 'micro_admin:closesavings' savingsaccount.id %}"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
       {% endif %}
       <br clear="all" />
       {% endif %}

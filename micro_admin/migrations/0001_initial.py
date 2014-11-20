@@ -165,6 +165,19 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='LoanTransactions',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('transaction_date', models.DateTimeField(auto_now_add=True)),
+                ('transaction_amount', models.DecimalField(max_digits=19, decimal_places=6)),
+                ('loan_account', models.ForeignKey(to='micro_admin.LoanAccount')),
+                ('staff', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='SavingsAccount',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
