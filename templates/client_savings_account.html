@@ -40,11 +40,11 @@
         <i class="fa fa-square red padd"></i>{% endif %}
         {{ client.first_name }} Savings Account
         {% if not user.is_admin %}
-        <a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a> 
+        <span><a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a> 
         {% if savingsaccount.status == "Withdrawn" %}
         <a  title="Already Withrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a>
         {% else %}
-        <a href="{% url 'micro_admin:withdrawnsavings' savingsaccount.id client.id %}"><button id="withdraw-button" class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+        <a href="{% url 'micro_admin:withdrawsavings' savingsaccount.id %}"><button id="withdraw-button" class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a></span>
         {% endif %}
         {% endif %}
       </h3>
@@ -110,7 +110,8 @@
   <div class="table-usa-div">
     <div class="panel panel-default">
       <div class="panel-heading">
-        Deposit<span><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Deposits </button></span>
+        Deposit
+        <span><a href="{% url 'micro_admin:listofclientsavingsdeposits' savingsaccount.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Deposits </button></a></span>
       </div>
       <div class="panel-body">
         <form id="clientsavingsdepositform" class="form-horizontal" role="form">
@@ -140,7 +141,8 @@
   <div class="table-usa-div">
     <div class="panel panel-default">
       <div class="panel-heading">
-        Withdraw<span><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Withdraws </button></span>
+        Withdraw<span>
+        <a href="{% url 'micro_admin:listofclientsavingswithdrawals' savingsaccount.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdraws </button></a></span>
       </div>
       <div class="panel-body">
         <form id="clientsavingswithdrawform" class="form-horizontal" role="form">
@@ -175,11 +177,11 @@
       e.preventDefault();
       $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account Not Approved")
+          alert("Savings Account Not Approved");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Approved successfully")
+          alert("Approved successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -188,13 +190,13 @@
   $(document).ready(function() {
     $('#withdraw-button').click(function(e) {
       e.preventDefault();
-      $.post('/withdrawnsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
+      $.post('/withdrawsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account cannot withdraw")
+          alert("Savings Account cannot withdraw");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Withdrawn successfully")
+          alert("Withdrawn successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -205,11 +207,11 @@
       e.preventDefault();
       $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account cannot reject")
+          alert("Savings Account cannot reject");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Rejected successfully")
+          alert("Rejected successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -220,11 +222,11 @@
       e.preventDefault();
       $.post('/closesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account cannot close")
+          alert("Savings Account cannot close");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Closed successfully")
+          alert("Closed successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -235,11 +237,18 @@
       e.preventDefault();
       $.post('/clientsavingstransaction/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsdepositform').serialize(), function(data) {
         if (data.error) {
-          alert("Not Deposited")
+        $("span.error").remove();
+        if (data.message) {
+          alert(data.message);
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
+        if (data.message_pending) {
+            alert(data.message_pending);
+            window.location = '/clientsavingsaccount/'+data.client_id+'/';
+          }
+        }
         else {
-          alert("Money Deposited successfully")
+          alert("Money Deposited successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -250,11 +259,11 @@
       e.preventDefault();
       $.post('/clientsavingstransaction/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingswithdrawform').serialize(), function(data) {
         if (data.error) {
-          alert("Money has not been Withdrawn")
+          alert("Money has not been Withdrawn");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Money Withdrawn successfully")
+          alert("Money Withdrawn successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");

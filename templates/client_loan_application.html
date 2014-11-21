@@ -13,7 +13,7 @@
       {% endif %}{{ client.first_name }} Loan Application
     </div>
     <div class="panel-body pb-pad">
-      <form id="clientloanapplicationform" class="form-horizontal" role="form" method="post" action="{% url 'micro_admin:clientloanapplication' client.id %}">
+      <form id="clientloanapplicationform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Account Number</label>
@@ -59,7 +59,7 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
           <div class="col-sm-7">
-            <input type="textarea" class="text-box wid-form" name="loanpurpose_description" required="True">
+            <textarea rows="3" cols="42" name="loanpurpose_description" required="True"></textarea>
             <p id="loanpurposeerror"></p>
           </div>
         </div>
@@ -74,4 +74,37 @@
 </div>
 <!--content ends above-->
 <script src="/static/js/mf_script.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#clientloanapplicationform').submit(function(e) {
+      e.preventDefault();
+      $.post('/clientloanapplication/'+$('#client_id').val()+'/', $('#clientloanapplicationform').serialize(), function(data) {
+        if (data.error) {
+          $("span.error").remove();
+          if (data.message.loan_amount) {
+            $("#loanamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loan_amount + "</span>");
+          }
+          if (data.message.loan_repayment_period) {
+            $("#loanrepaymentperioderror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loan_repayment_period + "</span>");
+          }
+          if (data.message.loan_repayment_every) {
+            $("#loanrepaymenteveryerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loan_repayment_every + "</span>");
+          }
+          if (data.message.annual_interest_rate) {
+            $("#annualinterestrateerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.annual_interest_rate + "</span>");
+          }
+          if (data.message.loanpurpose_description) {
+            $("#loanpurposeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loanpurpose_description + "</span>");
+          }
+        }
+        else {
+          window.location = '/clientloanaccount/'+data.client_id+'/';
+        }
+      }, "json");
+    });
+    $('.cancel-btn').click(function(e){
+      $("span.error").remove();
+    });
+  });
+</script>
 {% endblock %}

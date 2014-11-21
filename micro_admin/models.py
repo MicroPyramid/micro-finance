@@ -208,3 +208,4 @@ class LoanTransactions(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True, blank=True)
     transaction_amount = models.DecimalField(max_digits=19, decimal_places=6)
     staff = models.ForeignKey(User)
+
