@@ -102,6 +102,8 @@ h5 {
 header {
   width: 100%;
   background: #019090;
+  position: fixed;
+  z-index: 10;
 }
 
 .container .menuu {
@@ -614,7 +616,9 @@ input[type=radio], input[type=checkbox] {
 .home-div-gp {
   position: relative;
   height: auto;
-  margin-top: 20px;
+  margin: 0px auto;
+  margin-left: 20%;
+  margin-top: 70px;
   float: left;
   width: 70%;
 }
@@ -710,7 +714,14 @@ form .box-form-as {
 .wid-ass-stf {
   width: 43%;
 }
-.mar-lt-center{
+
+.mar-lt-center {
   margin-left: 27% !important;
+}
+
+.ver-nav-wrap {
+  position: fixed;
+  z-index: 10;
+  top: 50px;
 }
 /*group savings acc*/
