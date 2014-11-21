@@ -155,6 +155,7 @@ class Migration(migrations.Migration):
                 ('annual_interest_rate', models.DecimalField(max_digits=5, decimal_places=2)),
                 ('interest_charged', models.DecimalField(default=0, max_digits=19, decimal_places=6)),
                 ('total_interest_repaid', models.DecimalField(default=0, max_digits=19, decimal_places=6)),
+                ('total_loan_balance', models.DecimalField(default=0, max_digits=19, decimal_places=6)),
                 ('client', models.ForeignKey(blank=True, to='micro_admin.Client', null=True)),
                 ('created_by', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
                 ('group', models.ForeignKey(blank=True, to='micro_admin.Group', null=True)),

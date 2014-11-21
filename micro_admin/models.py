@@ -199,6 +199,7 @@ class LoanAccount(models.Model):
     annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     interest_charged = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     total_interest_repaid = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    total_loan_balance = models.DecimalField(max_digits=19, decimal_places=6, default=0)
 
 
 class LoanTransactions(models.Model):

@@ -48,6 +48,9 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^closeloan/(?P<loanaccount_id>\d+)/$','close_loan',name='closeloan'),
     url(r'^withdrawloan/(?P<loanaccount_id>\d+)/$','withdraw_loan',name='withdrawloan'),
     url(r'^clientloantransaction/(?P<loanaccount_id>\d+)/(?P<client_id>\d+)/$', 'client_loan_transaction', name='clientloantransaction'),
+    url(r'^listofclientloandeposits/(?P<loanaccount_id>\d+)/$', 'listofclient_loan_deposits', name='listofclientloandeposits'),
+    url(r'^listofclientsavingsdeposits/(?P<savingsaccount_id>\d+)/$', 'listofclient_savings_deposits', name='listofclientsavingsdeposits'),
+    url(r'^listofclientsavingswithdrawals/(?P<savingsaccount_id>\d+)/$', 'listofclient_savings_withdrawals', name='listofclientsavingswithdrawals'),
     url(r'^logout/$', 'user_logout', name="logout"),
 
 )

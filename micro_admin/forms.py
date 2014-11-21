@@ -78,4 +78,3 @@ class ClientLoanAccountForm(forms.ModelForm):
     class Meta:
         model = LoanAccount
         fields = ["account_no", "loan_amount", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
-

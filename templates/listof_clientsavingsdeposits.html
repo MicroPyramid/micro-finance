@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile">
+    <div class="panel-heading"><h3 class="panel-title">
+        {% if savingsaccount.client.is_active %}
+        <i class="fa fa-square green padd"></i>
+        {% else %}
+        <i class="fa fa-square red padd"></i>
+        {% endif %}{{savingsaccount.client.first_name}}  Savings Deposits
+        </h3></div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr class="head-row-tb">
+              <th>Account Number</th>
+              <th>Transaction Done by</th>
+              <th>Transaction Date</th>
+              <th>Transaction Amount</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for savingstransaction in savingstransactions_list %}
+            <tr>
+              <td>{{ savingsaccount.account_no }}</td>
+              <td>{{ savingstransaction.staff }}</td>
+              <td>{{ savingstransaction.transaction_date }}</td>
+              <td>{{ savingstransaction.transaction_amount }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}
