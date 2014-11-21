@@ -472,7 +472,6 @@ def group_savings_application(request, group_id):
                 data = {"error":True, "message":"Balance should be greater than or equal to minimun required balance"}
                 return HttpResponse(json.dumps(data))
         else:
-            print group_savingsaccount_form.errors
             data = {"error":True, "message":group_savingsaccount_form.errors}
             return HttpResponse(json.dumps(data))
 
@@ -590,6 +589,7 @@ def group_loan_application(request, group_id):
             loan_account.interest_charged = decimal.Decimal((decimal.Decimal(loan_account.loan_amount) * decimal.Decimal(int(loan_account.loan_repayment_period) / 12) * decimal.Decimal(loan_account.annual_interest_rate)) / 100)
             total_loan_repayable = decimal.Decimal(loan_account.interest_charged) + decimal.Decimal(loan_account.loan_amount)
             loan_account.loan_repayment_amount = decimal.Decimal(int(loan_account.loan_repayment_every) * (decimal.Decimal(total_loan_repayable) / decimal.Decimal(loan_account.loan_repayment_period)))
+            loan_account.total_loan_balance = decimal.Decimal(decimal.Decimal(loan_account.interest_charged) + decimal.Decimal(loan_account.loan_amount))
             loan_account.save()
             data = {"error":False, "group_id":loan_account.group.id}
             return HttpResponse(json.dumps(data))
@@ -655,9 +655,7 @@ def client_loan_application(request, client_id):
 def group_loan_account(request, group_id):
     group = Group.objects.get(id=group_id)
     loan_account = LoanAccount.objects.get(group=group)
-    total_repaid = decimal.Decimal(decimal.Decimal(loan_account.total_loan_amount_repaid) + decimal.Decimal(loan_account.total_interest_repaid))
-    balance = decimal.Decimal(decimal.Decimal(loan_account.interest_charged) + decimal.Decimal(loan_account.loan_amount)) - decimal.Decimal(total_repaid)
-    return render(request, "group_loan_account.html", {"group":group, "loan_account":loan_account, "balance":balance, "total_repaid":total_repaid})
+    return render(request, "group_loan_account.html", {"group":group, "loan_account":loan_account})
 
 
 def approve_loan(request, loanaccount_id):
@@ -724,21 +722,73 @@ def withdraw_loan(request, loanaccount_id):
 def group_loan_transactions(request, loanaccount_id):
     if request.method == "POST":
         loan_account = LoanAccount.objects.get(id=loanaccount_id)
-        staff = User.objects.get(username=request.user)
-        transaction_amount = request.POST.get("transaction_amount")
-        if loan_account.group:
-            if decimal.Decimal(transaction_amount) == decimal.Decimal(loan_account.loan_repayment_amount) :
-                loan_transaction = LoanTransactions.objects.create(loan_account=loan_account, transaction_amount=transaction_amount, staff=staff)
-                interest_paid = decimal.Decimal(int(loan_account.loan_repayment_every) *(decimal.Decimal(loan_account.interest_charged) / decimal.Decimal(loan_account.loan_repayment_period)))
-                loan_amount_paid = decimal.Decimal(transaction_amount) - decimal.Decimal(interest_paid)
-                loan_account.total_loan_amount_repaid += decimal.Decimal(loan_amount_paid)
-                loan_account.total_interest_repaid += decimal.Decimal(interest_paid)
-                loan_account.save()
-                data = {"error":False, "group_id":loan_account.group.id}
-                return HttpResponse(json.dumps(data))
+        if loan_account.status == "Approved":
+            if loan_account.loan_issued_date :
+                if decimal.Decimal(loan_account.total_loan_balance) :
+                    latest_group_loan_transaction = LoanTransactions.objects.filter(loan_account_id=loan_account.id).order_by('-id')[0]
+                    d = datetime.datetime.now()
+                    if int(latest_group_loan_transaction.transaction_date.strftime('%m')) + 1 == d.month :
+                        staff = User.objects.get(username=request.user)
+                        transaction_amount = request.POST.get("transaction_amount")
+                        if loan_account.group:
+                            if decimal.Decimal(transaction_amount) == decimal.Decimal(loan_account.loan_repayment_amount) :
+                                loan_transaction = LoanTransactions.objects.create(loan_account=loan_account, transaction_amount=transaction_amount, staff=staff)
+                                interest_paid = decimal.Decimal(int(loan_account.loan_repayment_every) * (decimal.Decimal(loan_account.interest_charged) / decimal.Decimal(loan_account.loan_repayment_period)))
+                                loan_amount_paid = decimal.Decimal(transaction_amount) - decimal.Decimal(interest_paid)
+                                loan_account.total_loan_amount_repaid += decimal.Decimal(loan_amount_paid)
+                                loan_account.total_interest_repaid += decimal.Decimal(interest_paid)
+                                loan_account.total_loan_paid = decimal.Decimal(decimal.Decimal(loan_account.total_loan_amount_repaid) + decimal.Decimal(loan_account.total_interest_repaid))
+                                loan_account.total_loan_balance = decimal.Decimal(decimal.Decimal(loan_account.total_loan_balance) - decimal.Decimal(transaction_amount))
+                                loan_account.save()
+                                data = {"error":False, "group_id":loan_account.group.id}
+                                return HttpResponse(json.dumps(data))
+                            else:
+                                data = {"error":True, "amount_message":"Loan Amount must be equal to the Repayment Amount"}
+                                return HttpResponse(json.dumps(data))
+                        else:
+                            return HttpResponse("No Group")
+                    else:
+                        data = {"error":True, "message":"Loan Amount has been sucessfully deposited for this month. Next deposit is to be done next month", "group_id":loan_account.group.id}
+                        return HttpResponse(json.dumps(data))
+                else:
+                    data = {"error":True, "message":"Loan has been cleared sucessfully.", "group_id":loan_account.group.id}
+                    return HttpResponse(json.dumps(data))
             else:
-                data = {"error":True, "message":"Loan Amount must be equal to the Repayment Amount"}
+                data = {"error":True, "message":"Loan has not yet issued.", "group_id":loan_account.group.id}
                 return HttpResponse(json.dumps(data))
-        else:
-            return HttpResponse("No Group")
+        elif loan_account.status == "Applied":
+            data = {"error":True, "message":"This account is under pending for approval.", "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
+        elif loan_account.status == "Rejected":
+            data = {"error":True, "message":"Account has been Rejected.", "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
+        elif loan_account.status == "Closed":
+            data = {"error":True, "message":"Account has been Closed.", "group_id":loan_account.group.id}
+            return HttpResponse(json.dumps(data))
 
+
+def view_grouploan_deposits(request, loanaccount_id):
+    loan_account = LoanAccount.objects.get(id=loanaccount_id)
+    loan_transactions = loan_account.loantransactions_set.all()
+    return render(request, "listof_grouploan_deposits.html", {"loan_account":loan_account, "loan_transactions":loan_transactions, "group":loan_account.group})
+
+
+def view_groupsavings_deposits(request, savingsaccount_id):
+    savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
+    savings_deposit_transactions = savings_account.savingstransactions_set.filter(transaction_type="Deposit")
+    return render(request, "listof_groupsavings_deposits.html", {"savings_account":savings_account, "savings_deposit_transactions":savings_deposit_transactions, "group":savings_account.group})
+
+
+def view_groupsavings_withdrawals(request, savingsaccount_id):
+    savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
+    savings_withdrawal_transactions = savings_account.savingstransactions_set.filter(transaction_type="Withdraw")
+    return render(request, "listof_groupsavings_withdrawals.html", {"savings_account":savings_account, "savings_withdrawal_transactions":savings_withdrawal_transactions, "group":savings_account.group})
+
+
+def issue_group_loan(request, loanaccount_id):
+    loan_account = LoanAccount.objects.get(id=loanaccount_id)
+    loan_account.loan_issued_date = datetime.datetime.now()
+    loan_account.loan_issued_by = request.user
+    loan_account.save()
+    group_id = str(loan_account.group.id)
+    return HttpResponseRedirect('/grouploanaccount/'+group_id+'/')

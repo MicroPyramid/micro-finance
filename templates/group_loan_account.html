@@ -70,7 +70,7 @@
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Interest Charged :</label><span class="col-lg-6 mar-top" style="color:#FF00CC;">{{ loan_account.interest_charged }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Repaid Amount :</label><span class="col-lg-6 mar-top" style="color:#337ab7;">{{ total_repaid }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Repaid Amount :</label><span class="col-lg-6 mar-top" style="color:#337ab7;">{{ loan_account.total_loan_paid }}</span>
           </div>
         </div>
         <!--div 1 of fomr ends above-->
@@ -95,7 +95,12 @@
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Applied On :</label><span class="col-lg-6 mar-top">{{ loan_account.opening_date }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Issued On :</label><span class="col-lg-6 mar-top">{{ loan_account.loan_issued_date }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Issued On :</label><span class="col-lg-6 mar-top">
+            {{ loan_account.loan_issued_date }}
+            {% if user.is_admin and not loan_account.loan_issued_date %}
+            <a href="{% url 'micro_admin:issuegrouploan' loan_account.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
+            {% endif %}
+            </span>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Annual Interest Rate :</label><span class="col-lg-5 mar-top">{{ loan_account.annual_interest_rate }} %</span>
@@ -107,7 +112,7 @@
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment Amount :</label><span class="col-lg-5 mar-top">{{ loan_account.loan_repayment_amount }} &nbsp;&nbsp;per {{ loan_account.loan_repayment_every }} Month{{ loan_account.loan_repayment_every|pluralize }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Balance Amount :</label><span class="col-lg-5 mar-top" style="color:#337ab7;">{{ balance }} </span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Balance Amount :</label><span class="col-lg-5 mar-top" style="color:#337ab7;">{{ loan_account.total_loan_balance }} </span>
           </div>
         </div>
         <br clear="all" />
@@ -119,7 +124,7 @@
   <div class="mar-lt-center panel-23">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Pay Loan<span><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></span></h3>
+        <h3 class="panel-title">Pay Loan<span><a href="{% url 'micro_admin:viewgrouploandeposits' loan_account.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></a></span></h3>
       </div>
       <div class="panel-body">
         <form id="grouploandepositform" class="form-horizontal" role="form">
@@ -127,7 +132,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-5 control-label">Total Loan Amount Repaid</label>
             <div class="col-sm-7">
-              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ total_repaid }}" readonly>
+              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ loan_account.total_loan_paid }}" readonly>
             </div>
           </div>
           <div class="form-group">
@@ -209,12 +214,16 @@
           //alert("Loan amount has not deposited.")
           //window.location = '/grouploanaccount/'+data.group_id+'/';
           $("span.error").remove();
+          if (data.amount_message) {
+            $("#transactionerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.amount_message + "</span>");
+          }
           if (data.message) {
-            $("#transactionerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message + "</span>");
+            alert(data.message);
+            window.location = '/grouploanaccount/'+data.group_id+'/';
           }
         }
         else {
-          alert("Loan amount has been sucessfully deposited in the Loan Account.")
+          alert("Loan amount has been sucessfully deposited in the Loan Account.");
           window.location = '/grouploanaccount/'+data.group_id+'/';
         }
       }, "json");
