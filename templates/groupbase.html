@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block stage %}
-<div>
+<div class="ver-nav-wrap">
   <div class="nav-2" id="nav-conteiner">
     <ul>
       <li><a href="{% url 'micro_admin:groupprofile' group.id %}"><i class="fa fa-users padd"></i>Group Profile</a></li>
@@ -20,7 +20,7 @@
           <li><a href="{% url 'micro_admin:groupsavingsapplication' group.id %}"><i class="fa fa-plus padd"></i>Savings Application</a></li>
           {% endif %}
           {% if group.loanaccount_set.count %}
-          <li><a href="#" class="loan"><i class="fa fa-money padd"></i>View Loan</a></li>
+          <li><a href="{% url 'micro_admin:grouploanaccount' group.id %}"><i class="fa fa-money padd"></i>View Loan</a></li>
           {% else %}
           <li><a href="{% url 'micro_admin:grouploanapplication' group.id %}"><i class="fa fa-plus padd"></i>Loan Application</a></li>
           {% endif %}

@@ -65,10 +65,10 @@
         <!--div 2 of form starts below-->
         <div class="box-form">
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Opened On :</label><span class="col-lg-6 mar-top">{{ savings_account.opening_date }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Opened On :</label><span class="col-lg-6 mar-top">{{ savings_account.opening_date }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Status :</label>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Status :</label>
             {% if savings_account.status == "Applied" %}
             <span class="col-lg-6 mar-top" style="color:#337ab7;">
             {% elif savings_account.status == "Withdrawn" %}
@@ -95,7 +95,7 @@
   <div class="panel-23">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Deposit<span><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Deposits</button></span></h3>
+        <h3 class="panel-title">Deposit<span><a href="{% url 'micro_admin:viewgroupsavingsdeposits' savings_account.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Deposits</button></a></span></h3>
       </div>
       <div class="panel-body">
         <form id="groupsavingsdepositform" class="form-horizontal" role="form">
@@ -125,21 +125,21 @@
   <div class="panel-23 panel-3">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Withdraw<span><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Withdraws</button></span></h3>
+        <h3 class="panel-title">Withdraw<span><a href="{% url 'micro_admin:viewgroupsavingswithdrawals' savings_account.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Withdraws</button></a></span></h3>
       </div>
       <div class="panel-body">
         <form id="groupsavingswithdrawform" class="form-horizontal" role="form">
           {% csrf_token %}
           <div class="form-group">
             <input type="hidden"  name="transaction_type" value="Withdraw" style="dispaly:none;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Total Withdrawal Amount</label>
-            <div class="col-sm-8">
+            <label for="inputEmail3" class="col-sm-5 control-label">Total Withdrawal Amount</label>
+            <div class="col-sm-7">
               <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ savings_account.total_withdrawals }}" readonly>
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Withdraw Amount</label>
-            <div class="col-sm-8">
+            <label for="inputEmail3" class="col-sm-5 control-label">Withdraw Amount</label>
+            <div class="col-sm-7">
               <input type="text" class="text-box wid-form" name="transaction_amount" id="inputEmail3" required="True">
             </div>
           </div>

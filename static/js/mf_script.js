@@ -76,13 +76,18 @@ $(document).ready(function(e) {
         left: '-200px'
       });
       $("#togg-btn").removeClass("margin-lft");
+      $(".home-div-gp").delay(500).css("margin-left", "2%");
+      $("#fulldata-container").css("transition", "0.5s");
       return false;
     } else {
       $(".nav-2").animate({
         left: '0px'
       });
+      $(".home-div-gp").addClass("margin-lft");
       $("#togg-btn").addClass("margin-lft");
       $("#togg-btn").css("transition", "0.5s");
+      $(".home-div-gp").css("margin-left", "20%");
+      $("#fulldata-container").css("transition", "0.5s");
       return false;
     }
     return false;

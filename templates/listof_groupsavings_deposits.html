@@ -1,0 +1,55 @@
+{% extends 'groupbase.html' %}
+{% block groupstage %}
+<div class="home-div-gp">
+  <div class="panel panel-default panel-hdg">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
+        {{ group.name }} savings Deposits List
+        <span style="padding-left:5px;"><a href="{% url 'micro_admin:groupsavingsaccount' group.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
+      </h3>
+    </div>
+    <div class="panel-body">
+      <!--panel body starts above-->
+      <form class="form-horizontal" role="form">
+      <!--div 1 0f form-->
+      <div class="box-form">
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Number of Deposits :</label><span class="col-lg-6 mar-top"><b>{{ savings_deposit_transactions.count }}</b></span>
+        </div>
+      </div>
+      <!--div 1 of fomr ends above-->
+      <br clear="all" />
+      <div class="hg-table">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>A/C Number</th>
+                <th>Amount Deposited</th>
+                <th>Transaction Date</th>
+                <th>Transaction Done By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for transaction in savings_deposit_transactions %}
+              <tr>
+                <td><b>{{ forloop.counter }}</b></td>
+                <td>{{ transaction.savings_account.account_no }}</td>
+                <td><span style="color:#FF00CC;">{{ transaction.transaction_amount }}</span></td>
+                <td>{{ transaction.transaction_date }}</td>
+                <td>{{ transaction.staff.username|capfirst }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!--panel body ends below crct-->
+  </div>
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

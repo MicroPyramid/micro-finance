@@ -23,7 +23,7 @@
       {% endif %}
       {% if savingsaccount.status == "Closed" %}
       <button title = "Already Closed"><i class="fa fa-trash-o padd"></i>Closed</button>
-      {% else %} 
+      {% else %}
       <a href="{% url 'micro_admin:closesavings' savingsaccount.id %}"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
       {% endif %}
       <br clear="all" />
