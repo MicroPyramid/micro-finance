@@ -3,7 +3,7 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel-bp">
+  <div class="panel panel-default my-panel-bp margin-top-set">
     <div class="panel-heading">Staff
       <span>
       {% if user.id == selecteduser.id %}<a href="{% url 'micro_admin:edituser' selecteduser.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>{% endif %}

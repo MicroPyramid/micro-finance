@@ -3,19 +3,21 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile">
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
     <div class="panel-heading"><h3 class="panel-title">
         {% if savingsaccount.client.is_active %}
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{savingsaccount.client.first_name}}  Savings Withdrawal
+        <span><a href="{% url 'micro_admin:clientsavingsaccount' savingsaccount.client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
         </h3></div>
     <div class="panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
+              <th>S.No</th>
               <th>Account Number</th>
               <th>Transaction Done by</th>
               <th>Transaction Date</th>
@@ -25,6 +27,7 @@
           <tbody class="body-row-tb">
             {% for savingstransaction in savingstransactions_list %}
             <tr>
+              <td><b>{{ forloop.counter }}</b></td>
               <td>{{ savingsaccount.account_no }}</td>
               <td>{{ savingstransaction.staff }}</td>
               <td>{{ savingstransaction.transaction_date }}</td>

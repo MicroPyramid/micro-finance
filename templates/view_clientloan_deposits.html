@@ -3,19 +3,21 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile">
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
     <div class="panel-heading"><h3 class="panel-title">
         {% if loanaccount.client.is_active %}
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{loanaccount.client.first_name}}  Loan Deposits
+        <span><a href="{% url 'micro_admin:clientloanaccount' loanaccount_client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
         </h3></div>
     <div class="panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
+              <th>S.No</th>
               <th>Account Number</th>
               <th>Transaction Done by</th>
               <th>Transaction Date</th>
@@ -25,6 +27,7 @@
           <tbody class="body-row-tb">
             {% for loantransaction in loantransactions_list %}
             <tr>
+              <td><b>{{ forloop.counter }}</b></td>
               <td>{{ loanaccount.account_no }}</td>
               <td>{{ loantransaction.staff }}</td>
               <td>{{ loantransaction.transaction_date }}</td>

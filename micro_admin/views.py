@@ -462,8 +462,6 @@ def group_savings_application(request, group_id):
             opening_date = dateconvert
             min_required_balance = request.POST.get("min_required_balance")
             annual_interest_rate = request.POST.get("annual_interest_rate")
-
-        elif request.POST.get("savings_balance") >= min_required_balance:
             savings_balance = request.POST.get("savings_balance")
             if decimal.Decimal(savings_balance) >= decimal.Decimal(min_required_balance) :
                 savings_account = SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", opening_date=opening_date, min_required_balance=min_required_balance, annual_interest_rate=annual_interest_rate)
@@ -752,30 +750,36 @@ def client_loan_transaction(request,loanaccount_id,client_id):
         loanaccount = LoanAccount.objects.get(client=client)
         if loanaccount.status == "Approved":
             if loanaccount.total_loan_balance != 0:
-                staff = User.objects.get(username=request.user)
-                transaction_amount = request.POST.get("transaction_amount")
-                if loanaccount.client:
+                latest_client_loan_transaction = LoanTransactions.objects.filter(loan_account_id=loanaccount.id).order_by('-id')[0]
+                d = datetime.datetime.now()
+                if int(latest_client_loan_transaction.transaction_date.strftime('%m')) + 1 == d.month :
+                    staff = User.objects.get(username=request.user)
                     transaction_amount = request.POST.get("transaction_amount")
-                    if decimal.Decimal(transaction_amount) == decimal.Decimal(loanaccount.loan_repayment_amount):
-                        loantransaction = LoanTransactions.objects.create(transaction_amount=transaction_amount, staff=staff,loan_account=loanaccount)
-                        interest_charged = ((decimal.Decimal(loanaccount.loan_amount) *(decimal.Decimal(loanaccount.annual_interest_rate) / 12)) / 100)
-                        total_interest_repaid = (decimal.Decimal(interest_charged) * decimal.Decimal(loanaccount.loan_repayment_every))
-                        loan_repayment_amount = ((decimal.Decimal(loanaccount.loan_amount)) / (decimal.Decimal(loanaccount.loan_repayment_period)))
-                        total_loan_amount_repaid = (decimal.Decimal(loan_repayment_amount) * decimal.Decimal(loanaccount.loan_repayment_every))
-                        loanaccount.total_loan_amount_repaid += decimal.Decimal(total_loan_amount_repaid)
-                        loanaccount.total_interest_repaid += decimal.Decimal(total_interest_repaid)
-                        total = (decimal.Decimal(loanaccount.total_loan_amount_repaid) + decimal.Decimal(loanaccount.total_interest_repaid))
-                        loanaccount.total_loan_balance = (decimal.Decimal(loanaccount.total_loan_balance) - decimal.Decimal(transaction_amount))
-                        loanaccount.save()
-                        data = {"error":False, "client_id":client_id}
-                        return HttpResponse(json.dumps(data))
+                    if loanaccount.client:
+                        transaction_amount = request.POST.get("transaction_amount")
+                        if decimal.Decimal(transaction_amount) == decimal.Decimal(loanaccount.loan_repayment_amount):
+                            loantransaction = LoanTransactions.objects.create(transaction_amount=transaction_amount, staff=staff,loan_account=loanaccount)
+                            interest_charged = ((decimal.Decimal(loanaccount.loan_amount) *(decimal.Decimal(loanaccount.annual_interest_rate) / 12)) / 100)
+                            total_interest_repaid = (decimal.Decimal(interest_charged) * decimal.Decimal(loanaccount.loan_repayment_every))
+                            loan_repayment_amount = ((decimal.Decimal(loanaccount.loan_amount)) / (decimal.Decimal(loanaccount.loan_repayment_period)))
+                            total_loan_amount_repaid = (decimal.Decimal(loan_repayment_amount) * decimal.Decimal(loanaccount.loan_repayment_every))
+                            loanaccount.total_loan_amount_repaid += decimal.Decimal(total_loan_amount_repaid)
+                            loanaccount.total_interest_repaid += decimal.Decimal(total_interest_repaid)
+                            total = (decimal.Decimal(loanaccount.total_loan_amount_repaid) + decimal.Decimal(loanaccount.total_interest_repaid))
+                            loanaccount.total_loan_balance = (decimal.Decimal(loanaccount.total_loan_balance) - decimal.Decimal(transaction_amount))
+                            loanaccount.save()
+                            data = {"error":False, "client_id":client_id}
+                            return HttpResponse(json.dumps(data))
+                        else:
+                            data = {"error":True, "message":"Deposit Amount should be equal to Loan Repayment Amount ", "client_id":client_id}
+                            return HttpResponse(json.dumps(data))
                     else:
-                        data = {"error":True, "message":"Deposit Amount should be equal to Loan Repayment Amount ", "client_id":client_id}
-                        return HttpResponse(json.dumps(data))
+                        return HttpResponse(" Select Client profile ")
                 else:
-                    return HttpResponse(" Select Client profile ")
+                    data = {"error":True,"message_balance":"Next Transaction should be done Next month", "client_id":client_id}
+                    return HttpResponse(json.dumps(data)) 
             else:
-                data = {"error":True,"message_balance":"Loan Transactions have been completed", "client_id":client_id}
+                data = {"error":True,"message_balance":"Loan has been completed", "client_id":client_id}
                 return HttpResponse(json.dumps(data))       
         else:
             data = {"error":True,"message_pending":"Loan Account is under pending for approval", "client_id":client_id}
@@ -785,13 +789,13 @@ def client_loan_transaction(request,loanaccount_id,client_id):
 def listofclient_loan_deposits(request, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
     loantransactions_list = LoanTransactions.objects.filter(loan_account=loanaccount_id)
-    return render(request, "view_clientloan_deposits.html", {"loanaccount":loanaccount, "loantransactions_list":loantransactions_list})
+    return render(request, "view_clientloan_deposits.html", {"loanaccount":loanaccount, "loantransactions_list":loantransactions_list, "loanaccount_client":loanaccount.client})
 
 
 def listofclient_savings_deposits(request,savingsaccount_id):
     savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
     savingstransactions_list = SavingsTransactions.objects.filter(savings_account=savingsaccount_id, transaction_type = "Deposit")
-    return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount":savingsaccount, "savingstransactions_list":savingstransactions_list})
+    return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount":savingsaccount, "savingstransactions_list":savingstransactions_list, "savingsaccount_client":savingsaccount.client})
 
 
 def listofclient_savings_withdrawals(request,savingsaccount_id):
@@ -804,67 +808,6 @@ def group_loan_account(request, group_id):
     group = Group.objects.get(id=group_id)
     loan_account = LoanAccount.objects.get(group=group)
     return render(request, "group_loan_account.html", {"group":group, "loan_account":loan_account})
-
-
-def approve_loan(request, loanaccount_id):
-    if request.method == "POST":
-        loan_account = LoanAccount.objects.get(id=loanaccount_id)
-        if loan_account.group:
-            loan_account.status = "Approved"
-            loan_account.approved_date = datetime.datetime.now()
-            loan_account.save()
-            data = {"error":False, "group_id":loan_account.group.id}
-            return HttpResponse(json.dumps(data))
-        elif loan_account.client:
-            loan_account.status = "Approved"
-            loan_account.save()
-            data = {"error":False, "client_id":loan_account.client.id}
-            return HttpResponse(json.dumps(data))
-
-
-def reject_loan(request, loanaccount_id):
-    if request.method == "POST":
-        loan_account = LoanAccount.objects.get(id=loanaccount_id)
-        if loan_account.group:
-            loan_account.status = "Rejected"
-            loan_account.save()
-            data = {"error":False, "group_id":loan_account.group.id}
-            return HttpResponse(json.dumps(data))
-        elif loan_account.client:
-            loan_account.status = "Rejected"
-            loan_account.save()
-            data = {"error":False, "client_id":loan_account.client.id}
-            return HttpResponse(json.dumps(data))
-
-
-def close_loan(request, loanaccount_id):
-    if request.method == "POST":
-        loan_account = LoanAccount.objects.get(id=loanaccount_id)
-        if loan_account.group:
-            loan_account.status = "Closed"
-            loan_account.save()
-            data = {"error":False, "group_id":loan_account.group.id}
-            return HttpResponse(json.dumps(data))
-        elif loan_account.client:
-            loan_account.status = "Closed"
-            loan_account.save()
-            data = {"error":False, "client_id":loan_account.client.id}
-            return HttpResponse(json.dumps(data))
-
-
-def withdraw_loan(request, loanaccount_id):
-    if request.method == "POST":
-        loan_account = LoanAccount.objects.get(id=loanaccount_id)
-        if loan_account.group:
-            loan_account.status = "Withdrawn"
-            loan_account.save()
-            data = {"error":False, "group_id":loan_account.group.id}
-            return HttpResponse(json.dumps(data))
-        elif loan_account.client:
-            loan_account.status = "Withdrawn"
-            loan_account.save()
-            data = {"error":False, "client_id":loan_account.client.id}
-            return HttpResponse(json.dumps(data))
 
 
 def group_loan_transactions(request, loanaccount_id):
