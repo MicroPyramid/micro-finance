@@ -5,6 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 import json
 from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, SavingsTransactions, LoanAccount, LoanTransactions
 from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm, GroupLoanAccountForm, ClientSavingsAccountForm, ClientLoanAccountForm
+from django.contrib.auth.decorators import login_required
 import datetime
 import decimal
 
@@ -36,6 +37,7 @@ def user_login(request):
             return render(request, "index.html", {"user": user})
 
 
+@login_required
 def user_logout(request):
     if not request.user.is_authenticated():
         return HttpResponse("")
@@ -43,6 +45,7 @@ def user_logout(request):
     return HttpResponseRedirect("/")
 
 
+@login_required
 def create_branch(request):
     if request.method == "GET":
         data = {}
@@ -69,6 +72,7 @@ def create_branch(request):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def edit_branch(request, branch_id):
     if request.method == "GET":
         branch = Branch.objects.get(id=branch_id)
@@ -89,16 +93,19 @@ def edit_branch(request, branch_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def branch_profile(request,branch_id):
     branch = Branch.objects.get(id=branch_id)
     return render(request,"branchprofile.html", {"branch":branch})
 
 
+@login_required
 def view_branch(request):
     branch_list = Branch.objects.all()
     return render(request,"viewbranch.html",{"branch_list":branch_list})
 
 
+@login_required
 def delete_branch(request,branch_id):
     branch = Branch.objects.get(id=branch_id)
     branch_list = Branch.objects.all()
@@ -106,6 +113,7 @@ def delete_branch(request,branch_id):
     return render(request,"viewbranch.html", {"branch_list":branch_list})
 
 
+@login_required
 def create_client(request):
     if request.method == "GET":
         data = {}
@@ -146,12 +154,14 @@ def create_client(request):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def client_profile(request,client_id):
     client = Client.objects.get(id=client_id)
     branch = Branch.objects.all()
     return render(request,"clientprofile.html", {"client":client, "branch":branch})
 
 
+@login_required
 def edit_client(request,client_id):
     if request.method =="GET":
         client = Client.objects.get(id=client_id)
@@ -181,6 +191,7 @@ def edit_client(request,client_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def update_clientprofile(request,client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
@@ -193,6 +204,7 @@ def update_clientprofile(request,client_id):
         return HttpResponseRedirect('/clientprofile/'+client_id+'/')
 
 
+@login_required
 def view_client(request):
     branch_list = Branch.objects.all()
     client_list = Client.objects.all()
@@ -200,6 +212,7 @@ def view_client(request):
     return render(request,"viewclient.html",{"branch_list":branch_list, "client_list":client_list, "group":group})
 
 
+@login_required
 def delete_client(request,client_id):
     client = Client.objects.get(id=client_id)
     client_list = Client.objects.all()
@@ -207,6 +220,7 @@ def delete_client(request,client_id):
     return render(request,"viewclient.html", {"client_list":client_list})
 
 
+@login_required
 def create_user(request):
     if request.method == "GET":
         data = {}
@@ -245,6 +259,7 @@ def create_user(request):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def edit_user(request, user_id):
     if request.method == "GET":
         user = User.objects.get(id=user_id)
@@ -267,16 +282,19 @@ def edit_user(request, user_id):
         return HttpResponse(json.dumps(data))
 
 
+@login_required
 def user_profile(request, user_id):
     selecteduser = User.objects.get(id=user_id)
     return render(request, "userprofile.html", {"selecteduser":selecteduser})
 
 
+@login_required
 def users_list (request):
     list_of_users = User.objects.filter(is_admin=0)
     return render(request,"listofusers.html", {"list_of_users":list_of_users})
 
 
+@login_required
 def delete_user(request, user_id):
     user = User.objects.get(id=user_id)
     user.delete()
@@ -284,6 +302,7 @@ def delete_user(request, user_id):
     return render(request, "listofusers.html", {"list_of_users":list_of_users})
 
 
+@login_required
 def create_group(request):
     if request.method == "GET":
         data = {}
@@ -307,6 +326,7 @@ def create_group(request):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def group_profile(request, group_id):
     group = Group.objects.get(id=group_id)
     clients_list = group.clients.all()
@@ -318,6 +338,7 @@ def group_profile(request, group_id):
         return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
 
 
+@login_required
 def assign_staff_to_group(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
@@ -333,6 +354,7 @@ def assign_staff_to_group(request, group_id):
         return HttpResponse(json.dumps(data))
 
 
+@login_required
 def addmembers_to_group(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
@@ -356,6 +378,7 @@ def addmembers_to_group(request, group_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def viewmembers_under_group(request, group_id):
     group = Group.objects.get(id=group_id)
     clients_list = group.clients.all()
@@ -363,11 +386,13 @@ def viewmembers_under_group(request, group_id):
     return render(request, "viewmembers.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
 
 
+@login_required
 def groups_list(request):
     groups_list = Group.objects.all()
     return render(request, "listofgroups.html", {"groups_list":groups_list})
 
 
+@login_required
 def delete_group(request, group_id):
     group = Group.objects.get(id=group_id)
     if group.staff and group.clients.all().count():
@@ -378,6 +403,7 @@ def delete_group(request, group_id):
             return HttpResponse("Group deleted successfully")
 
 
+@login_required
 def removemembers_from_group(request, group_id, client_id):
     group = Group.objects.get(id=group_id)
     client = Client.objects.get(id=client_id)
@@ -388,11 +414,13 @@ def removemembers_from_group(request, group_id, client_id):
     return HttpResponseRedirect('/groupprofile/'+group_id+'/')
 
 
+@login_required
 def group_meetings(request, group_id):
     group = Group.objects.get(id=group_id)
     return HttpResponse("List of Group of Meetings")
 
 
+@login_required
 def add_group_meeting(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
@@ -411,6 +439,7 @@ def add_group_meeting(request, group_id):
         return HttpResponseRedirect('/groupprofile/'+group_id+'/')
 
 
+@login_required
 def client_savings_application(request, client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
@@ -439,12 +468,14 @@ def client_savings_application(request, client_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def client_savings_account(request,client_id):
     client = Client.objects.get(id=client_id)
     savingsaccount = SavingsAccount.objects.get(client=client)
     return render(request, "client_savings_account.html", {"client":client, "savingsaccount":savingsaccount})
 
 
+@login_required
 def group_savings_application(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
@@ -478,12 +509,14 @@ def group_savings_application(request, group_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def group_savings_account(request, group_id):
     group = Group.objects.get(id=group_id)
     savings_account = SavingsAccount.objects.get(group=group)
     return render(request, "group_savings_account.html", {"group":group, "savings_account":savings_account})
 
 
+@login_required
 def approve_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
@@ -500,6 +533,7 @@ def approve_savings(request, savingsaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def reject_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
@@ -516,6 +550,7 @@ def reject_savings(request, savingsaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def close_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
@@ -532,6 +567,7 @@ def close_savings(request, savingsaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def withdraw_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
@@ -548,6 +584,7 @@ def withdraw_savings(request, savingsaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def group_savings_transactions(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
@@ -574,6 +611,7 @@ def group_savings_transactions(request, savingsaccount_id):
             return HttpResponse("No Group")
 
 
+@login_required
 def group_loan_application(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
@@ -604,6 +642,7 @@ def group_loan_application(request, group_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def clientsavingstransaction(request,savingsaccount_id,client_id):
     if request.method == "POST":
         client = Client.objects.get(id=client_id)
@@ -640,6 +679,7 @@ def clientsavingstransaction(request,savingsaccount_id,client_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def client_loan_application(request, client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
@@ -672,6 +712,7 @@ def client_loan_application(request, client_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def client_loan_account(request,client_id):
     client = Client.objects.get(id=client_id)
     loanaccount = LoanAccount.objects.get(client = client)
@@ -680,6 +721,7 @@ def client_loan_account(request,client_id):
     return render(request, "client_loan_account.html", {"client":client, "loanaccount":loanaccount, "loanamount_withInterest":loanamount_withInterest, "total":total})
 
 
+@login_required
 def approve_loan(request, loanaccount_id):
     if request.method == "POST":
         loan_account = LoanAccount.objects.get(id=loanaccount_id)
@@ -696,6 +738,7 @@ def approve_loan(request, loanaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def reject_loan(request, loanaccount_id):
     if request.method == "POST":
         loan_account = LoanAccount.objects.get(id=loanaccount_id)
@@ -712,6 +755,7 @@ def reject_loan(request, loanaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def close_loan(request, loanaccount_id):
     if request.method == "POST":
         loan_account = LoanAccount.objects.get(id=loanaccount_id)
@@ -728,6 +772,7 @@ def close_loan(request, loanaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def withdraw_loan(request, loanaccount_id):
     if request.method == "POST":
         loan_account = LoanAccount.objects.get(id=loanaccount_id)
@@ -744,6 +789,7 @@ def withdraw_loan(request, loanaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def client_loan_transaction(request,loanaccount_id,client_id):
     if request.method == "POST":
         client = Client.objects.get(id=client_id)
@@ -786,30 +832,35 @@ def client_loan_transaction(request,loanaccount_id,client_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def listofclient_loan_deposits(request, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
     loantransactions_list = LoanTransactions.objects.filter(loan_account=loanaccount_id)
     return render(request, "view_clientloan_deposits.html", {"loanaccount":loanaccount, "loantransactions_list":loantransactions_list, "loanaccount_client":loanaccount.client})
 
 
+@login_required
 def listofclient_savings_deposits(request,savingsaccount_id):
     savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
     savingstransactions_list = SavingsTransactions.objects.filter(savings_account=savingsaccount_id, transaction_type = "Deposit")
     return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount":savingsaccount, "savingstransactions_list":savingstransactions_list, "savingsaccount_client":savingsaccount.client})
 
 
+@login_required
 def listofclient_savings_withdrawals(request,savingsaccount_id):
     savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
     savingstransactions_list = SavingsTransactions.objects.filter(savings_account=savingsaccount_id, transaction_type = "Withdraw")
     return render(request, "listof_clientsavingswithdrawals.html", {"savingsaccount":savingsaccount, "savingstransactions_list":savingstransactions_list})    
 
 
+@login_required
 def group_loan_account(request, group_id):
     group = Group.objects.get(id=group_id)
     loan_account = LoanAccount.objects.get(group=group)
     return render(request, "group_loan_account.html", {"group":group, "loan_account":loan_account})
 
 
+@login_required
 def group_loan_transactions(request, loanaccount_id):
     if request.method == "POST":
         loan_account = LoanAccount.objects.get(id=loanaccount_id)
@@ -858,24 +909,28 @@ def group_loan_transactions(request, loanaccount_id):
             return HttpResponse(json.dumps(data))
 
 
+@login_required
 def view_grouploan_deposits(request, loanaccount_id):
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
     loan_transactions = loan_account.loantransactions_set.all()
     return render(request, "listof_grouploan_deposits.html", {"loan_account":loan_account, "loan_transactions":loan_transactions, "group":loan_account.group})
 
 
+@login_required
 def view_groupsavings_deposits(request, savingsaccount_id):
     savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
     savings_deposit_transactions = savings_account.savingstransactions_set.filter(transaction_type="Deposit")
     return render(request, "listof_groupsavings_deposits.html", {"savings_account":savings_account, "savings_deposit_transactions":savings_deposit_transactions, "group":savings_account.group})
 
 
+@login_required
 def view_groupsavings_withdrawals(request, savingsaccount_id):
     savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
     savings_withdrawal_transactions = savings_account.savingstransactions_set.filter(transaction_type="Withdraw")
     return render(request, "listof_groupsavings_withdrawals.html", {"savings_account":savings_account, "savings_withdrawal_transactions":savings_withdrawal_transactions, "group":savings_account.group})
 
 
+@login_required
 def issue_group_loan(request, loanaccount_id):
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
     loan_account.loan_issued_date = datetime.datetime.now()
