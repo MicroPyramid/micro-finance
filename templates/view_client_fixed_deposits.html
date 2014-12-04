@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        Members Fixed Deposits-List
+        <span><a href="{% url 'micro_admin:fixeddeposits' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>create Fixed Deposit</button></a></span>
+      </h3>
+    </div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr class="head-row-tb">
+              <th>S.No.</th>
+              <th>Member Name</th>
+              <th>Deposited Date</th>
+              <th>Account Number</th>
+              <th>Deposit Amount</th>
+              <th>Deposit Period
+                (in months)
+              </th>
+              <th>Total Deposit Amount</th>
+              <th>Nominee Name</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for fixed_deposit in fixed_deposit_list %}
+            <tr>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td><a href="{% url 'micro_admin:clientfixeddepositsprofile' fixed_deposit.id %}" style="color:#000">
+                {{ fixed_deposit.client.first_name }}</a>
+              </td>
+              <td>{{ fixed_deposit.deposited_date  }}</td>
+              <td>{{ fixed_deposit.client.account_number  }}</td>
+              <td>{{ fixed_deposit.fixed_deposit_amount }}</td>
+              <td>{{ fixed_deposit.fixed_deposit_period }}</td>
+              <td>{{ fixed_deposit.maturity_amount }}</td>
+              <td>{{ fixed_deposit.nominee_firstname }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

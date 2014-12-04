@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container" style ="width:100%">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        Day Book
+      </h3>
+    </div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive wid-45per">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th colspan="6">Receipts</th>
+            </tr>
+            <tr>
+              <th>Date</th>
+              <th>Account No.</th>
+              <th>Receipt No.</th>
+              <th>Details</th>
+              <th>Cash</th>
+              <th>Bank</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            <tr style="text-align:center">
+              <td colspan="6"><b>Savings</b></td>
+            </tr>
+            {% for thrift_deposit_sum in thrift_deposit_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ thrift_deposit_sum.account_number }}</td>
+              <td>-</td>
+              <td>{{ thrift_deposit_sum.group_name }}</td>
+              <td>{{ thrift_deposit_sum.thrift_deposit_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+            <tr style="text-align:center">
+              <td colspan="6"><b>Loan Recoveries</b></td>
+            </tr>
+            {% for loanprinciple_amount in loanprinciple_amount_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ loanprinciple_amount.account_number }}</td>
+              <td>-</td>
+              <td>{{ loanprinciple_amount.group_name }}</td>
+              <td>{{ loanprinciple_amount.loanprinciple_amount_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+            <tr style="text-align:center">
+              <td colspan="6"><b> Interest on Loans</b></td>
+            </tr>
+            {% for loaninterest_amount in loaninterest_amount_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ loaninterest_amount.account_number }}</td>
+              <td>-</td>
+              <td>{{ loaninterest_amount.group_name }}</td>
+              <td>{{ loaninterest_amount.loaninterest_amount_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+            <tr style="text-align:center">
+              <td colspan="6"><b>Entrance Fees</b></td>
+            </tr>
+            {% for entrancefee_amount in entrancefee_amount_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ entrancefee_amount.account_number }}</td>
+              <td>-</td>
+              <td>{{ entrancefee_amount.group_name }}</td>
+              <td>{{ entrancefee_amount.entrancefee_amount_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+            <tr style="text-align:center">
+              <td colspan="6"><b>Membership Fees</b></td>
+            </tr>
+            {% for membershipfee_amount in membershipfee_amount_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ membershipfee_amount.account_number }}</td>
+              <td>-</td>
+              <td>{{ membershipfee_amount.group_name }}</td>
+              <td>{{ membershipfee_amount.membershipfee_amount_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+            <tr style="text-align:center">
+              <td colspan="6"><b>Book Fees</b></td>
+            </tr>
+            {% for bookfee_amount in bookfee_amount_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ bookfee_amount.account_number }}</td>
+              <td>-</td>
+              <td>{{ bookfee_amount.group_name }}</td>
+              <td>{{ bookfee_amount.bookfee_amount_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+            <tr style="text-align:center">
+              <td colspan="6"><b>Loan Processing Fees</b></td>
+            </tr>
+            {% for loanprocessingfee_amount in loanprocessingfee_amount_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ loanprocessingfee_amount.account_number }}</td>
+              <td>-</td>
+              <td>{{ loanprocessingfee_amount.group_name }}</td>
+              <td>{{ loanprocessingfee_amount.loanprocessingfee_amount_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+            <tr style="text-align:center">
+              <td colspan="6"><b>Insurance Amounts</b></td>
+            </tr>
+            {% for insurance_amount in insurance_amount_sum_list %}
+            <tr>
+              <td>{{ current_date }}</td>
+              <td>{{ insurance_amount.account_number }}</td>
+              <td>-</td>
+              <td>{{ insurance_amount.group_name }}</td>
+              <td>{{ insurance_amount.insurance_amount_sum }}</td>
+              <td>-</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="table-responsive wid-45per">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th colspan="6">Payments</th>
+            </tr>
+            <tr>
+              <th>Date</th>
+              <th>Account No.</th>
+              <th>Receipt No.</th>
+              <th>Details</th>
+              <th>Cash</th>
+              <th>Bank</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>Savings</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            <tr>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+</div>
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

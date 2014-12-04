@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from micro_admin.models import Branch, User, Group, Client, SavingsAccount, LoanAccount
+from micro_admin.models import Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts
 
 
 class BranchForm(forms.ModelForm):
@@ -56,25 +56,39 @@ class ClientSavingsAccountForm(forms.ModelForm):
 
     class Meta:
         model = SavingsAccount
-        fields = ["account_no", "opening_date", "min_required_balance", "annual_interest_rate", "savings_balance"]
-
-
-class GroupSavingsAccountForm(forms.ModelForm):
-
-    class Meta:
-        model = SavingsAccount
-        fields = ["account_no", "opening_date", "min_required_balance", "savings_balance", "annual_interest_rate"]
-
-
-class GroupLoanAccountForm(forms.ModelForm):
-
-    class Meta:
-        model = LoanAccount
-        fields = ["account_no", "loan_amount", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
+        fields = ["account_no", "opening_date", "min_required_balance", "annual_interest_rate"]
 
 
 class ClientLoanAccountForm(forms.ModelForm):
 
     class Meta:
         model = LoanAccount
-        fields = ["account_no", "loan_amount", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
+        fields = ["account_no", "loan_amount", "interest_type", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
+
+
+class FixedDepositForm(forms.ModelForm):
+
+    class Meta:
+        model = FixedDeposits
+        fields = ["fixed_deposit_amount", "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee"]
+
+
+class GroupSavingsAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = SavingsAccount
+        fields = ["account_no", "opening_date", "min_required_balance", "annual_interest_rate"]
+
+
+class GroupLoanAccountForm(forms.ModelForm):
+
+    class Meta:
+        model = LoanAccount
+        fields = ["account_no", "interest_type", "loan_amount", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
+
+
+class ReceiptForm(forms.ModelForm):
+
+    class Meta:
+        model = Receipts
+        fields = ["date", "branch", "receipt_number", "name", "account_number"]

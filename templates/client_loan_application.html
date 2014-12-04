@@ -50,6 +50,17 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Interest Type<span>*</span></label>
+          <div class="col-sm-7">
+            <select class="text-box wid-form" name="interest_type">
+              <option>Select Interest Type</option>
+              <option>Flat</option>
+              <option>Declining</option>
+            </select>
+            <p id="interesttypeerror"></p>
+          </div>
+        </div>
+        <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Annual Intrest Rate<span>*</span></label>
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="annual_interest_rate" required="True">
@@ -95,6 +106,9 @@
           }
           if (data.message.loanpurpose_description) {
             $("#loanpurposeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loanpurpose_description + "</span>");
+          }
+          if (data.message.interest_type) {
+            $("#interesttypeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.interest_type + "</span>");
           }
         }
         else {

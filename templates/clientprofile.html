@@ -16,17 +16,19 @@
       {% else %}
       <a href="{% url 'micro_admin:clientloanapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Loan Application</button></a>
       {% endif %}
+      <a href="{% url 'micro_admin:ledgeraccount' client.id %}"><button>View Ledger</button></a>
+      <a href="{% url 'micro_admin:viewparticularclientfixeddeposits' client.id%}"><button><i class="fa fa-eye padd"></i>View Fixed Deposits</button></a>
       <a href="{% url 'micro_admin:updateclientprofile' client.id %}"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
       {% if user.is_admin %}
       <a href="{% url 'micro_admin:deleteclient' client.id %}"><button><i class="fa fa-trash-o padd"></i>Delete</button></a>
       {% endif %}
       <br clear="all" />
     </div>
-    <div class="clr-div">
+    <div class="clr-div" style ="width:100%">
       <div class="img-div">
         <h3>{{ client.first_name }}</h3>
-        <img src="/{{ client.photo }}" alt="Client Photo" /><br /><br />
-        <img src="/{{client.signature}}" style="width:101px; height:35px; margin-top:0px;" alt="Client signature" />
+        <img src="/{{ client.photo }}" alt="Member Photo" /><br /><br />
+        <img src="/{{client.signature}}" style="width:101px; height:35px; margin-top:0px;" alt="Member signature" />
         <br clear="all" />
       </div>
       <div class="details-div">
@@ -51,12 +53,48 @@
           {{ client.account_number }}
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Client Role : </label>
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Member Role : </label>
           {{ client.client_role }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">State : </label>
+          {{ client.state }}
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">District : </label>
           {{ client.district }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">City : </label>
+          {{ client.city }}
+        </div>
+        <div class="form-group" >
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Mobile : </label>
+          {{ client.mobile|default:" - " }}
+        </div>
+        <div class="form-group" style = "margin-top:-35px">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">&nbsp;</label>
+          &nbsp;
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Share Capital Amount: </label>
+          {{ client.sharecapital_amount }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Entrance Fee Amount: </label>
+          {{ client.entrancefee_amount }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Membership Fee Amount: </label>
+          {{ client.membershipfee_amount }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Book Fee Amount : </label>
+          {{ client.bookfee_amount }}
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-12 control-label">Insurance Amount : </label>
+          {{ client.insurance_amount }}
         </div>
       </div>
       <br clear="all" />

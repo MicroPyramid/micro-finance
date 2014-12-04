@@ -725,6 +725,56 @@ form .box-form-as {
   top: 50px;
 }
 /*group savings acc*/
-.container .margin-top-set{
+.container .margin-top-set {
   margin-top: 7%;
+}
+
+.container-trans-table {
+  width: 99%;
+  margin: 0px auto;
+  margin-top: 80px;
+}
+
+.container-trans-table .trans-table {
+  width: 100%;
+}
+
+.container-trans-table .trans-table table tr td, .container-trans-table .trans-table table tr th {
+  text-align: center;
+  padding: 8px 0px;
+}
+
+.container-trans-table .trans-table table tr th {
+  padding: 8px;
+}
+
+.container-trans-table .trans-table table tr .wid-10 {
+  width: 10px;
+}
+
+.container-trans-table .trans-table table tr .wid-60 {
+  width: 60px;
+}
+
+.container-trans-table .trans-table table tr .wid-74 {
+  width: 74px;
+}
+
+.container-trans-table .trans-table table tr .wid-90 {
+  width: 90px;
+}
+
+.pb-table {
+  margin-top: 5px;
+  padding: 4px;
+}
+
+.pb-table table tr th {
+  vertical-align: middle;
+}
+
+.wid-45per {
+  width: 49%;
+  float: left;
+  margin: 5px;
 }

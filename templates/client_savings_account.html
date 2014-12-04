@@ -2,7 +2,7 @@
 {% block stage %}
 <!--content goes below-->
 <div class="container">
-  <div class="wrap-cp-div btn-usa-div margin-top-set">
+  <div class="wrap-cp-div btn-usa-div margin-top-set" style ="margin-left:67px">
     <div class="btn-row" >
       {% if user.is_admin %}
       <span><a href="#"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a></span>
@@ -31,7 +31,7 @@
     </div>
   </div>
   <!--form div starts below-->
-  <div class="panel panel-default my-panel my-panel-cas">
+  <div class="panel panel-default my-panel my-panel-cas" style ="width:80%">
     <div class="panel-heading">
       <h3 class="panel-title">
         {% if client.is_active %}
@@ -39,6 +39,8 @@
         {% else %}
         <i class="fa fa-square red padd"></i>{% endif %}
         {{ client.first_name }} Savings Account
+        <span><a href="{% url 'micro_admin:listofclientsavingsdeposits' client.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Deposits </button></a></span>
+        <span><a href="{% url 'micro_admin:listofclientsavingswithdrawals' savingsaccount.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdrawals </button></a></span>
         {% if not user.is_admin %}
         <span><a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a> 
         {% if savingsaccount.status == "Withdrawn" %}
@@ -107,66 +109,8 @@
   </div>
   <!--form div ends above-->
   <!--table1 starts below-->
-  <div class="table-usa-div">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        Deposit
-        <span><a href="{% url 'micro_admin:listofclientsavingsdeposits' savingsaccount.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Deposits </button></a></span>
-      </div>
-      <div class="panel-body">
-        <form id="clientsavingsdepositform" class="form-horizontal" role="form">
-          {% csrf_token %}
-          <div class="form-group">
-            <input type="hidden"  name="transaction_type" value="Deposit" style="dispaly:none;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Total Savings</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="savings_balance" value="{{ savingsaccount.savings_balance}}" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Deposit Amount</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="transaction_amount" >
-            </div>
-          </div>
-          <div class="form-group btns">
-            <a href="#"><button id="deposit-button" class="with-dep-btn"><i class="fa fa-arrow-circle-o-up padd"></i>Deposit</button></a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
   <!--table 1 enda above-->
   <!--table2 starts below-->
-  <div class="table-usa-div">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        Withdraw<span>
-        <a href="{% url 'micro_admin:listofclientsavingswithdrawals' savingsaccount.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdraws </button></a></span>
-      </div>
-      <div class="panel-body">
-        <form id="clientsavingswithdrawform" class="form-horizontal" role="form">
-          {% csrf_token %}
-          <div class="form-group">
-            <input type="hidden"  name="transaction_type" value="Withdraw" style="dispaly:none;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Total Withdraws</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="total_withdrawals" value="{{ savingsaccount.total_withdrawals}}" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Withdraw Amount</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="transaction_amount" >
-            </div>
-          </div>
-          <div class="form-group btns">
-            <a href="#"><button id="withdrawbutton" class="with-dep-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
   <!--table2 ends above-->
 </div>
 <!--wrapper ends above-->
@@ -227,43 +171,6 @@
         }
         else {
           alert("Closed successfully");
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#deposit-button').click(function(e) {
-      e.preventDefault();
-      $.post('/clientsavingstransaction/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingsdepositform').serialize(), function(data) {
-        if (data.error) {
-        $("span.error").remove();
-        if (data.message) {
-          alert(data.message);
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-        if (data.message_pending) {
-            alert(data.message_pending);
-            window.location = '/clientsavingsaccount/'+data.client_id+'/';
-          }
-        }
-        else {
-          alert("Money Deposited successfully");
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#withdrawbutton').click(function(e) {
-      e.preventDefault();
-      $.post('/clientsavingstransaction/'+$('#savingsaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientsavingswithdrawform').serialize(), function(data) {
-        if (data.error) {
-          alert("Money has not been Withdrawn");
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-        else {
-          alert("Money Withdrawn successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");

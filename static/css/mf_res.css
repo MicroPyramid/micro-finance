@@ -1,160 +1,780 @@
 @charset "utf-8";
-/* Large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {
-}
-/* Medium devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-  .container {
-    width: 80%;
-  }
-
-  form .box-form {
-    width: 49%;
-    float: left;
-    margin: 0px auto;
-    padding: 0px 20px;
-  }
+/* CSS Document */
+body {
+  background: #f0f3f4;
+  width: 100%;
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  height: 100%;
 }
 
-@media (min-width: 992px)  and (max-width :1199px) {
- /* CSS Document */
-  .container {
-    width: 80%;
-  }
-
-  .container .form-div {
-    width: 70%;
-  }
-
-  .container .my-panel {
-    width: 75%;
-  }
-
-  form .box-form {
-    width: 49%;
-    float: left;
-    margin: 0px auto;
-    padding: 0px 20px;
-  }
+.bkrd {
+  background: #019090;
 }
 
-@media (min-width: 768px) and (max-width :991px) {
- 
-  .container {
-    width: 90%;
-  }
+.container {
+  width: 1170px;
+  margin: 0px auto;
+}
 
-  .container .form-div {
-    width: 98%;
-  }
+.wrapper {
+}
 
-  .container .my-panel {
-    width: 80%;
-  }
+.container .form-div {
+  width: 500px;
+  padding: 50px;
+  margin: 0px auto;
+  margin-top: 120px;
+  text-align: center;
+}
 
-  form .box-form {
-    width: 98%;
-    float: left;
-    margin: 0px auto;
-  }
+.container form-div .login-form {
+  display: block;
+}
 
-  .container .my-panel-bprofile, .container .my-panel-bp {
-    width: 98%;
-  }
+.container .form-div .reset-form {
+  display: none;
+}
 
-  .panel-23 {
-    width: 100%;
-    margin-left: 0px;
-  }
+.padd {
+  padding-right: 5px;
+}
 
-  .panel-3 {
-    float: left;
-    margin-left: 0px;
-  }
+.container .form-div .text-box {
+  width: 99%;
+  border: 1px solid #fff;
+  margin-bottom: 5px;
+  height: 40px;
+  padding: 8px;
+}
 
-  .navbar-right {
-    margin-right: 0px;
-  }
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: 13px;
+  line-height: inherit;
+  padding: 3px 2px;
+  border: 1px solid #ddd;
+}
 
-  .navbar-collapse .navbar-nav.navbar-right:last-child {
-    margin-right: 0px;
-  }
+.container .form-div .text-box placeholder {
+  color: #6edecb;
+  font-size: 14px;
+}
 
-@  media (min-width: 481px) and (max-width: 767px) {
-    .container {
-    width: 100%;
-  }
+.container .form-div button {
+  text-align: center;
+  font-weight: 800;
+  width: 99%;
+  background: #6edecb;
+  color: #fff;
+  border: 1px solid #6edecb;
+  height: 35px;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
 
-  .container .form-div {
-    width: 98%;
-    margin-top: 100px;
-  }
+.container .form-div button:hover {
+  background: #4bc9b4;
+}
 
-  .container .my-panel {
-    width: 95%;
-  }
+.form-div span {
+  font-size: 13px;
+  color: #fff;
+  margin-bottom: 30px;
+}
 
-  .my-panel .pb-pad {
-    margin-left: 0px;
-  }
-/*nav*/
-  nav ul {
-    left: 15px;
-  }
+h4 {
+  color: #fff;
+  text-align: center;
+  font-size: 35px;
+  font-family: 'Bitter', serif;
+  margin-bottom: 2px;
+}
 
-  .nav li {
-    text-align: left;
-  }
+h5 {
+  padding-left: 5px;
+  font-size: 18px;
+  color: #6edecb;
+  font-size: 25px;
+  font-family: 'Bitter', serif;
+}
 
-  .navbar-default .navbar-nav .open .dropdown-menu>li>a {
-    color: #fff;
-    font-size: 14px;
-  }
+header {
+  width: 100%;
+  background: #019090;
+  position: fixed;
+  z-index: 10;
+}
 
-  .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
-    background: #444;
-    color: #ddd;
-  }
+.container .menuu {
+  background: #019090;
+}
+/*nav bar*/
+.navbar-default {
+  background: inherit;
+  border: none;
+  border-radius: 0px;
+}
 
-/*nav*/
+.navbar {
+  margin: 0px;
+}
+
+.container-fluid {
+  margin: 0px;
+  padding: 0px;
+}
+
+.navbar-default .navbar-nav>li>a {
+  color: #fff;
+  font-size: 12px;
+}
+
+.navbar-default .navbar-nav>li>a:hover {
+  background: #444;
+  color: #ddd;
+}
+
+.navbar-default .navbar-brand {
+  color: #fff;
+}
+
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:hover, .navbar-default .navbar-nav>.open>a:focus {
+  color: #ddd;
+  background-color: #444;
+}
+
+.navbar-default .navbar-nav>.dropdown>a .caret {
+  border-top-color: #ddd;
+  border-bottom-color: #ddd;
+}
+
+.nav li {
+  list-style: none;
+  text-align: left;
+  text-transform: none;
+}
+
+.dropdown-menu>li>a {
+  display: block;
+  font-size: 15px;
+  padding: 8px;
+}
+
+.dropdown-menu>li>a:hover {
+  background: #ca3d6d;
+}
+
+.dropdown-menu {
+  min-width: 120px;
+}
+
+.navbar-nav>li>.dropdown-menu {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  background: #f2f2f2;
+  border-top-right-radius: 0;
+  width: inherit;
+}
+/*nav bar*/
+/*brnch*/
+.container .branch-form {
+  width: 70%;
+  margin: 0px auto;
+  margin-top: 10px;
+}
+
+.form-horizontal .control-label {
+  padding-top: 7px;
+  margin-bottom: 0;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.wid-form {
+  width: 100%;
+}
+
+.btns {
+  text-align: right;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  padding-right: 18px;
+}
+
+.btns .submit-btn {
+  background: #0c56a3;
+  color: #fff;
+  margin-right: 10px;
+  border: 1px solid #0c56a3;
+  padding: 2px 5px;
+  font-size: 13px;
+}
+
+.btns .submit-btn:hover {
+  background: #093159;
+}
+
+.btns .cancel-btn {
+  background: #ec2d29;
+  color: #fff;
+  margin-right: 10px;
+  border: 1px solid #ec2d29;
+  padding: 2px 5px;
+  font-size: 13px;
+}
+
+.btns .cancel-btn:hover {
+  background: #cf140f;
+}
+
+.container .my-panel {
+  border-radius: 0px;
+  box-shadow: 1px 1px 0.3 #ddd;
+  width: 44%;
+  margin: 0px auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.my-panel .pb-pad {
+  margin-left: 30px;
+  padding: 20px;
+}
+
+.panel-default>.panel-heading {
+  color: #393939;
+  font-size: 19px;
+  background: #f6f8f8;
+  border-color: #ddd;
+  font-family: 'Droid Serif', serif;
+}
+
+/*branch*/
 /*user creation*/
-  .container .my-panel-2 {
-    width: auto;
-    margin-left: 20px;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
+.container .my-panel-2 {
+  width: auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
 
-  form .box-form {
-    width: 98%;
-    float: left;
-    margin: 0px auto;
-  }
+form .box-form {
+  width: 35%;
+  float: left;
+  margin: 0px 70px;
+}
+
+.align-btns {
+  text-align: center;
+}
+
+.btns-row {
+  width: 98%;
+  margin: 20px 0px;
+}
+
+.mar-top-rad {
+  margin-top: 5px;
+}
+
+input[type=radio], input[type=checkbox] {
+  margin: 0;
+  margin-top: 1px \9;
+  line-height: normal;
+  vertical-align: middle;
+}
 /*user creation*/
-/*branch-profile*/
-  .container .my-panel-bprofile, .container .my-panel-bp {
-    width: 98%;
-  }
-/*branch-profile*/
-  .wrap-cp-div .clr-div .img-div, .wrap-cp-div .clr-div .details-div {
-    width: 100%;
-  }
+/*date picker*/
+.ui-widget-header {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+}
 
-  .home-div-gp {
-    position: relative;
-    height: auto;
-    margin-top: 40px;
-    float: left;
-    width: 85%;
-  }
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+  border: 1px solid #ddd;
+  background: #eee;
+  font-weight: normal;
+  color: inherit;
+}
 
-  .panel-23 {
-    width: 100%;
-    margin-left: 0px;
-  }
+.ui-datepicker {
+  width: 17em;
+  padding: .2em .2em 0;
+  display: none;
+  margin-left: 30px;
+}
+/*date picker*/
+/*branch profile*/
+.container .my-panel-bprofile {
+  width: 95%;
+  margin: 0px auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-radius: 0px;
+}
 
-  .panel-3 {
-    float: left;
-    margin-left: 0px;
-  }
+.head-row-tb {
+  font-size: 12px;
+}
+
+.head-row-tb th {
+  font-weight: 600;
+}
+
+.body-row-tb tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+
+.color-back-tb tr:nt-child(odd) {
+  background: #f9f9f9;
+}
+
+.pb-table {
+  margin-top: 5px;
+  padding: 0px;
+}
+
+.container .my-panel-bp {
+  width: 58%;
+  margin: 0px auto;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-radius: 0px;
+}
+
+.body-row-tb tr th {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.body-row-tb tr td span {
+  float: right;
+}
+
+.body-row-tb tr td span a {
+  text-decoration: none;
+  color: #fff;
+  margin-right: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.edit-icon {
+  background: #ecd73c;
+  padding: 3px;
+}
+
+.edit-icon:hover {
+  background: #7f7212;
+}
+
+.trash-icon {
+  background: #f23674;
+  padding: 3px 4px;
+}
+
+.trash-icon:hover {
+  background: #a11140;
+}
+
+.wid-tab th {
+  width: 200px;
+}
+
+.wid-tab td {
+  width: 290px;
+}
+
+.ed {
+  width: 190px;
+  padding-left: 10px;
+}
+
+.ed a {
+  text-decoration: none;
+  color: #fff;
+  margin-right: 5px;
+}
+
+.body-row-tb tr td a {
+  text-decoration: none;
+  color: #000;
+}
+
+.panel-heading span {
+  float: right;
+}
+
+.panel-heading span button {
+  margin-right: 5px;
+  padding: 5px 8px;
+  color: #fff;
+  border: none;
+  margin-top: -3px;
+  margin-left: 6px;
+}
+
+.panel-heading span .ed-btn {
+  background: #607aab;
+}
+
+.with-dep-btn {
+  color: #fff;
+  padding: 5px 8px;
+  background: #5caf69;
+}
+
+.with-dep-btn:hover {
+  background: #3dad4f;
+}
+
+.panel-heading span .del-btn {
+  background: #f23674;
+}
+
+.panel-heading span .ed-btn:hover {
+  background: #354f82;
+}
+
+.panel-heading span .del-btn:hover {
+  background: #a11140;
+}
+
+.view-tab-btn {
+  background: #b68b57;
+  border: none;
+}
+
+.view-tab-btn:hover {
+  background: #b57323;
+}
+
+/*branch profile*/
+/*client profile*/
+.wrap-cp-div {
+  width: 80%;
+  margin: 0px auto;
+}
+
+.wrap-cp-div .btn-row {
+  text-align: center;
+  width: 100%;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.wrap-cp-div .btn-row button {
+  border: none;
+  background: #607aab;
+  color: #fff;
+  padding: 5px 8px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+
+.wrap-cp-div .btn-row button:hover {
+  background: #354f82;
+}
+
+.wrap-cp-div .img-div {
+  width: 35%;
+  float: left;
+  padding: 10px;
+  text-align: center;
+}
+
+.img-div h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #931239;
+}
+
+.img-div img {
+  width: 100px;
+  height: 100px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+}
+
+.img-div a {
+  text-decoration: none;
+  color: #4c066c;
+  margin: 10px 0px;
+}
+
+.img-div a:hover {
+  text-decoration: underline;
+}
+
+.clr-div {
+  width: 60%;
+  margin: 0px auto;
+  background: #fff;
+  border: 1px solid #eee;
+  box-shadow: 1px 1px 0.3px #ddd;
+}
+
+.details-div {
+  width: 60%;
+  float: left;
+  margin: 30px 10px;
+}
+
+.red {
+  color: #f40c0c;
+}
+
+.green {
+  color: #46f111;
+}
+
+.body-row-tb tr td a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #fff;
+}
+
+.pat-lt {
+  padding-left: 10px;
+}
+/*client profile*/
+/*vertical bar*/
+.wrapper-gp {
+  height: 100%;
+}
+
+.nav-2 {
+  width: 200px;
+  background: #423b33;
+  height: 100%;
+  position: fixed;
+  z-index: 2;
+}
+
+.nav-2 ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.nav-2 ul li {
+  list-style: none;
+  display: block;
+  padding: 0px;
+  margin: 0px;
+}
+
+.nav-2 ul li a {
+  text-decoration: none;
+  color: #ddd;
+  display: block;
+  padding: 15px 0px;
+  padding-left: 15px;
+  border-top: 1px solid #838387;
+}
+
+.nav-2 ul li a span {
+  float: right;
+  margin-right: 20px;
+}
+
+.nav-2 ul li a:hover {
+  background: #252526;
+  color: #ddd;
+}
+
+.nav-2 ul li ul li a {
+  padding-left: 30px;
+}
+
+.nav-2 ul li ul li ul li a {
+  padding-left: 50px;
+}
+
+.mem-drop, .acc-drop, .sav-drop, .loan-drop, .more-drop {
+  display: none;
+}
+
+.toggle-btn {
+  float: left;
+  background: #ff6138;
+  border: 1px solid #ff6138;
+  color: #fff;
+  padding: 5px;
+  transition: 0s;
+}
+
+.margin-lft {
+  margin-left: 200px;
+}
+
+/*vertical-bar*/
+/*client-group content*/
+.home-div-gp {
+  position: relative;
+  height: auto;
+  margin: 0px auto;
+  margin-left: 20%;
+  margin-top: 70px;
+  float: left;
+  width: 70%;
+}
+
+.panel-hdg {
+  width: 100%;
+  margin: 0px auto;
+}
+
+.hg-table {
+  width: 100%;
+  position: relative;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.hg-table .table-responsive table thead tr th {
+  text-align: center;
+  color: #3399ff;
+  background: #f6f8f8;
+}
+
+.mar-top {
+  margin-top: 8px;
+}
+
+form .box-form-as {
+  padding-top: 20px;
+  width: 95%;
+  text-align: center;
+}
+
+.pad-lt {
+  padding-left: 10px;
+}
+
+.body-row-tb tr .a-color a {
+  color: #428bca;
+  text-decoration: none;
+}
+
+.hg-table table tbody .anchr-trash a {
+  text-decoration: none;
+  color: #fff;
+}
+/*client group content*/
+/*client-acc-savings*/
+.btn-usa-div {
+  margin-top: 24px;
+  text-align: center;
+  margin-left: -12px;
+}
+
+.container .my-panel-cas {
+  margin-left: -70px;
+  width: 50%;
+  float: left;
+  min-height: 500px;
+  margin-top: 10px;
+}
+
+.container .table-usa-div {
+  width: 48%;
+  float: left;
+  margin-top: 10px;
+  margin-left: 15px;
+}
+
+.container .table-usa-div .panel {
+  border-radius: 0px;
+}
+
+/*client savings account*/
+/*group-savings-acc*/
+.panel-23 {
+  width: 47%;
+  float: left;
+}
+
+.panel-3 {
+  float: right;
+}
+
+.panel-23 .panel {
+  margin-top: 20px;
+  border-radius: 0px;
+}
+
+.container .wid-panel-form {
+  width: 60%;
+}
+
+.wid-ass-stf {
+  width: 43%;
+}
+
+.mar-lt-center {
+  margin-left: 27% !important;
+}
+
+.ver-nav-wrap {
+  position: fixed;
+  z-index: 10;
+  top: 50px;
+}
+/*group savings acc*/
+.container .margin-top-set {
+  margin-top: 7%;
+}
+
+.container-trans-table {
+  width: 99%;
+  margin: 0px auto;
+  margin-top: 80px;
+}
+
+.container-trans-table .trans-table {
+  width: 100%;
+}
+
+.container-trans-table .trans-table table tr td, .container-trans-table .trans-table table tr th {
+  text-align: center;
+  padding: 8px 0px;
+}
+
+.container-trans-table .trans-table table tr th {
+  padding: 8px;
+}
+
+.container-trans-table .trans-table table tr .wid-10 {
+  width: 10px;
+}
+
+.container-trans-table .trans-table table tr .wid-60 {
+  width: 60px;
+}
+
+.container-trans-table .trans-table table tr .wid-74 {
+  width: 74px;
+}
+
+.container-trans-table .trans-table table tr .wid-90 {
+  width: 90px;
+}
+
+.pb-table {
+  margin-top: 5px;
+  padding: 4px;
+}
+
+.pb-table table tr th {
+  vertical-align: middle;
+}
+
+.wid-45per {
+  width: 49%;
+  float: left;
+  margin: 5px;
 }

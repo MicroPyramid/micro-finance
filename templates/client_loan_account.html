@@ -40,6 +40,7 @@
       {% else %}
       <i class="fa fa-square red padd"></i>{% endif %}
       {{ client.first_name }} Loan Account
+      <span><a href="{% url 'micro_admin:listofclientloandeposits' loanaccount.client.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></a></span>
       {% if not user.is_admin %}
       <span><a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a> 
       {% if loanaccount.status == "Withdrawn" %}
@@ -64,20 +65,32 @@
           <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Applied By Staff :</label><span class="col-lg-6 mar-top">{{ loanaccount.created_by|capfirst }}</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Amount :</label><span class="col-lg-6 mar-top" style="color:#FF00CC;">{{ loanaccount.loan_amount }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Issued By :</label><span class="col-lg-6 mar-top">{{ loanaccount.loan_issued_by|capfirst }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Amount :</label><span class="col-lg-6 mar-top" style="color:#FF00CC;">{{ loanaccount.loan_amount }}/-</span>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment Period :</label><span class="col-lg-6 mar-top">{{ loanaccount.loan_repayment_period }} Months</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment Amount :</label><span class="col-lg-6 mar-top">{{ loanaccount.loan_repayment_amount }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment Amount :</label><span class="col-lg-6 mar-top">{{ loanaccount.loan_repayment_amount }}/-</span>
+        </div>
+        {% if loanaccount.interest_type == "Flat" %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Loan Amount Repaid :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_amount_repaid }}/-</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Loan Amount Repaid :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_amount_repaid }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label"> Loan Amount With Interest Repaid :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_paid }}/-</span>
+        </div>
+        {% else %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label"> Total Principle Repaid Amount  :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_amount_repaid }}/-</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label"> Loan Amount With Interest :</label><span class="col-lg-6 mar-top">{{ loanamount_withInterest }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label"> Total Loan Amount Paid :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_paid }}/-</span>
         </div>
+        {% endif %}
       </div>
       <!--div 1 of fomr ends above-->
       <!--div 2 of form starts below-->
@@ -102,57 +115,42 @@
           {% if loanaccount.status == "Approved" %}&nbsp; on&nbsp; {{ loanaccount.approved_date }}{% endif %}</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Annual Interest Rate:</label><span class="col-lg-5 mar-top">{{ loanaccount.annual_interest_rate }} %</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Issued On :</label><span class="col-lg-6 mar-top">
+          {{ loanaccount.loan_issued_date }}
+          {% if user.is_admin and not loanaccount.loan_issued_date %}
+          <a href="{% url 'micro_admin:issueloan' loanaccount.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
+          {% endif %}
+          </span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment Every :</label><span class="col-lg-6 mar-top">{{ loanaccount.loan_repayment_every }} Months</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Annual Interest Rate:</label><span class="col-lg-5 mar-top">{{ loanaccount.annual_interest_rate }} % {{loanaccount.interest_type}} Interest</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Interest Charged :</label><span class="col-lg-6 mar-top">{{ loanaccount.interest_charged }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment for Every :</label><span class="col-lg-6 mar-top">{{ loanaccount.loan_repayment_every }} Months</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Loan Interest Repaid :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_interest_repaid }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Interest Charged :</label><span class="col-lg-6 mar-top">{{ loanaccount.interest_charged }}/-</span>
+        </div>
+        {% if loanaccount.interest_type == "Flat" %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Loan Interest Repaid :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_interest_repaid }}/-</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Loan Balance :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_balance }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Loan Balance :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_balance }}/-</span>
         </div>
+        {% else %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label"> Total Interest Repaid :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_interest_repaid }}/-</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Principle Amount Balance :</label><span class="col-lg-6 mar-top">{{ loanaccount.total_loan_balance }}/-</span>
+        </div>
+        {% endif %}
       </div>
       <br clear="all" />
     </form>
   </div>
   <!--panel body ends below crct-->
-  <div class="mar-lt-center panel-23">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Loan Transactions<span>
-          <a href="{% url 'micro_admin:listofclientloandeposits' loanaccount.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></a></span>
-        </h3>
-      </div>
-      <div class="panel-body">
-        <form id="clientloandepositform" class="form-horizontal" role="form">
-          {% csrf_token %}
-          <div class="form-group">
-            <input type="hidden"  id="loanaccount_id" value="{{ loanaccount.id }}"  style="dispaly:none;">
-            <input type="hidden"  id="client_id" value="{{ client.id }}"  style="dispaly:none;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Total Loan Amount Repaid</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ total }}" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Deposit Amount</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="transaction_amount" id="inputEmail3" required="True">
-              <p id="transactionamounterror"></p>
-            </div>
-          </div>
-          <div class="frm-group btns" style="margin-top: -10px;">
-            <a href="{% url 'micro_admin:clientloantransaction' loanaccount.id client.id %}"><button id="deposit-button" class="with-dep-btn"><i class="fa fa-arrow-circle-o-up padd"></i>Deposit</button></a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 </div>
 <script src="/static/js/mf_script.js"></script>
 <script type="text/javascript">
@@ -211,32 +209,6 @@
         }
         else {
           alert("Closed successfully")
-          window.location = '/clientloanaccount/'+data.client_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#deposit-button').click(function(e) {
-      e.preventDefault();
-      $.post('/clientloantransaction/'+$('#loanaccount_id').val()+'/'+$('#client_id').val()+ '/', $('#clientloandepositform').serialize(), function(data) {
-        if (data.error) {
-          $("span.error").remove();
-          if (data.message) {
-            alert(data.message);
-            window.location = '/clientloanaccount/'+data.client_id+'/';
-          }
-          if (data.message_pending) {
-            alert(data.message_pending);
-            window.location = '/clientloanaccount/'+data.client_id+'/';
-          }
-          if (data.message_balance) {
-            alert(data.message_balance);
-            window.location = '/clientloanaccount/'+data.client_id+'/';
-          }
-        }
-        else {
-          alert("Loan Amount Deposited successfully")
           window.location = '/clientloanaccount/'+data.client_id+'/';
         }
       }, "json");
