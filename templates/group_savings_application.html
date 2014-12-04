@@ -3,7 +3,7 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel">
+  <div class="panel panel-default my-panel margin-top-set">
     <div class="panel-heading">{% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
       {{ group.name }} Savings Application
     </div>
@@ -34,13 +34,6 @@
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form" name="min_required_balance" id="inputEmail3" required="True">
             <p id="minrequiredbalanceerror"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-4 control-label">Balance</label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="savings_balance" id="inputEmail3">
-            <p id="savingsbalanceerror"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">

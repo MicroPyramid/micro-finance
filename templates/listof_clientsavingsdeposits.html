@@ -3,32 +3,41 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile">
-    <div class="panel-heading"><h3 class="panel-title">
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
+    <div class="panel-heading">
+      <h3 class="panel-title">
         {% if savingsaccount.client.is_active %}
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{savingsaccount.client.first_name}}  Savings Deposits
-        </h3></div>
+        <span><a href="{% url 'micro_admin:clientsavingsaccount' savingsaccount.client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
+      </h3>
+    </div>
     <div class="panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
-              <th>Account Number</th>
-              <th>Transaction Done by</th>
-              <th>Transaction Date</th>
-              <th>Transaction Amount</th>
+              <th>S.No</th>
+              <th>Receipt Number</th>
+              <th>Member Account Number</th>
+              <th>Deposit Done by</th>
+              <th>Deposited Date</th>
+              <th>Deposit Amount</th>
+              <th>Savings Balance</th>
             </tr>
           </thead>
           <tbody class="body-row-tb">
-            {% for savingstransaction in savingstransactions_list %}
+            {% for receipts_list in receipts_lists %}
             <tr>
-              <td>{{ savingsaccount.account_no }}</td>
-              <td>{{ savingstransaction.staff }}</td>
-              <td>{{ savingstransaction.transaction_date }}</td>
-              <td>{{ savingstransaction.transaction_amount }}</td>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td>{{ receipts_list.receipt_number }}</td>
+              <td>{{ savingsaccount.client.account_number }}</td>
+              <td>{{ receipts_list.staff }}</td>
+              <td>{{ receipts_list.date }}</td>
+              <td>{{ receipts_list.savingsdeposit_thrift_amount }}</td>
+              <td>{{ savingsaccount.savings_balance_atinstant }}</td>
             </tr>
             {% endfor %}
           </tbody>

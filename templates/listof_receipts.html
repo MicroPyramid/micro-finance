@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container-trans-table">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile margin-top-set trans-table">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        Receipts Lists
+        <span><a href="{% url 'micro_admin:receiptsdeposit' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>New Receipt</button>
+        </a></span>
+      </h3>
+    </div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr class="head-row-tb">
+              <th class="wid-10">S.No.</th>
+              <th class="wid-90">Date</th>
+              <th class="wid-10">Receipt Number</th>
+              <th>Member Name</th>
+              <th class="wid-10">Share Capital</th>
+              <th class="wid-10">Entrance Fee</th>
+              <th class="wid-10">Membership Fee</th>
+              <th class="wid-10">Book Fee</th>
+              <th class="wid-74">Loan Processing Fee</th>
+              <th class="wid-90">Thrift Deposits</th>
+              <th class="wid-90">Fixed Deposits</th>
+              <th class="wid-90">Recurring Deposits</th>
+              <th class="wid-90">Loan Principal Amount</th>
+              <th class="wid-90">Loan Interest Amount</th>
+              <th class="wid-90">Insurance Amount</th>
+              <th class="wid-90">Created By</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for receipt in receipt_list %}
+            <tr>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td>{{ receipt.date }}</td>
+              <td>{{ receipt.receipt_number}}</td>
+              <td>{{ receipt.client.first_name|capfirst }}</td>
+              <td>{{ receipt.sharecapital_amount|default:" - " }}</td>
+              <td>{{ receipt.entrancefee_amount|default:" - " }}</td>
+              <td>{{ receipt.membershipfee_amount|default:" - " }}</td>
+              <td>{{ receipt.bookfee_amount|default:" - "}}</td>
+              <td>{{ receipt.loanprocessingfee_amount|default:" - " }}</td>
+              <td>{{ receipt.savingsdeposit_thrift_amount|default:" - " }}</td>
+              <td>{{ receipt.fixeddeposit_amount|default:" - " }}</td>
+              <td>{{ receipt.recurringdeposit_amount|default:" - " }}</td>
+              <td>{{ receipt.loanprinciple_amount|default:" - " }}</td>
+              <td>{{ receipt.loaninterest_amount|default:" - " }}</td>
+              <td>{{ receipt.insurance_amount|default:" - " }}</td>
+              <td>{{ receipt.staff|default:" - " }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

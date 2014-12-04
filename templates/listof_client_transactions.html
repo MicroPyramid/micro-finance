@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container-trans-table">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile margin-top-set trans-table">
+    <div class="panel-heading">Member Transactions-List</div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr class="head-row-tb">
+              <th class="wid-10">S.No.</th>
+              <th class="wid-90">Date</th>
+              <th>Member Name</th>
+              <th class="wid-10">Client Status</th>
+              <th class="wid-74">Savings Status</th>
+              <th class="wid-90">Deposit</th>
+              <th class="wid-90">Withdrawal</th>
+              <th class="wid-90">Savings Balance</th>
+              <th class="wid-74">Loan Status</th>
+              <th class="wid-90">Loan Amount</th>
+              <th class="wid-10">Interest Rate</th>
+              <th class="wid-10">Principle Repaid</th>
+              <th class="wid-10">Interest Repaid</th>
+              <th class="wid-90">Principle Balance</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for result in result_list %}
+            <tr>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td>{{ result.date }}</td>
+              <td>{{ result.client_name }}</td>
+              <td>{{ result.status }}</td>
+              <td>{{ result.savings_account_status|default:" - " }}</td>
+              <td>{{ result.savings_deposit|default:" - " }}</td>
+              <td>{{ result.savings_withdrawal|default:" - "}}</td>
+              <td>{{ result.savings_balance|default:" - " }}</td>
+              <td>{{ result.loan_account_status|default:" - " }}</td>
+              <td>{{ result.loan_amount|default:" - " }}</td>
+              <td>{{ result.interest_rate|default:" - " }}</td>
+              <td>{{ result.principle_loanamount_repaid|default:" - " }}</td>
+              <td>{{ result.interest_repaid|default:" - " }}</td>
+              <td>{{ result.principle_loan_balance|default:" - " }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

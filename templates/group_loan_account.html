@@ -34,6 +34,7 @@
       <h3 class="panel-title">
         {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
         {{ group.name }} Loan Account
+        <span><a href="{% url 'micro_admin:viewgrouploandeposits' group.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></a></span>
         {% if not user.is_admin %}
         {% if loan_account.status == "Withdrawn" %}
         <span style="padding-left:5px;"><a title="Account has already been Withdrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a></span>
@@ -67,7 +68,7 @@
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Period :</label><span class="col-lg-6 mar-top">{{ loan_account.loan_repayment_period }} Months</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Interest Charged :</label><span class="col-lg-6 mar-top" style="color:#FF00CC;">{{ loan_account.interest_charged }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Principle Repaid Amount :</label><span class="col-lg-6 mar-top" style="color:#337ab7;">{{ loan_account.total_loan_amount_repaid }}</span>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Repaid Amount :</label><span class="col-lg-6 mar-top" style="color:#337ab7;">{{ loan_account.total_loan_paid }}</span>
@@ -98,21 +99,28 @@
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Issued On :</label><span class="col-lg-6 mar-top">
             {{ loan_account.loan_issued_date }}
             {% if user.is_admin and not loan_account.loan_issued_date %}
-            <a href="{% url 'micro_admin:issuegrouploan' loan_account.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
+            <a href="{% url 'micro_admin:issueloan' loan_account.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
             {% endif %}
             </span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Annual Interest Rate :</label><span class="col-lg-5 mar-top">{{ loan_account.annual_interest_rate }} %</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Annual Interest Rate :</label><span class="col-lg-5 mar-top">{{ loan_account.annual_interest_rate }} % &nbsp;&nbsp; {{ loan_account.interest_type }} Interest</span>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment Every :</label><span class="col-lg-5 mar-top">{{ loan_account.loan_repayment_every }} Month{{ loan_account.loan_repayment_every|pluralize }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan Repayment Amount :</label><span class="col-lg-5 mar-top">{{ loan_account.loan_repayment_amount }} &nbsp;&nbsp;per {{ loan_account.loan_repayment_every }} Month{{ loan_account.loan_repayment_every|pluralize }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Interset Repaid Amount :</label><span class="col-lg-6 mar-top" style="color:#337ab7;">{{ loan_account.total_interest_repaid }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Balance Amount :</label><span class="col-lg-5 mar-top" style="color:#337ab7;">{{ loan_account.total_loan_balance }} </span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">
+            {% if loan_account.interest_type == "Flat" %}
+            Balance Amount :
+            {% elif loan_account.interest_type == "Declining" %}
+            Principle Balance Amount :
+            {% endif %}
+            </label>
+            <span class="col-lg-5 mar-top" style="color:#337ab7;">{{ loan_account.total_loan_balance }} </span>
           </div>
         </div>
         <br clear="all" />
@@ -124,7 +132,7 @@
   <div class="mar-lt-center panel-23">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Pay Loan<span><a href="{% url 'micro_admin:viewgrouploandeposits' loan_account.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></a></span></h3>
+        <h3 class="panel-title">Pay Loan</h3>
       </div>
       <div class="panel-body">
         <form id="grouploandepositform" class="form-horizontal" role="form">

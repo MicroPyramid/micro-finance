@@ -3,7 +3,7 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile">
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
     <div class="panel-heading">Branch-List</div>
     <div class="panel-body pb-table">
       <div class="table-responsive">
@@ -31,7 +31,7 @@
               <td><i class="fa fa-circle icon-squa red pad-lt"></i></td>
               {% endif %}
               {% if user.is_admin %}
-              <td class="ed"> &nbsp&nbsp&nbsp<a href="{% url 'micro_admin:editbranch' branch.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+              <td class="ed"> &nbsp;&nbsp;&nbsp;<a href="{% url 'micro_admin:editbranch' branch.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
                 <a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
               </td>
               {% endif %}

@@ -34,6 +34,8 @@
       <h3 class="panel-title">
         {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
         {{ group.name }} Savings Account
+        <span><a href="{% url 'micro_admin:viewgroupsavingswithdrawals' group.id %}"><button class="with-dep-btn"><i class="fa fa-eye padd"></i>View Withdraws</button></a></span>
+        <span><a href="{% url 'micro_admin:viewgroupsavingsdeposits' savings_account.id %}"><button class="with-dep-btn"><i class="fa fa-eye padd"></i>View Deposits</button></a></span>
         {% if not user.is_admin %}
         {% if savings_account.status == "Withdrawn" %}
         <span style="padding-left:5px;"><a title="Account has already been Withdrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a></span>
@@ -91,66 +93,6 @@
     </div>
     <!--panel body ends below crct-->
   </div>
-  <!--panel2 stats below-->
-  <div class="panel-23">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Deposit<span><a href="{% url 'micro_admin:viewgroupsavingsdeposits' savings_account.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Deposits</button></a></span></h3>
-      </div>
-      <div class="panel-body">
-        <form id="groupsavingsdepositform" class="form-horizontal" role="form">
-          {% csrf_token %}
-          <div class="form-group">
-            <input type="hidden"  name="transaction_type" value="Deposit" style="dispaly:none;">
-            <label for="inputEmail3" class="col-sm-4 control-label">Total Deposited Amount</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ savings_account.total_deposits }}" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Deposit Amount</label>
-            <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="transaction_amount" id="inputEmail3" required="True">
-            </div>
-          </div>
-          <div class="form-group btns">
-            <a href="#"><button id="deposit-button" class="with-dep-btn"><i class="fa fa-arrow-circle-o-up padd"></i>Deposit</button></a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!--panel2 ends above-->
-  <!--panel3 starts below-->
-  <div class="panel-23 panel-3">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Withdraw<span><a href="{% url 'micro_admin:viewgroupsavingswithdrawals' savings_account.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Withdraws</button></a></span></h3>
-      </div>
-      <div class="panel-body">
-        <form id="groupsavingswithdrawform" class="form-horizontal" role="form">
-          {% csrf_token %}
-          <div class="form-group">
-            <input type="hidden"  name="transaction_type" value="Withdraw" style="dispaly:none;">
-            <label for="inputEmail3" class="col-sm-5 control-label">Total Withdrawal Amount</label>
-            <div class="col-sm-7">
-              <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ savings_account.total_withdrawals }}" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="inputEmail3" class="col-sm-5 control-label">Withdraw Amount</label>
-            <div class="col-sm-7">
-              <input type="text" class="text-box wid-form" name="transaction_amount" id="inputEmail3" required="True">
-            </div>
-          </div>
-          <div class="form-group btns">
-            <a href="#"><button id="moneywithdraw-button" class="with-dep-btn"><i class="fa fa-arrow-circle-o-up padd"></i>Withdraw</button></a>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!--panel3 ends above-->
 </div>
 <!--content ends above-->
 <script src="/static/js/mf_script.js"></script>

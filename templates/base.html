@@ -59,7 +59,8 @@
               <a href="#" class="anc3"><i class="fa fa-users padd"></i>Group<i class="fa fa-caret-down padd-lft-g"></i></a>
               <div id="tog-div3" class="tog-div">
                 <a href="{% url 'micro_admin:creategroup' %}"><i class="fa fa-plus padd"></i>Create Group</a>
-                <a href="{% url 'micro_admin:groupslist' %}"><i class="fa fa-eye padd"></i>View Group</a>
+                <a href="{% url 'micro_admin:groupslist' %}"><i class="fa fa-eye padd"></i>View Group
+                </a>
               </div>
             </div>
             <div class="slide-div">
@@ -100,8 +101,29 @@
                   </div>
                   <!-- Collect the nav links, forms, and other content for toggling -->
                   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="col-lg-offset-7 col-lg-5 col-sm-offset-5 col-sm-7 col-md-offset-6 col-md-6 nav navbar-nav navbar-right">
+                    <ul class="col-lg-offset-5 col-lg-7 col-sm-offset-5 col-sm-7 col-md-offset-7 col-md-5 nav navbar-nav navbar-right">
                       <li><a href="{% url 'micro_admin:login' %}" class="menu-link home"><i class="fa fa-home padd"></i>Home</a></li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Accounting <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:receiptslist' %}">Receipts</a></li>
+                          <li><a href="#">Withdrawals</a></li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deposits<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:viewclientfixeddeposits' %}"><i class="fa fa-user icon padd"></i>View Fixed Deposits</a></li>
+                          <li><a href="#"><i class="fa fa-unlock-alt padd"></i>View Recurring Deposits </a></li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Ledgers <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:generalledger' %}">General Ledger</a></li>
+                          <li><a href="{% url 'micro_admin:viewdaybook' %}">Day Book</a></li>
+                        </ul>
+                      </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{ user.username|capfirst }} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">

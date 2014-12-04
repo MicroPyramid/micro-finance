@@ -3,7 +3,7 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel wid-panel-form">
+  <div class="panel panel-default my-panel wid-panel-form margin-top-set">
     <div class="panel-heading">
       <h3 class="panel-title">
       {% if client.is_active %}
@@ -47,6 +47,17 @@
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="loan_repayment_every" required="True">
             <p id="loanrepaymenteveryerror"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Interest Type<span>*</span></label>
+          <div class="col-sm-7">
+            <select class="text-box wid-form" name="interest_type">
+              <option>Select Interest Type</option>
+              <option>Flat</option>
+              <option>Declining</option>
+            </select>
+            <p id="interesttypeerror"></p>
           </div>
         </div>
         <div class="form-group">
@@ -95,6 +106,9 @@
           }
           if (data.message.loanpurpose_description) {
             $("#loanpurposeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loanpurpose_description + "</span>");
+          }
+          if (data.message.interest_type) {
+            $("#interesttypeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.interest_type + "</span>");
           }
         }
         else {

@@ -3,32 +3,43 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile">
-    <div class="panel-heading"><h3 class="panel-title">
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
+    <div class="panel-heading">
+      <h3 class="panel-title">
         {% if loanaccount.client.is_active %}
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{loanaccount.client.first_name}}  Loan Deposits
-        </h3></div>
+        <span><a href="{% url 'micro_admin:clientloanaccount' loanaccount.client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
+      </h3>
+    </div>
     <div class="panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
-              <th>Account Number</th>
+              <th>S.No</th>
+              <th>Receipt Number</th>
+              <th>Member Account Number</th>
               <th>Transaction Done by</th>
-              <th>Transaction Date</th>
-              <th>Transaction Amount</th>
+              <th>Loan Deposit Date</th>
+              <th>Loan Principal Amount</th>
+              <th>Loan Interest Amount</th>
+              <th>Loan Principal Balance Amount</th>
             </tr>
           </thead>
           <tbody class="body-row-tb">
-            {% for loantransaction in loantransactions_list %}
+            {% for receipts_list in receipts_lists %}
             <tr>
-              <td>{{ loanaccount.account_no }}</td>
-              <td>{{ loantransaction.staff }}</td>
-              <td>{{ loantransaction.transaction_date }}</td>
-              <td>{{ loantransaction.transaction_amount }}</td>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td>{{ receipts_list.receipt_number }}</td>
+              <td>{{ loanaccount.client.account_number }}</td>
+              <td>{{ receipts_list.staff }}</td>
+              <td>{{ receipts_list.date }}</td>
+              <td>{{ receipts_list.loanprinciple_amount }}</td>
+              <td>{{ receipts_list.loaninterest_amount }}</td>
+              <td>{{ receipts_list.principle_loan_balance_atinstant }}</td>
             </tr>
             {% endfor %}
           </tbody>

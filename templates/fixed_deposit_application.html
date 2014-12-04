@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel wid-panel-form margin-top-set">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+      Fixed Deposit Application
+    </div>
+    <div class="panel-body pb-pad">
+      <form id="fixeddepositapplicationform" class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Account Number<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="client_account_no" id="inputEmail3" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Member Name<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="client_name" id="inputEmail3" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Date of Deposit<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="deposited_date" id="date-picker-cc" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Deposit Amount<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="fixed_deposit_amount" required="True">
+            <p id="depositamounterror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-5 control-label">Deposit Period(in months)<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="fixed_deposit_period" id="inputEmail3" required="True">
+            <p id="depositperioderror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-5 control-label">Interest Rate<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="fixed_deposit_interest_rate" id="inputEmail3" required="True">
+            <p id="interestrateerror"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label"><b>Nominee Details</b></label>
+          <div class="col-sm-8">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">First Name<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="nominee_firstname" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Last Name<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="nominee_lastname" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Gender<span>*</span></label>
+          <div class="col-sm-7">
+            <div class="col-sm-8 mar-top-rad">
+              <input type="radio" name="nominee_gender" value="M">Male &nbsp&nbsp
+              <input type="radio" name="nominee_gender" value="F">Female
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Date of Birth<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" id="datepicker-dob" name="nominee_date_of_birth" required="True">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Relationship with Nominee<span>*</span></label>
+          <div class="col-sm-7">
+            <select class="text-box wid-form" name="relationship_with_nominee">
+              <option>Select relationship</option>
+              <option>Father</option>
+              <option>Mother</option>
+              <option>Daughter</option>
+              <option>Son</option>
+              <option>Brother</option>
+              <option>Nephew</option>
+              <option>Niece</option>
+              <option>Father-in-law</option>
+              <option>Daugter-in-law</option>
+              <option>Brother-in-law</option>
+              <option>Aunt</option>
+              <option>Granddaughter</option>
+              <option>Grandfather</option>
+              <option>Grandmother</option>
+              <option>Grandson</option>
+              <option>Mother-in-law</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Nominee Occupation<span>*</span></label>
+          <div class="col-sm-7">
+            <input type="text" class="text-box wid-form" name="nominee_occupation" required="True">
+          </div>
+        </div>
+        <div class="form-group btns">
+          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Deposit</button>
+          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="/static/js/mf_script.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#fixeddepositapplicationform').submit(function(e) {
+      e.preventDefault();
+      $.post('/fixeddeposits/', $('#fixeddepositapplicationform').serialize(), function(data) {
+        if (data.error) {
+          $("span.error").remove();
+          if (data.message.fixed_deposit_amount) {
+            $("#depositamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.fixed_deposit_amount + "</span>");
+          }
+          if (data.message.fixed_deposit_period) {
+            $("#depositperioderror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.fixed_deposit_period + "</span>");
+          }
+          if (data.message.fixed_deposit_interest_rate) {
+            $("#interestrateerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.fixed_deposit_interest_rate + "</span>");
+          }
+        }
+        else {
+          window.location = '/clientfixeddepositsprofile/'+data.fixed_deposit_id+'/';
+        }
+      }, "json");
+    });
+    $('.cancel-btn').click(function(e){
+      $("span.error").remove();
+    });
+  });
+</script>
+{% endblock %}
