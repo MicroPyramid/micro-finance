@@ -29,15 +29,15 @@
             </tr>
           </thead>
           <tbody class="body-row-tb">
-            {% for receipts_list in receipts_lists %}
+            {% for receipt in receipts_lists %}
             <tr>
               <td><b>{{ forloop.counter }}</b></td>
-              <td>{{ receipts_list.receipt_number }}</td>
-              <td>{{ savingsaccount.client.account_number }}</td>
-              <td>{{ receipts_list.staff }}</td>
-              <td>{{ receipts_list.date }}</td>
-              <td>{{ receipts_list.savingsdeposit_thrift_amount }}</td>
-              <td>{{ savingsaccount.savings_balance_atinstant }}</td>
+              <td>{{ receipt.receipt_number }}</td>
+              <td>{{ receipt.client.account_number }}</td>
+              <td>{{ receipt.staff }}</td>
+              <td>{{ receipt.date }}</td>
+              <td>{{ receipt.savingsdeposit_thrift_amount }}</td>
+              <td>{{ receipt.savings_balance_atinstant }}</td>
             </tr>
             {% endfor %}
           </tbody>

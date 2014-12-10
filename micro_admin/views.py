@@ -3,8 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, SavingsTransactions, LoanAccount, LoanTransactions, Receipts, RECEIPT_TYPES, FixedDeposits
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm, GroupLoanAccountForm, ClientSavingsAccountForm, ClientLoanAccountForm, ReceiptForm, FixedDepositForm
+from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, LoanAccount, Receipts, RECEIPT_TYPES, FixedDeposits, PAYMENT_TYPES, Payments, RecurringDeposits
+from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, GroupSavingsAccountForm, GroupLoanAccountForm, ClientSavingsAccountForm, ClientLoanAccountForm, ReceiptForm, FixedDepositForm, PaymentForm, ReccuringDepositForm
 from django.contrib.auth.decorators import login_required
 import datetime
 import decimal
@@ -608,7 +608,7 @@ def group_loan_application(request, group_id):
                 client_loan_account.loan_repayment_amount = decimal.Decimal(((int(client_loan_account.loan_repayment_every) * (decimal.Decimal(client_loan_account.loan_amount)) / (decimal.Decimal(client_loan_account.loan_repayment_period))) + (decimal.Decimal(client_loan_account.interest_charged))))
                 client_loan_account.total_loan_balance = decimal.Decimal(decimal.Decimal(client_loan_account.loan_amount))
                 client_loan_account.save()
-            data = {"error":False, "group_id":loan_account.group.id}
+            data = {"error":False, "loanaccount_id":loan_account.id}
             return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "message":group_loanaccount_form.errors}
@@ -659,17 +659,15 @@ def client_loan_application(request, client_id):
 
 
 @login_required
-def client_loan_account(request,client_id):
-    client = Client.objects.get(id=client_id)
-    loanaccount = LoanAccount.objects.get(client = client)
-    return render(request, "client_loan_account.html", {"client":client, "loanaccount":loanaccount})
+def client_loan_account(request,loanaccount_id):
+    loanaccount = LoanAccount.objects.get(id=loanaccount_id)
+    return render(request, "client_loan_account.html", {"client":loanaccount.client, "loanaccount":loanaccount})
 
 
 @login_required
-def group_loan_account(request, group_id):
-    group = Group.objects.get(id=group_id)
-    loan_account = LoanAccount.objects.get(group=group)
-    return render(request, "group_loan_account.html", {"group":group, "loan_account":loan_account})
+def group_loan_account(request, loanaccount_id):
+    loan_account = LoanAccount.objects.get(id=loanaccount_id)
+    return render(request, "group_loan_account.html", {"group":loan_account.group, "loan_account":loan_account})
 
 
 @login_required
@@ -680,8 +678,8 @@ def approve_loan(request, loanaccount_id):
             loan_account.status = "Approved"
             loan_account.approved_date = datetime.datetime.now()
             loan_account.save()
+            group = Group.objects.get(id=loan_account.group.id)
             clients_list = group.clients.all()
-            count = group.clients.all().count()
             for client in clients_list:
                 client_loan_account = LoanAccount.objects.get(client=client)
                 client_loan_account.status = "Approved"
@@ -700,8 +698,8 @@ def reject_loan(request, loanaccount_id):
         if loan_account.group:
             loan_account.status = "Rejected"
             loan_account.save()
+            group = Group.objects.get(id=loan_account.group.id)
             clients_list = group.clients.all()
-            count = group.clients.all().count()
             for client in clients_list:
                 client_loan_account = LoanAccount.objects.get(client=client)
                 client_loan_account.status = "Rejected"
@@ -719,8 +717,8 @@ def close_loan(request, loanaccount_id):
         if loan_account.group:
             loan_account.status = "Closed"
             loan_account.save()
+            group = Group.objects.get(id=loan_account.group.id)
             clients_list = group.clients.all()
-            count = group.clients.all().count()
             for client in clients_list:
                 client_loan_account = LoanAccount.objects.get(client=client)
                 client_loan_account.status = "Closed"
@@ -739,7 +737,8 @@ def withdraw_loan(request, loanaccount_id):
         if loan_account.group:
             loan_account.status = "Withdrawn"
             loan_account.save()
-            count = group.clients.all().count()
+            group = Group.objects.get(id=loan_account.group.id)
+            clients_list = group.clients.all()
             for client in clients_list:
                 client_loan_account = LoanAccount.objects.get(client=client)
                 client_loan_account.status = "Withdrawn"
@@ -770,10 +769,12 @@ def view_groupsavings_deposits(request, group_id):
 
 
 @login_required
-def view_groupsavings_withdrawals(request, savingsaccount_id):
-    savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
-    savings_withdrawal_transactions = savings_account.savingstransactions_set.filter(transaction_type="Withdraw")
-    return render(request, "listof_groupsavings_withdrawals.html", {"savings_account":savings_account, "savings_withdrawal_transactions":savings_withdrawal_transactions, "group":savings_account.group})
+def view_groupsavings_withdrawals(request, group_id):
+    group = Group.objects.get(id=group_id)
+    savings_withdrawals_list = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal")
+    count = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal").count()
+    return render(request, "listof_groupsavings_withdrawals.html", {"count":count, "savings_withdrawals_list":savings_withdrawals_list, "group":group})
+
 
 @login_required
 def listofclient_loan_deposits(request, client_id):
@@ -790,10 +791,11 @@ def listofclient_savings_deposits(request,client_id):
 
 
 @login_required
-def listofclient_savings_withdrawals(request,savingsaccount_id):
-    savingsaccount = SavingsAccount.objects.get(id=savingsaccount_id)
-    savingstransactions_list = SavingsTransactions.objects.filter(savings_account=savingsaccount_id, transaction_type = "Withdraw")
-    return render(request, "listof_clientsavingswithdrawals.html", {"savingsaccount":savingsaccount, "savingstransactions_list":savingstransactions_list}) 
+def listofclient_savings_withdrawals(request,client_id):
+    client = Client.objects.get(id=client_id)
+    savings_withdrawals_list = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal")
+    count = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal").count()
+    return render(request, "listof_clientsavingswithdrawals.html", {"count":count, "savings_withdrawals_list":savings_withdrawals_list, "client":client})
 
 
 @login_required
@@ -827,10 +829,10 @@ def view_client_transactions(request):
             dict['status'] = client.is_active
             dict['savings_account_no'] = savings_account.account_no
             dict['savings_account_status'] = savings_account.status
-            if savings_transaction.transaction_type == "Deposit":   
+            if savings_transaction.transaction_type == "Deposit":
                 dict['savings_deposit'] = savings_transaction.transaction_amount
                 dict['savings_withdrawal'] = 0
-            if savings_transaction.transaction_type == "Withdraw":   
+            if savings_transaction.transaction_type == "Withdraw":
                 dict['savings_withdrawal'] = savings_transaction.transaction_amount
                 dict['savings_deposit'] = 0
             dict['savings_balance'] = savings_transaction.savings_balance_atinstant
@@ -917,7 +919,8 @@ def receipts_deposit(request):
             account_number = request.POST.get("account_number")
             staff = request.user
             try:
-                client = Client.objects.get(first_name=name, account_number=account_number)
+                client = Client.objects.get(first_name__iexact=name, account_number=account_number)
+                print client.id
                 if request.POST.get("sharecapital_amount"):
                     client.sharecapital_amount += decimal.Decimal(request.POST.get("sharecapital_amount"))
                 if request.POST.get("entrancefee_amount"):
@@ -927,18 +930,21 @@ def receipts_deposit(request):
                 if request.POST.get("bookfee_amount"):
                     client.bookfee_amount += decimal.Decimal(request.POST.get("bookfee_amount"))
                 if request.POST.get("loanprocessingfee_amount"):
+                    print "fee"
                     try:
-                        loan_account = LoanAccount.objects.get(client=client)
+                        loan_account = LoanAccount.objects.filter(client=client).exclude(status="Closed")[0]
+                        print "loan"
                         loan_account.loanprocessingfee_amount = decimal.Decimal(request.POST.get("loanprocessingfee_amount"))
+                        print loan_account.loanprocessingfee_amount
                         try:
                             client_group = client.group_set.get()
-                            group_loan_account = LoanAccount.objects.get(group=client_group)
+                            group_loan_account = LoanAccount.objects.filter(group=client_group).exclude(status="Closed")[0]
                             group_loan_account.loanprocessingfee_amount += decimal.Decimal(request.POST.get("loanprocessingfee_amount"))
                         except:
                             data = {"error":True, "message1":"Member has not been assigned to any group."}
                             return HttpResponse(json.dumps(data))
                     except:
-                        data = {"error":True, "message1":"Member does not have any loan."}
+                        data = {"error":True, "message1":"Member does not have any loan to pay the loan processing fee amount."}
                         return HttpResponse(json.dumps(data))
                 if request.POST.get("savingsdeposit_thrift_amount"):
                     try:
@@ -957,12 +963,17 @@ def receipts_deposit(request):
                         data = {"error":True, "message1":"Member does not have savings account."}
                         return HttpResponse(json.dumps(data))
                 if request.POST.get("recurringdeposit_amount"):
-                    savings_account.recurringdeposit_amount += decimal.Decimal(request.POST.get("recurringdeposit_amount"))
+                    try:
+                        savings_account = SavingsAccount.objects.get(client=client)
+                        savings_account.recurringdeposit_amount += decimal.Decimal(request.POST.get("recurringdeposit_amount"))
+                    except:
+                        data = {"error":True, "message1":"Member does not have savings account."}
+                        return HttpResponse(json.dumps(data))
                 if request.POST.get("insurance_amount"):
                     client.insurance_amount += decimal.Decimal(request.POST.get("insurance_amount"))
 
                 try:
-                    loan_account = LoanAccount.objects.get(client=client)
+                    loan_account = LoanAccount.objects.filter(client=client).exclude(status="Closed")[0]
                     if loan_account.status == "Approved" :
                         if decimal.Decimal(loan_account.total_loan_balance) or decimal.Decimal(loan_account.interest_charged) or decimal.Decimal(loan_account.loan_repayment_amount):
                             var_demand_loanprinciple_amount_atinstant = decimal.Decimal(decimal.Decimal(loan_account.loan_repayment_amount) - decimal.Decimal(loan_account.interest_charged))
@@ -975,18 +986,21 @@ def receipts_deposit(request):
                 except:
                     pass
 
-                if request.POST.get("loaninterest_amount"):
+                if decimal.Decimal(request.POST.get("loaninterest_amount")) != int(0) :
                     try:
-                        loan_account = LoanAccount.objects.get(client=client)
+                        loan_account = LoanAccount.objects.filter(client=client).exclude(status="Closed")[0]
                     except:
+                        print "first"
                         data = {"error":True, "message1":"Member does not have any loan."}
                         return HttpResponse(json.dumps(data))
-
-                if request.POST.get("loanprinciple_amount") or request.POST.get("loaninterest_amount"):
+                else:
+                    pass
+                print "2"
+                if request.POST.get("loanprinciple_amount") or decimal.Decimal(request.POST.get("loaninterest_amount")) != int(0) :
                     try:
-                        loan_account = LoanAccount.objects.get(client=client)
+                        loan_account = LoanAccount.objects.filter(client=client).exclude(status="Closed")[0]
                         client_group = client.group_set.get()
-                        group_loan_account = LoanAccount.objects.get(group=client_group)
+                        group_loan_account = LoanAccount.objects.filter(group=client_group).exclude(status="Closed")[0]
                         if loan_account.status == "Approved":
                             #if loan_account.loan_issued_date :
                                 if decimal.Decimal(loan_account.total_loan_balance) or decimal.Decimal(loan_account.interest_charged):
@@ -1067,7 +1081,6 @@ def receipts_deposit(request):
                                                             loan_account.loan_repayment_amount = decimal.Decimal(decimal.Decimal(loan_account.total_loan_balance) + decimal.Decimal(loan_account.interest_charged) + decimal.Decimal(balance_principle))
                                                         else:
                                                             loan_account.loan_repayment_amount = decimal.Decimal((int(loan_account.loan_repayment_every) * decimal.Decimal(principle_repayable)) + decimal.Decimal(loan_account.interest_charged) + decimal.Decimal(balance_principle))
-                                            loan_account.save()
                                     else:
                                         return HttpResponse("No Client")
                                 else:
@@ -1090,7 +1103,7 @@ def receipts_deposit(request):
                         return HttpResponse(json.dumps(data))
 
 
-                if request.POST.get("sharecapital_amount") or request.POST.get("entrancefee_amount") or request.POST.get("membershipfee_amount") or request.POST.get("bookfee_amount") or request.POST.get("loanprocessingfee_amount") or request.POST.get("savingsdeposit_thrift_amount") or request.POST.get("fixeddeposit_amount") or request.POST.get("recurringdeposit_amount") or request.POST.get("loanprinciple_amount") or request.POST.get("insurance_amount") or request.POST.get("loaninterest_amount"):
+                if request.POST.get("sharecapital_amount") or request.POST.get("entrancefee_amount") or request.POST.get("membershipfee_amount") or request.POST.get("bookfee_amount") or request.POST.get("loanprocessingfee_amount") or request.POST.get("savingsdeposit_thrift_amount") or request.POST.get("fixeddeposit_amount") or request.POST.get("recurringdeposit_amount") or request.POST.get("loanprinciple_amount") or request.POST.get("insurance_amount") or decimal.Decimal(request.POST.get("loaninterest_amount")) != 0 :
                     try:
                         client_group = client.group_set.get()
                         receipt = Receipts.objects.create(date=date, branch=branch, receipt_number=receipt_number, client=client, group=client_group, name=name, account_number=account_number, staff=staff)
@@ -1119,46 +1132,48 @@ def receipts_deposit(request):
                         receipt.loanprinciple_amount = decimal.Decimal(request.POST.get("loanprinciple_amount"))
                     if request.POST.get("loaninterest_amount"):
                         receipt.loaninterest_amount = decimal.Decimal(request.POST.get("loaninterest_amount"))
-                else:
-                    data = {"error":True, "message1":"Empty Receipt can't be generated."}
-                    return HttpResponse(json.dumps(data))
-                try:
-                    if var_demand_loanprinciple_amount_atinstant:
-                        receipt.demand_loanprinciple_amount_atinstant = decimal.Decimal(var_demand_loanprinciple_amount_atinstant)
-                        print var_demand_loanprinciple_amount_atinstant
-                    if var_demand_loaninterest_amount_atinstant:
-                        receipt.demand_loaninterest_amount_atinstant = decimal.Decimal(var_demand_loaninterest_amount_atinstant)
-                except:
-                    pass
 
-                try:
-                    loan_account = LoanAccount.objects.get(client=client)
-                    if loan_account.status == "Approved":
-                        receipt.principle_loan_balance_atinstant = decimal.Decimal(loan_account.total_loan_balance)
-                    else:
+                    try:
+                        if var_demand_loanprinciple_amount_atinstant:
+                            receipt.demand_loanprinciple_amount_atinstant = decimal.Decimal(var_demand_loanprinciple_amount_atinstant)
+                            print var_demand_loanprinciple_amount_atinstant
+                        if var_demand_loaninterest_amount_atinstant:
+                            receipt.demand_loaninterest_amount_atinstant = decimal.Decimal(var_demand_loaninterest_amount_atinstant)
+                    except:
                         pass
-                except:
-                    pass
 
-                receipt.save()
-                client.save()
-                try:
-                    savings_account.save()
+                    try:
+                        receipt.principle_loan_balance_atinstant = decimal.Decimal(loan_account.total_loan_balance)
+                    except:
+                        pass
+
+                    receipt.save()
+                    client.save()
+                    try:
+                        savings_account.save()
+                    except:
+                        pass
+                    try:
+                        loan_account.save()
+                    except:
+                        pass
                     try:
                         group_savings_account.save()
                     except:
                         pass
-                except:
-                    pass
 
-                data = {"error":False}
-                return HttpResponse(json.dumps(data))
+                    data = {"error":False}
+                    return HttpResponse(json.dumps(data))
+                else:
+                    data = {"error":True, "message1":"Empty Receipt can't be generated."}
+                    return HttpResponse(json.dumps(data))
             except:
                 data = {"error":True, "message1":"No Client exists with this name and account number."}
                 return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "message":receipt_form.errors}
             return HttpResponse(json.dumps(data))
+
 
 def receipts_list(request):
     receipt_list = Receipts.objects.all().order_by("-id")
@@ -1231,7 +1246,7 @@ def fixed_deposits(request):
     else:
         form = FixedDepositForm(request.POST)
         if form.is_valid():
-            client = Client.objects.get(first_name__icontains=request.POST.get("client_name"), account_number__icontains=request.POST.get("client_account_no"))
+            client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
             savings_account = SavingsAccount.objects.get(client=client)
             fixed_deposit_amount = request.POST.get("fixed_deposit_amount")
             fixed_deposit_interest_rate = request.POST.get("fixed_deposit_interest_rate")
@@ -1276,20 +1291,42 @@ def view_client_fixed_deposits(request):
 @login_required
 def view_particular_client_fixed_deposits(request,client_id):
     fixed_deposit_list = FixedDeposits.objects.filter(client=client_id).order_by("-id")
-    return render(request, "view_particular_client_deposits.html", {"fixed_deposit_list":fixed_deposit_list})
+    return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list":fixed_deposit_list})
+
+
+@login_required
+def client_recurring_deposits_profile(request, recurring_deposit_id):
+    recurring_deposit = RecurringDeposits.objects.get(id=recurring_deposit_id)
+    return render(request, "client_recurring_deposits_profile.html", {"recurring_deposit":recurring_deposit})
+
+
+@login_required
+def view_client_recurring_deposits(request):
+    recurring_deposit_list = RecurringDeposits.objects.all().order_by("-id")
+    return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list":recurring_deposit_list})
+
+
+@login_required
+def view_particular_client_recurring_deposits(request, client_id):
+    client = Client.objects.get(id=client_id)
+    recurring_deposit_list = RecurringDeposits.objects.filter(client=client_id)
+    return render(request, "view_particular_client_recurring_deposits.html", {"client":client, "recurring_deposit_list":recurring_deposit_list})
 
 
 @login_required
 def view_day_book(request):
     current_date = datetime.datetime.now().date()
-    query_set = Receipts.objects.filter(date=current_date) 
-    print query_set
+    current_date1 = datetime.datetime.now().date()
+    query_set = Receipts.objects.filter(date=current_date)
+
     query_set.query.group_by = ["group_id"]
+
     grouped_receipts_list = []
+    receipts_list = []
 
     for i in query_set:
         grouped_receipts_list.append(i.group_id)
-    print grouped_receipts_list
+
     thrift_deposit_sum_list = []
     loanprinciple_amount_sum_list = []
     loaninterest_amount_sum_list = []
@@ -1322,17 +1359,17 @@ def view_day_book(request):
                 insurance_amount_sum += decimal.Decimal(receipt.insurance_amount)
 
             group = Group.objects.get(id=group_id)
-            dict = {} 
+            dict = {}
             dict["group_name"] = group.name
             dict["thrift_deposit_sum"] = thrift_deposit_sum
             dict["account_number"] = group.account_number
             thrift_deposit_sum_list.append(dict)
-            dict = {} 
+            dict = {}
             dict["group_name"] = group.name
             dict["loanprinciple_amount_sum"] = loanprinciple_amount_sum
             dict["account_number"] = group.account_number
             loanprinciple_amount_sum_list.append(dict)
-            dict = {} 
+            dict = {}
             dict["group_name"] = group.name
             dict["loaninterest_amount_sum"] = loaninterest_amount_sum
             dict["account_number"] = group.account_number
@@ -1383,17 +1420,17 @@ def view_day_book(request):
                 loanprocessingfee_amount_sum = decimal.Decimal(receipt.loanprocessingfee_amount)
                 insurance_amount_sum = decimal.Decimal(receipt.insurance_amount)
 
-                dict = {} 
+                dict = {}
                 dict["group_name"] = receipt.client.first_name
                 dict["thrift_deposit_sum"] = thrift_deposit_sum
                 dict["account_number"] = receipt.client.account_number
                 thrift_deposit_sum_list.append(dict)
-                dict = {} 
+                dict = {}
                 dict["group_name"] = receipt.client.first_name
                 dict["loanprinciple_amount_sum"] = loanprinciple_amount_sum
                 dict["account_number"] = receipt.client.account_number
                 loanprinciple_amount_sum_list.append(dict)
-                dict = {} 
+                dict = {}
                 dict["group_name"] = receipt.client.first_name
                 dict["loaninterest_amount_sum"] = loaninterest_amount_sum
                 dict["account_number"] = receipt.client.account_number
@@ -1422,31 +1459,395 @@ def view_day_book(request):
                 dict["group_name"] = receipt.client.first_name
                 dict["insurance_amount_sum"] = insurance_amount_sum
                 dict["account_number"] = receipt.client.account_number
-                insurance_amount_sum_list.append(dict)      
-            dict = {}
-            total_thrift_deposit_sum = 0
-            for dictionary in thrift_deposit_sum_list:
-                total_thrift_deposit_sum += dictionary["thrift_deposit_sum"]
-            total_loanprinciple_amount_sum = 0
-            for dictionary in loanprinciple_amount_sum_list:
-                total_loanprinciple_amount_sum += dictionary["loanprinciple_amount_sum"]
-            total_loaninterest_amount_sum = 0
-            for dictionary in loaninterest_amount_sum_list:
-                total_loaninterest_amount_sum += dictionary["loaninterest_amount_sum"]
-            total_entrancefee_amount_sum = 0
-            for dictionary in entrancefee_amount_sum_list:
-                total_entrancefee_amount_sum += dictionary["entrancefee_amount_sum"]
-            total_membershipfee_amount_sum = 0
-            for dictionary in membershipfee_amount_sum_list:
-                total_membershipfee_amount_sum += dictionary["membershipfee_amount_sum"]
-            total_bookfee_amount_sum = 0
-            for dictionary in bookfee_amount_sum_list:
-                total_bookfee_amount_sum += dictionary["bookfee_amount_sum"]
-            total_loanprocessingfee_amount_sum = 0
-            for dictionary in loanprocessingfee_amount_sum_list:
-                total_loanprocessingfee_amount_sum += dictionary["loanprocessingfee_amount_sum"]
-            total_insurance_amount_sum = 0
-            for dictionary in insurance_amount_sum_list:
-                total_insurance_amount_sum += dictionary["insurance_amount_sum"]
-    return render(request,"day_book.html", {"current_date":current_date, "grouped_receipts_list":grouped_receipts_list, "thrift_deposit_sum_list":thrift_deposit_sum_list, "loanprinciple_amount_sum_list":loanprinciple_amount_sum_list, "loaninterest_amount_sum_list":loaninterest_amount_sum_list, "entrancefee_amount_sum_list":entrancefee_amount_sum_list, "membershipfee_amount_sum_list":membershipfee_amount_sum_list, "bookfee_amount_sum_list":bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list":loanprocessingfee_amount_sum_list, "insurance_amount_sum_list":insurance_amount_sum_list})
-    
+                insurance_amount_sum_list.append(dict)
+
+    dict = {}
+    total_thrift_deposit_sum = 0
+    for dictionary in thrift_deposit_sum_list:
+        total_thrift_deposit_sum += dictionary["thrift_deposit_sum"]
+    dict["total_thrift_deposit_sum"] = total_thrift_deposit_sum
+    total_loanprinciple_amount_sum = 0
+    for dictionary in loanprinciple_amount_sum_list:
+        total_loanprinciple_amount_sum += dictionary["loanprinciple_amount_sum"]
+    dict["total_loanprinciple_amount_sum"] = total_loanprinciple_amount_sum
+    total_loaninterest_amount_sum = 0
+    for dictionary in loaninterest_amount_sum_list:
+        total_loaninterest_amount_sum += dictionary["loaninterest_amount_sum"]
+    dict["total_loaninterest_amount_sum"] = total_loaninterest_amount_sum
+    total_entrancefee_amount_sum = 0
+    for dictionary in entrancefee_amount_sum_list:
+        total_entrancefee_amount_sum += dictionary["entrancefee_amount_sum"]
+    dict["total_entrancefee_amount_sum"] = total_entrancefee_amount_sum
+    total_membershipfee_amount_sum = 0
+    for dictionary in membershipfee_amount_sum_list:
+        total_membershipfee_amount_sum += dictionary["membershipfee_amount_sum"]
+    dict["total_membershipfee_amount_sum"] = total_membershipfee_amount_sum
+    total_bookfee_amount_sum = 0
+    for dictionary in bookfee_amount_sum_list:
+        total_bookfee_amount_sum += dictionary["bookfee_amount_sum"]
+    dict["total_bookfee_amount_sum"] = total_bookfee_amount_sum
+    total_loanprocessingfee_amount_sum = 0
+    for dictionary in loanprocessingfee_amount_sum_list:
+        total_loanprocessingfee_amount_sum += dictionary["loanprocessingfee_amount_sum"]
+    dict["total_loanprocessingfee_amount_sum"] = total_loanprocessingfee_amount_sum
+    total_insurance_amount_sum = 0
+    for dictionary in insurance_amount_sum_list:
+        total_insurance_amount_sum += dictionary["insurance_amount_sum"]
+    dict["total_insurance_amount_sum"] = total_insurance_amount_sum
+    total = total_thrift_deposit_sum + total_loanprinciple_amount_sum + total_loaninterest_amount_sum + total_entrancefee_amount_sum + total_membershipfee_amount_sum + total_bookfee_amount_sum + total_loanprocessingfee_amount_sum + total_insurance_amount_sum
+
+    payments_list = Payments.objects.filter(date=current_date1)
+    travellingallowance_list = []
+    loans_list = []
+    paymentofsalary_list = []
+    printingcharges_list = []
+    stationarycharges_list = []
+    othercharges_list = []
+    savingswithdrawal_list = []
+    fixedwithdrawal_list = []
+    recurringwithdrawal_list = []
+    for payment in payments_list:
+        if payment.payment_type == "TravellingAllowance":
+            travellingallowance_list.append(payment)
+        elif payment.payment_type == "Loans":
+            loans_list.append(payment)
+        elif payment.payment_type == "Paymentofsalary":
+            paymentofsalary_list.append(payment)
+        elif payment.payment_type == "PrintingCharges":
+            printingcharges_list.append(payment)
+        elif payment.payment_type == "StationaryCharges":
+            stationarycharges_list.append(payment)
+        elif payment.payment_type == "OtherCharges":
+            othercharges_list.append(payment)
+        elif payment.payment_type == "SavingsWithdrawal":
+            savingswithdrawal_list.append(payment)
+        elif payment.payment_type == "FixedWithdrawal":
+            fixedwithdrawal_list.append(payment)
+        elif payment.payment_type == "RecurringWithdrawal":
+            recurringwithdrawal_list.append(payment)
+    print travellingallowance_list
+    print loans_list
+    dict_payments = {}
+    travellingallowance_sum = 0
+    loans_sum = 0
+    paymentofsalary_sum = 0
+    printingcharges_sum = 0
+    stationarycharges_sum = 0
+    othercharges_sum = 0
+    savingswithdrawal_sum = 0
+    fixedwithdrawal_sum = 0
+    recurringwithdrawal_sum = 0
+    for payment in travellingallowance_list:
+        travellingallowance_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["travellingallowance_sum"] = travellingallowance_sum
+    for payment in loans_list:
+        loans_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["loans_sum"] = loans_sum
+    print loans_list
+    for payment in paymentofsalary_list:
+        paymentofsalary_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["paymentofsalary_sum"] = paymentofsalary_sum
+    for payment in printingcharges_list:
+        printingcharges_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["printingcharges_sum"] = printingcharges_sum
+    for payment in stationarycharges_list:
+        stationarycharges_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["stationarycharges_sum"] = stationarycharges_sum
+    for payment in othercharges_list:
+        othercharges_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["othercharges_sum"] = othercharges_sum
+    for payment in savingswithdrawal_list:
+        savingswithdrawal_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["savingswithdrawal_sum"] = savingswithdrawal_sum
+    for payment in fixedwithdrawal_list:
+        fixedwithdrawal_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["fixedwithdrawal_sum"] = fixedwithdrawal_sum
+    for payment in recurringwithdrawal_list:
+        recurringwithdrawal_sum += decimal.Decimal(payment.total_amount)
+    dict_payments["recurringwithdrawal_sum"] = recurringwithdrawal_sum
+    total_payments = travellingallowance_sum + loans_sum + paymentofsalary_sum + printingcharges_sum + stationarycharges_sum + othercharges_sum + savingswithdrawal_sum + fixedwithdrawal_sum + recurringwithdrawal_sum 
+    return render(request,"day_book.html", {"receipts_list":receipts_list, "total_payments":total_payments, "travellingallowance_list":travellingallowance_list, "loans_list":loans_list, "paymentofsalary_list":paymentofsalary_list, "printingcharges_list":printingcharges_list,"stationarycharges_list":stationarycharges_list,"othercharges_list":othercharges_list,"savingswithdrawal_list":savingswithdrawal_list, "recurringwithdrawal_list":recurringwithdrawal_list, "fixedwithdrawal_list":fixedwithdrawal_list, "total":total, "dict_payments":dict_payments, "dict":dict, "current_date":current_date, "grouped_receipts_list":grouped_receipts_list, "thrift_deposit_sum_list":thrift_deposit_sum_list, "loanprinciple_amount_sum_list":loanprinciple_amount_sum_list, "loaninterest_amount_sum_list":loaninterest_amount_sum_list, "entrancefee_amount_sum_list":entrancefee_amount_sum_list, "membershipfee_amount_sum_list":membershipfee_amount_sum_list, "bookfee_amount_sum_list":bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list":loanprocessingfee_amount_sum_list, "insurance_amount_sum_list":insurance_amount_sum_list})
+
+
+@login_required
+def recurring_deposits(request):
+    if request.method == "GET":
+        return render(request,"recurring_deposit_application.html")
+    else:
+        form = ReccuringDepositForm(request.POST)
+        if form.is_valid():
+            client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
+            savings_account = SavingsAccount.objects.get(client=client)
+            recurring_deposit_amount = request.POST.get("recurring_deposit_amount")
+            reccuring_deposit_number = request.POST.get("reccuring_deposit_number")
+            recurring_deposit_interest_rate = request.POST.get("recurring_deposit_interest_rate")
+            recurring_deposit_period = request.POST.get("recurring_deposit_period")
+            nominee_firstname = request.POST.get("nominee_firstname")
+            nominee_lastname = request.POST.get("nominee_lastname")
+            nominee_gender = request.POST.get("nominee_gender")
+            nominee_occupation = request.POST.get("nominee_occupation")
+            datestring_format = datetime.datetime.strptime(request.POST.get("deposited_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            deposited_date = dateconvert
+            nominee_datestring_format = datetime.datetime.strptime(request.POST.get("nominee_date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
+            nominee_dateconvert = datetime.datetime.strptime(nominee_datestring_format, "%Y-%m-%d")
+            nominee_date_of_birth = nominee_dateconvert
+            relationship_with_nominee = request.POST.get("relationship_with_nominee")
+            recurring_deposit = RecurringDeposits.objects.create(reccuring_deposit_number=reccuring_deposit_number, status="Opened", deposited_date=deposited_date, client=client, nominee_occupation=nominee_occupation, nominee_date_of_birth=nominee_date_of_birth, nominee_lastname=nominee_lastname, savings_account=savings_account, nominee_gender=nominee_gender, recurring_deposit_amount=recurring_deposit_amount, recurring_deposit_interest_rate=recurring_deposit_interest_rate, recurring_deposit_period=recurring_deposit_period, nominee_firstname=nominee_firstname, relationship_with_nominee=relationship_with_nominee)
+            data = {"error":False, "recurring_deposit_id":recurring_deposit.id}
+            return HttpResponse(json.dumps(data))
+        else:
+            print form.errors
+            data = {"error":True, "message":form.errors}
+            return HttpResponse(json.dumps(data))
+
+
+@login_required
+def payments_list(request):
+   payments_list = Payments.objects.all().order_by("-id")
+   return render(request,"list_of_payments.html", {"payments_list":payments_list})
+
+
+@login_required
+def pay_slip(request):
+    if request.method == "GET":
+        branches = Branch.objects.all()
+        voucher_types = []
+        for voucher_type in PAYMENT_TYPES:
+            voucher_types.append(voucher_type[0])
+        return render(request, "paymentform.html", {"branches":branches, "voucher_types":voucher_types})
+    elif request.method == "POST":
+        payment_form = PaymentForm(request.POST)
+        if payment_form.is_valid():
+            datestring_format = datetime.datetime.strptime(request.POST.get("date"),"%m/%d/%Y").strftime("%Y-%m-%d")
+            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            date = dateconvert
+            branch = Branch.objects.get(id=request.POST.get("branch"))
+            voucher_number = request.POST.get("voucher_number")
+            payment_type = request.POST.get("payment_type")
+            amount = request.POST.get("amount")
+            total_amount = request.POST.get("total_amount")
+            totalamount_in_words = request.POST.get("totalamount_in_words")
+
+            if decimal.Decimal(request.POST.get("amount")) != 0 and decimal.Decimal(request.POST.get("total_amount")) != 0 :
+
+                if request.POST.get("payment_type") == "TravellingAllowance" or request.POST.get("payment_type") == "Paymentofsalary" :
+                    if not request.POST.get("staff_username"):
+                        data = {"error":True, "message1":"Please enter Employee Username"}
+                        return HttpResponse(json.dumps(data))
+                    elif request.POST.get("staff_username"):
+                        try:
+                            staff = User.objects.get(username__iexact=request.POST.get("staff_username"))
+                            if not request.POST.get("interest"):
+                                print "first"
+                                if decimal.Decimal(request.POST.get("total_amount")) == decimal.Decimal(request.POST.get("amount")) :
+                                    print "1"
+                                    payment = Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, payment_type=payment_type, staff=staff, amount=amount, total_amount=total_amount, totalamount_in_words=totalamount_in_words)
+                                    data = {"error":False}
+                                    return HttpResponse(json.dumps(data))
+                                else:
+                                    data = {"error":True, "message1":"Entered total amount is not equal to amount."}
+                                    return HttpResponse(json.dumps(data))
+                            else:
+                                data = {"error":True, "message1":"Interest must be empty for TA and Payment of salary Voucher."}
+                                return HttpResponse(json.dumps(data))
+                        except:
+                            data = {"error":True, "message1":"Entered Employee Username is incorrect"}
+                            return HttpResponse(json.dumps(data))
+
+                elif request.POST.get("payment_type") == "PrintingCharges" or request.POST.get("payment_type") == "StationaryCharges" or request.POST.get("payment_type") == "OtherCharges" :
+                    if not request.POST.get("interest"):
+                        if decimal.Decimal(request.POST.get("total_amount")) == decimal.Decimal(request.POST.get("amount")) :
+                            payment = Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, payment_type=payment_type, amount=amount, total_amount=total_amount, totalamount_in_words=totalamount_in_words)
+                            data = {"error":False}
+                            return HttpResponse(json.dumps(data))
+                        else:
+                            data = {"error":True, "message1":"Entered total amount is not equal to amount."}
+                            return HttpResponse(json.dumps(data))
+                    else:
+                        data = {"error":True, "message1":"Interest must be empty for Charges Voucher."}
+                        return HttpResponse(json.dumps(data))
+
+                elif request.POST.get("payment_type") == "SavingsWithdrawal" :
+                    if not request.POST.get("client_name"):
+                        data = {"error":True, "message1":"Please enter the Member First Name"}
+                        return HttpResponse(json.dumps(data))
+                    elif request.POST.get("client_name"):
+                        if not request.POST.get("client_account_number"):
+                            data = {"error":True, "message1":"Please enter the Member Account number"}
+                            return HttpResponse(json.dumps(data))
+                        try:
+                            client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_number"))
+                            try:
+                                savings_account = SavingsAccount.objects.get(client=client)
+                                if decimal.Decimal(savings_account.savings_balance) >= decimal.Decimal(request.POST.get("amount")) :
+                                    try:
+                                        client_group = client.group_set.get()
+                                        try:
+                                            group_savings_account = SavingsAccount.objects.get(group=client_group)
+                                            if decimal.Decimal(group_savings_account.savings_balance) >= decimal.Decimal(request.POST.get("amount")) :
+                                                if request.POST.get("group_name"):
+                                                    if request.POST.get("group_name").lower() == client_group.name.lower() :
+                                                        if request.POST.get("group_account_number"):
+                                                            if request.POST.get("group_account_number") == client_group.account_number :
+                                                                if not request.POST.get("interest"):
+                                                                    if decimal.Decimal(request.POST.get("total_amount")) == decimal.Decimal(request.POST.get("amount")) :
+                                                                        payment = Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, client=client, group=client_group, payment_type=payment_type, amount=amount, total_amount=total_amount, totalamount_in_words=totalamount_in_words)
+                                                                        savings_account.savings_balance -= decimal.Decimal(request.POST.get("amount"))
+                                                                        savings_account.total_withdrawals += decimal.Decimal(request.POST.get("amount"))
+                                                                        savings_account.save()
+
+                                                                        group_savings_account.savings_balance -= decimal.Decimal(request.POST.get("amount"))
+                                                                        group_savings_account.total_withdrawals += decimal.Decimal(request.POST.get("amount"))
+                                                                        group_savings_account.save()
+                                                                        data = {"error":False}
+                                                                        return HttpResponse(json.dumps(data))
+                                                                    else:
+                                                                        data = {"error":True, "message1":"Entered total amount is not equal to amount."}
+                                                                        return HttpResponse(json.dumps(data))
+
+                                                                elif request.POST.get("interest"):
+                                                                    if decimal.Decimal(request.POST.get("total_amount")) == decimal.Decimal(decimal.Decimal(request.POST.get("amount")) + decimal.Decimal(request.POST.get("interest"))) :
+                                                                        payment = Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, client=client, group=client_group, payment_type=payment_type, amount=amount, interest=request.POST.get("interest"), total_amount=total_amount, totalamount_in_words=totalamount_in_words)
+                                                                        savings_account.savings_balance -= decimal.Decimal(request.POST.get("amount"))
+                                                                        savings_account.total_withdrawals += decimal.Decimal(request.POST.get("amount"))
+                                                                        savings_account.save()
+
+                                                                        group_savings_account.savings_balance -= decimal.Decimal(request.POST.get("amount"))
+                                                                        group_savings_account.total_withdrawals += decimal.Decimal(request.POST.get("amount"))
+                                                                        group_savings_account.save()
+                                                                        data = {"error":False}
+                                                                        return HttpResponse(json.dumps(data))
+                                                                    else:
+                                                                        data = {"error":True, "message1":"Entered total amount is incorrect."}
+                                                                        return HttpResponse(json.dumps(data))
+                                                            else:
+                                                                data = {"error":True, "message1":"Entered Group A/C Number is incorrect."}
+                                                                return HttpResponse(json.dumps(data))
+                                                        else:
+                                                            data = {"error":True, "message1":"Please enter the Group A/C Number."}
+                                                            return HttpResponse(json.dumps(data))
+                                                    else:
+                                                        data = {"error":True, "message1":"Member does not belong to the entered Group Name."}
+                                                        return HttpResponse(json.dumps(data))
+                                                else:
+                                                    data = {"error":True, "message1":"Please enter the Group name of the Member."}
+                                                    return HttpResponse(json.dumps(data))
+                                            elif decimal.Decimal(group_savings_account.savings_balance) < decimal.Decimal(request.POST.get("amount")) :
+                                                data = {"error":True, "message1":"Group Savings A/C does not have sufficient balance."}
+                                                return HttpResponse(json.dumps(data))
+                                        except:
+                                            data = {"error":True, "message1":"The Group which the Member belongs to does not have Savings Account."}
+                                            return HttpResponse(json.dumps(data))
+                                    except:
+                                        if request.POST.get("group_name") or request.POST.get("group_account_number") :
+                                            data = {"error":True, "message1":"Member does not assigned to any Group. Please clear Group details"}
+                                            return HttpResponse(json.dumps(data))
+                                        else:
+                                            if not request.POST.get("interest"):
+                                                if decimal.Decimal(request.POST.get("total_amount")) == decimal.Decimal(request.POST.get("amount")) :
+                                                    payment = Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, client=client, payment_type=payment_type, amount=amount, total_amount=total_amount, totalamount_in_words=totalamount_in_words)
+                                                    savings_account.savings_balance -= decimal.Decimal(request.POST.get("amount"))
+                                                    savings_account.total_withdrawals += decimal.Decimal(request.POST.get("amount"))
+                                                    savings_account.save()
+
+                                                    data = {"error":False}
+                                                    return HttpResponse(json.dumps(data))
+                                                else:
+                                                    data = {"error":True, "message1":"Entered total amount is not equal to amount."}
+                                                    return HttpResponse(json.dumps(data))
+
+                                            elif request.POST.get("interest"):
+                                                if decimal.Decimal(request.POST.get("total_amount")) == decimal.Decimal(decimal.Decimal(request.POST.get("amount")) + decimal.Decimal(request.POST.get("interest"))) :
+                                                    payment = Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, client=client, payment_type=payment_type, amount=amount, interest=request.POST.get("interest"), total_amount=total_amount, totalamount_in_words=totalamount_in_words)
+                                                    savings_account.savings_balance -= decimal.Decimal(request.POST.get("amount"))
+                                                    savings_account.total_withdrawals += decimal.Decimal(request.POST.get("amount"))
+                                                    savings_account.save()
+
+                                                    data = {"error":False}
+                                                    return HttpResponse(json.dumps(data))
+                                                else:
+                                                    data = {"error":True, "message1":"Entered total amount is incorrect."}
+                                                    return HttpResponse(json.dumps(data))
+
+                                elif decimal.Decimal(savings_account.savings_balance) < decimal.Decimal(request.POST.get("amount")) :
+                                    data = {"error":True, "message1":"Member Savings Account does not have sufficient balance."}
+                                    return HttpResponse(json.dumps(data))
+                            except:
+                                data = {"error":True, "message1":"Member does not have Savings Account."}
+                                return HttpResponse(json.dumps(data))
+                        except:
+                            data = {"error":True, "message1":"Member does not exists with this First Name and A/C Number. Please enter correct details."}
+                            return HttpResponse(json.dumps(data))
+                elif request.POST.get("payment_type") == "Loans" :
+                    if request.POST.get("interest"):
+                        data = {"error":True, "message1":"Interest amount must be empty while issuing Loans."}
+                        return HttpResponse(json.dumps(data))
+                    if request.POST.get("client_name") or request.POST.get("client_account_number"):
+                        data = {"error":True, "message1":"Client details must be empty while issuing Loans."}
+                        return HttpResponse(json.dumps(data))
+                    if not request.POST.get("group_name") :
+                        data = {"error":True, "message1":"Please enter Group Name."}
+                        return HttpResponse(json.dumps(data))
+                    elif request.POST.get("group_name") :
+                        if not request.POST.get("group_account_number") :
+                            data = {"error":True, "message1":"Please enter Group A/C Number."}
+                            return HttpResponse(json.dumps(data))
+                        elif request.POST.get("group_account_number") :
+                            try:
+                                group = Group.objects.get(name__iexact=request.POST.get("group_name"), account_number=request.POST.get("group_account_number"))
+                                try:
+                                    loan_account = LoanAccount.objects.filter(group=group).exclude(status="Closed")[0]
+                                    if decimal.Decimal(request.POST.get("total_amount")) == decimal.Decimal(request.POST.get("amount")) :
+                                        try:
+                                            if decimal.Decimal(loan_account.loan_amount) == decimal.Decimal(request.POST.get("total_amount")) :
+                                                try:
+                                                    clients_list = group.clients.all()
+                                                    payment = Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, group=group, payment_type=payment_type, amount=amount, total_amount=total_amount, totalamount_in_words=totalamount_in_words)
+                                                    loan_account.loan_issued_date = datetime.datetime.now().date()
+                                                    loan_account.loan_issued_by = request.user
+                                                    for client in clients_list:
+                                                        client_loan_account = LoanAccount.objects.filter(client=client).exclude(status="Closed")[0]
+                                                        client_loan_account.loan_issued_date = datetime.datetime.now().date()
+                                                        client_loan_account.loan_issued_by = request.user
+                                                        client_loan_account.save()
+                                                    loan_account.save()
+                                                    data = {"error":False}
+                                                    return HttpResponse(json.dumps(data))
+                                                except:
+                                                    data = {"error":True, "message1":"Group does not contain members inorder to issue Loan."}
+                                                    return HttpResponse(json.dumps(data))
+                                        except:
+                                            data = {"error":True, "message1":"Amount is less than applied loan amount."}
+                                            return HttpResponse(json.dumps(data))
+                                    else:
+                                        data = {"error":True, "message1":"Entered total amount is not equal to amount."}
+                                        return HttpResponse(json.dumps(data))
+                                except:
+                                    data = {"error":True, "message1":"Group has not been applied for the Loan. Please create loan account inorder to issue Loan."}
+                                    return HttpResponse(json.dumps(data))
+                            except:
+                                data = {"error":True, "message1":"Group does not exists with this Name and A/C Number. Please enter correct details."}
+                                return HttpResponse(json.dumps(data))
+            else:
+                data = {"error":True, "message1":"Voucher can't be generated with amount/total amount zero"}
+                return HttpResponse(json.dumps(data))
+
+        else:
+            print payment_form.errors
+            data = {"error":True, "message":payment_form.errors}
+            return HttpResponse(json.dumps(data))
+
+
+def view_group_loanslist(request, group_id):
+    group = Group.objects.get(id=group_id)
+    loan_accounts_list = LoanAccount.objects.filter(group=group)
+    loan_accounts_count = LoanAccount.objects.filter(group=group).count()
+    return render(request, "listof_grouploan_accounts.html", {"group":group, "loan_accounts_list":loan_accounts_list, "loan_accounts_count":loan_accounts_count})
+
+
+def view_client_loanslist(request, client_id):
+    client = Client.objects.get(id=client_id)
+    loan_accounts_list = LoanAccount.objects.filter(client=client)
+    loan_accounts_count = LoanAccount.objects.filter(client=client).count()
+    return render(request, "listof_clientloan_accounts.html", {"client":client, "loan_accounts_list":loan_accounts_list, "loan_accounts_count":loan_accounts_count})

@@ -15,11 +15,6 @@ USER_ROLES = (
         ('Cashier', 'Cashier')
     )
 
-ACCOUNT_TYPES = (
-        ('SavingsAccount', 'SavingsAccount'),
-        ('LoanAccount', 'LoanAccount')
-    )
-
 CLIENT_ROLES = (
         ('FirstLeader','FirstLeader'),
         ('SecondLeader', 'SecondLeader'),
@@ -34,10 +29,6 @@ ACCOUNT_STATUS = (
         ('Closed', 'Closed'),
     )
 
-TRANSACTION_TYPES = (
-        ('Deposit', 'Deposit'),
-        ('Withdraw', 'Withdraw'),
-    )
 
 INTEREST_TYPES = (
         ('Flat', 'Flat'),
@@ -57,6 +48,23 @@ RECEIPT_TYPES = (
         ('PeenalInterest', 'PeenalInterest'),
         ('LoanDeposit', 'LoanDeposit'),
         ('Insurance', 'Insurance'),
+    )
+
+FD_RD_STATUS = (
+       ('Opened', 'Opened'),
+       ('Closed', 'Closed'),
+   )
+
+PAYMENT_TYPES = (
+        ('Loans', 'Loans'),
+        ('TravellingAllowance', 'TravellingAllowance'),
+        ('Paymentofsalary', 'Paymentofsalary'),
+        ('PrintingCharges', 'PrintingCharges'),
+        ('StationaryCharges', 'StationaryCharges'),
+        ('OtherCharges', 'OtherCharges'),
+        ('SavingsWithdrawal', 'SavingsWithdrawal'),
+        ('FixedWithdrawal', 'FixedWithdrawal'),
+        ('RecurringWithdrawal', 'RecurringWithdrawal'),
     )
 
 
@@ -98,7 +106,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
-    email = models.EmailField( max_length=255, unique=True)
+    email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, null=True)
     gender = models.CharField(choices = GENDER_TYPES ,max_length = 10)
@@ -200,16 +208,6 @@ class SavingsAccount(models.Model):
     recurringdepositperiod = models.IntegerField(null=True, blank=True)
 
 
-class SavingsTransactions(models.Model):
-    savings_account = models.ForeignKey(SavingsAccount)
-    transaction_type = models.CharField(choices=TRANSACTION_TYPES, max_length=20)
-    date = models.DateField(auto_now_add=True, blank=True)
-    transaction_date = models.DateTimeField(auto_now_add=True, blank=True)
-    transaction_amount = models.DecimalField(max_digits=19, decimal_places=6)
-    savings_balance_atinstant = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
-    staff = models.ForeignKey(User)
-
-
 class LoanAccount(models.Model):
     account_no = models.CharField(max_length=50, unique=True)
     interest_type = models.CharField(choices=INTEREST_TYPES, max_length=20)
@@ -235,17 +233,6 @@ class LoanAccount(models.Model):
     total_loan_balance = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     loanprocessingfee_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     no_of_repayments_completed = models.IntegerField(default=0)
-
-
-class LoanTransactions(models.Model):
-    loan_account = models.ForeignKey(LoanAccount)
-    date = models.DateField(auto_now_add=True, blank=True)
-    transaction_date = models.DateTimeField(auto_now_add=True, blank=True)
-    transaction_amount = models.DecimalField(max_digits=19, decimal_places=6)
-    principle_loan_balance_atinstant = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
-    principle_loanamount_repaid_atinstant = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
-    interest_repaid_atinstant = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
-    staff = models.ForeignKey(User)
 
 
 class Receipts(models.Model):
@@ -278,6 +265,8 @@ class FixedDeposits(models.Model):
     client = models.ForeignKey(Client)
     savings_account = models.ForeignKey(SavingsAccount)
     deposited_date = models.DateField()
+    status = models.CharField(choices=FD_RD_STATUS, max_length=20)
+    fixed_deposit_number = models.CharField(max_length=50, unique=True)
     fixed_deposit_amount = models.DecimalField(max_digits=19, decimal_places=6)
     fixed_deposit_period = models.IntegerField()
     fixed_deposit_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
@@ -295,6 +284,8 @@ class RecurringDeposits(models.Model):
     client = models.ForeignKey(Client)
     savings_account = models.ForeignKey(SavingsAccount)
     deposited_date = models.DateField()
+    reccuring_deposit_number = models.CharField(max_length=50, unique=True)
+    status = models.CharField(choices=FD_RD_STATUS, max_length=20)
     recurring_deposit_amount = models.DecimalField(max_digits=19, decimal_places=6)
     recurring_deposit_period = models.IntegerField()
     recurring_deposit_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
@@ -306,3 +297,17 @@ class RecurringDeposits(models.Model):
     nominee_occupation = models.CharField(max_length=50, null=True, blank=True)
     recurring_deposit_interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
     maturity_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
+
+
+class Payments(models.Model):
+    date = models.DateField()
+    branch = models.ForeignKey(Branch)
+    voucher_number = models.CharField(max_length=50, unique=True)
+    client = models.ForeignKey(Client, null=True, blank=True)
+    group = models.ForeignKey(Group, null=True, blank=True)
+    staff = models.ForeignKey(User, null=True, blank=True)
+    payment_type = models.CharField(choices = PAYMENT_TYPES , max_length=25)
+    amount = models.DecimalField(max_digits=19, decimal_places=6)
+    interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    total_amount = models.DecimalField(max_digits=19, decimal_places=6)
+    totalamount_in_words = models.CharField(max_length=200)

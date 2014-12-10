@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from micro_admin.models import Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts
+from micro_admin.models import Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits
 
 
 class BranchForm(forms.ModelForm):
@@ -92,3 +92,24 @@ class ReceiptForm(forms.ModelForm):
     class Meta:
         model = Receipts
         fields = ["date", "branch", "receipt_number", "name", "account_number"]
+
+
+class PaymentForm(forms.ModelForm):
+
+    class Meta:
+        model = Payments
+        fields = ["date", "branch", "voucher_number", "payment_type", "amount", "interest", "total_amount", "totalamount_in_words"]
+
+
+class FixedDepositForm(forms.ModelForm):
+
+    class Meta:
+        model = FixedDeposits
+        fields = ["fixed_deposit_amount", "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee"]
+
+
+class ReccuringDepositForm(forms.ModelForm):
+
+    class Meta:
+        model = RecurringDeposits
+        fields = ["recurring_deposit_amount", "recurring_deposit_period", "recurring_deposit_interest_rate", "relationship_with_nominee"]

@@ -157,7 +157,7 @@ header {
 
 .dropdown-menu>li>a {
   display: block;
-  font-size: 15px;
+  font-size: 13px;
   padding: 8px;
 }
 
@@ -262,7 +262,7 @@ header {
 form .box-form {
   width: 35%;
   float: left;
-  margin: 0px 70px;
+  margin: 0px 50px;
 }
 
 .align-btns {
@@ -777,4 +777,9 @@ form .box-form-as {
   width: 49%;
   float: left;
   margin: 5px;
+}
+
+.container .mar-wid-12 {
+  margin-left: 12%;
+  width: 72%;
 }

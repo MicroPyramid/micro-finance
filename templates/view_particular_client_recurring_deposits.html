@@ -6,8 +6,12 @@
   <div class="panel panel-default my-panel-bprofile margin-top-set">
     <div class="panel-heading">
       <h3 class="panel-title">
-        Members Fixed Deposits-List
-        <span><a href="{% url 'micro_admin:fixeddeposits' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>create Fixed Deposit</button></a></span>
+        {% if client.is_active %}
+        <i class="fa fa-square green padd"></i>
+        {% else %}
+        <i class="fa fa-square red padd"></i>
+        {% endif %}
+        {{ client.first_name }} Recurring Deposits-List
       </h3>
     </div>
     <div class="panel-body pb-table">
@@ -20,26 +24,24 @@
               <th>Deposited Date</th>
               <th>Account Number</th>
               <th>Deposit Amount</th>
-              <th>Deposit Period
-                (in months)
-              </th>
+              <th>Deposit Period(in months)</th>
               <th>Maturity Amount</th>
               <th>Nominee Name</th>
             </tr>
           </thead>
           <tbody class="body-row-tb">
-            {% for fixed_deposit in fixed_deposit_list %}
+            {% for recurring_deposit in recurring_deposit_list %}
             <tr>
               <td><b>{{ forloop.counter }}</b></td>
-              <td><a href="{% url 'micro_admin:clientfixeddepositsprofile' fixed_deposit.id %}" style="color:#000">
-                {{ fixed_deposit.client.first_name }}</a>
+              <td><a href="{% url 'micro_admin:clientrecurringdepositsprofile' recurring_deposit.id %}" style="color:#000">
+                {{ recurring_deposit.client.first_name }}</a>
               </td>
-              <td>{{ fixed_deposit.deposited_date  }}</td>
-              <td>{{ fixed_deposit.client.account_number  }}</td>
-              <td>{{ fixed_deposit.fixed_deposit_amount }}</td>
-              <td>{{ fixed_deposit.fixed_deposit_period }}</td>
-              <td>{{ fixed_deposit.maturity_amount }}</td>
-              <td>{{ fixed_deposit.nominee_firstname }}</td>
+              <td>{{ recurring_deposit.deposited_date  }}</td>
+              <td>{{ recurring_deposit.client.account_number  }}</td>
+              <td>{{ recurring_deposit.recurring_deposit_amount }}</td>
+              <td>{{ recurring_deposit.recurring_deposit_period }}</td>
+              <td>{{ recurring_deposit.maturity_amount }}</td>
+              <td>{{ recurring_deposit.nominee_firstname }}</td>
             </tr>
             {% endfor %}
           </tbody>
