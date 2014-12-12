@@ -11,7 +11,7 @@
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{loanaccount.client.first_name}}  Loan Deposits
-        <span><a href="{% url 'micro_admin:clientloanaccount' loanaccount.client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
+        <span><a href="{% url 'micro_admin:clientloanaccount' loanaccount.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
       </h3>
     </div>
     <div class="panel-body pb-table">

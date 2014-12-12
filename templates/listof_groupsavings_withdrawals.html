@@ -15,7 +15,7 @@
         <!--div 1 0f form-->
         <div class="box-form">
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Number of Withdrawals :</label><span class="col-lg-6 mar-top"><b>{{ savings_withdrawal_transactions.count }}</b></span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Number of Withdrawals :</label><span class="col-lg-6 mar-top"><b>{{ count }}</b></span>
           </div>
         </div>
         <!--div 1 of fomr ends above-->
@@ -26,34 +26,28 @@
               <thead>
                 <tr>
                   <th>S.No</th>
-                  <th>A/C Number</th>
+                  <th>Voucher No</th>
+                  <th>Withdrawn Date</th>
+                  <th>Group A/C Number</th>
+                  <th>Member Name</th>
+                  <th>Member A/C Number</th>
                   <th>Amount Withdrawn</th>
-                  <th>Transaction Date</th>
-                  <th>Transaction Done By</th>
                 </tr>
               </thead>
               <tbody>
-                {% for transaction in savings_withdrawal_transactions %}
+                {% for saving_withdraw in savings_withdrawals_list %}
                 <tr>
                   <td><b>{{ forloop.counter }}</b></td>
-                  <td>{{ transaction.savings_account.account_no }}</td>
-                  <td><span style="color:#FF00CC;">{{ transaction.transaction_amount }}</span></td>
-                  <td>{{ transaction.transaction_date }}</td>
-                  <td>{{ transaction.staff.username|capfirst }}</td>
+                  <td><b>{{ saving_withdraw.voucher_number }}</b></td>
+                  <td>{{ saving_withdraw.date }}</td>
+                  <td>{{ group.account_number }}</td>
+                  <td>{{ saving_withdraw.client.first_name|capfirst }}</td>
+                  <td>{{ saving_withdraw.client.account_number }}</td>
+                  <td><span style="color:#FF00CC;">{{ saving_withdraw.total_amount }}</span></td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
-          </div>
-        </div>
-        <div class="box-form" style="padding-left:6%;">
-          <div class="form-group">
-            <label for="inputEmail3" class="col-lg-8 col-sm-6 control-label">Total Withdrawal Amount : </label><span class="col-lg-4 mar-top"><b>{{ savings_account.total_withdrawals }}</b></span>
-          </div>
-        </div>
-        <div class="box-form" style="padding-left:10%;">
-          <div class="form-group">
-            <label for="inputEmail3" class="col-lg-8 col-sm-6 control-label">Final Current Balance : </label><span class="col-lg-4 mar-top"><b>{{savings_account.savings_balance }}</b></span>
           </div>
         </div>
       </form>

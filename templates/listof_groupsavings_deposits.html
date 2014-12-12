@@ -28,7 +28,9 @@
                 <th>S.No</th>
                 <th>Receipt No</th>
                 <th>Deposited Date</th>
-                <th>A/C Number</th>
+                <th>Group A/C Number</th>
+                <th>Member Name</th>
+                <th>Member A/C Number</th>
                 <th>Amount Deposited</th>
                 <th>Savings Balance</th>
                 <th>Deposit Done By</th>
@@ -41,6 +43,8 @@
                 <td><b>{{ receipt.receipt_number }}</b></td>
                 <td>{{ receipt.date }}</td>
                 <td>{{ group.account_number }}</td>
+                <td>{{ receipt.client.first_name|capfirst }}</td>
+                <td>{{ receipt.client.account_number }}</td>
                 <td><span style="color:#FF00CC;">{{ receipt.savingsdeposit_thrift_amount }}</span></td>
                 <td>{{ receipt.savings_balance_atinstant }}</td>
                 <td>{{ receipt.staff.username|capfirst }}</td>

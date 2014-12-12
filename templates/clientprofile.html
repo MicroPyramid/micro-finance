@@ -9,15 +9,13 @@
       {% if client.savingsaccount_set.count %}
       <a href="{% url 'micro_admin:clientsavingsaccount' client.id %}"><button><i class="fa fa-money padd"></i>View Savings</button></a>
       {% else %}
-      <a href="{% url 'micro_admin:clientsavingsapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Savings Application</button></a>
+      <a href="{% url 'micro_admin:clientsavingsapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Savings</button></a>
       {% endif %}
-      {% if client.loanaccount_set.count %}
-      <a href="{% url 'micro_admin:clientloanaccount' client.id %}"><button><i class="fa fa-money padd"></i>View Loans</button></a>
-      {% else %}
-      <a href="{% url 'micro_admin:clientloanapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Loan Application</button></a>
-      {% endif %}
-      <a href="{% url 'micro_admin:ledgeraccount' client.id %}"><button>View Ledger</button></a>
-      <a href="{% url 'micro_admin:viewparticularclientfixeddeposits' client.id%}"><button><i class="fa fa-eye padd"></i>View Fixed Deposits</button></a>
+      <a href="{% url 'micro_admin:clientloanapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Loan</button></a>
+      <a href="{% url 'micro_admin:clientloanaccountslist' client.id %}"><button><i class="fa fa-money padd"></i>View Loans</button></a>
+      <a href="{% url 'micro_admin:ledgeraccount' client.id %}"><button>Ledger</button></a>
+      <a href="{% url 'micro_admin:viewparticularclientfixeddeposits' client.id%}"><button><i class="fa fa-eye padd"></i>Fixed Deposits</button></a>
+      <a href="{% url 'micro_admin:viewparticularclientrecurringdeposits' client.id%}"><button><i class="fa fa-eye padd"></i>Recurring Deposits</button></a>
       <a href="{% url 'micro_admin:updateclientprofile' client.id %}"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
       {% if user.is_admin %}
       <a href="{% url 'micro_admin:deleteclient' client.id %}"><button><i class="fa fa-trash-o padd"></i>Delete</button></a>

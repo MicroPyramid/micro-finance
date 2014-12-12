@@ -35,7 +35,7 @@
         {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
         {{ group.name }} Savings Account
         <span><a href="{% url 'micro_admin:viewgroupsavingswithdrawals' group.id %}"><button class="with-dep-btn"><i class="fa fa-eye padd"></i>View Withdraws</button></a></span>
-        <span><a href="{% url 'micro_admin:viewgroupsavingsdeposits' savings_account.id %}"><button class="with-dep-btn"><i class="fa fa-eye padd"></i>View Deposits</button></a></span>
+        <span><a href="{% url 'micro_admin:viewgroupsavingsdeposits' group.id %}"><button class="with-dep-btn"><i class="fa fa-eye padd"></i>View Deposits</button></a></span>
         {% if not user.is_admin %}
         {% if savings_account.status == "Withdrawn" %}
         <span style="padding-left:5px;"><a title="Account has already been Withdrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a></span>

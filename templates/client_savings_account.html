@@ -2,7 +2,7 @@
 {% block stage %}
 <!--content goes below-->
 <div class="container">
-  <div class="wrap-cp-div btn-usa-div margin-top-set" style ="margin-left:67px">
+  <div class="wrap-cp-div btn-usa-div margin-top-set mar-wid-12" style ="margin-left:67px">
     <div class="btn-row" >
       {% if user.is_admin %}
       <span><a href="#"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a></span>
@@ -39,10 +39,10 @@
         {% else %}
         <i class="fa fa-square red padd"></i>{% endif %}
         {{ client.first_name }} Savings Account
+        <span><a href="{% url 'micro_admin:listofclientsavingswithdrawals' client.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdrawals </button></a></span>
         <span><a href="{% url 'micro_admin:listofclientsavingsdeposits' client.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Deposits </button></a></span>
-        <span><a href="{% url 'micro_admin:listofclientsavingswithdrawals' savingsaccount.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdrawals </button></a></span>
         {% if not user.is_admin %}
-        <span><a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a> 
+        <span><a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
         {% if savingsaccount.status == "Withdrawn" %}
         <a  title="Already Withrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a>
         {% else %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block stage %}
+<!--content goes below-->
+<div class="home-div-gp">
+<div class="panel panel-default wrap-cp-div">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      {% if recurring_deposit.client.is_active %}
+      <i class="fa fa-square green padd"></i>
+      {% else %}
+      <i class="fa fa-square red padd"></i>{% endif %}
+      {{ recurring_deposit.client.first_name }} Recurring Deposit
+    </h3>
+  </div>
+  <!--form div starts below-->
+  <div class="panel-body">
+    <form id="fixeddepositprofileform" class="form-horizontal" role="form">
+      {% csrf_token %}
+      <div class="box-form">
+        <div class="form-group grp-view">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Account Number :</label><span class="col-lg-6 mar-top">{{ recurring_deposit.client.account_number }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Deposited Amount:</label><span class="col-lg-6 mar-top">{{ recurring_deposit.recurring_deposit_amount }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Interest Rate :</label><span class="col-lg-6 mar-top">{{ recurring_deposit.recurring_deposit_interest_rate }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label"><b>Nominee Details</b></label>
+          <span>&nbsp;</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Nominee Name :</label><span class="col-lg-6 mar-top">{{ recurring_deposit.nominee_firstname }}</span>
+        </div>
+      </div>
+      <!--div 1 of fomr ends above-->
+      <!--div 2 of form starts below-->
+      <div class="box-form">
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Deposited On :</label>
+          <span class="col-lg-6 mar-top">{{ recurring_deposit.deposited_date }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Deposit Period:</label>
+          <span class="col-lg-5 mar-top">{{ recurring_deposit.recurring_deposit_period }} (in months)</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Maturity Amount:</label>
+          <span class="col-lg-5 mar-top" style="color:#FF00CC;">{{ recurring_deposit.maturity_amount }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">&nbsp;</label>
+          <span>&nbsp;</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Relationship with Nominee:
+          </label><span class="col-lg-5 mar-top">{{ recurring_deposit.relationship_with_nominee }}</span>
+        </div>
+      </div>
+      <br clear="all" />
+    </form>
+  </div>
+  <!--panel body ends below crct-->
+</div>
+<script src="/static/js/mf_script.js"></script>
+{% endblock %}

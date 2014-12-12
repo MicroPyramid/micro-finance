@@ -6,34 +6,48 @@
   <div class="panel panel-default my-panel-bprofile margin-top-set">
     <div class="panel-heading">
       <h3 class="panel-title">
-        {% if savingsaccount.client.is_active %}
+        {% if client.is_active %}
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
-        {% endif %}{{savingsaccount.client.first_name}}  Savings Withdrawal
-        <span><a href="{% url 'micro_admin:clientsavingsaccount' savingsaccount.client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
+        {% endif %}{{client.first_name|capfirst}}  Savings Withdrawals List
+        <span><a href="{% url 'micro_admin:clientsavingsaccount' client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
       </h3>
     </div>
     <div class="panel-body pb-table">
+      <!--panel body starts above-->
+      <form class="form-horizontal" role="form">
+      <!--div 1 0f form-->
+      <div class="box-form">
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Number of Withdrawals :</label><span class="col-lg-6 mar-top"><b>{{ count }}</b></span>
+        </div>
+      </div>
+      <!--div 1 of fomr ends above-->
+      <br clear="all" />
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
               <th>S.No</th>
-              <th>Account Number</th>
-              <th>Transaction Done by</th>
-              <th>Transaction Date</th>
-              <th>Transaction Amount</th>
+              <th>Voucher No</th>
+              <th>Withdrawn Date</th>
+              <th>Group A/C Number</th>
+              <th>Member Name</th>
+              <th>Member A/C Number</th>
+              <th>Amount Withdrawn</th>
             </tr>
           </thead>
           <tbody class="body-row-tb">
-            {% for savingstransaction in savingstransactions_list %}
+            {% for saving_withdraw in savings_withdrawals_list %}
             <tr>
               <td><b>{{ forloop.counter }}</b></td>
-              <td>{{ savingsaccount.account_no }}</td>
-              <td>{{ savingstransaction.staff }}</td>
-              <td>{{ savingstransaction.transaction_date }}</td>
-              <td>{{ savingstransaction.transaction_amount }}</td>
+              <td><b>{{ saving_withdraw.voucher_number }}</b></td>
+              <td>{{ saving_withdraw.date }}</td>
+              <td>{{ saving_withdraw.group.name|capfirst }}</td>
+              <td>{{ saving_withdraw.client.first_name|capfirst }}</td>
+              <td>{{ saving_withdraw.client.account_number }}</td>
+              <td style="color:#FF00CC;">{{ saving_withdraw.total_amount }}</td>
             </tr>
             {% endfor %}
           </tbody>

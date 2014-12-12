@@ -107,14 +107,14 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Accounting <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                           <li><a href="{% url 'micro_admin:receiptslist' %}">Receipts</a></li>
-                          <li><a href="#">Withdrawals</a></li>
+                          <li><a href="{% url 'micro_admin:paymentslist' %}">Payments</a></li>
                         </ul>
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deposits<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:viewclientfixeddeposits' %}"><i class="fa fa-user icon padd"></i>View Fixed Deposits</a></li>
-                          <li><a href="#"><i class="fa fa-unlock-alt padd"></i>View Recurring Deposits </a></li>
+                          <li><a href="{% url 'micro_admin:viewclientfixeddeposits' %}">View Fixed Deposits</a></li>
+                          <li><a href="{% url 'micro_admin:viewclientrecurringdeposits' %}">View Recurring Deposits </a></li>
                         </ul>
                       </li>
                       <li class="dropdown">

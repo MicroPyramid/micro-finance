@@ -36,7 +36,7 @@
             </div>
           </div>
           <div class="form-group" >
-            <label for="inputEmail3" class="col-sm-4 control-label">Member Name</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Member Name<span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form"  name="name" required="True">
               <p id="clientnameerror"></p>
@@ -105,9 +105,9 @@
         <!--div 2 of form starts below-->
         <div class="box-form">
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">Date</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Date<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" id="inputEmail3" required="True">
+              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" required="True">
             </div>
           </div>
           <div class="form-group">
@@ -121,7 +121,7 @@
             </div>
           </div>
           <div class="form-group" >
-            <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.</label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.<span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form"  name="account_number" required="True">
               <p id="accountnumbererror"></p>
@@ -264,7 +264,6 @@
           if (data.message.insurance_amount) {
             $("#insuranceamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.insurance_amount + "</span>");
           }
-  
         }
         else {
           alert("Receipt added sucessfully");
