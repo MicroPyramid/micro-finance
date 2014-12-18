@@ -91,7 +91,7 @@ class ReceiptForm(forms.ModelForm):
 
     class Meta:
         model = Receipts
-        fields = ["date", "branch", "receipt_number", "name", "account_number"]
+        fields = ["date", "branch", "receipt_number"]
 
 
 class PaymentForm(forms.ModelForm):

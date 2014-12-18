@@ -28,6 +28,7 @@
               <th class="wid-90">Thrift Deposits</th>
               <th class="wid-90">Fixed Deposits</th>
               <th class="wid-90">Recurring Deposits</th>
+              <th class="wid-90">Loan A/C. No.</th>
               <th class="wid-90">Loan Principal Amount</th>
               <th class="wid-90">Loan Interest Amount</th>
               <th class="wid-90">Insurance Amount</th>
@@ -41,18 +42,46 @@
               <td>{{ receipt.date }}</td>
               <td>{{ receipt.receipt_number}}</td>
               <td>{{ receipt.client.first_name|capfirst }}</td>
-              <td>{{ receipt.sharecapital_amount|default:" - " }}</td>
-              <td>{{ receipt.entrancefee_amount|default:" - " }}</td>
-              <td>{{ receipt.membershipfee_amount|default:" - " }}</td>
-              <td>{{ receipt.bookfee_amount|default:" - "}}</td>
-              <td>{{ receipt.loanprocessingfee_amount|default:" - " }}</td>
-              <td>{{ receipt.savingsdeposit_thrift_amount|default:" - " }}</td>
-              <td>{{ receipt.fixeddeposit_amount|default:" - " }}</td>
-              <td>{{ receipt.recurringdeposit_amount|default:" - " }}</td>
-              <td>{{ receipt.loanprinciple_amount|default:" - " }}</td>
-              <td>{{ receipt.loaninterest_amount|default:" - " }}</td>
-              <td>{{ receipt.insurance_amount|default:" - " }}</td>
-              <td>{{ receipt.staff|default:" - " }}</td>
+              <td>
+                {% if receipt.sharecapital_amount%}{{ receipt.sharecapital_amount|floatformat:2}}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.entrancefee_amount%}{{ receipt.entrancefee_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.membershipfee_amount%}{{ receipt.membershipfee_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.bookfee_amount%}{{ receipt.bookfee_amount|floatformat:2}}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.loanprocessingfee_amount%}{{ receipt.loanprocessingfee_amount|floatformat:2 }}
+                {% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.savingsdeposit_thrift_amount%}{{ receipt.savingsdeposit_thrift_amount|floatformat:2 }}
+                {% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.fixeddeposit_amount%}{{ receipt.fixeddeposit_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.recurringdeposit_amount%}{{ receipt.recurringdeposit_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td>
+                {{ receipt.loan_account.account_no|default:" - " }}
+              </td>
+              <td>
+                {% if receipt.loanprinciple_amount%}{{ receipt.loanprinciple_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.loaninterest_amount%}{{ receipt.loaninterest_amount|floatformat:2}}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.insurance_amount%}{{ receipt.insurance_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td>
+                {{ receipt.staff|default:" - " }}</td>
             </tr>
             {% endfor %}
           </tbody>

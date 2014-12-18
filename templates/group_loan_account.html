@@ -34,14 +34,14 @@
   <h3 class="panel-title">
     {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
     {{ group.name }} Loan Account
-    <span><a href="{% url 'micro_admin:viewgrouploandeposits' group.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></a></span>
+    <span><a href="{% url 'micro_admin:viewgrouploandeposits' group.id loan_account.id %}"><button class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</button></a></span>
     {% if not user.is_admin %}
-    {% if loan_account.status == "Withdrawn" %}
-    <span style="padding-left:5px;"><a title="Account has already been Withdrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a></span>
-    {% else %}
-    <span style="padding-left:5px;"><a href="#"><button class="ed-btn" id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a></span>
-    {% endif %}
-    <span><a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a></span>
+      {% if loan_account.status == "Withdrawn" %}
+      <span style="padding-left:5px;"><a title="Account has already been Withdrawn"><button class="ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a></span>
+      {% else %}
+      <span style="padding-left:5px;"><a href="#"><button class="ed-btn" id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a></span>
+      {% endif %}
+      <span><a href="#"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a></span>
     {% endif %}
   </h3>
 </div>
@@ -114,11 +114,7 @@
       </div>
       <div class="form-group">
         <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">
-        {% if loan_account.interest_type == "Flat" %}
-        Balance Amount :
-        {% elif loan_account.interest_type == "Declining" %}
         Principle Balance Amount :
-        {% endif %}
         </label>
         <span class="col-lg-5 mar-top" style="color:#337ab7;">{{ loan_account.total_loan_balance }} </span>
       </div>
@@ -136,11 +132,11 @@
       $.post('/approveloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Group Loan Account is not Approved")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
         else {
           alert("Group Loan account has been Approved sucessfully")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
       }, "json");
     });
@@ -149,11 +145,11 @@
       $.post('/rejectloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Group Loan account is not Rejected")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
         else {
           alert("Group Loan account has been Rejected sucessfully")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
       }, "json");
     });
@@ -162,11 +158,11 @@
       $.post('/closeloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Group Loan account is not Closed")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
         else {
           alert("Group Loan account has been Closed sucessfully")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
       }, "json");
     });
@@ -175,32 +171,11 @@
       $.post('/withdrawloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
         if (data.error) {
           alert("Group Loan account can't be Withdrawn")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
         else {
           alert("Group Loan account has been Withdrawn sucessfully")
-          window.location = '/grouploanaccount/'+data.group_id+'/';
-        }
-      }, "json");
-    });
-    $('#loan-deposit-button').click(function(e) {
-      e.preventDefault();
-      $.post('/grouploantransactions/'+$('#loanaccount_id').val()+'/', $('#grouploandepositform').serialize(), function(data) {
-        if (data.error) {
-          //alert("Loan amount has not deposited.")
-          //window.location = '/grouploanaccount/'+data.group_id+'/';
-          $("span.error").remove();
-          if (data.amount_message) {
-            $("#transactionerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.amount_message + "</span>");
-          }
-          if (data.message) {
-            alert(data.message);
-            window.location = '/grouploanaccount/'+data.group_id+'/';
-          }
-        }
-        else {
-          alert("Loan amount has been sucessfully deposited in the Loan Account.");
-          window.location = '/grouploanaccount/'+data.group_id+'/';
+          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
       }, "json");
     });

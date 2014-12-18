@@ -19,7 +19,7 @@
           <label for="inputEmail3" class="col-sm-5 control-label">Account Number</label>
           <div class="col-sm-7">
             <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
-            <input type="text" class="text-box wid-form" name="account_no" value="{{ account_no }}" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="account_no" id="inputEmail3" required="True">
           </div>
         </div>
         <div class="form-group">
@@ -61,7 +61,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Annual Intrest Rate<span>*</span></label>
+          <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate<span>*</span></label>
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="annual_interest_rate" required="True">
             <p id="annualinterestrateerror"></p>
@@ -70,7 +70,7 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
           <div class="col-sm-7">
-            <textarea rows="3" cols="42" name="loanpurpose_description" required="True"></textarea>
+            <textarea rows="3" cols="40" name="loanpurpose_description" required="True"></textarea>
             <p id="loanpurposeerror"></p>
           </div>
         </div>
@@ -112,7 +112,8 @@
           }
         }
         else {
-          window.location = '/clientloanaccount/'+data.client_id+'/';
+          alert("Member Loan Application submitted sucessfully");
+          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
         }
       }, "json");
     });
