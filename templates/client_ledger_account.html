@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load ledgertemplatetags %}
 {% block stage %}
 <!--content goes below-->
 <div class="container-trans-table">
@@ -8,55 +7,15 @@
     <div class="panel-heading">
       <h3 class="panel-title">
         {{ client.first_name|capfirst }} Ledger
+        <span class="doNotPrint"><a href="{% url 'micro_admin:clientledgercsvdownload' client.id %}">
+        <button class="view-tab-btn">CSV Download</button></a></span>
+        <span><a href="{% url 'micro_admin:clientledgerexceldownload' client.id %}"><button class="view-tab-btn">Excel Download
+        </button></a></span>
+        <span><a href="{% url 'micro_admin:clientledgerpdfdownload' client.id %}" target="_blank"><button class="view-tab-btn">PDF Download</button></a></span>
+        <span><a target="_blank"><button class="view-tab-btn" onclick="window.print()">Print</button></a></span>
       </h3>
     </div>
-    <div class="panel-body pb-table">
-      <div class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-            <tr class="head-row-tb">
-              <th rowspan="2">Date</th>
-              <th rowspan="2">Client</th>
-              <th rowspan="2">Receipt No.</th>
-              <th colspan="3">Demand</th>
-              <th colspan="3">Collection</th>
-              <th colspan="3">Balance</th>
-              <th rowspan="2">Loan Outstanding</th>
-            </tr>
-            <tr>
-              <th>Principal</th>
-              <th>Interest</th>
-              <th>Peenal Interest</th>
-              <th>Principal</th>
-              <th>Interest</th>
-              <th>Peenal Interest</th>
-              <th>Principal</th>
-              <th>Interest</th>
-              <th>Peenal Interest</th>
-            </tr>
-          </thead>
-          <tbody class="body-row-tb">
-            {% for receipt in receipts_list%}
-            <tr>
-              <td>{{ receipt.date }}</td>
-              <td>{{ receipt.client.first_name|capfirst }}</td>
-              <td>{{ receipt.receipt_number}}</td>
-              <td>{{ receipt.demand_loanprinciple_amount_atinstant|floatformat:3 }}</td>
-              <td>{{ receipt.demand_loaninterest_amount_atinstant|floatformat:3 }}</td>
-              <td>demand penal interest</td>
-              <td>{{ receipt.loanprinciple_amount|floatformat:3 }}</td>
-              <td>{{ receipt.loaninterest_amount|floatformat:3 }}</td>
-              <td>paid penal interest</td>
-              <td>{{ receipt.demand_loanprinciple_amount_atinstant|demand_collections_difference:receipt.loanprinciple_amount|floatformat:3 }}</td>
-              <td>{{ receipt.demand_loaninterest_amount_atinstant|demand_collections_difference:receipt.loaninterest_amount|floatformat:3 }}</td>
-              <td>Diff</td>
-              <td>{{ receipt.principle_loan_balance_atinstant|floatformat:3 }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    {% include "clientledgertable.html" %}
   </div>
   <!--form div ends above-->
 </div>

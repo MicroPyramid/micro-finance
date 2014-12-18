@@ -6,7 +6,7 @@
       <h3 class="panel-title">
         {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
         {{ group.name }} Loan Deposits List
-        <span style="padding-left:5px;"><a href="{% url 'micro_admin:grouploanaccount' group.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
+        <span style="padding-left:5px;"><a href="{% url 'micro_admin:grouploanaccount' loan_account.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
       </h3>
     </div>
     <div class="panel-body">
@@ -33,6 +33,7 @@
                 <th>Demand Interest</th>
                 <th>Loan Principle</th>
                 <th>Loan Interest</th>
+                <th>Loan Principal Balance</th>
                 <th>Deposit Done By</th>
               </tr>
             </thead>
@@ -43,10 +44,11 @@
                 <td>{{ receipt.receipt_number }}</td>
                 <td>{{ receipt.date }}</td>
                 <td>{{ receipt.client.first_name }}</td>
-                <td>{{ receipt.demand_loanprinciple_amount_atinstant }}</td>
-                <td>{{ receipt.demand_loaninterest_amount_atinstant }}</td>
-                <td>{{ receipt.loanprinciple_amount }}</td>
+                <td>{{ receipt.demand_loanprinciple_amount_atinstant|floatformat:2  }}</td>
+                <td>{{ receipt.demand_loaninterest_amount_atinstant|floatformat:2  }}</td>
+                <td>{{ receipt.loanprinciple_amount|floatformat:2  }}</td>
                 <td>{{ receipt.loaninterest_amount }}</td>
+                <td>{{ receipt.principle_loan_balance_atinstant|floatformat:2  }}</td>
                 <td>{{ receipt.staff.username|capfirst }}</td>
               </tr>
               {% endfor %}

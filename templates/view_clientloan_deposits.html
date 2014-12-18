@@ -37,9 +37,9 @@
               <td>{{ loanaccount.client.account_number }}</td>
               <td>{{ receipts_list.staff }}</td>
               <td>{{ receipts_list.date }}</td>
-              <td>{{ receipts_list.loanprinciple_amount }}</td>
-              <td>{{ receipts_list.loaninterest_amount }}</td>
-              <td>{{ receipts_list.principle_loan_balance_atinstant }}</td>
+              <td>{{ receipts_list.loanprinciple_amount|floatformat:2  }}</td>
+              <td>{{ receipts_list.loaninterest_amount|floatformat:2  }}</td>
+              <td>{{ receipts_list.principle_loan_balance_atinstant|floatformat:2  }}</td>
             </tr>
             {% endfor %}
           </tbody>

@@ -3,7 +3,7 @@
 body {
   background: #f0f3f4;
   width: 100%;
-  font-family: 'Lato', sans-serif;
+  font-family: 'Raleway', sans-serif;
   font-size: 12px;
   height: 100%;
 }
@@ -59,6 +59,11 @@ input, button, select, textarea {
 .container .form-div .text-box placeholder {
   color: #6edecb;
   font-size: 14px;
+}
+
+.box-form .text-box {
+  padding: 8px;
+  height: 30px;
 }
 
 .container .form-div button {
@@ -127,7 +132,7 @@ header {
 
 .navbar-default .navbar-nav>li>a {
   color: #fff;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .navbar-default .navbar-nav>li>a:hover {
@@ -782,4 +787,37 @@ form .box-form-as {
 .container .mar-wid-12 {
   margin-left: 12%;
   width: 72%;
+}
+
+/* Day Book */
+
+#day-book-panel {
+  margin-top: -71px;
+}
+
+#dat-txt-box {
+  display: block;
+  margin-top: 74px;
+  float: right;
+  margin-right: 45px;
+}
+
+#dat-txt-box form .form-group input {
+  margin-right: 3px;
+  width: 65%;
+  height: 30px;
+  float: left;
+}
+
+#dat-txt-box form .form-group button {
+  float: left;
+  padding: 5px 12px;
+  color: #fff;
+  background: #337ab7;
+  border: 1px solid #2e6da4;
+  border-radius: 2px;
+}
+
+#dat-txt-box form .form-group button:hover {
+  background: #2e6da4;
 }

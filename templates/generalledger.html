@@ -7,52 +7,10 @@
     <div class="panel-heading">
       <h3 class="panel-title">
         General Ledger
+        <span><a href="{% url 'micro_admin:generalledgerpdfdownload' %}" target="_blank"><button class="view-tab-btn">PDF Download</button></a></span>
       </h3>
     </div>
-    <div class="panel-body pb-table">
-      <div class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-            <tr class="head-row-tb">
-              <th class="wid-10">S.No.</th>
-              <th class="wid-90">Date</th>
-              <th class="wid-10">Share Capital</th>
-              <th class="wid-10">Entrance Fee</th>
-              <th class="wid-10">Membership Fee</th>
-              <th class="wid-10">Book Fee</th>
-              <th class="wid-74">Loan Processing Fee</th>
-              <th class="wid-90">Thrift Deposits</th>
-              <th class="wid-90">Fixed Deposits</th>
-              <th class="wid-90">Recurring Deposits</th>
-              <th class="wid-90">Loan Principal Amount</th>
-              <th class="wid-90">Loan Interest Amount</th>
-              <th class="wid-90">Insurance Amount</th>
-              <th class="wid-90">Total Collection</th>
-            </tr>
-          </thead>
-          <tbody class="body-row-tb">
-            {% for row in list %}
-            <tr>
-              <td><b>{{ forloop.counter }}</b></td>
-              <td>{{ row.date }}</td>
-              <td>{{ row.sum_sharecapital_amount}}</td>
-              <td>{{ row.sum_entrancefee_amount|default:" - " }}</td>
-              <td>{{ row.sum_membershipfee_amount|default:" - " }}</td>
-              <td>{{ row.sum_bookfee_amount|default:" - " }}</td>
-              <td>{{ row.sum_loanprocessingfee_amount|default:" - " }}</td>
-              <td>{{ row.sum_savingsdeposit_thrift_amount|default:" - "}}</td>
-              <td>{{ row.sum_fixeddeposit_amount|default:" - " }}</td>
-              <td>{{ row.sum_recurringdeposit_amount|default:" - " }}</td>
-              <td>{{ row.sum_loanprinciple_amount|default:" - " }}</td>
-              <td>{{ row.sum_loaninterest_amount|default:" - " }}</td>
-              <td>{{ row.sum_insurance_amount|default:" - " }}</td>
-              <td>{{ row.total_sum|default:" - " }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    {% include "generalledgertable.html" %}
   </div>
   <!--form div ends above-->
 </div>

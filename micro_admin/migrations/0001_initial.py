@@ -210,9 +210,9 @@ class Migration(migrations.Migration):
                 ('total_amount', models.DecimalField(max_digits=19, decimal_places=6)),
                 ('totalamount_in_words', models.CharField(max_length=200)),
                 ('branch', models.ForeignKey(to='micro_admin.Branch')),
-                ('client', models.ForeignKey(default=0, blank=True, to='micro_admin.Client', null=True)),
-                ('group', models.ForeignKey(default=0, blank=True, to='micro_admin.Group', null=True)),
-                ('staff', models.ForeignKey(default=0, blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('client', models.ForeignKey(blank=True, to='micro_admin.Client', null=True)),
+                ('group', models.ForeignKey(blank=True, to='micro_admin.Group', null=True)),
+                ('staff', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
             },

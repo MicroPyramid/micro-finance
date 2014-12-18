@@ -233,6 +233,7 @@ class LoanAccount(models.Model):
     total_loan_balance = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     loanprocessingfee_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     no_of_repayments_completed = models.IntegerField(default=0)
+    principle_repayment = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
 
 
 class Receipts(models.Model):
@@ -241,8 +242,8 @@ class Receipts(models.Model):
     receipt_number = models.CharField(max_length=50, unique=True)
     client = models.ForeignKey(Client, null=True, blank=True)
     group = models.ForeignKey(Group, null=True, blank=True,default=0)
-    name = models.CharField(max_length=50)
-    account_number = models.CharField(max_length=50)
+    member_loan_account = models.ForeignKey(LoanAccount, null=True, blank=True)
+    group_loan_account = models.ForeignKey(LoanAccount, null=True, blank=True, related_name="group_loan_account")
     sharecapital_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     entrancefee_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     membershipfee_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)

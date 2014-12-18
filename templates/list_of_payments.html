@@ -38,9 +38,9 @@
               <td>{{ payment.client.first_name|capfirst|default:" - " }}</td>
               <td>{{ payment.staff.username|capfirst|default:" - " }}</td>
               <td>{{ payment.payment_type }}</td>
-              <td>{{ payment.amount }}</td>
-              <td>{{ payment.interest|default:" - " }}</td>
-              <td>{{ payment.total_amount }}</td>
+              <td>{{ payment.amount|floatformat:2 }}</td>
+              <td>{% if payment.interest %}{{ payment.interest|default:" - " }}{% else %}-{% endif %}</td>
+              <td>{{ payment.total_amount|floatformat:2 }}</td>
             </tr>
             {% endfor %}
           </tbody>
