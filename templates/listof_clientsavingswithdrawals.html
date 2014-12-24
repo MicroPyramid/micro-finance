@@ -4,15 +4,14 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">
+    <div class="panel-heading min-ht-res-60">
       <h3 class="panel-title">
         {% if client.is_active %}
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
-        {% endif %}{{client.first_name|capfirst}}  Savings Withdrawals List
-        <span><a href="{% url 'micro_admin:clientsavingsaccount' client.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
-      </h3>
+        {% endif %}{{client.first_name|capfirst}}  Savings Withdrawals List</h3>
+        <span class="mar-tp-m"><a href="{% url 'micro_admin:clientsavingsaccount' client.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="panel-body pb-table">
       <!--panel body starts above-->
@@ -25,6 +24,7 @@
       </div>
       <!--div 1 of fomr ends above-->
       <br clear="all" />
+      <div class="hg-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
@@ -52,6 +52,7 @@
             {% endfor %}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   </div>

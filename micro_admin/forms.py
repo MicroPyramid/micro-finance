@@ -66,13 +66,6 @@ class ClientLoanAccountForm(forms.ModelForm):
         fields = ["account_no", "loan_amount", "interest_type", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
 
 
-class FixedDepositForm(forms.ModelForm):
-
-    class Meta:
-        model = FixedDeposits
-        fields = ["fixed_deposit_amount", "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee"]
-
-
 class GroupSavingsAccountForm(forms.ModelForm):
 
     class Meta:
@@ -105,11 +98,11 @@ class FixedDepositForm(forms.ModelForm):
 
     class Meta:
         model = FixedDeposits
-        fields = ["fixed_deposit_amount", "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee"]
+        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "fixed_deposit_number", "deposited_date", "fixed_deposit_amount", "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee", "nominee_photo", "nominee_signature"]
 
 
 class ReccuringDepositForm(forms.ModelForm):
 
     class Meta:
         model = RecurringDeposits
-        fields = ["recurring_deposit_amount", "recurring_deposit_period", "recurring_deposit_interest_rate", "relationship_with_nominee"]
+        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "reccuring_deposit_number", "deposited_date", "recurring_deposit_amount", "recurring_deposit_period", "recurring_deposit_interest_rate", "relationship_with_nominee", "nominee_photo", "nominee_signature"]

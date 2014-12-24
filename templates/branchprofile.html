@@ -4,11 +4,11 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bp margin-top-set">
-    <div class="panel-heading">{{ branch.name }}
-      <span>
+    <div class="panel-heading min-ht-res-60"><h3 class="panel-title">{{ branch.name }}</h3>
+      <span class="mar-tp-m mar-tp-m24">
       {% if user.is_admin %}
-      <a href="{% url 'micro_admin:editbranch' branch.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
-      <a href="{% url 'micro_admin:deletebranch' branch.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>
+      <a href="{% url 'micro_admin:editbranch' branch.id %}" class="view-tab-btn ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</a>
+      <a href="{% url 'micro_admin:deletebranch' branch.id %}" class="view-tab-btn del-btn"><i class="fa fa-trash-o padd"></i>Delete</a>
       {% endif %}
       </span>
     </div>
@@ -18,7 +18,7 @@
           <tbody class="body-row-tb">
             <tr class="wid-tab">
               <th>Branch-Name</th>
-              <td>{{ branch.name }}
+              <td>{{ branch.name|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">
@@ -28,22 +28,27 @@
             </tr>
             <tr class="wid-tab">
               <th>Country</th>
-              <td>{{ branch.country }}
+              <td>{{ branch.country|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>State</th>
-              <td>{{ branch.state }}
+              <td>{{ branch.state|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>District</th>
-              <td>{{ branch.district }}
+              <td>{{ branch.district|capfirst }}
+              </td>
+            </tr>
+            <tr class="wid-tab">
+              <th>Mandal</th>
+              <td>{{ branch.city|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>Area</th>
-              <td>{{ branch.area }}
+              <td>{{ branch.area|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">

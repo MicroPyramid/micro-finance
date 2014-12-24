@@ -4,25 +4,24 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">
+    <div class="panel-heading min-ht-res-60">
       <h3 class="panel-title">
-        Members Fixed Deposits-List
-        <span><a href="{% url 'micro_admin:fixeddeposits' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>create Fixed Deposit</button></a></span>
-      </h3>
+        Members Fixed Deposits List</h3>
+        <span class="mar-tp-m"><a href="{% url 'micro_admin:fixeddeposits' %}" class="view-tab-btn ed-btn"><i class="fa fa-plus padd"></i>create Fixed Deposit</a></span>
     </div>
-    <div class="panel-body pb-table">
+    <div class="hg-table panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
               <th>S.No.</th>
-              <th>Member Name</th>
+              <th>FD A/C. No.</th>
+              <th>Status</th>
               <th>Deposited Date</th>
-              <th>Account Number</th>
+              <th>Member Name</th>
+              <th>Member A/C. No.</th>
               <th>Deposit Amount</th>
-              <th>Deposit Period
-                (in months)
-              </th>
+              <th>Deposit Period(in months)</th>
               <th>Maturity Amount</th>
               <th>Nominee Name</th>
             </tr>
@@ -31,15 +30,23 @@
             {% for fixed_deposit in fixed_deposit_list %}
             <tr>
               <td><b>{{ forloop.counter }}</b></td>
-              <td><a href="{% url 'micro_admin:clientfixeddepositsprofile' fixed_deposit.id %}" style="color:#000">
-                {{ fixed_deposit.client.first_name }}</a>
+              <td><a href="{% url 'micro_admin:clientfixeddepositsprofile' fixed_deposit.id %}" style="color:#337ab7;">
+                {{ fixed_deposit.fixed_deposit_number }}</a>
               </td>
-              <td>{{ fixed_deposit.deposited_date  }}</td>
+              {% if fixed_deposit.status == "Opened" %}
+              <td><i class="fa fa-circle green"></i></td>
+              {% elif fixed_deposit.status == "Closed" %}
+              <td><i class="fa fa-circle red"></i></td>
+              {% endif %}
+               <td>{{ fixed_deposit.deposited_date  }}</td>
+              <td><a href="{% url 'micro_admin:clientprofile' fixed_deposit.client.id %}" style="color:#660099">
+                {{ fixed_deposit.client.first_name|capfirst }}</a>
+              </td>
               <td>{{ fixed_deposit.client.account_number  }}</td>
               <td>{{ fixed_deposit.fixed_deposit_amount }}</td>
               <td>{{ fixed_deposit.fixed_deposit_period }}</td>
               <td>{{ fixed_deposit.maturity_amount }}</td>
-              <td>{{ fixed_deposit.nominee_firstname }}</td>
+              <td>{{ fixed_deposit.nominee_firstname|capfirst }}</td>
             </tr>
             {% endfor %}
           </tbody>

@@ -4,7 +4,7 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">
+    <div class="panel-heading min-hgt-0">
       <h3 class="panel-title">
         {% if client.is_active %}
         <i class="fa fa-square green padd"></i>
@@ -46,8 +46,8 @@
               <td>{{ loan_account.opening_date }}</td>
               <td>{{ loan_account.status }}</td>
               <td>{{ loan_account.interest_type }}</td>
-              <td>{{ loan_account.loan_amount }}</td>
-              <td>{{ loan_account.total_loan_balance }}</td>
+              <td>{{ loan_account.loan_amount|floatformat:2  }}</td>
+              <td>{{ loan_account.total_loan_balance|floatformat:2  }}</td>
               <td>{{ loan_account.created_by }}</td>
             </tr>
             {% endfor %}

@@ -4,16 +4,19 @@
 <div class="container-trans-table">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile margin-top-set trans-table">
-    <div class="panel-heading">
+    <div class="panel-heading min-ht-res-60">
       <h3 class="panel-title">
-        {{ client.first_name|capfirst }} Ledger
-        <span class="doNotPrint"><a href="{% url 'micro_admin:clientledgercsvdownload' client.id %}">
-        <button class="view-tab-btn">CSV Download</button></a></span>
-        <span><a href="{% url 'micro_admin:clientledgerexceldownload' client.id %}"><button class="view-tab-btn">Excel Download
-        </button></a></span>
-        <span><a href="{% url 'micro_admin:clientledgerpdfdownload' client.id %}" target="_blank"><button class="view-tab-btn">PDF Download</button></a></span>
-        <span><a target="_blank"><button class="view-tab-btn" onclick="window.print()">Print</button></a></span>
-      </h3>
+        {{ client.first_name|capfirst }} Ledger </h3>
+        <span class="doNotPrint mar-tp-m mar-tp-m24">
+          <a href="{% url 'micro_admin:clientledgercsvdownload' client.id %}" class="view-tab-btn">
+          <i class="fa fa-download padd"></i>CSV Download</a>
+          <a href="{% url 'micro_admin:clientledgerexceldownload' client.id %}" class="view-tab-btn"><i class="fa fa-download padd"></i>Excel Download</a>
+          <a href="{% url 'micro_admin:clientledgerpdfdownload' client.id %}" target="_blank" class="view-tab-btn">
+          <i class="fa fa-download padd"></i>PDF Download</a>
+          <a target="_blank" class="view-tab-btn">
+        <!--<button class="view-tab-btn" onclick="window.print()">-->
+        Print</a>
+        </span>
     </div>
     {% include "clientledgertable.html" %}
   </div>

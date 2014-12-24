@@ -14,19 +14,19 @@
             <label for="inputEmail3" class="col-sm-4 control-label">First Name</label>
             <div class="col-sm-8">
               <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="first_name" value="{{ client.first_name }}" readonly >
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="first_name" value="{{ client.first_name }}">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Last Name</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="last_name" value="{{ client.last_name }}" readonly>
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="last_name" value="{{ client.last_name }}">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Gender</label>
             <div class="col-sm-8 mar-top-rad">
-              <select class="text-box wid-form" name="gender" readonly>
+              <select class="text-box wid-form select-box-pad" name="gender" readonly>
                 <option value="{{ client.gender }}" selected="selected">{{ client.gender }}</option>
               </select>
             </div>
@@ -34,7 +34,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
             <div class="col-sm-8">
-              <select class="text-box wid-form" name="branch" readonly>
+              <select class="text-box wid-form select-box-pad" name="branch" readonly>
                 <option value="{{ client.branch }}" selected="selected">{{ client.branch.name }}</option>
               </select>
             </div>
@@ -42,7 +42,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Client Roles<span>*</span></label>
             <div class="col-sm-8">
-              <select class="text-box wid-form" name="client_role">
+              <select class="text-box wid-form select-box-pad" name="client_role">
                 <option>Select Client Role</option>
                 {% for l in l %}
                 {% ifequal l client.client_role %}

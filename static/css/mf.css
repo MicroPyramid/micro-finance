@@ -3,7 +3,7 @@
 body {
   background: #f0f3f4;
   width: 100%;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Lato', sans-serif;
   font-size: 12px;
   height: 100%;
 }
@@ -44,7 +44,7 @@ body {
   width: 99%;
   border: 1px solid #fff;
   margin-bottom: 5px;
-  height: 40px;
+  height: 30px;
   padding: 8px;
 }
 
@@ -61,9 +61,9 @@ input, button, select, textarea {
   font-size: 14px;
 }
 
-.box-form .text-box {
+.box-form .text-box, input {
   padding: 8px;
-  height: 30px;
+  height: 30px !important;
 }
 
 .container .form-div button {
@@ -132,7 +132,7 @@ header {
 
 .navbar-default .navbar-nav>li>a {
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .navbar-default .navbar-nav>li>a:hover {
@@ -167,7 +167,8 @@ header {
 }
 
 .dropdown-menu>li>a:hover {
-  background: #ca3d6d;
+  background: #f4d2b1;
+  color: #2a5b53;
 }
 
 .dropdown-menu {
@@ -175,11 +176,12 @@ header {
 }
 
 .navbar-nav>li>.dropdown-menu {
-  margin-top: 0;
-  border-top-left-radius: 0;
+  margin-top: 0px;
+  border-top-left-radius: 0px;
   background: #f2f2f2;
-  border-top-right-radius: 0;
+  border-top-right-radius: 0px;
   width: inherit;
+  min-width: 150px;
 }
 /*nav bar*/
 /*brnch*/
@@ -191,7 +193,7 @@ header {
 
 .form-horizontal .control-label {
   padding-top: 7px;
-  margin-bottom: 0;
+  margin-bottom: 0px;
   text-align: left;
   font-size: 13px;
   font-weight: 400;
@@ -244,7 +246,6 @@ header {
 }
 
 .my-panel .pb-pad {
-  margin-left: 30px;
   padding: 20px;
 }
 
@@ -254,6 +255,7 @@ header {
   background: #f6f8f8;
   border-color: #ddd;
   font-family: 'Droid Serif', serif;
+  min-height: 38px;
 }
 
 /*branch*/
@@ -265,9 +267,9 @@ header {
 }
 
 form .box-form {
-  width: 35%;
+  width: 47%;
   float: left;
-  margin: 0px 50px;
+  margin: 0px 10px;
 }
 
 .align-btns {
@@ -285,7 +287,7 @@ form .box-form {
 
 input[type=radio], input[type=checkbox] {
   margin: 0;
-  margin-top: 1px \9;
+  margin-top: 1px;
   line-height: normal;
   vertical-align: middle;
 }
@@ -451,10 +453,14 @@ input[type=radio], input[type=checkbox] {
 .view-tab-btn {
   background: #b68b57;
   border: none;
+  color: #fff;
+  font-size: 13px;
+  padding: 5px;
 }
 
 .view-tab-btn:hover {
-  background: #b57323;
+  text-decoration: none;
+  color: #fff;
 }
 
 /*branch profile*/
@@ -462,6 +468,7 @@ input[type=radio], input[type=checkbox] {
 .wrap-cp-div {
   width: 80%;
   margin: 0px auto;
+  margin-bottom: 10px;
 }
 
 .wrap-cp-div .btn-row {
@@ -504,6 +511,24 @@ input[type=radio], input[type=checkbox] {
   border: 1px solid #ddd;
 }
 
+.img-div img:hover {
+  transition: 0.5s;
+  width: 150px;
+  height: 150px;
+}
+
+.clr-div .img-div .sig-div {
+  width: 101px;
+  height: 35px;
+  margin-top: 0px;
+}
+
+.clr-div .img-div .sig-div:hover {
+  transition: 0.5s;
+  width: 150px;
+  height: 55px;
+}
+
 .img-div a {
   text-decoration: none;
   color: #4c066c;
@@ -520,6 +545,7 @@ input[type=radio], input[type=checkbox] {
   background: #fff;
   border: 1px solid #eee;
   box-shadow: 1px 1px 0.3px #ddd;
+  margin-bottom: 10px;
 }
 
 .details-div {
@@ -799,12 +825,11 @@ form .box-form-as {
   display: block;
   margin-top: 74px;
   float: right;
-  margin-right: 45px;
 }
 
 #dat-txt-box form .form-group input {
   margin-right: 3px;
-  width: 65%;
+  width: 50%;
   height: 30px;
   float: left;
 }
@@ -821,3 +846,78 @@ form .box-form-as {
 #dat-txt-box form .form-group button:hover {
   background: #2e6da4;
 }
+/*logo_nav*/
+.logo_nav h5 {
+  font-family: 'Bitter', serif;
+  font-size: 22px;
+  margin-top: -1px;
+  color: #fff;
+}
+
+.logo_nav h5:hover {
+  color: #f1cfad;
+}
+/*logo_nav*/
+.padd-lft-25 {
+  padding-left: 25px;
+}
+
+.select-box-pad {
+  padding: 0px 8px !important;
+}
+
+.txt-area-wid {
+  width: 100%;
+}
+
+.color-inner-hedng {
+  color: #a804d7;
+}
+
+.box-center {
+  /* text-align: center !important;
+  border: 1px solid #ddd;*/
+  background: #f1eee7;
+  color: #372926;
+  padding: 4px;
+}
+/*pay slip panel*/
+.container .payslip-panel {
+  width: 60%;
+  margin: 0px auto;
+  margin-top: 7%;
+  margin-bottom: 15px;
+}
+
+.pad-lt-0 {
+  padding-left: 0px;
+}
+
+.min-hgt-0 {
+  min-height: 0px !important;
+}
+/*pay slip panel*/
+/*panel-headings span*/
+
+.panel-heading span a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.panel-heading span a:hover {
+  color: #fff;
+}
+
+.mar-tp-m {
+  margin-top: -17px;
+}
+
+.mar-tp-m24 {
+  margin-top: -24px !important;
+}
+
+table tr th {
+  font-weight: 600 !important;
+}
+
+/*panel headings span*/

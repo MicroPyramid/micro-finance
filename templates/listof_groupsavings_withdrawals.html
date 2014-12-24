@@ -2,12 +2,11 @@
 {% block groupstage %}
 <div class="home-div-gp">
   <div class="panel panel-default panel-hdg">
-    <div class="panel-heading">
+    <div class="panel-heading min-ht-res-60">
       <h3 class="panel-title">
         {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-        {{ group.name }} savings Withdrawals List
-        <span style="padding-left:5px;"><a href="{% url 'micro_admin:groupsavingsaccount' group.id %}"><button class="ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</button></a></span>
-      </h3>
+        {{ group.name }} savings Withdrawals List</h3>
+        <span class="mar-tp-m"><a href="{% url 'micro_admin:groupsavingsaccount' group.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="panel-body">
       <!--panel body starts above-->
@@ -15,7 +14,7 @@
         <!--div 1 0f form-->
         <div class="box-form">
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Number of Withdrawals :</label><span class="col-lg-6 mar-top"><b>{{ count }}</b></span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Number of Withdrawals :</label><span class="col-lg-6 mar-top"><b>{{ count }}</b></span>
           </div>
         </div>
         <!--div 1 of fomr ends above-->

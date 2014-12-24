@@ -3,7 +3,7 @@
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
-  <div class="panel panel-default my-panel margin-top-set" style="width:55%">
+  <div class="panel panel-default my-panel payslip-panel">
     <div class="panel-heading">Pay Slip</div>
     <div class="panel-body pb-pad">
       <form id="paymentform" class="form-horizontal" role="form" method="post">
@@ -63,7 +63,7 @@
             <input type="text" class="text-box wid-form"  name="client_name">
           </div>
         </div>
-        <div class="form-group" >
+        <div class="form-group">
           <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.</label>
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form"  name="client_account_number">
@@ -74,6 +74,13 @@
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form" name="staff_username">
             <p id="stafferror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Group Loan A/C. No.</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="group_loan_account_no">
+            <p id="groupaccountnumbererror"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
@@ -100,12 +107,13 @@
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-4 control-label">Total Amount in Words<span>*</span></label>
           <div class="col-sm-8">
-            <textarea name="totalamount_in_words" rows="3" cols="48" required="True"></textarea>
+            <textarea name="totalamount_in_words" rows="3" class="txt-area-wid" required="True"></textarea>
             <p id="totalamountinwordserror"></p>
-            <p id="message"></p>
           </div>
         </div>
-        <div class="form-group btns" style="margin-top: -10px;">
+        <br clear="all" style="margin-top: -10px;">
+        <p style="text-align:center;" id="message1error"></p>
+        <div class="form-group btns">
           <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
           <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
         </div>
@@ -124,7 +132,7 @@
         if (data.error) {
           $("span.error").remove();
           if (data.message1) {
-            alert(data.message1);
+            $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" + data.message1 + "</span>");
           }
           if (data.message.branch) {
             $("#branchnameerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.branch + "</span>");

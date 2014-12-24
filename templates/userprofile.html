@@ -4,11 +4,13 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bp margin-top-set">
-    <div class="panel-heading">Staff
+    <div class="panel-heading">
+    <h3 class="panel-title">Staff
       <span>
       {% if user.id == selecteduser.id %}<a href="{% url 'micro_admin:edituser' selecteduser.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>{% endif %}
       {% if user.is_admin %}<a href="{% url 'micro_admin:deleteuser' selecteduser.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>{% endif %}
       </span>
+      </h3>
     </div>
     <div class="panel-body pb-table">
       <div class="table-responsive">

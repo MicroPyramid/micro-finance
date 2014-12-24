@@ -22,7 +22,8 @@
           <tbody class="body-row-tb">
             {% for userobject in list_of_users %}
             <tr>
-              <td><a href="{% url 'micro_admin:userprofile' userobject.id %}" style="color:#000">{{ userobject.first_name }}</a></td>
+              <td><a href="{% url 'micro_admin:userprofile' userobject.id %}" style="color:#337ab7">
+              {{ userobject.first_name|capfirst }}</a></td>
               <td>{{ userobject.user_roles }}l</td>
               <td>{{ userobject.branch.name }}</td>
               {% if userobject.is_active %}
