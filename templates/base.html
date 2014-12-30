@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>MicroFinance</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-   <link href='http://fonts.googleapis.com/css?family=Raleway:500,600,700,100,800,900,400,200,300' rel='stylesheet' type='text/css'>
+   <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
@@ -27,50 +27,68 @@
     <!--container starts  below-->
     <div class="container">
       <!--slide-menu-->
-      <div class="menu-outer">
-        <div class="menu-icon">
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-        </div>
-        <nav>
-          <div class="list">
-            <div class="slide-div">
-              <a href="#" class="anc1"><i class="fa fa-sitemap padd"></i>Branch<i class="fa fa-caret-down padd-lft"></i></a>
-              <div id="tog-div1" class="tog-div">
-                {% if user.is_admin %}
-                <a href="{% url 'micro_admin:createbranch' %}"><i class="fa fa-plus padd"></i>Create Branch</a>
-                <a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
-                {% else %}
-                <a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
-                {% endif %}
-              </div>
-            </div>
-            <div class="slide-div">
-              <a href="#" class="anc2"><i class="fa fa-user padd-u"></i>Staff<i class="fa fa-caret-down padd-lft-u"></i></a>
-              <div id="tog-div2" class="tog-div">
-                {% if user.is_admin %}
-                <a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create Staff</a>
-                {% endif %}
-                <a href="{% url 'micro_admin:userslist' %}"><i class="fa fa-eye padd"></i>View Staff</a>
-              </div>
-            </div>
-            <div class="slide-div">
-              <a href="#" class="anc3"><i class="fa fa-users padd"></i>Group<i class="fa fa-caret-down padd-lft-g"></i></a>
-              <div id="tog-div3" class="tog-div">
-                <a href="{% url 'micro_admin:creategroup' %}"><i class="fa fa-plus padd"></i>Create Group</a>
-                <a href="{% url 'micro_admin:groupslist' %}"><i class="fa fa-eye padd"></i>View Group
-                </a>
-              </div>
-            </div>
-            <div class="slide-div">
-              <a href="#" class="anc4"><i class="fa fa-user padd"></i>Client<i class="fa fa-caret-down padd-lft-u"></i></a>
-              <div id="tog-div4" class="tog-div">
-                <a href="{% url 'micro_admin:createclient' %}"><i class="fa fa-plus padd"></i>Create Client</a>
-                <a href="{% url 'micro_admin:viewclient' %}"><i class="fa fa-eye padd"></i>View Client</a>
-              </div>
-            </div>
-        </nav>
+        <div class="menu-outer">
+          <div class="menu-icon">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+          <nav id="slide-nav">
+            <ul>
+              <li>
+                <div class="li-wrap">
+                <h3>Branch</h3>
+                  <div class="icon-circle" dropid="drop-branch" carid="carot-branch" id="branch"><i class="fa fa-sitemap"></i>
+                  <i class="fa fa-caret-down hov-car-icon" id="carot-branch"></i></div>
+                  <div class="slide-nav-drop" id="drop-branch">
+                    <ul>
+                      <li><a href="{% url 'micro_admin:createbranch' %}"><i class="fa fa-plus padd"></i>Create Branch</a></li>
+                      <li><a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="li-wrap">
+                <h3>User</h3>
+                  <div class="icon-circle" dropid="drop-user" carid="carot-user" id="user"><i class="fa fa-user"></i>
+                  <i class="fa fa-caret-down hov-car-icon" id="carot-user"></i></div>
+                  <div class="slide-nav-drop" id="drop-user">
+                    <ul>
+                      <li><a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create User</a></li>
+                      <li><a href="{% url 'micro_admin:userslist' %}"><i class="fa fa-eye padd"></i>View User</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="li-wrap">
+                <h3>Group</h3>
+                  <div class="icon-circle" dropid="drop-group" carid="carot-group" id="group"><i class="fa fa-users users-icon"></i>
+                  <i class="fa fa-caret-down hov-car-icon" id="carot-group"></i></div>
+                  <div class="slide-nav-drop" id="drop-group">
+                    <ul>
+                      <li><a href="{% url 'micro_admin:creategroup' %}"><i class="fa fa-plus padd"></i>Create Group</a></li>
+                      <li><a href="{% url 'micro_admin:groupslist' %}"><i class="fa fa-eye padd"></i>View Group</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="li-wrap">
+                <h3>Member</h3>
+                  <div class="icon-circle" dropid="drop-mem" carid="carot-mem" id="member"><i class="fa fa-child mem-icon"></i>
+                  <i class="fa fa-caret-down hov-car-icon" id="carot-mem"></i></div>
+                  <div class="slide-nav-drop" id="drop-mem">
+                    <ul>
+                      <li><a href="{% url 'micro_admin:createclient' %}"><i class="fa fa-plus padd"></i>Create Member</a></li>
+                      <li><a href="{% url 'micro_admin:viewclient' %}"><i class="fa fa-eye padd"></i>View Member</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </nav>
         </div>
         <a class="menu-close" onClick="return true">
           <div class="menu-icon">
@@ -97,38 +115,38 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Logo</a>
+                    <a class="navbar-brand logo_nav" href="#"><h5>Micro Finance</h5></a>
                   </div>
                   <!-- Collect the nav links, forms, and other content for toggling -->
                   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="col-lg-offset-5 col-lg-7 col-sm-offset-5 col-sm-7 col-md-offset-7 col-md-5 nav navbar-nav navbar-right">
+                    <ul class="col-lg-offset-4 col-lg-8 col-sm-offset-3 col-sm-9 col-md-offset-3 col-md-9 nav navbar-nav navbar-right">
                       <li><a href="{% url 'micro_admin:login' %}" class="menu-link home"><i class="fa fa-home padd"></i>Home</a></li>
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Accounting <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-calculator padd"></i>Accounting <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:receiptslist' %}">Receipts</a></li>
-                          <li><a href="{% url 'micro_admin:paymentslist' %}">Payments</a></li>
+                          <li><a href="{% url 'micro_admin:receiptslist' %}"><i class="fa fa-file-text-o padd"></i>Receipts</a></li>
+                          <li><a href="{% url 'micro_admin:paymentslist' %}"><i class="fa fa-money padd"></i>Payments</a></li>
                         </ul>
                       </li>
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deposits<span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-money padd"></i>Deposits<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:viewclientfixeddeposits' %}">View Fixed Deposits</a></li>
-                          <li><a href="{% url 'micro_admin:viewclientrecurringdeposits' %}">View Recurring Deposits </a></li>
+                          <li><a href="{% url 'micro_admin:viewclientfixeddeposits' %}"><i class="fa fa-eye padd"></i>View Fixed Deposits</a></li>
+                          <li><a href="{% url 'micro_admin:viewclientrecurringdeposits' %}"><i class="fa fa-eye padd"></i>View Recurring Deposits </a></li>
                         </ul>
                       </li>
                       <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Ledgers <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-file-text-o padd"></i>Reports <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:generalledger' %}">General Ledger</a></li>
-                          <li><a href="{% url 'micro_admin:viewdaybook' %}">Day Book</a></li>
+                          <li><a href="{% url 'micro_admin:generalledger' %}"><i class="fa fa-calculator padd"></i>General Ledger</a></li>
+                          <li><a href="{% url 'micro_admin:viewdaybook' %}"><i class="fa fa-book padd"></i>Day Book</a></li>
                         </ul>
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{ user.username|capfirst }} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                           <li><a href="{% url 'micro_admin:userprofile' user.id %}"><i class="fa fa-user icon padd"></i>Profile</a></li>
-                          <li><a href="#"><i class="fa fa-unlock-alt padd"></i>Change Password</a></li>
+                          <li><a href="{% url 'micro_admin:userchangepassword' user.id %}"><i class="fa fa-unlock-alt padd"></i>Change Password</a></li>
                         </ul>
                       </li>
                       <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>Logout</a></li>

@@ -11,7 +11,7 @@
         </a></span>
       </h3>
     </div>
-    <div class="panel-body pb-table">
+    <div class="hg-table panel-body pb-table">
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
@@ -41,7 +41,7 @@
               <td><b>{{ forloop.counter }}</b></td>
               <td>{{ receipt.date }}</td>
               <td>{{ receipt.receipt_number}}</td>
-              <td>{{ receipt.client.first_name|capfirst }}</td>
+              <td><a href="{% url 'micro_admin:clientprofile' receipt.client.id %}" style="color:#337ab7;">{{ receipt.client.first_name|capfirst }} {{ receipt.client.last_name|capfirst }}</a></td>
               <td>
                 {% if receipt.sharecapital_amount%}{{ receipt.sharecapital_amount|floatformat:2}}{% else %}-{% endif %}
               </td>
@@ -81,7 +81,7 @@
                 {% if receipt.insurance_amount%}{{ receipt.insurance_amount|floatformat:2 }}{% else %}-{% endif %}
               </td>
               <td>
-                {{ receipt.staff|default:" - " }}</td>
+                <a href="{% url 'micro_admin:userprofile' receipt.staff.id %}" style="color:#337ab7;">{{ receipt.staff|capfirst|default:" - " }}</a></td>
             </tr>
             {% endfor %}
           </tbody>

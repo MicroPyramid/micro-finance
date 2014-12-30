@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block stage %}
 <!--Date Picker Block goes below-->
+<div class="container" style="width:97%;">
 <div id="dat-txt-box">
   <form id="daybookform" class="form-horizontal" role="form" method="post" action="{% url 'micro_admin:viewdaybook' %}">
     {% csrf_token %}
@@ -9,6 +10,7 @@
       <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
     </div>
   </form>
+</div>
 </div>
 <br clear="all">
 <!--Date Picker Block ends above-->
@@ -19,7 +21,7 @@
     <div class="panel-heading">
       <h3 class="panel-title">
         Day Book
-        <span><a href="{% url 'micro_admin:daybookpdfdownload' selected_date %}" target="_blank"><button class="view-tab-btn">PDF Download</button></a></span>
+        <span><a href="{% url 'micro_admin:daybookpdfdownload' selected_date %}" target="_blank"><button class="view-tab-btn"><i class="fa fa-download padd"></i>PDF Download</button></a></span>
       </h3>
     </div>
     {% include "daybook_table.html" %}

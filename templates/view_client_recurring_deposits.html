@@ -10,15 +10,17 @@
         <span><a href="{% url 'micro_admin:recurringdeposits' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>create Recurring Deposit</button></a></span>
       </h3>
     </div>
-    <div class="panel-body pb-table">
+    <div class="hg-table panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
               <th>S.No.</th>
-              <th>Member Name</th>
+              <th>FD A/C. No.</th>
+              <th>Status</th>
               <th>Deposited Date</th>
-              <th>Account Number</th>
+              <th>Member Name</th>
+              <th>Member A/C. No.</th>
               <th>Deposit Amount</th>
               <th>Deposit Period(in months)</th>
               <th>Maturity Amount</th>
@@ -29,15 +31,23 @@
             {% for recurring_deposit in recurring_deposit_list %}
             <tr>
               <td><b>{{ forloop.counter }}</b></td>
-              <td><a href="{% url 'micro_admin:clientrecurringdepositsprofile' recurring_deposit.id %}" style="color:#000">
-                {{ recurring_deposit.client.first_name }}</a>
+              <td><a href="{% url 'micro_admin:clientrecurringdepositsprofile' recurring_deposit.id %}" style="color:#337ab7;">
+                {{ recurring_deposit.reccuring_deposit_number }}</a>
               </td>
-              <td>{{ recurring_deposit.deposited_date  }}</td>
+              {% if recurring_deposit.status == "Opened" %}
+              <td><i class="fa fa-circle green"></i></td>
+              {% elif recurring_deposit.status == "Closed" %}
+              <td><i class="fa fa-circle red"></i></td>
+              {% endif %}
+               <td>{{ recurring_deposit.deposited_date  }}</td>
+              <td><a href="{% url 'micro_admin:clientprofile' recurring_deposit.client.id %}" style="color:#660099">
+                {{ recurring_deposit.client.first_name|capfirst }}</a>
+              </td>
               <td>{{ recurring_deposit.client.account_number  }}</td>
               <td>{{ recurring_deposit.recurring_deposit_amount }}</td>
               <td>{{ recurring_deposit.recurring_deposit_period }}</td>
               <td>{{ recurring_deposit.maturity_amount }}</td>
-              <td>{{ recurring_deposit.nominee_firstname }}</td>
+              <td>{{ recurring_deposit.nominee_firstname|capfirst }}</td>
             </tr>
             {% endfor %}
           </tbody>

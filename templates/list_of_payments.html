@@ -11,7 +11,7 @@
         </a></span>
       </h3>
     </div>
-    <div class="panel-body pb-table">
+    <div class="hg-table panel-body pb-table">
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
@@ -34,13 +34,31 @@
               <td><b>{{ forloop.counter }}</b></td>
               <td>{{ payment.date }}</td>
               <td>{{ payment.voucher_number}}</td>
-              <td>{{ payment.group.name|capfirst|default:" - " }}</td>
-              <td>{{ payment.client.first_name|capfirst|default:" - " }}</td>
-              <td>{{ payment.staff.username|capfirst|default:" - " }}</td>
+              <td>
+              {% if payment.group %}
+              <a href="{% url 'micro_admin:groupprofile' payment.group.id %}" style="color:#337ab7;">
+              {% endif %}
+              {{ payment.group.name|capfirst|default:" - " }}
+              {% if payment.group %}</a>{% endif %}
+              </td>
+              <td>
+              {% if payment.client %}
+                <a href="{% url 'micro_admin:clientprofile' payment.client.id %}" style="color:#337ab7;">
+              {% endif %}
+              {{ payment.client.first_name|capfirst|default:" - " }}
+              {% if payment.client %}</a>{% endif %}
+              </td>
+              <td>
+              {% if payment.staff %}
+                <a href="{% url 'micro_admin:userprofile' payment.staff.id %}" style="color:#337ab7;">
+              {% endif %}
+              {{ payment.staff.username|capfirst|default:" - " }}
+              {% if payment.staff %}</a>{% endif %}
+              </td>
               <td>{{ payment.payment_type }}</td>
               <td>{{ payment.amount|floatformat:2 }}</td>
               <td>{% if payment.interest %}{{ payment.interest|default:" - " }}{% else %}-{% endif %}</td>
-              <td>{{ payment.total_amount|floatformat:2 }}</td>
+              <td style="color:#FF00CC;">{{ payment.total_amount|floatformat:2 }}</td>
             </tr>
             {% endfor %}
           </tbody>

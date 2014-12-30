@@ -17,14 +17,14 @@
               <p id="clientfirstnameerror"></p>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Last Name<span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="last_name" required="True">
               <p id="clientlastnameerror"></p>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Gender<span>*</span></label>
             <div class="col-sm-8 mar-top-rad">
               <input type="radio" name="gender" value="M">Male &nbsp;&nbsp;
@@ -35,7 +35,7 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Branch<span>*</span></label>
             <div class="col-sm-8">
-              <select class="text-box wid-form" name="branch">
+              <select class="text-box wid-form select-box-pad" name="branch">
                 <option>Select Branch</option>
                 {% for entry in branch %}
                 <option value="{{ entry.id }}">{{ entry.name }}</option>
@@ -47,7 +47,7 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Member Roles<span>*</span></label>
             <div class="col-sm-8">
-              <select class="text-box wid-form" name="client_role">
+              <select class="text-box wid-form select-box-pad" name="client_role">
                 <option>Select Member Roles</option>
                 <option>FirstLeader</option>
                 <option>SecondLeader</option>
@@ -81,7 +81,7 @@
               <p id="clientaccountnumbererror"></p>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Occupation<span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" name="occupation" required="True" id="inputEmail3">
@@ -101,9 +101,10 @@
             <label for="inputEmail3" class="col-sm-4 control-label">Annual Income<span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" name="annual_income" required="True" id="inputEmail3">
+              <p id="annualincomeerror"></p>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Email</label>
             <div class="col-sm-8">
               <input type="email" class="text-box wid-form" name="email" id="inputEmail3">
@@ -134,7 +135,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-sm-4 control-label">City<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Mandal<span>*</span></label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form" id="inputEmail3" name="city" required="True">
             </div>
@@ -196,8 +197,12 @@
           if (data.message.account_number) {
             $("#clientaccountnumbererror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.account_number + "</span>");
           }
+          if (data.message.annual_income) {
+            $("#annualincomeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.annual_income + "</span>");
+          }
         }
         else {
+          alert("Member created sucessfully.");
           window.location = '/clientprofile/'+data.client_id+'/';
         }
       }, "json");

@@ -1,4 +1,4 @@
-<div class="panel-body pb-table">
+<div class="hg-table panel-body pb-table">
   <div class="table-responsive">
     <table class="table table-bordered" border="1">
       <thead>
@@ -23,7 +23,7 @@
         {% for row in list %}
         <tr>
           <td><b>{{ forloop.counter }}</b></td>
-          <td>{{ row.date }}</td>
+          <td><a href="/viewdaybook/?date={{row.date|date:"Y-m-d"}}" style="color:#337ab7;">{{ row.date }}</a></td>
           <td>{% if row.sum_sharecapital_amount %}{{ row.sum_sharecapital_amount|floatformat:2}}{% else %}-{% endif %}</td>
           <td>{% if row.sum_entrancefee_amount %}{{ row.sum_entrancefee_amount|floatformat:2}}{% else %}-{% endif %}</td>
           <td>{% if row.sum_membershipfee_amount %}{{ row.sum_membershipfee_amount|floatformat:2 }}{% else %}-{% endif %}</td>
@@ -38,7 +38,7 @@
           <td>{% if row.sum_loanprinciple_amount %}{{ row.sum_loanprinciple_amount|floatformat:2}}{% else %}-{% endif %}</td>
           <td>{% if row.sum_loaninterest_amount %}{{ row.sum_loaninterest_amount|floatformat:2 }}{% else %}-{% endif %}</td>
           <td>{% if row.sum_insurance_amount %}{{ row.sum_insurance_amount|floatformat:2 }}{% else %}-{% endif %}</td>
-          <td>{% if row.total_sum %}{{ row.total_sum|floatformat:2 }}{% else %}-{% endif %}</td>
+          <td style="color:#FF00CC;">{% if row.total_sum %}{{ row.total_sum|floatformat:2 }}{% else %}-{% endif %}</td>
         </tr>
         {% endfor %}
       </tbody>

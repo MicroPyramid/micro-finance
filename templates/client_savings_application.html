@@ -4,15 +4,18 @@
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel margin-top-set">
-    <div class="panel-heading">Client Savings</div>
+    <div class="panel-heading">
+    {% if client.is_active %}
+     <i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
+    {{client.first_name|capfirst}} Savings Application</div>
     <div class="panel-body pb-pad">
       <form id="clientsavingsapplicationform" class="form-horizontal" role="form" method="post" action="{% url 'micro_admin:clientsavingsapplication' client.id %}">
         {% csrf_token %}
         <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Account Number</label>
+          <label for="inputEmail3" class="col-sm-4 control-label">Savings A/C. No.</label>
           <div class="col-sm-8">
             <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
-            <input type="text" class="text-box wid-form" name="account_no" value="{{ account_no }}" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="account_no" value="{{ account_no }}" id="inputEmail3" required="True" readonly>
           </div>
         </div>
         <div class="form-group">

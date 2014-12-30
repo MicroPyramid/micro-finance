@@ -4,8 +4,9 @@
   <div class="panel panel-default panel-hdg">
     <div class="panel-heading">
       <h3 class="panel-title">
-        {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-        {{ group.name }}
+        {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>
+        {% endif %}
+        {{ group.name|capfirst }}
       </h3>
     </div>
     <div class="panel-body">
@@ -37,7 +38,7 @@
             <tbody>
               {% for client in clients_list %}
               <tr>
-                <td>{{ client.first_name }}</td>
+                <td><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }}</a></td>
                 <td>{{ client.account_number }}</td>
                 {% if client.is_active %}
                 <td><i class="fa fa-square green padd"></i>Active</td>
@@ -45,7 +46,7 @@
                 <td><i class="fa fa-square red padd"></i>InActive</td>
                 {% endif %}
                 <td>{{ client.client_role }}</td>
-                <td>{{ client.branch.name }}</td>
+                <td><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }}</a></td>
                 {% if user.is_admin %}
                 <td class="anchr-trash"><a href="{% url 'micro_admin:removemember' group.id client.id %}"><i class="fa fa-trash-o trash-icon"></i></a></td>
                 {% endif %}

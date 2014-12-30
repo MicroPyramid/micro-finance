@@ -1,4 +1,4 @@
-<div class="panel-body pb-table">
+<div class="hg-table panel-body pb-table">
   <div class="table-responsive wid-45per">
     <table class="table table-bordered" border="1">
       <thead>
@@ -16,7 +16,7 @@
       </thead>
       <tbody class="body-row-tb">
         <tr style="text-align:center">
-          <td colspan="6"><b>Savings</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Savings</b></td>
         </tr>
         {% for thrift_deposit_sum in thrift_deposit_sum_list %}
         {% if thrift_deposit_sum.thrift_deposit_sum %}
@@ -31,12 +31,12 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Savings</b></td>
-          <td >{{ dict.total_thrift_deposit_sum|floatformat:2 }}</td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Savings</b></td>
+          <td>{{ dict.total_thrift_deposit_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Loan Recoveries</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Loan Recoveries</b></td>
         </tr>
         {% for loanprinciple_amount in loanprinciple_amount_sum_list %}
         {% if loanprinciple_amount.loanprinciple_amount_sum %}
@@ -51,12 +51,12 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Loan Recoveries</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Loan Recoveries</b></td>
           <td >{{ dict.total_loanprinciple_amount_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b> Interest on Loans</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b> Interest on Loans</b></td>
         </tr>
         {% for loaninterest_amount in loaninterest_amount_sum_list %}
         {% if loaninterest_amount.loaninterest_amount_sum %}
@@ -71,12 +71,12 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Interest on Loans</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Interest on Loans</b></td>
           <td>{{ dict.total_loaninterest_amount_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Entrance Fees</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Entrance Fees</b></td>
         </tr>
         {% for entrancefee_amount in entrancefee_amount_sum_list %}
         {% if entrancefee_amount.entrancefee_amount_sum %}
@@ -91,12 +91,12 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Entrance Fees</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Entrance Fees</b></td>
           <td >{{ dict.total_entrancefee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Membership Fees</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Membership Fees</b></td>
         </tr>
         {% for membershipfee_amount in membershipfee_amount_sum_list %}
         {% if membershipfee_amount.membershipfee_amount_sum  %}
@@ -111,12 +111,12 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Membership Fees</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Membership Fees</b></td>
           <td>{{ dict.total_membershipfee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Book Fees</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Book Fees</b></td>
         </tr>
         {% for bookfee_amount in bookfee_amount_sum_list %}
         {% if bookfee_amount.bookfee_amount_sum  %}
@@ -131,12 +131,12 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Book Fees</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Book Fees</b></td>
           <td>{{ dict.total_bookfee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Loan Processing Fees</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Loan Processing Fees</b></td>
         </tr>
         {% for loanprocessingfee_amount in loanprocessingfee_amount_sum_list %}
         {% if loanprocessingfee_amount.loanprocessingfee_amount_sum %}
@@ -151,12 +151,12 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Loan Processing Fees</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Loan Processing Fees</b></td>
           <td>{{ dict.total_loanprocessingfee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Insurance Amounts</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Insurance Amounts</b></td>
         </tr>
         {% for insurance_amount in insurance_amount_sum_list %}
         {% if insurance_amount.insurance_amount_sum %}
@@ -171,7 +171,7 @@
         {% endif %}
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Insurance Amount</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Insurance Amount</b></td>
           <td>{{ dict.total_insurance_amount_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
@@ -200,7 +200,7 @@
       </thead>
       <tbody class="body-row-tb">
         <tr style="text-align:center">
-          <td colspan="6"><b>Loans</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Loans</b></td>
         </tr>
         {% for loans in loans_list %}
         <tr>
@@ -213,12 +213,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Loans Issued</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Loans Issued</b></td>
           <td>{{ dict_payments.loans_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Savings Withdrawals</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Savings Withdrawals</b></td>
         </tr>
         {% for savingswithdrawal in savingswithdrawal_list %}
         <tr>
@@ -231,12 +231,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Savings withdrawals</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Savings withdrawals</b></td>
           <td>{{ dict_payments.savingswithdrawal_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Fixed Deposit Withdrawals</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Fixed Deposit Withdrawals</b></td>
         </tr>
         {% for fixedwithdrawal in fixedwithdrawal_list %}
         <tr>
@@ -249,12 +249,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Fixed Deposit Withdrawals</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Fixed Deposit Withdrawals</b></td>
           <td>{{ dict_payments.fixedwithdrawal_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Recurring Deposit Withdrawals</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Recurring Deposit Withdrawals</b></td>
         </tr>
         {% for recurringwithdrawal in recurringwithdrawal_list %}
         <tr>
@@ -267,12 +267,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Reccurring Deposit Withdrawals</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Reccurring Deposit Withdrawals</b></td>
           <td>{{ dict_payments.recurringwithdrawal_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Salaries</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Salaries</b></td>
         </tr>
         {% for paymentofsalary in paymentofsalary_list %}
         <tr>
@@ -291,12 +291,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Salaries </b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Salaries </b></td>
           <td>{{ dict_payments.paymentofsalary_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Travelling Allowance</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Travelling Allowance</b></td>
         </tr>
         {% for travelling_allowance in travellingallowance_list %}
         <tr>
@@ -315,12 +315,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Travelling Allowances</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Travelling Allowances</b></td>
           <td>{{ dict_payments.travellingallowance_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Printing Charges</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Printing Charges</b></td>
         </tr>
         {% for printingcharges in printingcharges_list %}
         <tr>
@@ -333,12 +333,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Printing Charges</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Printing Charges</b></td>
           <td>{{ dict_payments.printingcharges_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Stationary Charges</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Stationary Charges</b></td>
         </tr>
         {% for stationarycharges in stationarycharges_list %}
         <tr>
@@ -351,12 +351,12 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Stationary Charges</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Stationary Charges</b></td>
           <td>{{ dict_payments.stationarycharges_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>
         <tr style="text-align:center">
-          <td colspan="6"><b>Other Charges</b></td>
+          <td colspan="6" class="color-inner-hedng box-center"><b>Other Charges</b></td>
         </tr>
         {% for othercharges in othercharges_list %}
         <tr>
@@ -369,7 +369,7 @@
         </tr>
         {% endfor %}
         <tr>
-          <td colspan="4" style="text-align:right"><b>Total Other Charges</b></td>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Other Charges</b></td>
           <td>{{ dict_payments.othercharges_sum|floatformat:2 }}</td>
           <td>-</td>
         </tr>

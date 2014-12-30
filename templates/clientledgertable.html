@@ -1,11 +1,11 @@
 {% load ledgertemplatetags %}
-<div class="panel-body pb-table">
+<div class="hg-table panel-body pb-table">
   <div class="table-responsive">
     <table class="table table-bordered" border="1">
       <thead>
         <tr class="head-row-tb">
           <th rowspan="2">Date</th>
-          <th rowspan="2">Client</th>
+          <th rowspan="2">Member Name</th>
           <th rowspan="2">Receipt No.</th>
           <th colspan="3">Demand</th>
           <th colspan="3">Collection</th>
@@ -18,10 +18,10 @@
           <th>Peenal Interest</th>
           <th>Principal</th>
           <th>Interest</th>
-          <th>Peenal Interest</th>
+          <th>Penal Interest</th>
           <th>Principal</th>
           <th>Interest</th>
-          <th>Peenal Interest</th>
+          <th>Penal Interest</th>
         </tr>
       </thead>
       <tbody class="body-row-tb">
@@ -39,7 +39,7 @@
           <td>{{ receipt.demand_loanprinciple_amount_atinstant|demand_collections_difference:receipt.loanprinciple_amount|floatformat:2 }}</td>
           <td>{{ receipt.demand_loaninterest_amount_atinstant|demand_collections_difference:receipt.loaninterest_amount|floatformat:2 }}</td>
           <td>0</td>
-          <td>{{ receipt.principle_loan_balance_atinstant|floatformat:2 }}</td>
+          <td style="color:#FF00CC;">{{ receipt.principle_loan_balance_atinstant|floatformat:2 }}</td>
         </tr>
         {% endfor %}
       </tbody>

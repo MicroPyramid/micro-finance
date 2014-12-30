@@ -78,5 +78,6 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^clientledgerpdfdownload/(?P<client_id>\d+)/$', 'clientledger_pdfdownload', name="clientledgerpdfdownload"),
     url(r'^generalledgerpdfdownload/$', 'general_ledger_pdfdownload', name="generalledgerpdfdownload"),
     url(r'^daybookpdfdownload/(?P<date>\d{4}-\d{2}-\d{2})/$', 'daybook_pdfdownload', name="daybookpdfdownload"),
+    url(r'^userchangepassword/(?P<user_id>\d+)/$', 'user_change_password', name="userchangepassword"),
 
 )

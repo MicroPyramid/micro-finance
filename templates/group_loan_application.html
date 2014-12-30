@@ -5,7 +5,7 @@
   <!--form div starts below-->
   <div class="panel panel-default my-panel wid-panel-form margin-top-set">
     <div class="panel-heading">{% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-      {{ group.name }} Loan Application
+      {{ group.name|capfirst }} Loan Application
     </div>
     <div class="panel-body pb-pad">
       <form id="grouploanapplicationform" class="form-horizontal" role="form" method="post">
@@ -14,7 +14,7 @@
           <label for="inputEmail3" class="col-sm-5 control-label">Account Number</label>
           <div class="col-sm-7">
             <input type="hidden"  id="group_id" value="{{ group.id }}" style="dispaly:none;">
-            <input type="text" class="text-box wid-form" name="account_no" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="account_no" value="{{account_no}}" id="inputEmail3" required="True" readonly>
           </div>
         </div>
         <div class="form-group">
@@ -56,7 +56,7 @@
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate<span>*</span></label>
+          <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate (%)<span>*</span></label>
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="annual_interest_rate" id="inputEmail3" required="True">
             <p id="annualinterestrateerror"></p>
@@ -65,7 +65,7 @@
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
           <div class="col-sm-7">
-            <textarea name="loanpurpose_description" rows="3" cols="40"></textarea>
+            <textarea name="loanpurpose_description" rows="3" class="txt-area-wid"></textarea>
             <p id="loanpurposedescriptionerror"></p>
           </div>
         </div>

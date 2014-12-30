@@ -24,7 +24,8 @@
           <tbody class="body-row-tb">
             {% for group in groups_list %}
             <tr>
-              <td><a href="{% url 'micro_admin:groupprofile' group.id %}" style="color:#000">{{ group.name }}</a></td>
+              <td><a href="{% url 'micro_admin:groupprofile' group.id %}" style="color:#337ab7;">{{ group.name|capfirst }}</a>
+              </td>
               <td>{{ group.account_number  }}</td>
               <td>{{ group.branch.name }}</td>
               <td class="a-color">{% if group.staff.first_name %}{{ group.staff.first_name }}{% else %}<a href="{% url 'micro_admin:assignstaff' group.id %}" title="Assign Staff">Not Assigned</a>{% endif %}</td>

@@ -22,7 +22,7 @@
           <tbody class="body-row-tb">
             {% for branch in branch_list %}
             <tr>
-              <td><a href="{% url 'micro_admin:branchprofile' branch.id %}" style="color:#000">{{ branch.name }}</a></td>
+              <td><a href="{% url 'micro_admin:branchprofile' branch.id %}" style="color:#337ab7">{{ branch.name|capfirst }}</a></td>
               <td>{{ branch.opening_date }}</td>
               <td>{{ branch.phone_number }}</td>
               {% if branch.is_active %}

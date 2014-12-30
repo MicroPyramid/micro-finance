@@ -9,7 +9,7 @@
       <i class="fa fa-square green padd"></i>
       {% else %}
       <i class="fa fa-square red padd"></i>{% endif %}
-      {{ fixed_deposit.client.first_name }} Fixed Deposit
+      {{ recurring_deposit.client.first_name|capfirst }} {{ recurring_deposit.client.last_name|capfirst }} Fixed Deposit
     </h3>
   </div>
   <!--form div starts below-->
@@ -17,21 +17,40 @@
     <form id="fixeddepositprofileform" class="form-horizontal" role="form">
       {% csrf_token %}
       <div class="box-form">
+      <div class="form-group grp-view">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">FD Account No. :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.fixed_deposit_number }}</span>
+        </div>
         <div class="form-group grp-view">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Account Number :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.client.account_number }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Member Name :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.client.first_name|capfirst }}</span>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Deposited Amount:</label><span class="col-lg-6 mar-top">{{ fixed_deposit.fixed_deposit_amount }}</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Interest Rate :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.fixed_deposit_interest_rate }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Interest Rate :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.fixed_deposit_interest_rate }} %</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label"><b>Nominee Details</b></label>
-          <span>&nbsp;</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Status :</label><span class="col-lg-6 mar-top" style="color:#337ab7;">
+          {{ fixed_deposit.status }} </span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Nominee Name :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.nominee_firstname }}</span>
+          <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label"><b>Nominee Details</b></label>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Nominee Name :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.nominee_firstname|capfirst }} {{ fixed_deposit.nominee_lastname|capfirst }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Nominee Gender :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.nominee_gender }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Nominee DOB :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.nominee_date_of_birth }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Nominee Occupation :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.nominee_occupation }}</span>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Relationship with Nominee:
+          </label><span class="col-lg-5 mar-top">{{ fixed_deposit.relationship_with_nominee }}</span>
         </div>
       </div>
       <!--div 1 of fomr ends above-->
@@ -41,21 +60,27 @@
           <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Deposited On :</label>
           <span class="col-lg-6 mar-top">{{ fixed_deposit.deposited_date }}</span>
         </div>
+        <div class="form-group grp-view">
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Member A/C. No. :</label><span class="col-lg-6 mar-top">{{ fixed_deposit.client.account_number }}</span>
+        </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Deposit Period:</label>
           <span class="col-lg-5 mar-top">{{ fixed_deposit.fixed_deposit_period }} (in months)</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Deposit Amount:</label>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Total Maturity Amount:</label>
           <span class="col-lg-5 mar-top" style="color:#FF00CC;">{{ fixed_deposit.maturity_amount }}</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">&nbsp;</label>
-          <span>&nbsp;</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">&nbsp;</label>
+          <span class="col-lg-5 mar-top" style="color:#FF00CC;">&nbsp;</span>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Relationship with Nominee:
-          </label><span class="col-lg-5 mar-top">{{ fixed_deposit.relationship_with_nominee }}</span>
+        <div class="clr-div" style ="width:100%; border:none;">
+          <div class="img-div">
+            <img src="/{{ fixed_deposit.nominee_photo }}" alt="Nominee Photo" /><br /><br />
+            <img src="/{{ fixed_deposit.nominee_signature}}"  class="sig-div" style="" alt="Nominee signature" />
+            <br clear="all" />
+          </div>
         </div>
       </div>
       <br clear="all" />

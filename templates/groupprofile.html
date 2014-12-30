@@ -14,23 +14,23 @@
       <!--div 1 0f form-->
       <div class="box-form">
         <div class="form-group grp-view">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Branch Name :</label><span class="col-lg-6 mar-top">{{ group.branch.name }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Branch Name :</label><span class="col-lg-6 mar-top"><a href="{% url 'micro_admin:branchprofile' group.branch.id %}">{{ group.branch.name|capfirst }}</a></span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Account Number :</label><span class="col-lg-6 mar-top">{{ group.account_number }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Account Number :</label><span class="col-lg-6 mar-top">{{ group.account_number }}</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Members :</label><span class="col-lg-6 mar-top">{{ clients_count }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Members :</label><span class="col-lg-6 mar-top">{{ clients_count }}</span>
         </div>
       </div>
       <!--div 1 of fomr ends above-->
       <!--div 2 of form starts below-->
       <div class="box-form">
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Activation Date :</label><span class="col-lg-6 mar-top">{{ group.activation_date }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Activation Date :</label><span class="col-lg-6 mar-top">{{ group.activation_date }}</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Staff :</label>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Staff :</label>
           <span class="col-lg-6 mar-top">
           {% if group.staff.first_name %}
           {{ group.staff.first_name }}
@@ -40,7 +40,7 @@
           </span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Meeting Date :</label><span class="col-lg-6 mar-top">{{ latest_group_meeting.meeting_date }}<a href="{% url 'micro_admin:addgroupmeeting' group.id %}" style="text-decoration:none; color:#fff; margin-left:3px;"><i class="fa fa-pencil-square-o trash-icon"></i></a></span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Meeting Date :</label><span class="col-lg-6 mar-top">{{ latest_group_meeting.meeting_date }}<a href="{% url 'micro_admin:addgroupmeeting' group.id %}" style="text-decoration:none; color:#fff; margin-left:3px;"><i class="fa fa-pencil-square-o trash-icon"></i></a></span>
         </div>
       </div>
       <br clear="all" />
@@ -60,7 +60,7 @@
             <tbody>
               {% for client in clients_list %}
               <tr>
-                <td>{{ client.first_name }}</td>
+                <td><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }}</a></td>
                 <td>{{ client.account_number }}</td>
                 {% if client.is_active %}
                 <td><i class="fa fa-square green padd"></i>Active</td>

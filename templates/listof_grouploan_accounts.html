@@ -7,7 +7,7 @@
         {% if group.is_active %}<i class="fa fa-square green padd"></i>
         {% else %}<i class="fa fa-square red padd"></i>
         {% endif %}
-        {{ group.name }} Loan Accounts
+        {{ group.name|capfirst }} Loan Accounts
       </h3>
     </div>
     <div class="panel-body">
@@ -44,8 +44,8 @@
                 <td>{{ loan_account.opening_date }}</td>
                 <td>{{ loan_account.status }}</td>
                 <td>{{ loan_account.interest_type }}</td>
-                <td>{{ loan_account.loan_amount }}</td>
-                <td>{{ loan_account.total_loan_balance }}</td>
+                <td>{{ loan_account.loan_amount|floatformat:2  }}</td>
+                <td>{{ loan_account.total_loan_balance|floatformat:2  }}</td>
                 <td>{{ loan_account.created_by }}</td>
               </tr>
               {% endfor %}
