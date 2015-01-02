@@ -10,3 +10,4 @@ docutils==0.12
 sqlparse==0.1.13
 wsgiref==0.1.2
 xlwt==0.7.5
+xhtml2pdf==0.0.6
