@@ -11,6 +11,9 @@ This is full featured software to manage microfinanace Institute(s).
    :target: https://readthedocs.org/projects/micro-finance/?badge=latest
    :alt: Documentation Status
 
+.. image:: https://coveralls.io/repos/MicroPyramid/micro-finance/badge.png?branch=master
+   :target: https://coveralls.io/r/MicroPyramid/micro-finance?branch=master
+
 head to http://micro-finance.readthedocs.org/ for latest documentation
 
 How to deploy?
