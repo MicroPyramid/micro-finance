@@ -6,8 +6,16 @@ python:
 env:
   -DJANGO=1.7 DB=mysql
   -DJANGO=1.7 DB=sqlite3
+
 # command to install dependencies
 install:
-  pip install -r requirements.txt
+  - pip install -r requirements.txt
+  - pip install coveralls
+
 # command to run tests
-script: python manage.py test
+script:
+  - python manage.py test
+  - coverage run --source=micro_admin manage.py test
+
+after_success:
+  coveralls

@@ -24,6 +24,7 @@ class Modelform_test(TestCase):
 		form = ClientForm(data={"first_name":"Micro", "last_name":"Pyramid", "date_of_birth":'10/10/2014', "joined_date":"10/10/2014", "branch":self.b.id, "account_number":123, "gender":"M", "client_role":"FirstLeader", "occupation":"Teacher", "annual_income":2000, "country":'Ind', "state":'AP',"district":'Nellore', "city":'Nellore', "area":'rfc'})
 		self.assertTrue(form.is_valid())
 
+
 class Admin_Views_test(TestCase):
 	def setUp(self):
 		self.client=TestClient()
@@ -47,36 +48,55 @@ class Admin_Views_test(TestCase):
 
 		response = self.client.get('/createclient/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'createclient.html')
 
 		response = self.client.get('/createuser/')
 		self.assertEqual(response.status_code,200)
-####
+		self.assertTemplateUsed(response,'createuser.html')
+
 		response = self.client.get('/creategroup/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'creategroup.html')
 
 		response = self.client.get('/editbranch/1/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'editbranchdetails.html')
+
 
 		response = self.client.get('/edituser/1/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'edituser.html')
+
 
 		response = self.client.get('/branchprofile/1/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'branchprofile.html')
+
 
 		response = self.client.get('/userprofile/1/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'userprofile.html')
+
 
 		response = self.client.get('/userslist/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'listofusers.html')
+
 
 		response = self.client.get('/viewbranch/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'viewbranch.html')
+
 
 		response = self.client.get('/groupslist/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'listofgroups.html')
+
 
 		response = self.client.get('/viewclient/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'viewclient.html')
+
 
 		response = self.client.get('/deletebranch/1/')
 		self.assertEqual(response.status_code,200)
@@ -86,15 +106,36 @@ class Admin_Views_test(TestCase):
 
 		response = self.client.get('/userchangepassword/1/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'user_change_password.html')
+
 
 		response = self.client.get('/daybookpdfdownload/2014-10-10/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'pdf_daybook.html')
+
 
 		response = self.client.get('/generalledgerpdfdownload/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'pdfgeneral_ledger.html')
+
 
 		response = self.client.get('/paymentslist/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'list_of_payments.html')
+
 
 		response = self.client.get('/recurringdeposits/')
 		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'recurring_deposit_application.html')
+
+	def test_views_post_data(self):
+		user_login=self.client.login(username='jagadeesh',password='jag123')
+		self.assertTrue(user_login)
+
+		response = self.client.post('/createbranch/',{'name':'andhra', 'opening_date':'12/10/2014', 'country':'ind', 'state':'AP', 'district':'Nellore', 'city':'Nellore', 'area':'circle', 'phone_number':944454651165, 'pincode':502286})
+		self.assertEqual(response.status_code,200)
+		self.assertTrue('"error": false' in response.content )
+
+		response = self.client.post('/editbranch/2/',{'name':'andhra', 'opening_date':'12/10/2014', 'country':'ind', 'state':'AP', 'district':'Nellore', 'city':'Nellore', 'area':'circle', 'phone_number':944454651165, 'pincode':502286})
+		self.assertEqual(response.status_code,200)
+		self.assertTrue('"error": false' in response.content )
