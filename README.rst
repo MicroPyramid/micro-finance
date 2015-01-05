@@ -13,6 +13,10 @@ This is full featured software to manage microfinanace Institute(s).
 
 .. image:: https://coveralls.io/repos/MicroPyramid/micro-finance/badge.png?branch=master
    :target: https://coveralls.io/r/MicroPyramid/micro-finance?branch=master
+   
+.. image:: https://landscape.io/github/MicroPyramid/micro-finance/master/landscape.svg
+   :target: https://landscape.io/github/MicroPyramid/micro-finance/master
+   :alt: Code Health
 
 head to http://micro-finance.readthedocs.org/ for latest documentation
 
