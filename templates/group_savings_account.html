@@ -1,4 +1,7 @@
 {% extends 'groupbase.html' %}
+{% block groupbreadcrumb %}
+<li>Savings Account</li>
+{% endblock %}
 {% block groupstage %}
 <div class="home-div-gp">
   <div class="wrap-cp-div">
@@ -61,16 +64,16 @@
             <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Applied By Staff :</label><span class="col-lg-6 mar-top"><a href="{% url 'micro_admin:userprofile' savings_account.created_by.id %}">{{ savings_account.created_by|capfirst }}</a></span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Current Balance :</label><span class="col-lg-6 mar-top" style="color:#FF00CC;">{{ savings_account.savings_balance }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Current Balance :</label><span class="col-lg-6 mar-top" style="color:#FF00CC;">{{ savings_account.savings_balance|floatformat:2 }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Share Capital :</label><span class="col-lg-6 mar-top">{{ dict.sharecapital_amount }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Share Capital :</label><span class="col-lg-6 mar-top">{{ dict.sharecapital_amount|floatformat:2 }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Entrance Fees :</label><span class="col-lg-6 mar-top">{{ dict.entrancefee_amount }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Entrance Fees :</label><span class="col-lg-6 mar-top">{{ dict.entrancefee_amount|floatformat:2 }}</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Membership Fees :</label><span class="col-lg-6 mar-top">{{ dict.membershipfee_amount }}</span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Membership Fees :</label><span class="col-lg-6 mar-top">{{ dict.membershipfee_amount|floatformat:2 }}</span>
           </div>
         </div>
         <!--div 1 of fomr ends above-->
@@ -98,10 +101,10 @@
             <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Annual Interest Rate:</label><span class="col-lg-5 mar-top">{{ savings_account.annual_interest_rate }} %</span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Book Fees:</label><span class="col-lg-5 mar-top">{{ dict.bookfee_amount }} </span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Book Fees:</label><span class="col-lg-5 mar-top">{{ dict.bookfee_amount|floatformat:2 }} </span>
           </div>
           <div class="form-group">
-            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Insurance Amount:</label><span class="col-lg-5 mar-top">{{ dict.insurance_amount }} </span>
+            <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Insurance Amount:</label><span class="col-lg-5 mar-top">{{ dict.insurance_amount|floatformat:2 }} </span>
           </div>
         </div>
         <br clear="all" />

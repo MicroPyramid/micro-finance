@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
+<li><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }} Member</a></li>
+<li>Add Savings Application</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">

@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
+<li><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }} Member</a></li>
+<li>Add Loan Application</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
@@ -35,21 +40,21 @@
             <p id="loanamounterror"></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Period (in months)<span>*</span></label>
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="loan_repayment_period" id="inputEmail3" required="True">
             <p id="loanrepaymentperioderror"></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Every (in months)<span>*</span></label>
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="loan_repayment_every" required="True">
             <p id="loanrepaymenteveryerror"></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Interest Type<span>*</span></label>
           <div class="col-sm-7">
             <select class="text-box wid-form" name="interest_type">
@@ -60,21 +65,21 @@
             <p id="interesttypeerror"></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate (%)<span>*</span></label>
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="annual_interest_rate" required="True">
             <p id="annualinterestrateerror"></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
           <div class="col-sm-7">
             <textarea rows="3" class="txt-area-wid" name="loanpurpose_description" required="True"></textarea>
             <p id="loanpurposeerror"></p>
           </div>
         </div>
-        <div class="form-group btns">
+        <div class="form-group btns" style="margin-top: -10px;">
           <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
           <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
         </div>

@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
+<li><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }} Member</a></li>
+<li>View Savings Withdrawals</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
@@ -10,7 +15,7 @@
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
-        {% endif %}{{client.first_name|capfirst}}  Savings Withdrawals List</h3>
+        {% endif %}{{client.first_name|capfirst}} {{client.last_name|capfirst}} Savings Withdrawals List</h3>
         <span class="mar-tp-m"><a href="{% url 'micro_admin:clientsavingsaccount' client.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="panel-body pb-table">
@@ -47,7 +52,7 @@
               <td>{{ saving_withdraw.group.name|capfirst }}</td>
               <td>{{ saving_withdraw.client.first_name|capfirst }}</td>
               <td>{{ saving_withdraw.client.account_number }}</td>
-              <td style="color:#FF00CC;">{{ saving_withdraw.total_amount }}</td>
+              <td style="color:#FF00CC;">{{ saving_withdraw.total_amount|floatformat:2 }}</td>
             </tr>
             {% endfor %}
           </tbody>

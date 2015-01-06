@@ -1,14 +1,27 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+{% if client.first_name %}
+  <li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
+  <li><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }} Member</a></li>
+  <li>Recurring Deposits</li>
+{% else %}
+  <li>Recurring Deposits</li>
+{% endif %}
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">
+    <div class="panel-heading min-ht-res-60">
       <h3 class="panel-title">
-        Members Recurring Deposits-List
-        <span><a href="{% url 'micro_admin:recurringdeposits' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>create Recurring Deposit</button></a></span>
+      {% if client.first_name %}
+        {{client.first_name|capfirst}} {{client.last_name|capfirst}} Recurring Deposits
+      {% else %}
+        View all Recurring Deposits
+      {% endif %}
       </h3>
+      <span class="mar-tp-m"><a href="{% url 'micro_admin:recurringdeposits' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>Create Recurring Deposit</button></a></span>
     </div>
     <div class="hg-table panel-body pb-table">
       <div class="table-responsive">
@@ -19,8 +32,10 @@
               <th>FD A/C. No.</th>
               <th>Status</th>
               <th>Deposited Date</th>
-              <th>Member Name</th>
-              <th>Member A/C. No.</th>
+              {% if not client.first_name %}
+                <th>Member Name</th>
+                <th>Member A/C. No.</th>
+              {% endif %}
               <th>Deposit Amount</th>
               <th>Deposit Period(in months)</th>
               <th>Maturity Amount</th>
@@ -39,14 +54,16 @@
               {% elif recurring_deposit.status == "Closed" %}
               <td><i class="fa fa-circle red"></i></td>
               {% endif %}
-               <td>{{ recurring_deposit.deposited_date  }}</td>
-              <td><a href="{% url 'micro_admin:clientprofile' recurring_deposit.client.id %}" style="color:#660099">
-                {{ recurring_deposit.client.first_name|capfirst }}</a>
-              </td>
-              <td>{{ recurring_deposit.client.account_number  }}</td>
-              <td>{{ recurring_deposit.recurring_deposit_amount }}</td>
+              <td>{{ recurring_deposit.deposited_date  }}</td>
+              {% if not client.first_name %}
+                <td><a href="{% url 'micro_admin:clientprofile' recurring_deposit.client.id %}" style="color:#660099">
+                  {{ recurring_deposit.client.first_name|capfirst }} {{ recurring_deposit.client.last_name|capfirst }}</a>
+                </td>
+                <td>{{ recurring_deposit.client.account_number  }}</td>
+              {% endif %}
+              <td>{{ recurring_deposit.recurring_deposit_amount|floatformat:2 }}</td>
               <td>{{ recurring_deposit.recurring_deposit_period }}</td>
-              <td>{{ recurring_deposit.maturity_amount }}</td>
+              <td>{{ recurring_deposit.maturity_amount|default:"-" }}</td>
               <td>{{ recurring_deposit.nominee_firstname|capfirst }}</td>
             </tr>
             {% endfor %}

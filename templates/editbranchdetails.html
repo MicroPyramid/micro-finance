@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' branch.id %}">{{ branch.name|capfirst }} Branch</a></li>
+<li>Edit</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">

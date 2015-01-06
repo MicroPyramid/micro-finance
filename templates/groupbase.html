@@ -35,6 +35,20 @@
   </div>
   <button class="toggle-btn margin-lft" id="togg-btn"><img src="/static/images/1414856121_equal-16.png" style="color:#fff;" /></button>
 </div>
+{% block basebreadcrumb %}
+{% endblock %}
+<div class="row marl bread-row">
+  <div class="breadcrumbcontainer">
+    <ol class="breadcrumb">
+      <span>You are Here:</span> &nbsp;&nbsp;
+      <li><a href="{% url 'micro_admin:login' %}">Home</a></li>
+      <li><a href="{% url 'micro_admin:branchprofile' group.branch.id %}">{{ group.branch.name|capfirst }} Branch</a></li>
+      <li><a href="{% url 'micro_admin:groupprofile' group.id %}">{{ group.name|capfirst }} Group</a></li>
+      {% block groupbreadcrumb %}
+      {% endblock %}
+    </ol>
+  </div>
+</div>
 {% block groupstage %}
 {% endblock %}
 <script src="/static/js/mf_script.js"></script>

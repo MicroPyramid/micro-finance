@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Create Branch</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel margin-top-set">
-    <div class="panel-heading">Branch</div>
+    <div class="panel-heading"><i class="fa fa-plus padd"></i>Create Branch</div>
     <div class="panel-body pb-pad">
       <form  id="createbranchform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}

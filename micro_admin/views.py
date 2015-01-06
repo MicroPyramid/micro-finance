@@ -116,8 +116,9 @@ def view_branch(request):
 @login_required
 def delete_branch(request,branch_id):
     branch = Branch.objects.get(id=branch_id)
+    branch.is_active = 0
+    branch.save()
     branch_list = Branch.objects.all()
-    branch.delete()
     return render(request,"viewbranch.html", {"branch_list":branch_list})
 
 
@@ -223,8 +224,9 @@ def view_client(request):
 @login_required
 def delete_client(request,client_id):
     client = Client.objects.get(id=client_id)
+    client.is_active = 0
+    client.save()
     client_list = Client.objects.all()
-    client.delete()
     return render(request,"viewclient.html", {"client_list":client_list})
 
 
@@ -309,7 +311,8 @@ def users_list (request):
 @login_required
 def delete_user(request, user_id):
     user = User.objects.get(id=user_id)
-    user.delete()
+    user.is_active = 0
+    user.save()
     list_of_users = User.objects.filter(is_admin=0)
     return render(request, "listofusers.html", {"list_of_users":list_of_users})
 
@@ -408,11 +411,15 @@ def groups_list(request):
 def delete_group(request, group_id):
     group = Group.objects.get(id=group_id)
     if group.staff and group.clients.all().count():
-        return HttpResponse("This group can't be deleted")
+        #This group can't be deleted
+        pass
     else:
         if not group.staff and not group.clients.all().count():
-            group.delete()
-            return HttpResponse("Group deleted successfully")
+            group.is_active = 0
+            group.save()
+            #Group deleted successfully"
+    groups_list = Group.objects.all()
+    return render(request, "listofgroups.html", {"groups_list":groups_list})
 
 
 @login_required
@@ -1179,7 +1186,7 @@ def receipts_deposit(request):
                                                             data = {"error":True, "message1":"Loan Payment has not yet done."}
                                                             return HttpResponse(json.dumps(data))
                                                     elif loan_account.status == "Applied":
-                                                        data = {"error":True, "message1":"Member Loan is under pending for approval."}
+                                                        data = {"error":True, "message1":"Member Loan / Group Loan is under pending for approval."}
                                                         return HttpResponse(json.dumps(data))
                                                     elif loan_account.status == "Rejected":
                                                         data = {"error":True, "message1":"Member Loan has been Rejected."}
@@ -1308,10 +1315,11 @@ def receipts_list(request):
     return render(request, "listof_receipts.html", {"receipt_list":receipt_list})
 
 
-def ledger_account(request, client_id):
+def ledger_account(request, client_id, loanaccount_id):
     client = Client.objects.get(id=client_id)
-    receipts_list = Receipts.objects.filter(client=client_id).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
-    return render(request, "client_ledger_account.html", {"receipts_list":receipts_list, "client":client})
+    loanaccount = LoanAccount.objects.get(id=loanaccount_id)
+    receipts_list = Receipts.objects.filter(client=client_id, member_loan_account=loanaccount).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
+    return render(request, "client_ledger_account.html", {"loanaccount":loanaccount, "receipts_list":receipts_list, "client":client})
 
 
 def general_ledger_function(request):
@@ -1431,8 +1439,9 @@ def view_client_fixed_deposits(request):
 
 @login_required
 def view_particular_client_fixed_deposits(request,client_id):
+    client = Client.objects.get(id=client_id)
     fixed_deposit_list = FixedDeposits.objects.filter(client=client_id).order_by("-id")
-    return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list":fixed_deposit_list})
+    return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list":fixed_deposit_list, "client":client})
 
 
 @login_required
@@ -1449,8 +1458,9 @@ def view_client_recurring_deposits(request):
 
 @login_required
 def view_particular_client_recurring_deposits(request, client_id):
+    client = Client.objects.get(id=client_id)
     recurring_deposit_list = RecurringDeposits.objects.filter(client=client_id).order_by("-id")
-    return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list":recurring_deposit_list})
+    return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list":recurring_deposit_list, "client":client})
 
 
 @login_required
@@ -2233,3 +2243,68 @@ def user_change_password(request, user_id):
         else:
             data = {"error":True, "currentpwderror":"Entered Current Password is incorrect."}
             return HttpResponse(json.dumps(data))
+
+
+def getmember_loanaccounts(request):
+    if request.method == "POST":
+        account_number = request.POST.get("account_number")
+        try:
+            client = Client.objects.get(account_number=account_number)
+            try:
+                loan_accounts_list = LoanAccount.objects.filter(client=client)
+                list = []
+                for loan_account in loan_accounts_list:
+                    if decimal.Decimal(loan_account.total_loan_balance) :
+                        dict = {}
+                        dict['loan_account_number'] = loan_account.account_no
+                        dict['loan_amount'] = int(loan_account.loan_amount)
+                        list.append(dict)
+                    else:
+                        continue
+
+                try:
+                    group = client.group_set.get()
+                    groupname = client.group_set.get().name
+                    groupaccountnumber = client.group_set.get().account_number
+
+                    try:
+                        loan_accounts_list = LoanAccount.objects.filter(group=group)
+                        grouploanlist = []
+                        for loan_account in loan_accounts_list:
+                            if decimal.Decimal(loan_account.total_loan_balance) :
+                                dict = {}
+                                dict['loan_account_number'] = loan_account.account_no
+                                dict['loan_amount'] = int(loan_account.loan_amount)
+                                grouploanlist.append(dict)
+                            else:
+                                continue
+                        data = {"error":False, "list":list, "grouploanlist":grouploanlist, "groupname":groupname, "groupaccountnumber":groupaccountnumber}
+                    except:
+                        data = {"error":False, "list":list, "groupname":groupname, "groupaccountnumber":groupaccountnumber}
+
+                except:
+                    data = {"error":False, "list":list}
+
+            except:
+                data = {"error":False}
+        except:
+            data = {"error":True, "message1":"No Member exists with this Account Number."}
+    else:
+        data = {"error":False}
+    return HttpResponse(json.dumps(data))
+
+
+def getloan_demands(request):
+    if request.method == "POST":
+        loan_account = LoanAccount.objects.get(account_no=request.POST.get("loan_account_no"))
+        if loan_account.status == "Approved" :
+            if decimal.Decimal(loan_account.total_loan_balance) or decimal.Decimal(loan_account.interest_charged) or decimal.Decimal(loan_account.loan_repayment_amount) or decimal.Decimal(loan_account.principle_repayment) :
+                demand_loanprinciple = str(loan_account.principle_repayment)
+                demand_loaninterest = str(loan_account.interest_charged)
+                data = {"error":False, "demand_loanprinciple":demand_loanprinciple, "demand_loaninterest":demand_loaninterest}
+            else:
+                data = {"error":True, "message1":"Loan has been cleared sucessfully."}
+        else:
+            data = {"error":True, "message1":"Member Loan is under pending for approval."}
+        return HttpResponse(json.dumps(data))
+
