@@ -3,26 +3,20 @@
 @media (min-width: 1200px) {
 }
 /* Medium devices (desktops, 992px and up) */
-@media (min-width: 992px) and (max-width: 1199px) {
-  .container {
-    width: 80%;
-  }
 
-  form .box-form {
-    width: 49%;
-    float: left;
-    margin: 0px auto;
-    padding: 0px 20px;
-  }
-   /*view client profile*/
 
-  /*view client profile*/;
-}
-
-@media (min-width: 992px)  and (max-width :1199px) {
+@media (min-width: 992px) and (max-width :1199px) {
  /* CSS Document */
   .container {
     width: 80%;
+  }
+
+  .bread-row {
+    margin-top: 10%;
+  }
+
+  .container .margin-top-set {
+    margin-top: 2%;
   }
 
   .nav>li>a {
@@ -48,13 +42,35 @@
   }
   /*view client profile*/
 
-  /*view client profile*/;
+  /*view client profile*/
+  #nav-md,  #nav-md .logo-span {
+    float: none;
+    width: 100%;
+    text-align: center;
+  }
+
+  #nav-md .logo-span a {
+    display: inline-block;
+    width: 100%;
+  }
+
+  navbar-right {
+    float: left !important;
+  }
 }
 
 @media (min-width: 768px) and (max-width :991px) {
 
   .container {
     width: 100%;
+  }
+
+  .bread-row {
+    margin-top: 13%;
+  }
+
+  .container .margin-top-set {
+    margin-top: 0%;
   }
 
   .nav>li>a {
@@ -100,7 +116,7 @@
   }
 
   .container .margin-top-set {
-    margin-top: 8%;
+    margin-top: 5%;
   }
 
   .min-ht-res-60 {
@@ -142,7 +158,29 @@
   .wid-45per {
     width: 98%;
   }
-/*day book*/;
+/*day book*/
+  .md-center {
+    text-align: center !important;
+  }
+
+  #nav-md,  #nav-md .logo-span {
+    float: none;
+    width: 100%;
+    text-align: center;
+  }
+
+  #nav-md .logo-span a {
+    display: inline-block;
+    width: 100%;
+  }
+
+  .navbar-right {
+    float: left !important;
+  }
+
+  .nav ul {
+    left: 0;
+  }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
@@ -281,5 +319,12 @@
   .wid-45per {
     width: 98%;
   }
-/*day book*/;
+/*day book*/
+  .bread-row {
+    margin-top: 15%;
+  }
+
+  .container .margin-top-set {
+    margin-top: 2%;
+  }
 }

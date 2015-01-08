@@ -1,11 +1,14 @@
 {% extends 'groupbase.html' %}
+{% block groupbreadcrumb %}
+<li>Add Group Meeting</li>
+{% endblock %}
 {% block groupstage %}
-<div class="home-div-gp wid-ass-stf">
+<div class="home-div-gp wid-ass-stf mar-left-30">
 <div class="panel panel-default panel-hdg">
   <div class="panel-heading">
     <h3 class="panel-title">
       {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-      {{ group.name }}
+      {{ group.name|capfirst }} Group
     </h3>
   </div>
   {% if latest_group_meeting %}

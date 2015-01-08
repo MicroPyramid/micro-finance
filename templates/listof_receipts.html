@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Accounting</li>
+<li>Receipts</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container-trans-table">
@@ -28,7 +32,8 @@
               <th class="wid-90">Thrift Deposits</th>
               <th class="wid-90">Fixed Deposits</th>
               <th class="wid-90">Recurring Deposits</th>
-              <th class="wid-90">Loan A/C. No.</th>
+              <th class="wid-90">Member Loan A/C. No.</th>
+              <th class="wid-90">Group Loan A/C. No.</th>
               <th class="wid-90">Loan Principal Amount</th>
               <th class="wid-90">Loan Interest Amount</th>
               <th class="wid-90">Insurance Amount</th>
@@ -69,7 +74,10 @@
                 {% if receipt.recurringdeposit_amount%}{{ receipt.recurringdeposit_amount|floatformat:2 }}{% else %}-{% endif %}
               </td>
               <td>
-                {{ receipt.loan_account.account_no|default:" - " }}
+                {{ receipt.member_loan_account.account_no|default:" - " }}
+              </td>
+              <td>
+                {{ receipt.group_loan_account.account_no|default:" - " }}
               </td>
               <td>
                 {% if receipt.loanprinciple_amount%}{{ receipt.loanprinciple_amount|floatformat:2 }}{% else %}-{% endif %}

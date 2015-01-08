@@ -1,18 +1,22 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li>View Members</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">Members-List</div>
+    <div class="panel-heading">View Members</div>
     <div class="panel-body pb-table">
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr class="head-row-tb">
               <th>Member Name</th>
-              <th>Branch Name</th>
               <th>Account Number</th>
+              <th>Branch Name</th>
+              <th>Group Name</th>
               <th>Role</th>
               <th>Status</th>
               {% if user.is_admin %}
@@ -26,9 +30,15 @@
             {% for client in client_list %}
             <tr>
               <td><a href="{% url 'micro_admin:clientprofile' client.id %}" style="color:#337ab7">
-              {{ client.first_name|capfirst }}</a></td>
-              <td>{{ client.branch.name }}</td>
+              {{ client.first_name|capfirst }} {{ client.last_name|capfirst }}</a></td>
               <td>{{ client.account_number }}</td>
+              <td><a href="{% url 'micro_admin:branchprofile' client.branch.id %}" style="color:#337ab7">{{ client.branch.name|capfirst}}</a></td>
+              <td>
+                {% if client.group_set.get %}
+                  <a href="{% url 'micro_admin:groupprofile' client.group_set.get.id %}" style="color:#337ab7">
+                    {{ client.group_set.get.name|capfirst}} Group </a>
+                {% else %} - {% endif %}
+              </td>
               <td>{{ client.client_role }}</td>
               {% if client.is_active %}
               <td><i class="fa fa-circle green pad-lt"></i></td>

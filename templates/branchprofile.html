@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' branch.id %}">{{ branch.name|capfirst }} Branch</a></li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bp margin-top-set">
-    <div class="panel-heading min-ht-res-60"><h3 class="panel-title">{{ branch.name }}</h3>
+    <div class="panel-heading min-ht-res-60"><h3 class="panel-title">{{ branch.name|capfirst  }} Branch</h3>
       <span class="mar-tp-m mar-tp-m24">
       {% if user.is_admin %}
       <a href="{% url 'micro_admin:editbranch' branch.id %}" class="view-tab-btn ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</a>

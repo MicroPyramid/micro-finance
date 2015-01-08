@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import ModelForm
 from micro_admin.models import Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits
 
 
@@ -35,7 +34,8 @@ class ClientForm(forms.ModelForm):
 
     class Meta:
         model = Client
-        fields = ["first_name", "last_name", "date_of_birth", "joined_date", "branch", "account_number", "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
+        fields = ["first_name", "last_name", "date_of_birth", "joined_date", "branch", "account_number", \
+                    "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
 
 
 class AddMemberForm(forms.ModelForm):
@@ -63,7 +63,8 @@ class ClientLoanAccountForm(forms.ModelForm):
 
     class Meta:
         model = LoanAccount
-        fields = ["account_no", "loan_amount", "interest_type", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
+        fields = ["account_no", "loan_amount", "interest_type", "loan_repayment_period", "loan_repayment_every", \
+                    "annual_interest_rate", "loanpurpose_description"]
 
 
 class GroupSavingsAccountForm(forms.ModelForm):
@@ -77,7 +78,8 @@ class GroupLoanAccountForm(forms.ModelForm):
 
     class Meta:
         model = LoanAccount
-        fields = ["account_no", "interest_type", "loan_amount", "loan_repayment_period", "loan_repayment_every", "annual_interest_rate", "loanpurpose_description"]
+        fields = ["account_no", "interest_type", "loan_amount", "loan_repayment_period", "loan_repayment_every", \
+                    "annual_interest_rate", "loanpurpose_description"]
 
 
 class ReceiptForm(forms.ModelForm):
@@ -98,11 +100,14 @@ class FixedDepositForm(forms.ModelForm):
 
     class Meta:
         model = FixedDeposits
-        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "fixed_deposit_number", "deposited_date", "fixed_deposit_amount", "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee", "nominee_photo", "nominee_signature"]
+        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "fixed_deposit_number", "deposited_date", "fixed_deposit_amount", \
+                    "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee", "nominee_photo", "nominee_signature"]
 
 
 class ReccuringDepositForm(forms.ModelForm):
 
     class Meta:
         model = RecurringDeposits
-        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "reccuring_deposit_number", "deposited_date", "recurring_deposit_amount", "recurring_deposit_period", "recurring_deposit_interest_rate", "relationship_with_nominee", "nominee_photo", "nominee_signature"]
+        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "reccuring_deposit_number", "deposited_date", \
+                    "recurring_deposit_amount", "recurring_deposit_period", "recurring_deposit_interest_rate", \
+                    "relationship_with_nominee", "nominee_photo", "nominee_signature"]

@@ -1,11 +1,18 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+{% if selecteduser.branch.id %}
+  <li><a href="{% url 'micro_admin:branchprofile' selecteduser.branch.id %}">{{ selecteduser.branch.name|capfirst }} Branch
+  </a></li>
+{% endif %}
+<li>{{ selecteduser.username|capfirst }}</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bp margin-top-set">
     <div class="panel-heading">
-    <h3 class="panel-title">Staff
+    <h3 class="panel-title">{{ selecteduser.username|capfirst }} Profile
       <span>
       {% if user.id == selecteduser.id %}<a href="{% url 'micro_admin:edituser' selecteduser.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>{% endif %}
       {% if user.is_admin %}<a href="{% url 'micro_admin:deleteuser' selecteduser.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>{% endif %}
@@ -18,7 +25,7 @@
           <tbody class="body-row-tb">
             <tr class="wid-tab">
               <th>User-Name</th>
-              <td>{{ selecteduser.username }}
+              <td>{{ selecteduser.username|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">
@@ -31,12 +38,12 @@
             </tr>
             <tr class="wid-tab">
               <th>First Name</th>
-              <td>{{ selecteduser.first_name }}
+              <td>{{ selecteduser.first_name|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>Last Name</th>
-              <td>{% if selecteduser.last_name %}{{ selecteduser.last_name }}{% else %} None {% endif %}
+              <td>{% if selecteduser.last_name %}{{ selecteduser.last_name|capfirst }}{% else %} None {% endif %}
               </td>
             </tr>
             <tr class="wid-tab">
@@ -46,7 +53,7 @@
             </tr>
             <tr class="wid-tab">
               <th>Branch</th>
-              <td>{{ selecteduser.branch.name }}
+              <td>{{ selecteduser.branch.name|capfirst }}
               </td>
             </tr>
             <tr class="wid-tab">
@@ -56,12 +63,12 @@
             </tr>
             <tr class="wid-tab">
               <th>District</th>
-              <td>{% if selecteduser.district %}{{ selecteduser.district }}{% else %} None {% endif %}
+              <td>{% if selecteduser.district %}{{ selecteduser.district|capfirst }}{% else %} None {% endif %}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>City</th>
-              <td>{% if selecteduser.city %}{{ selecteduser.city }}{% else %} None {% endif %}
+              <td>{% if selecteduser.city %}{{ selecteduser.city|capfirst }}{% else %} None {% endif %}
               </td>
             </tr>
             <tr class="wid-tab">

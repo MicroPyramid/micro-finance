@@ -1,10 +1,13 @@
 {% extends 'groupbase.html' %}
+{% block groupbreadcrumb %}
+<li>Add Members</li>
+{% endblock %}
 {% block groupstage %}
 <!--content goes below-->
 <div class="home-div-gp">
   <div class="panel panel-default panel-hdg">
     <div class="panel-heading">
-      <h3 class="panel-title">Add Members to: {{ group.name }}</h3>
+      <h3 class="panel-title">Add Members to: {{ group.name|capfirst }} Group</h3>
     </div>
     <div class="panel-body">
       <!--panel body starts above-->

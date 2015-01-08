@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>MicroFinance</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-   <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
@@ -15,7 +15,6 @@
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/start/jquery-ui.css" />
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <!-- your style sheet-->
-    <link rel="stylesheet" href="/static/css/mf_slidebar.css" />
     <link rel="stylesheet" href="/static/css/mf.css" />
     <link rel="stylesheet" href="/static/css/mf_res.css" />
     <link rel="stylesheet" href="/static/css/mf_mob.css" />
@@ -24,71 +23,15 @@
   <body>
     <!--wrapper starts below-->
     <div class="wrapper">
-    <!--container starts  below-->
-    <div class="container">
-      <!--slide-menu-->
+      <!--container starts  below-->
+      <div class="container">
+        <!--slide-menu-->
         <div class="menu-outer">
           <div class="menu-icon">
             <div class="bar"></div>
             <div class="bar"></div>
             <div class="bar"></div>
           </div>
-          <nav id="slide-nav">
-            <ul>
-              <li>
-                <div class="li-wrap">
-                <h3>Branch</h3>
-                  <div class="icon-circle" dropid="drop-branch" carid="carot-branch" id="branch"><i class="fa fa-sitemap"></i>
-                  <i class="fa fa-caret-down hov-car-icon" id="carot-branch"></i></div>
-                  <div class="slide-nav-drop" id="drop-branch">
-                    <ul>
-                      <li><a href="{% url 'micro_admin:createbranch' %}"><i class="fa fa-plus padd"></i>Create Branch</a></li>
-                      <li><a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </li>
-              <li>
-                <div class="li-wrap">
-                <h3>User</h3>
-                  <div class="icon-circle" dropid="drop-user" carid="carot-user" id="user"><i class="fa fa-user"></i>
-                  <i class="fa fa-caret-down hov-car-icon" id="carot-user"></i></div>
-                  <div class="slide-nav-drop" id="drop-user">
-                    <ul>
-                      <li><a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create User</a></li>
-                      <li><a href="{% url 'micro_admin:userslist' %}"><i class="fa fa-eye padd"></i>View User</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </li>
-              <li>
-                <div class="li-wrap">
-                <h3>Group</h3>
-                  <div class="icon-circle" dropid="drop-group" carid="carot-group" id="group"><i class="fa fa-users users-icon"></i>
-                  <i class="fa fa-caret-down hov-car-icon" id="carot-group"></i></div>
-                  <div class="slide-nav-drop" id="drop-group">
-                    <ul>
-                      <li><a href="{% url 'micro_admin:creategroup' %}"><i class="fa fa-plus padd"></i>Create Group</a></li>
-                      <li><a href="{% url 'micro_admin:groupslist' %}"><i class="fa fa-eye padd"></i>View Group</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </li>
-              <li>
-                <div class="li-wrap">
-                <h3>Member</h3>
-                  <div class="icon-circle" dropid="drop-mem" carid="carot-mem" id="member"><i class="fa fa-child mem-icon"></i>
-                  <i class="fa fa-caret-down hov-car-icon" id="carot-mem"></i></div>
-                  <div class="slide-nav-drop" id="drop-mem">
-                    <ul>
-                      <li><a href="{% url 'micro_admin:createclient' %}"><i class="fa fa-plus padd"></i>Create Member</a></li>
-                      <li><a href="{% url 'micro_admin:viewclient' %}"><i class="fa fa-eye padd"></i>View Member</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </nav>
         </div>
         <a class="menu-close" onClick="return true">
           <div class="menu-icon">
@@ -108,19 +51,57 @@
               <nav class="navbar navbar-default" role="navigation">
                 <div class="container-fluid">
                   <!-- Brand and toggle get grouped for better mobile display -->
-                  <div class="navbar-header">
+                  <div class="navbar-header" id="nav-md">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand logo_nav" href="#"><h5>Micro Finance</h5></a>
+                    <span class="logo-span">
+                      <a class="navbar-brand logo_nav" href="#">
+                        <h5>Micro Finance</h5>
+                      </a>
+                    </span>
                   </div>
                   <!-- Collect the nav links, forms, and other content for toggling -->
                   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="col-lg-offset-4 col-lg-8 col-sm-offset-3 col-sm-9 col-md-offset-3 col-md-9 nav navbar-nav navbar-right">
+                    <ul class="col-lg-10 col-sm-12 col-md-12 nav navbar-nav navbar-right">
                       <li><a href="{% url 'micro_admin:login' %}" class="menu-link home"><i class="fa fa-home padd"></i>Home</a></li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-sitemap padd"></i>Branch
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:createbranch' %}"><i class="fa fa-plus padd"></i>Create Branch</a></li>
+                          <li><a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user padd"></i>Staff
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create Staff</a>
+                          </li>
+                          <li><a href="{% url 'micro_admin:userslist' %}"><i class="fa fa-eye padd"></i>View Staff</a></li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-users users-icon padd"></i>Group <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:creategroup' %}"><i class="fa fa-plus padd"></i>Create Group</a></li>
+                          <li><a href="{% url 'micro_admin:groupslist' %}"><i class="fa fa-eye padd"></i>View Group</a>
+                          </li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-child mem-icon padd"></i>Member <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:createclient' %}"><i class="fa fa-plus padd"></i>Create Member</a></li>
+                          <li><a href="{% url 'micro_admin:viewclient' %}"><i class="fa fa-eye padd"></i>View Member</a>
+                          </li>
+                        </ul>
+                      </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-calculator padd"></i>Accounting <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -146,10 +127,12 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{ user.username|capfirst }} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                           <li><a href="{% url 'micro_admin:userprofile' user.id %}"><i class="fa fa-user icon padd"></i>Profile</a></li>
-                          <li><a href="{% url 'micro_admin:userchangepassword' user.id %}"><i class="fa fa-unlock-alt padd"></i>Change Password</a></li>
+                          <li><a href="{% url 'micro_admin:userchangepassword' user.id %}">
+                            <i class="fa fa-unlock-alt padd"></i>Change Password</a>
+                          </li>
+                          <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>Logout</a></li>
                         </ul>
                       </li>
-                      <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>Logout</a></li>
                     </ul>
                   </div>
                   <!-- /.navbar-collapse -->
@@ -162,6 +145,18 @@
         </div>
         <!--nav bar ends above-->
       </header>
+      {% block basebreadcrumb %}
+      <div class="row marl bread-row">
+        <div class="breadcrumbcontainer">
+          <ol class="breadcrumb">
+            <span>You are Here:</span> &nbsp;&nbsp;
+            <li><a href="{% url 'micro_admin:login' %}">Home</a></li>
+            {% block breadcrumb %}
+            {% endblock %}
+          </ol>
+        </div>
+      </div>
+      {% endblock basebreadcrumb %}
       <!--content goes below-->
       {% block stage %}
       {% endblock %}

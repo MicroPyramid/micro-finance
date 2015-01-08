@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' fixed_deposit.client.branch.id %}">{{ fixed_deposit.client.branch.name|capfirst }} Branch</a></li>
+<li><a href="{% url 'micro_admin:clientprofile' fixed_deposit.client.id %}">{{ fixed_deposit.client.first_name|capfirst }} Member</a></li>
+<li>Fixed Deposit</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="home-div-gp">
@@ -9,7 +14,7 @@
       <i class="fa fa-square green padd"></i>
       {% else %}
       <i class="fa fa-square red padd"></i>{% endif %}
-      {{ recurring_deposit.client.first_name|capfirst }} {{ recurring_deposit.client.last_name|capfirst }} Fixed Deposit
+      {{ fixed_deposit.client.first_name|capfirst }} {{ fixed_deposit.client.last_name|capfirst }} Fixed Deposit
     </h3>
   </div>
   <!--form div starts below-->

@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Accounting</li>
+<li><a href="{% url 'micro_admin:paymentslist' %}">Payments</a></li>
+<li>Add Pay Slip</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel payslip-panel">
-    <div class="panel-heading">Pay Slip</div>
+    <div class="panel-heading">Add Pay Slip</div>
     <div class="panel-body pb-pad">
       <form id="paymentform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}

@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-import datetime
 
 
 GENDER_TYPES = (
@@ -80,6 +79,9 @@ class Branch(models.Model):
     phone_number = models.BigIntegerField()
     pincode = models.IntegerField()
     is_active = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name
 
 
 class UserManager(BaseUserManager):
@@ -163,6 +165,9 @@ class Client(models.Model):
     bookfee_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     insurance_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
 
+    def __unicode__(self):
+        return self.first_name + ' ' + self.last_name
+
 
 class Group(models.Model):
     name = models.CharField(max_length=200)
@@ -175,6 +180,9 @@ class Group(models.Model):
     clients = models.ManyToManyField(Client, null=True, blank=True)
     status = models.CharField(max_length=50, default="UnAssigned")
 
+    def __unicode__(self):
+        return self.name
+
 
 class Centers(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -183,11 +191,17 @@ class Centers(models.Model):
     branch = models.ForeignKey(Branch)
     groups = models.ManyToManyField(Group, null=True,blank=True)
 
+    def __unicode__(self):
+        return self.name
+
 
 class GroupMeetings(models.Model):
     meeting_date = models.DateField()
     meeting_time = models.CharField(max_length=20)
     group = models.ForeignKey(Group)
+
+    def __unicode__(self):
+        return self.group.name + ' ' + self.meeting_date
 
 
 class SavingsAccount(models.Model):
@@ -206,6 +220,9 @@ class SavingsAccount(models.Model):
     fixeddepositperiod = models.IntegerField(null=True, blank=True)
     recurringdeposit_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
     recurringdepositperiod = models.IntegerField(null=True, blank=True)
+
+    def __unicode__(self):
+        return self.account_no
 
 
 class LoanAccount(models.Model):
@@ -235,6 +252,9 @@ class LoanAccount(models.Model):
     no_of_repayments_completed = models.IntegerField(default=0)
     principle_repayment = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
 
+    def __unicode__(self):
+        return self.account_no
+
 
 class Receipts(models.Model):
     date = models.DateField()
@@ -261,6 +281,9 @@ class Receipts(models.Model):
     demand_loaninterest_amount_atinstant = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     principle_loan_balance_atinstant = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
 
+    def __unicode__(self):
+        return self.receipt_number
+
 
 class FixedDeposits(models.Model):
     client = models.ForeignKey(Client)
@@ -280,6 +303,9 @@ class FixedDeposits(models.Model):
     nominee_signature = models.ImageField(upload_to =settings.SIGNATURE_PATH)
     fixed_deposit_interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
     maturity_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.fixed_deposit_number
 
 
 class RecurringDeposits(models.Model):
@@ -301,6 +327,9 @@ class RecurringDeposits(models.Model):
     recurring_deposit_interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
     maturity_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
 
+    def __unicode__(self):
+        return self.reccuring_deposit_number
+
 
 class Payments(models.Model):
     date = models.DateField()
@@ -314,3 +343,6 @@ class Payments(models.Model):
     interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     total_amount = models.DecimalField(max_digits=19, decimal_places=6)
     totalamount_in_words = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.voucher_number

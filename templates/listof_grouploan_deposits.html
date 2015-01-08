@@ -1,4 +1,9 @@
 {% extends 'groupbase.html' %}
+{% block groupbreadcrumb %}
+<li><a href="{% url 'micro_admin:grouploanaccountslist' loan_account.group.id %}">Loans</a></li>
+<li><a href="{% url 'micro_admin:grouploanaccount' loan_account.id %}">Loan Account - {{ loan_account.account_no }}</a></li>
+<li>View Loan Deposits</li>
+{% endblock %}
 {% block groupstage %}
 <div class="home-div-gp">
   <div class="panel panel-default panel-hdg">

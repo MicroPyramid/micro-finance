@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
+<li><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }} Member</a></li>
+<li>View Loans</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
@@ -10,7 +15,7 @@
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>{% endif %}
-        {{ client.first_name|capfirst }} Loan Accounts
+        {{ client.first_name|capfirst }} {{ client.last_name|capfirst }} Loan Accounts
       </h3>
     </div>
     <div class="panel-body pb-table">
@@ -24,35 +29,37 @@
       </div>
       <!--div 1 of fomr ends above-->
       <br clear="all" />
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr class="head-row-tb">
-              <th>S.No.</th>
-              <th>Loan A/C Number</th>
-              <th>Opened On</th>
-              <th>Status</th>
-              <th>Interest Type</th>
-              <th>Principal Loan Amount</th>
-              <th>Principal Loan Balance</th>
-              <th>Created By</th>
-            </tr>
-          </thead>
-          <tbody class="body-row-tb">
-            {% for loan_account in loan_accounts_list %}
-            <tr>
-              <td><b>{{ forloop.counter }}</b></td>
-              <td><a href="{% url 'micro_admin:clientloanaccount' loan_account.id %}" style="color:#337ab7;">{{ loan_account.account_no }}</a></td>
-              <td>{{ loan_account.opening_date }}</td>
-              <td>{{ loan_account.status }}</td>
-              <td>{{ loan_account.interest_type }}</td>
-              <td>{{ loan_account.loan_amount|floatformat:2  }}</td>
-              <td>{{ loan_account.total_loan_balance|floatformat:2  }}</td>
-              <td>{{ loan_account.created_by }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="hg-table">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr class="head-row-tb">
+                <th>S.No.</th>
+                <th>Loan A/C Number</th>
+                <th>Opened On</th>
+                <th>Status</th>
+                <th>Interest Type</th>
+                <th>Principal Loan Amount</th>
+                <th>Principal Loan Balance</th>
+                <th>Created By</th>
+              </tr>
+            </thead>
+            <tbody class="body-row-tb">
+              {% for loan_account in loan_accounts_list %}
+              <tr>
+                <td><b>{{ forloop.counter }}</b></td>
+                <td><a href="{% url 'micro_admin:clientloanaccount' loan_account.id %}" style="color:#337ab7;">{{ loan_account.account_no }}</a></td>
+                <td>{{ loan_account.opening_date }}</td>
+                <td>{{ loan_account.status }}</td>
+                <td>{{ loan_account.interest_type }}</td>
+                <td>{{ loan_account.loan_amount|floatformat:2  }}</td>
+                <td>{{ loan_account.total_loan_balance|floatformat:2  }}</td>
+                <td>{{ loan_account.created_by }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

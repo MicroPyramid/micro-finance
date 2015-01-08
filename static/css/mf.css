@@ -12,9 +12,15 @@ body {
   background: #019090;
 }
 
-.container {
+.marl {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.breadcrumbcontainer {
   width: 1170px;
   margin: 0px auto;
+  text-align: center;
 }
 
 .wrapper {
@@ -64,6 +70,10 @@ input, button, select, textarea {
 .box-form .text-box, input {
   padding: 8px;
   height: 30px !important;
+}
+
+.input-file-pad-top-4 {
+  padding-top: 4px !important;
 }
 
 .container .form-div button {
@@ -474,7 +484,7 @@ input[type=radio], input[type=checkbox] {
 .wrap-cp-div .btn-row {
   text-align: center;
   width: 100%;
-  margin-top: 30px;
+  /*margin-top: 30px;*/
   margin-bottom: 20px;
 }
 
@@ -649,7 +659,7 @@ input[type=radio], input[type=checkbox] {
   height: auto;
   margin: 0px auto;
   margin-left: 20%;
-  margin-top: 70px;
+  /*margin-top: 70px;*/
   float: left;
   width: 70%;
 }
@@ -757,13 +767,13 @@ form .box-form-as {
 }
 /*group savings acc*/
 .container .margin-top-set {
-  margin-top: 7%;
+  margin-top: 0%;
 }
 
 .container-trans-table {
   width: 99%;
   margin: 0px auto;
-  margin-top: 80px;
+  /*margin-top: 80px;*/;
 }
 
 .container-trans-table .trans-table {
@@ -818,12 +828,11 @@ form .box-form-as {
 /* Day Book */
 
 #day-book-panel {
-  margin-top: -71px;
+  /*margin-top: -71px;*/;
 }
 
 #dat-txt-box {
   display: block;
-  margin-top: 74px;
   float: right;
 }
 
@@ -885,7 +894,7 @@ form .box-form-as {
 .container .payslip-panel {
   width: 60%;
   margin: 0px auto;
-  margin-top: 7%;
+  /*margin-top: 7%;*/
   margin-bottom: 15px;
 }
 
@@ -920,4 +929,19 @@ table tr th {
   font-weight: 600 !important;
 }
 
+.bread-row {
+  margin-top: 5%;
+}
+
+.mar-lt-minus-18 {
+  margin-left: -18%;
+}
+
+.mar-top-m24 {
+  margin-top: -24px;
+}
+
+.mar-left-30 {
+  margin-left: 30% !important;
+}
 /*panel headings span*/

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns('micro_admin.views',
 
@@ -53,11 +53,9 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^listofclientsavingswithdrawals/(?P<client_id>\d+)/$', 'listofclient_savings_withdrawals', name='listofclientsavingswithdrawals'),
     url(r'^viewgrouploandeposits/(?P<group_id>\d+)/(?P<loanaccount_id>\d+)/$','view_grouploan_deposits',name='viewgrouploandeposits'),
     url(r'^issueloan/(?P<loanaccount_id>\d+)/$','issue_loan',name='issueloan'),
-    url(r'^viewgrouptransactions/$','view_group_transactions',name='viewgrouptransactions'),
-    url(r'^viewclienttransactions/$','view_client_transactions',name='viewclienttransactions'),
     url(r'^receiptsdeposit/$', 'receipts_deposit', name="receiptsdeposit"),
     url(r'^receiptslist/$', 'receipts_list', name="receiptslist"),
-    url(r'^ledgeraccount/(?P<client_id>\d+)/$', 'ledger_account', name="ledgeraccount"),
+    url(r'^ledgeraccount/(?P<client_id>\d+)/(?P<loanaccount_id>\d+)/$', 'ledger_account', name="ledgeraccount"),
     url(r'^generalledger/$', 'general_ledger', name="generalledger"),
     url(r'^fixeddeposits/$', 'fixed_deposits', name="fixeddeposits"),
     url(r'^clientfixeddepositsprofile/(?P<fixed_deposit_id>\d+)/$', 'client_fixed_deposits_profile', name="clientfixeddepositsprofile"),
@@ -71,7 +69,8 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^recurringdeposits/$', 'recurring_deposits', name="recurringdeposits"),
     url(r'^clientrecurringdepositsprofile/(?P<recurring_deposit_id>\d+)/$', 'client_recurring_deposits_profile', name="clientrecurringdepositsprofile"),
     url(r'^viewclientrecurringdeposits/$', 'view_client_recurring_deposits', name="viewclientrecurringdeposits"),
-    url(r'^viewparticularclientrecurringdeposits/(?P<client_id>\d+)/$', 'view_particular_client_recurring_deposits', name="viewparticularclientrecurringdeposits"),
+    url(r'^viewparticularclientrecurringdeposits/(?P<client_id>\d+)/$', 'view_particular_client_recurring_deposits', \
+        name="viewparticularclientrecurringdeposits"),
     url(r'^logout/$', 'user_logout', name="logout"),
     url(r'^clientledgercsvdownload/(?P<client_id>\d+)/$', 'clientledger_csvdownload', name="clientledgercsvdownload"),
     url(r'^clientledgerexceldownload/(?P<client_id>\d+)/$', 'clientledger_exceldownload', name="clientledgerexceldownload"),
@@ -79,5 +78,7 @@ urlpatterns = patterns('micro_admin.views',
     url(r'^generalledgerpdfdownload/$', 'general_ledger_pdfdownload', name="generalledgerpdfdownload"),
     url(r'^daybookpdfdownload/(?P<date>\d{4}-\d{2}-\d{2})/$', 'daybook_pdfdownload', name="daybookpdfdownload"),
     url(r'^userchangepassword/(?P<user_id>\d+)/$', 'user_change_password', name="userchangepassword"),
+    url(r'^getmemberloanaccounts/$', 'getmember_loanaccounts', name="getmemberloanaccounts"),
+    url(r'^getloandemands/$', 'getloan_demands', name="getloandemands"),
 
 )
