@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' recurring_deposit.client.branch.id %}">{{ recurring_deposit.client.branch.name|capfirst }} Branch</a></li>
+<li><a href="{% url 'micro_admin:clientprofile' recurring_deposit.client.id %}">{{ recurring_deposit.client.first_name|capfirst }} Member</a></li>
+<li>Recurring Deposit</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="home-div-gp">

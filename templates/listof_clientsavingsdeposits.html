@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' savingsaccount.client.branch.id %}">{{ savingsaccount.client.branch.name|capfirst }} Branch</a></li>
+<li><a href="{% url 'micro_admin:clientprofile' savingsaccount.client.id %}">{{ savingsaccount.client.first_name|capfirst }} Member</a></li>
+<li>View Savings Deposits</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
@@ -10,7 +15,7 @@
         <i class="fa fa-square green padd"></i>
         {% else %}
         <i class="fa fa-square red padd"></i>
-        {% endif %}{{savingsaccount.client.first_name|capfirst}}  Savings Deposits</h3>
+        {% endif %}{{savingsaccount.client.first_name|capfirst}} {{savingsaccount.client.last_name|capfirst}} Savings Deposits</h3>
         <span class="mar-tp-m"><a href="{% url 'micro_admin:clientsavingsaccount' savingsaccount.client.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="hg-table panel-body pb-table">
@@ -35,8 +40,8 @@
               <td>{{ receipt.client.account_number }}</td>
               <td>{{ receipt.staff|capfirst }}</td>
               <td>{{ receipt.date }}</td>
-              <td style="color:#FF00CC;">{{ receipt.savingsdeposit_thrift_amount }}</td>
-              <td>{{ receipt.savings_balance_atinstant }}</td>
+              <td style="color:#FF00CC;">{{ receipt.savingsdeposit_thrift_amount|floatformat:2 }}</td>
+              <td>{{ receipt.savings_balance_atinstant|floatformat:2 }}</td>
             </tr>
             {% endfor %}
           </tbody>

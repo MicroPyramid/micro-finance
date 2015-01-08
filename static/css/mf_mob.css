@@ -7,9 +7,21 @@
     width: 98%;
   }
 
+  .breadcrumb {
+    margin-bottom: 0px;
+  }
+
   .container .form-div {
     width: 100%;
     margin-top: 50px;
+  }
+
+  .bread-row {
+    margin-top: 15%;
+  }
+
+  .container .margin-top-set {
+    margin-top: 0%;
   }
 
   h4 {
@@ -51,7 +63,7 @@
 /*branch*/
   .container .my-panel {
     width: 98%;
-    margin-top: 65px;
+    margin-top: 20px;
   }
 
   .my-panel .pb-pad {
@@ -62,7 +74,7 @@
   .container .my-panel-2 {
     width: auto;
     margin-left: 20px;
-    margin-top: 65px;
+    /*margin-top: 65px;*/
     margin-bottom: 10px;
   }
 
@@ -75,7 +87,7 @@
 /*branch-profile*/
   .container .my-panel-bprofile, .container .my-panel-bp {
     width: 99%;
-    margin-top: 65px;
+    /*margin-top: 65px;*/;
   }
 
   .container .my-panel-bprofile .panel-heading {
@@ -148,14 +160,14 @@
   .container .payslip-panel {
     width: 98%;
     margin: 0px auto;
-    margin-top: 70px;
+    /*margin-top: 70px;*/
     margin-bottom: 15px;
   }
 /*pay slip form*/
 /*view client*/
-  .wrap-cp-div .btn-row {
+  /*.wrap-cp-div .btn-row {
     margin-top: 69px;
-  }
+  }*/
 
   .wrap-cp-div {
     width: 97%;

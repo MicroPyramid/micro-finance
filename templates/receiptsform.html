@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Accounting</li>
+<li><a href="{% url 'micro_admin:receiptslist' %}">Receipts</a></li>
+<li>New Receipt</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-2 margin-top-set">
-    <div class="panel-heading">Receipt Form</div>
+    <div class="panel-heading">New Receipt</div>
     <div class="panel-body pb-pad">
       <form id="createreceiptform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
@@ -13,7 +18,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Date<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" required="True">
+              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" value="{% now 'm/d/Y' %}" required="True">
             </div>
           </div>
           <div class="form-group">
@@ -40,20 +45,20 @@
             <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label color-inner-hedng box-center"><b>Member</b></label>
           </div>
           <div class="form-group" >
-            <label for="inputEmail3" class="col-sm-4 control-label">Member Name<span>*</span></label>
+            <label for="inputEmail3" class="col-sm-4 control-label">Member First Name<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="name" required="True">
+              <input type="text" class="text-box wid-form"  name="name" id="membername" required="True">
               <p id="clientnameerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="account_number" required="True">
+              <input type="text" class="text-box wid-form" id="member_a/c_no" name="account_number" required="True" onchange="memberloanaccount()">
               <p id="accountnumbererror"></p>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label color-inner-hedng box-center"><b>Thrift Deposits</b></label>
           </div>
           <div class="form-group">
@@ -63,7 +68,7 @@
               <p id="savingsdepositthriftamounterror"></p>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label color-inner-hedng box-center"><b>Fixed Deposits</b></label>
           </div>
           <div class="form-group">
@@ -73,7 +78,7 @@
               <p id="fixeddepositamounterror"></p>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-12 col-xs-12 col-xs-12 control-label color-inner-hedng box-center"><b>Recurring Deposits</b></label>
           </div>
           <div class="form-group">
@@ -83,7 +88,7 @@
               <p id="recurringdepositamounterror"></p>
             </div>
           </div>
-          <div class="form-group" style="margin-top: -10px;">
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label color-inner-hedng box-center"><b>Insurance</b></label>
           </div>
           <div class="form-group">
@@ -96,7 +101,7 @@
         </div>
         <!--div 1 of fomr ends above-->
         <!--div 2 of form starts below-->
-        <div class="box-form">
+        <div class="box-form" style="margin-left:3%;">
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label color-inner-hedng box-center"><b>Group</b>
             </label>
@@ -104,14 +109,14 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Group Name</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="group_name">
+              <input type="text" class="text-box wid-form" id="group_name" name="group_name">
               <p id="groupnameerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Group A/C. No.</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="group_account_number">
+              <input type="text" class="text-box wid-form" id="group_account_number" name="group_account_number">
               <p id="groupaccountnumbererror"></p>
             </div>
           </div>
@@ -121,14 +126,18 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Member Loan A/C. No.</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="loan_account_no">
+              <select id="memberloanaccountselect" class="text-box wid-form select-box-pad" name="loan_account_no">
+                <option>Select Member Loan A/C. No.</option>
+              </select>
               <p id="loanaccountnoerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Group Loan A/C. No.</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="group_loan_account_no">
+              <select id="grouploanaccountselect" class="text-box wid-form select-box-pad" name="group_loan_account_no">
+                <option>Select Group Loan A/C. No.</option>
+              </select>
               <p id="grouploanaccountnoerror"></p>
             </div>
           </div>
@@ -140,6 +149,18 @@
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
+            <label for="inputEmail3" class="col-sm-4 control-label">Demand Loan Principal</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="demand_loanprinciple" name="demand_loanprinciple">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Demand Loan Interest</label>
+            <div class="col-sm-8">
+              <input type="text" class="text-box wid-form" id="demand_loaninterest" name="demand_loaninterest">
+            </div>
+          </div>
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Loan Principal Amount</label>
             <div class="col-sm-8">
               <input type="text" class="text-box wid-form"  name="loanprinciple_amount">
@@ -205,6 +226,80 @@
 </div>
 <!--wrapper ends above-->
 <script src="/static/js/mf_script.js"></script>
+<script type="text/javascript">
+  function memberloanaccount() {
+    $.post('/getmemberloanaccounts/', $('#createreceiptform').serialize(), function(data) {
+
+      var memberloanaccountselect = document.getElementById("memberloanaccountselect");
+      var grouploanaccountselect = document.getElementById("grouploanaccountselect");
+
+      document.getElementById("group_name").value = '';
+      document.getElementById("group_account_number").value = '';
+      memberloanaccountselect.innerHTML = '<option>Select Member Loan A/C. No.</option>';
+      grouploanaccountselect.innerHTML = '<option>Select Group Loan A/C. No.</option>';
+
+      if (data.error) {
+        $("span.error").remove();
+        if (data.message1) {
+          $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" +
+            data.message1 + "</span>");
+        }
+      } else {
+
+        $("span.error").remove();
+
+        if (data.groupname) {
+          document.getElementById("group_name").value = data.groupname
+        }
+
+        if (data.groupaccountnumber) {
+          document.getElementById("group_account_number").value = data.groupaccountnumber
+        }
+
+        if (data.list) {
+          for (i = 0; i < (data.list).length; i++) {
+            memberloanaccountselect.innerHTML += '<option value="' + data.list[i].loan_account_number + '">' + 'Loan A/C. No. : ' + data.list[i].loan_account_number + ' -  Loan Amount : ' + data.list[i].loan_amount + '</option>';
+          }
+        }
+
+        if (data.grouploanlist) {
+          for (i = 0; i < (data.grouploanlist).length; i++) {
+            grouploanaccountselect.innerHTML += '<option value="' + data.grouploanlist[i].loan_account_number + '">' + 'Loan A/C. No. : ' + data.grouploanlist[i].loan_account_number + ' -  Loan Amount : ' + data.grouploanlist[i].loan_amount + '</option>';
+          }
+        }
+      }
+    }, "json");
+  }
+</script>
+<script type="text/javascript">
+  $('#memberloanaccountselect').change(function() {
+    $.post('/getloandemands/', $('#createreceiptform').serialize(), function(data) {
+
+      document.getElementById('demand_loanprinciple').value = '';
+      document.getElementById('demand_loaninterest').value = '';
+
+      if (data.error) {
+        $("span.error").remove();
+        if (data.message1) {
+          $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" +
+            data.message1 + "</span>");
+        }
+      } else {
+        $("span.error").remove();
+
+        if (data.demand_loanprinciple) {
+          document.getElementById('demand_loanprinciple').value = data.demand_loanprinciple;
+        }
+
+        if (data.demand_loaninterest) {
+          document.getElementById('demand_loaninterest').value = data.demand_loaninterest;
+        }
+
+      }
+
+    }, "json");
+  });
+</script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#createreceiptform').submit(function(e) {

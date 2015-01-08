@@ -1,4 +1,8 @@
 {% extends 'groupbase.html' %}
+{% block groupbreadcrumb %}
+<li><a href="{% url 'micro_admin:grouploanaccountslist' group.id %}">Loans</a></li>
+<li>Loan Account - {{ loan_account.account_no }}</li>
+{% endblock %}
 {% block groupstage %}
 <div class="home-div-gp">
 <div class="wrap-cp-div">
@@ -53,7 +57,7 @@
     <div class="box-form">
       <div class="form-group grp-view">
         <input type="hidden"  id="loanaccount_id" value="{{ loan_account.id }}" style="dispaly:none;">
-        <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Account Number :</label><span class="col-lg-6 mar-top">{{ loan_account.account_no }}</span>
+        <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Loan A/C Number :</label><span class="col-lg-6 mar-top">{{ loan_account.account_no }}</span>
       </div>
       <div class="form-group">
         <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Applied By Staff :</label><span class="col-lg-6 mar-top"><a href="{% url 'micro_admin:userprofile' loan_account.created_by.id %}">{{ loan_account.created_by|capfirst }}

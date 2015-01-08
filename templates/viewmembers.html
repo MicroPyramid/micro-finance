@@ -1,4 +1,7 @@
 {% extends 'groupbase.html' %}
+{% block groupbreadcrumb %}
+<li>View Members</li>
+{% endblock %}
 {% block groupstage %}
 <div class="home-div-gp">
   <div class="panel panel-default panel-hdg">
@@ -6,7 +9,7 @@
       <h3 class="panel-title">
         {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>
         {% endif %}
-        {{ group.name|capfirst }}
+        {{ group.name|capfirst }} Group
       </h3>
     </div>
     <div class="panel-body">

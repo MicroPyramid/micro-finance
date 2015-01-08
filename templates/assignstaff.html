@@ -1,11 +1,14 @@
 {% extends 'groupbase.html' %}
+{% block groupbreadcrumb %}
+<li>Assign Staff</li>
+{% endblock %}
 {% block groupstage %}
-<div class="home-div-gp wid-ass-stf">
+<div class="home-div-gp wid-ass-stf mar-left-30">
 <div class="panel panel-default panel-hdg">
   <div class="panel-heading">
     <h3 class="panel-title">
       {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-      {{ group.name }}
+      {{ group.name|capfirst }} Group
     </h3>
   </div>
   <div class="panel-body">
@@ -21,15 +24,15 @@
             <select class="text-box wid-form" name="staff" required="True">
               <option>Select Staff</option>
               {% for user in users_list %}
-              {% if group.staff %}
-              {% ifequal user.id group.staff.id %}
-              <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
-              {% else %}
-              <option value="{{ user.id }}">{{ user.first_name }}</option>
-              {% endifequal %}
-              {% else %}
-              <option value="{{ user.id }}">{{ user.first_name }}</option>
-              {% endif %}
+                {% if group.staff %}
+                  {% ifequal user.id group.staff.id %}
+                    <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
+                  {% else %}
+                    <option value="{{ user.id }}">{{ user.first_name }}</option>
+                  {% endifequal %}
+                {% else %}
+                  <option value="{{ user.id }}">{{ user.first_name }}</option>
+                {% endif %}
               {% endfor%}
             </select>
             <p id="stafferror"></p>

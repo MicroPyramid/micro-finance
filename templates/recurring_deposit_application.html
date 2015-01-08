@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Deposits</li>
+<li>Add Recurring Deposit</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <head>
@@ -9,7 +13,7 @@
   <div class="panel panel-default my-panel wid-panel-form margin-top-set">
     <div class="panel-heading">
       <h3 class="panel-title">
-      Recurring Deposit Application
+      New Recurring Deposit Application
     </div>
     <div class="panel-body pb-pad">
       <form id="recurringdepositapplicationform" class="form-horizontal" role="form" method="post">
@@ -131,14 +135,14 @@
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Nominee Image<span>*</span></label>
           <div class="col-sm-7">
-            <input type="file" name="nominee_photo">
+            <input type="file" class="input-file-pad-top-4" name="nominee_photo">
             <p id="nominee_photo"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Nominee Signature<span>*</span></label>
           <div class="col-sm-7">
-            <input type="file" name="nominee_signature">
+            <input type="file" class="input-file-pad-top-4" name="nominee_signature">
             <p id="nominee_signature"></p>
           </div>
         </div>
@@ -171,7 +175,7 @@
           $('.error').text('');
           if (data.message) {
             $.each(data.message, function( key, value ) {
-              $('#'+key).prepend("<span class='error' style='height:11px;color:red;'>" + value + "</span>");;
+              $('#'+key).prepend("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
             });
           }
           if (data.messagememerr) {

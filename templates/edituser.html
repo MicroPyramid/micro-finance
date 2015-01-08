@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+{% if user.branch %}
+  <li><a href="{% url 'micro_admin:branchprofile' user.branch.id %}">{{ user.branch.name|capfirst }} Branch</a></li>
+{% endif %}
+<li><a href="{% url 'micro_admin:userprofile' user.id %}">{{ user.username|capfirst }} Staff</a></li>
+<li>Edit</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
   <div class="panel panel-default my-panel-2 margin-top-set">
-    <div class="panel-heading">Edit Staff</div>
+    <div class="panel-heading">{{user.username|capfirst }} Staff Edit Page</div>
     <div class="panel-body pb-pad">
       <form id="edituserform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}

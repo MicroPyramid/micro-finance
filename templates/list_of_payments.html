@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Accounting</li>
+<li>Payments</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container-trans-table">
@@ -7,7 +11,8 @@
     <div class="panel-heading">
       <h3 class="panel-title">
         Payments Lists
-        <span><a href="{% url 'micro_admin:payslip' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>New Payment</button>
+        <span><a href="{% url 'micro_admin:payslip' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>New Payment
+        </button>
         </a></span>
       </h3>
     </div>

@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+<li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
+<li>{{ client.first_name|capfirst }} Member</li>
+{% endblock %}
 {% block stage %}
 <!--content goes below-->
 <div class="container">
@@ -13,7 +17,6 @@
       {% endif %}
       <a href="{% url 'micro_admin:clientloanapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Loan</button></a>
       <a href="{% url 'micro_admin:clientloanaccountslist' client.id %}"><button><i class="fa fa-money padd"></i>View Loans</button></a>
-      <a href="{% url 'micro_admin:ledgeraccount' client.id %}"><button>Ledger</button></a>
       <a href="{% url 'micro_admin:viewparticularclientfixeddeposits' client.id%}"><button><i class="fa fa-eye padd"></i>Fixed Deposits</button></a>
       <a href="{% url 'micro_admin:viewparticularclientrecurringdeposits' client.id%}"><button><i class="fa fa-eye padd"></i>Recurring Deposits</button></a>
       <a href="{% url 'micro_admin:updateclientprofile' client.id %}"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
@@ -33,7 +36,7 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-5 cl-md-6 col-sm-6 col-xs-7 control-label">Branch Name : </label>
           <a href="{% url 'micro_admin:branchprofile' client.branch.id %}">
-          {{ client.branch.name|capfirst }}
+          {{ client.branch.name|capfirst }} Branch
           </a>
         </div>
         <div class="form-group">
@@ -50,9 +53,9 @@
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-6 col-xs-7 control-label">Group : </label>
-          {% if client.group_set.get %}<a href="{% url 'micro_admin:groupprofile' client.group_set.get.id %}">{% endif %}
-            {{ client.group_set.get.name|capfirst|default:" - "}}
-          {% if client.group_set.get %}</a>{% endif %}
+          {% if client.group_set.get %}<a href="{% url 'micro_admin:groupprofile' client.group_set.get.id %}">
+            {{ client.group_set.get.name|capfirst}} Group </a>
+          {% else %} - {% endif %}
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-5 col-md-6 col-sm-6 col-xs-7 control-label">Account Number : </label>
