@@ -94,7 +94,7 @@ class UserManager(BaseUserManager):
         user.email = email
         user.branch = branch
         user.is_staff = True
-        user.save(using=self._db)
+        user.save()
         return user
 
     def create_superuser(self, username, password, branch=None):
@@ -102,7 +102,7 @@ class UserManager(BaseUserManager):
         user = self.create_user(username, email="", password=password)
         user.is_admin = True
         user.is_active = True
-        user.save(using=self._db)
+        user.save()
         return user
 
 
