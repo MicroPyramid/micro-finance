@@ -23,7 +23,7 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-4 control-label">Opening Date<span>*</span></label>
           <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="opening_date" value="{{ branch.opening_date }}" id="inputEmail3" readonly>
+            <input type="text" class="text-box wid-form" name="opening_date" value="{{ branch.opening_date|date:"Y-m-d" }}" id="inputEmail3" readonly>
           </div>
         </div>
         <div class="form-group">
@@ -60,15 +60,18 @@
           <label for="inputEmail3" class="col-sm-4 control-label">Phone Number<span>*</span></label>
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form" name="phone_number" value="{{ branch.phone_number }}" id="inputEmail3" required="True">
+            <p id="phone_number"></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-4 control-label">Pin Code<span>*</span></label>
           <div class="col-sm-8">
             <input type="text" class="text-box wid-form" name="pincode" value="{{ branch.pincode }}" id="inputEmail3" required="True">
+            <p id="pincode"></p>
           </div>
         </div>
-        <div class="form-group btns">
+        <p style="text-align:center;" id="errormessage"></p>
+        <div class="form-group btns" style="margin-top: -10px;">
           <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
           <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
         </div>
@@ -88,6 +91,15 @@
       $.post('/editbranch/'+$('#branch_id').val()+'/', $('#editbranchform').serialize(), function(data) {
         if (data.error == false) {
           window.location = '/branchprofile/'+data.branch_id+'/';
+        }
+        else
+        {
+          $("span.error").remove();
+          if (data.message) {
+            $.each(data.message, function( key, value ) {
+              $('#'+key).prepend("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
+            });
+          }
         }
       }, "json");
     });

@@ -16,13 +16,6 @@ class UserForm(forms.ModelForm):
         fields = ["email", "first_name", "gender", "branch", "user_roles", "username", "password"]
 
 
-class EditbranchForm(forms.ModelForm):
-
-    class Meta:
-        model = Branch
-        fields = ["country", "state", "district", "city", "area", "phone_number", "pincode"]
-
-
 class GroupForm(forms.ModelForm):
 
     class Meta:
@@ -34,8 +27,8 @@ class ClientForm(forms.ModelForm):
 
     class Meta:
         model = Client
-        fields = ["first_name", "last_name", "date_of_birth", "joined_date", "branch", "account_number", \
-                    "gender", "client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
+        fields = ["first_name", "last_name", "date_of_birth", "joined_date", "account_number", "gender", "client_role", "occupation", \
+                    "annual_income", "country", "state","district", "city", "area", "mobile", "pincode", "branch"]
 
 
 class AddMemberForm(forms.ModelForm):
@@ -45,14 +38,7 @@ class AddMemberForm(forms.ModelForm):
         fields = ["clients"]
 
 
-class EditclientForm(forms.ModelForm):
-
-    class Meta:
-        model = Client
-        fields = ["client_role", "occupation", "annual_income", "country", "state","district", "city", "area"]
-
-
-class ClientSavingsAccountForm(forms.ModelForm):
+class SavingsAccountForm(forms.ModelForm):
 
     class Meta:
         model = SavingsAccount
@@ -67,14 +53,7 @@ class ClientLoanAccountForm(forms.ModelForm):
                     "annual_interest_rate", "loanpurpose_description"]
 
 
-class GroupSavingsAccountForm(forms.ModelForm):
-
-    class Meta:
-        model = SavingsAccount
-        fields = ["account_no", "opening_date", "min_required_balance", "annual_interest_rate"]
-
-
-class GroupLoanAccountForm(forms.ModelForm):
+class LoanAccountForm(forms.ModelForm):
 
     class Meta:
         model = LoanAccount
@@ -101,13 +80,14 @@ class FixedDepositForm(forms.ModelForm):
     class Meta:
         model = FixedDeposits
         fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "fixed_deposit_number", "deposited_date", "fixed_deposit_amount", \
-                    "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee", "nominee_photo", "nominee_signature"]
+                    "fixed_deposit_period", "fixed_deposit_interest_rate", "relationship_with_nominee", "nominee_photo", "nominee_signature", \
+                    "nominee_gender", "nominee_date_of_birth"]
 
 
 class ReccuringDepositForm(forms.ModelForm):
 
     class Meta:
         model = RecurringDeposits
-        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "reccuring_deposit_number", "deposited_date", \
+        fields = ["nominee_firstname", "nominee_lastname", "nominee_occupation", "nominee_gender", "reccuring_deposit_number", "deposited_date", \
                     "recurring_deposit_amount", "recurring_deposit_period", "recurring_deposit_interest_rate", \
-                    "relationship_with_nominee", "nominee_photo", "nominee_signature"]
+                    "relationship_with_nominee", "nominee_photo", "nominee_signature", "nominee_date_of_birth"]
