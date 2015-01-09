@@ -5,8 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 import json
 from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, LoanAccount, \
                                 Receipts, FixedDeposits, PAYMENT_TYPES, Payments, RecurringDeposits
-from micro_admin.forms import BranchForm, UserForm, EditbranchForm, GroupForm, ClientForm, AddMemberForm, EditclientForm, \
-                                GroupSavingsAccountForm, GroupLoanAccountForm, ClientSavingsAccountForm, ClientLoanAccountForm, \
+from micro_admin.forms import BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm, \
                                 ReceiptForm, FixedDepositForm, PaymentForm, ReccuringDepositForm
 from django.contrib.auth.decorators import login_required
 import datetime
@@ -66,19 +65,7 @@ def create_branch(request):
     else:
         form = BranchForm(request.POST)
         if form.is_valid():
-            name = request.POST.get("name")
-            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),"%m/%d/%Y").strftime("%Y-%m-%d")
-            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-            opening_date = dateconvert
-            country = request.POST.get("country")
-            state = request.POST.get("state")
-            district = request.POST.get("district")
-            city = request.POST.get("city")
-            area = request.POST.get("area")
-            phone_number = request.POST.get("phone_number")
-            pincode = request.POST.get("pincode")
-            branch = Branch.objects.create(name=name,opening_date=opening_date,country=country,state=state,district=district, \
-                                            city=city,area=area,phone_number=phone_number,pincode=pincode)
+            branch = form.save()
             data = {"error":False, "branch_id":branch.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -92,18 +79,14 @@ def edit_branch(request, branch_id):
         branch = Branch.objects.get(id=branch_id)
         return render(request, "editbranchdetails.html", {"branch":branch, "branch_id":branch_id})
     else:
-        form = EditbranchForm(request.POST)
+        branch = Branch.objects.get(id=branch_id)
+        form = BranchForm(request.POST, instance=branch)
         if form.is_valid():
-            branch = Branch.objects.get(id=branch_id)
-            branch.country = request.POST.get("country")
-            branch.state = request.POST.get("state")
-            branch.district = request.POST.get("district")
-            branch.city = request.POST.get("city")
-            branch.area = request.POST.get("area")
-            branch.phone_number = request.POST.get("phone_number")
-            branch.pincode = request.POST.get("pincode")
-            branch.save()
+            branch = form.save()
             data = {"error":False, "branch_id":branch.id}
+            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error":True, "message":form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -137,34 +120,14 @@ def create_client(request):
     else:
         form = ClientForm(request.POST)
         if form.is_valid():
-            first_name = request.POST.get("first_name")
-            last_name = request.POST.get("last_name")
-            email = request.POST.get("email")
             created_by = User.objects.get(username=request.POST.get("created_by"))
-            account_number = request.POST.get("account_number")
-            blood_group = request.POST.get("blood_group")
-            gender = request.POST.get("gender")
-            client_role = request.POST.get("client_role")
-            occupation = request.POST.get("occupation")
-            annual_income = request.POST.get("annual_income")
-            country = request.POST.get("country")
-            state = request.POST.get("state")
-            district = request.POST.get("district")
-            city = request.POST.get("city")
-            area = request.POST.get("area")
-            mobile = request.POST.get("mobile")
-            pincode = request.POST.get("pincode")
-            branch = Branch.objects.get(id=request.POST.get('branch'))
-            birth_datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
-            birth_dateconvert = datetime.datetime.strptime(birth_datestring_format, "%Y-%m-%d")
-            date_of_birth = birth_dateconvert
-            datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
-            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-            joined_date = dateconvert
-            client = Client.objects.create(branch=branch, first_name=first_name, last_name=last_name, email=email, created_by=created_by, \
-                                            account_number=account_number, blood_group=blood_group, gender=gender, client_role=client_role, \
-                                            occupation=occupation, annual_income=annual_income, country=country, state=state, district=district, \
-                                            city=city, area=area, mobile=mobile, pincode=pincode, date_of_birth=date_of_birth, joined_date=joined_date)
+            client = form.save(commit=False)
+            client.created_by = created_by
+            if request.POST.get("email"):
+                client.email = request.POST.get("email")
+            if request.POST.get("blood_group"):
+                client.blood_group = request.POST.get("blood_group")
+            client.save()
             data = {"error":False, "client_id":client.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -175,8 +138,7 @@ def create_client(request):
 @login_required
 def client_profile(request,client_id):
     client = Client.objects.get(id=client_id)
-    branch = Branch.objects.all()
-    return render(request,"clientprofile.html", {"client":client, "branch":branch})
+    return render(request,"clientprofile.html", {"client":client})
 
 
 @login_required
@@ -186,26 +148,22 @@ def edit_client(request,client_id):
         l = []
         for i in CLIENT_ROLES:
             l.append(i[0])
-        branch = Branch.objects.all()
-        return render(request,"editclient.html", {"client":client, "branch":branch, "client_id":client_id, "CLIENT_ROLES":CLIENT_ROLES, "l":l})
+        return render(request,"editclient.html", {"client":client, "l":l})
     else:
-        form = EditclientForm(request.POST)
+        client = Client.objects.get(id=client_id)
+        form = ClientForm(request.POST, instance=client)
         if form.is_valid():
-            client = Client.objects.get(id=client_id)
-            client.client_role = request.POST.get("client_role")
-            client.occupation = request.POST.get("occupation")
-            client.blood_group = request.POST.get("blood_group")
-            client.annual_income = request.POST.get("annual_income")
-            client.email = request.POST.get("email")
-            client.mobile = request.POST.get("mobile")
-            client.country = request.POST.get("country")
-            client.state = request.POST.get("state")
-            client.district = request.POST.get("district")
-            client.city = request.POST.get("city")
-            client.area = request.POST.get("area")
-            client.pincode = request.POST.get("pincode")
+            client = form.save(commit=False)
+            if request.POST.get("email"):
+                client.email = request.POST.get("email")
+            if request.POST.get("blood_group"):
+                client.blood_group = request.POST.get("blood_group")
             client.save()
             data = {"error":False, "client_id":client.id}
+            return HttpResponse(json.dumps(data))
+        else:
+            print form.errors
+            data = {"error":True, "message":form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -213,7 +171,7 @@ def edit_client(request,client_id):
 def update_clientprofile(request,client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
-        return render(request,"updateclientprofile.html",{"client":client, "client_id":client_id})
+        return render(request,"updateclientprofile.html",{"client":client})
     else:
         client = Client.objects.get(id=client_id)
         client.photo=request.FILES.get("photo")
@@ -224,10 +182,8 @@ def update_clientprofile(request,client_id):
 
 @login_required
 def view_client(request):
-    branch_list = Branch.objects.all()
     client_list = Client.objects.all()
-    group = Group.objects.all()
-    return render(request,"viewclient.html",{"branch_list":branch_list, "client_list":client_list, "group":group})
+    return render(request,"viewclient.html",{"client_list":client_list})
 
 
 @login_required
@@ -287,7 +243,7 @@ def create_user(request):
 def edit_user(request, user_id):
     if request.method == "GET":
         user = User.objects.get(id=user_id)
-        return render(request, "edituser.html", {"user":user, "user_id":user.id})
+        return render(request, "edituser.html", {"user":user})
     else:
         user = User.objects.get(id=user_id)
         user.first_name = request.POST.get("first_name")
@@ -336,14 +292,10 @@ def create_group(request):
     else:
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
-            name = request.POST.get("name")
             created_by = User.objects.get(username=request.POST.get("created_by"))
-            account_number = request.POST.get("account_number")
-            datestring_format = datetime.datetime.strptime(request.POST.get("activation_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
-            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-            activation_date = dateconvert
-            branch = Branch.objects.get(id=request.POST.get("branch"))
-            group = Group.objects.create(name=name, created_by=created_by, account_number=account_number, activation_date=activation_date, branch=branch)
+            group = group_form.save(commit=False)
+            group.created_by = created_by
+            group.save()
             data = {"error":False, "group_id":group.id}
             return HttpResponse(json.dumps(data))
         else:
@@ -473,24 +425,22 @@ def add_group_meeting(request, group_id):
 def client_savings_application(request, client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
-        count = SavingsAccount.objects.all().count()
-        account_no = "%s%s%d" % ("S", client.branch.id,count+1)
-        return render(request, "client_savings_application.html", {"client":client, "account_no":account_no})
+        count = SavingsAccount.objects.filter(client=client).count()
+        if count == 1:
+            return HttpResponseRedirect('/clientsavingsaccount/'+client_id+'/')
+        else:
+            count = SavingsAccount.objects.all().count()
+            account_no = "%s%s%d" % ("S", client.branch.id,count+1)
+            return render(request, "client_savings_application.html", {"client":client, "account_no":account_no})
     else:
-        form = ClientSavingsAccountForm(request.POST)
+        form = SavingsAccountForm(request.POST)
         if form.is_valid():
-            client = Client.objects.get(id=client_id)
-            account_no = request.POST.get("account_no")
-            created_by = User.objects.get(username=request.POST.get("created_by"))
-            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
-            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-            opening_date = dateconvert
-            min_required_balance = request.POST.get("min_required_balance")
-            annual_interest_rate = request.POST.get("annual_interest_rate")
-            SavingsAccount.objects.create(account_no=account_no, client=client, status="Applied", created_by=created_by, \
-                                            opening_date=opening_date, min_required_balance=min_required_balance, \
-                                            annual_interest_rate=annual_interest_rate)
-            data = {"error":False, "client_id":client.id}
+            client_savingsaccount = form.save(commit=False)
+            client_savingsaccount.status="Applied"
+            client_savingsaccount.created_by = User.objects.get(username=request.user)
+            client_savingsaccount.client = Client.objects.get(id=client_id)
+            client_savingsaccount.save()
+            data = {"error":False, "client_id":client_savingsaccount.client.id}
             return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "message":form.errors}
@@ -508,24 +458,22 @@ def client_savings_account(request,client_id):
 def group_savings_application(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
-        count = SavingsAccount.objects.all().count()
-        account_no = "%s%s%d" % ("S",group.branch.id,count+1)
-        return render(request, "group_savings_application.html", {"group":group, "account_no":account_no})
+        count = SavingsAccount.objects.filter(group=group).count()
+        if count == 1:
+            return HttpResponseRedirect('/groupsavingsaccount/'+group_id+'/')
+        else:
+            count = SavingsAccount.objects.all().count()
+            account_no = "%s%s%d" % ("S",group.branch.id,count+1)
+            return render(request, "group_savings_application.html", {"group":group, "account_no":account_no})
     else:
-        group_savingsaccount_form = GroupSavingsAccountForm(request.POST)
+        group_savingsaccount_form = SavingsAccountForm(request.POST)
         if group_savingsaccount_form.is_valid():
-            group = Group.objects.get(id=group_id)
-            account_no = request.POST.get("account_no")
-            created_by = User.objects.get(username=request.POST.get("created_by"))
-            datestring_format = datetime.datetime.strptime(request.POST.get("opening_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
-            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-            opening_date = dateconvert
-            min_required_balance = request.POST.get("min_required_balance")
-            annual_interest_rate = request.POST.get("annual_interest_rate")
-            SavingsAccount.objects.create(account_no=account_no, group=group, created_by=created_by, status="Applied", \
-                                            opening_date=opening_date, min_required_balance=min_required_balance, \
-                                            annual_interest_rate=annual_interest_rate)
-            data = {"error":False, "group_id":group.id}
+            group_savingsaccount = group_savingsaccount_form.save(commit=False)
+            group_savingsaccount.status="Applied"
+            group_savingsaccount.created_by = User.objects.get(username=request.user)
+            group_savingsaccount.group = Group.objects.get(id=group_id)
+            group_savingsaccount.save()
+            data = {"error":False, "group_id":group_savingsaccount.group.id}
             return HttpResponse(json.dumps(data))
         else:
             data = {"error":True, "message":group_savingsaccount_form.errors}
@@ -548,13 +496,13 @@ def group_savings_account(request, group_id):
         membershipfee_amount += client.membershipfee_amount
         bookfee_amount += client.bookfee_amount
         insurance_amount += client.insurance_amount
-    dict ={}
-    dict["sharecapital_amount"] = sharecapital_amount
-    dict["entrancefee_amount"] = entrancefee_amount
-    dict["membershipfee_amount"] = membershipfee_amount
-    dict["bookfee_amount"] = bookfee_amount
-    dict["insurance_amount"] = insurance_amount
-    return render(request, "group_savings_account.html", {"group":group, "savings_account":savings_account, "dict":dict})
+    group_totals_dict ={}
+    group_totals_dict["sharecapital_amount"] = sharecapital_amount
+    group_totals_dict["entrancefee_amount"] = entrancefee_amount
+    group_totals_dict["membershipfee_amount"] = membershipfee_amount
+    group_totals_dict["bookfee_amount"] = bookfee_amount
+    group_totals_dict["insurance_amount"] = insurance_amount
+    return render(request, "group_savings_account.html", {"group":group, "savings_account":savings_account, "dict":group_totals_dict})
 
 
 @login_required
@@ -629,21 +577,13 @@ def group_loan_application(request, group_id):
         account_no = "%s%s%d" % ("L",group.branch.id,count+1)
         return render(request, "group_loan_application.html", {"group":group, "account_no":account_no})
     else:
-        group_loanaccount_form = GroupLoanAccountForm(request.POST)
+        group_loanaccount_form = LoanAccountForm(request.POST)
         if group_loanaccount_form.is_valid():
             group = Group.objects.get(id=group_id)
-            account_no = request.POST.get("account_no")
-            interest_type = request.POST.get("interest_type")
-            created_by = User.objects.get(username=request.POST.get("created_by"))
-            loan_amount = request.POST.get("loan_amount")
-            loan_repayment_period = request.POST.get("loan_repayment_period")
-            loan_repayment_every = request.POST.get("loan_repayment_every")
-            annual_interest_rate = request.POST.get("annual_interest_rate")
-            loanpurpose_description = request.POST.get("loanpurpose_description")
-            loan_account = LoanAccount.objects.create(account_no=account_no, interest_type=interest_type, group=group, created_by=created_by, \
-                                                        status="Applied", loan_amount=loan_amount, loan_repayment_period=loan_repayment_period, \
-                                                        loan_repayment_every=loan_repayment_every, annual_interest_rate=annual_interest_rate, \
-                                                        loanpurpose_description=loanpurpose_description)
+            loan_account = group_loanaccount_form.save(commit=False)
+            loan_account.status="Applied"
+            loan_account.created_by = User.objects.get(username=request.user)
+            loan_account.group = group
 
             interest_charged = d((d(loan_account.loan_amount) * ( d(loan_account.annual_interest_rate) / 12 )) / 100)
             loan_account.principle_repayment = d(int(loan_account.loan_repayment_every) * \
@@ -668,22 +608,12 @@ def client_loan_application(request, client_id):
         account_no = "%s%s%d" % ("L",client.branch.id,count+1)
         return render(request, "client_loan_application.html", {"client":client, "account_no":account_no})
     else:
-        form = ClientLoanAccountForm(request.POST)
+        form = LoanAccountForm(request.POST)
         if form.is_valid():
-            client = Client.objects.get(id=client_id)
-            account_no = request.POST.get("account_no")
-            created_by = User.objects.get(username=request.POST.get("created_by"))
-            loan_amount = request.POST.get("loan_amount")
-            loan_repayment_period = request.POST.get("loan_repayment_period")
-            loan_repayment_every = request.POST.get("loan_repayment_every")
-            annual_interest_rate = request.POST.get("annual_interest_rate")
-            loanpurpose_description = request.POST.get("loanpurpose_description")
-            interest_type = request.POST.get("interest_type")
-            loan_account = LoanAccount.objects.create(account_no=account_no, interest_type=interest_type, client=client, status="Applied", \
-                                                        created_by=created_by, loan_amount=loan_amount, loan_repayment_period=loan_repayment_period, \
-                                                        loan_repayment_every=loan_repayment_every, annual_interest_rate=annual_interest_rate, \
-                                                        loanpurpose_description=loanpurpose_description)
-
+            loan_account = form.save(commit=False)
+            loan_account.status="Applied"
+            loan_account.created_by = User.objects.get(username=request.user)
+            loan_account.client = Client.objects.get(id=client_id)
             interest_charged = d((d(loan_account.loan_amount) * ( d(loan_account.annual_interest_rate) / 12 )) / 100)
             loan_account.principle_repayment = d(int(loan_account.loan_repayment_every) * \
                                                     (d(loan_account.loan_amount) / d(loan_account.loan_repayment_period)))
@@ -1270,7 +1200,8 @@ def receipts_list(request):
 def ledger_account(request, client_id, loanaccount_id):
     client = Client.objects.get(id=client_id)
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_list = Receipts.objects.filter(client=client_id, member_loan_account=loanaccount).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
+    receipts_list = Receipts.objects.filter(client=client_id, member_loan_account=loanaccount) \
+                        .exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
     return render(request, "client_ledger_account.html", {"loanaccount":loanaccount, "receipts_list":receipts_list, "client":client})
 
 
@@ -1280,7 +1211,7 @@ def general_ledger_function(request):
     grouped_receipts_list = []
     for i in query_set:
         grouped_receipts_list.append(i)
-    list = []
+    general_ledger_list = []
     for objreceipt in grouped_receipts_list:
         sum_sharecapital_amount = 0
         sum_entrancefee_amount = 0
@@ -1296,8 +1227,8 @@ def general_ledger_function(request):
         total_sum = 0
 
         receipts_list = Receipts.objects.filter(date=objreceipt.date)
-        dict = {}
-        dict["date"] = objreceipt.date
+        dictionary = {}
+        dictionary["date"] = objreceipt.date
         for receipt in receipts_list:
             sum_sharecapital_amount += d(receipt.sharecapital_amount)
             sum_entrancefee_amount += d(receipt.entrancefee_amount)
@@ -1311,29 +1242,29 @@ def general_ledger_function(request):
             sum_loaninterest_amount += d(receipt.loaninterest_amount)
             sum_insurance_amount = d(receipt.insurance_amount)
 
-        dict["sum_sharecapital_amount"] = d(sum_sharecapital_amount)
-        dict["sum_entrancefee_amount"] = d(sum_entrancefee_amount)
-        dict["sum_membershipfee_amount"] = d(sum_membershipfee_amount)
-        dict["sum_bookfee_amount"] = d(sum_bookfee_amount)
-        dict["sum_loanprocessingfee_amount"] = d(sum_loanprocessingfee_amount)
-        dict["sum_savingsdeposit_thrift_amount"] = d(sum_savingsdeposit_thrift_amount)
-        dict["sum_fixeddeposit_amount"] = d(sum_fixeddeposit_amount)
-        dict["sum_recurringdeposit_amount"] = d(sum_recurringdeposit_amount)
-        dict["sum_loanprinciple_amount"] = d(sum_loanprinciple_amount)
-        dict["sum_loaninterest_amount"] = d(sum_loaninterest_amount)
-        dict["sum_insurance_amount"] = d(sum_insurance_amount)
-        for key in dict:
+        dictionary["sum_sharecapital_amount"] = d(sum_sharecapital_amount)
+        dictionary["sum_entrancefee_amount"] = d(sum_entrancefee_amount)
+        dictionary["sum_membershipfee_amount"] = d(sum_membershipfee_amount)
+        dictionary["sum_bookfee_amount"] = d(sum_bookfee_amount)
+        dictionary["sum_loanprocessingfee_amount"] = d(sum_loanprocessingfee_amount)
+        dictionary["sum_savingsdeposit_thrift_amount"] = d(sum_savingsdeposit_thrift_amount)
+        dictionary["sum_fixeddeposit_amount"] = d(sum_fixeddeposit_amount)
+        dictionary["sum_recurringdeposit_amount"] = d(sum_recurringdeposit_amount)
+        dictionary["sum_loanprinciple_amount"] = d(sum_loanprinciple_amount)
+        dictionary["sum_loaninterest_amount"] = d(sum_loaninterest_amount)
+        dictionary["sum_insurance_amount"] = d(sum_insurance_amount)
+        for key in dictionary:
             if key != "date":
-                total_sum += dict[key]
-        dict["total_sum"] = total_sum
-        list.append(dict)
-    return list
+                total_sum += dictionary[key]
+        dictionary["total_sum"] = total_sum
+        general_ledger_list.append(dictionary)
+    return general_ledger_list
 
 
 @login_required
 def general_ledger(request):
-    list = general_ledger_function(request)
-    return render(request, "generalledger.html", {"list":list})
+    general_ledger_list = general_ledger_function(request)
+    return render(request, "generalledger.html", {"list":general_ledger_list})
 
 
 @login_required
@@ -1343,35 +1274,13 @@ def fixed_deposits(request):
         data.update(csrf(request))
         return render(request,"fixed_deposit_application.html", {"data":data})
     else:
-        form = FixedDepositForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
-                fixed_deposit_number = request.POST.get("fixed_deposit_number")
-                fixed_deposit_amount = request.POST.get("fixed_deposit_amount")
-                fixed_deposit_interest_rate = request.POST.get("fixed_deposit_interest_rate")
-                fixed_deposit_period = request.POST.get("fixed_deposit_period")
-                nominee_firstname = request.POST.get("nominee_firstname")
-                nominee_lastname = request.POST.get("nominee_lastname")
-                nominee_gender = request.POST.get("nominee_gender")
-                nominee_occupation = request.POST.get("nominee_occupation")
-                nominee_photo = request.FILES.get("nominee_photo")
-                nominee_signature = request.FILES.get("nominee_signature")
-                datestring_format = datetime.datetime.strptime(request.POST.get("deposited_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
-                dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-                deposited_date = dateconvert
-                nominee_datestring_format = datetime.datetime.strptime(request.POST.get("nominee_date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
-                nominee_dateconvert = datetime.datetime.strptime(nominee_datestring_format, "%Y-%m-%d")
-                nominee_date_of_birth = nominee_dateconvert
-                relationship_with_nominee = request.POST.get("relationship_with_nominee")
-                fixed_deposit = FixedDeposits.objects.create(fixed_deposit_number=fixed_deposit_number, status="Opened", deposited_date=deposited_date, \
-                                                                client=client, nominee_occupation=nominee_occupation, \
-                                                                nominee_date_of_birth=nominee_date_of_birth, nominee_lastname=nominee_lastname, \
-                                                                nominee_gender=nominee_gender, fixed_deposit_amount=fixed_deposit_amount, \
-                                                                fixed_deposit_interest_rate=fixed_deposit_interest_rate, \
-                                                                fixed_deposit_period=fixed_deposit_period, nominee_firstname=nominee_firstname, \
-                                                                relationship_with_nominee=relationship_with_nominee, nominee_photo=nominee_photo, \
-                                                                nominee_signature=nominee_signature)
+        try:
+            client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
+            form = FixedDepositForm(request.POST, request.FILES)
+            if form.is_valid():
+                fixed_deposit = form.save(commit=False)
+                fixed_deposit.status = "Opened"
+                fixed_deposit.client = client
                 interest_charged = d(((d(fixed_deposit.fixed_deposit_amount) *(d(fixed_deposit.fixed_deposit_interest_rate) / 12)) / 100))
                 fixed_deposit_interest_charged = d(d(interest_charged) * d(fixed_deposit.fixed_deposit_period))
                 fixed_deposit.maturity_amount = d(d(fixed_deposit.fixed_deposit_amount) + d(fixed_deposit_interest_charged))
@@ -1379,11 +1288,12 @@ def fixed_deposits(request):
                 fixed_deposit.save()
                 data = {"error":False, "fixed_deposit_id":fixed_deposit.id}
                 return HttpResponse(json.dumps(data))
-            except Client.DoesNotExist:
-                data = {"error":True, "messagememerr":"No Member exist with this First Name and Account Number."}
+            else:
+                data = {"error":True, "message":form.errors}
                 return HttpResponse(json.dumps(data))
-        else:
-            data = {"error":True, "message":form.errors}
+
+        except Client.DoesNotExist:
+            data = {"error":True, "messagememerr":"No Member exist with this First Name and Account Number."}
             return HttpResponse(json.dumps(data))
 
 
@@ -1718,40 +1628,21 @@ def recurring_deposits(request):
     if request.method == "GET":
         return render(request,"recurring_deposit_application.html")
     else:
-        form = ReccuringDepositForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
-                recurring_deposit_amount = request.POST.get("recurring_deposit_amount")
-                reccuring_deposit_number = request.POST.get("reccuring_deposit_number")
-                recurring_deposit_interest_rate = request.POST.get("recurring_deposit_interest_rate")
-                recurring_deposit_period = request.POST.get("recurring_deposit_period")
-                nominee_firstname = request.POST.get("nominee_firstname")
-                nominee_lastname = request.POST.get("nominee_lastname")
-                nominee_gender = request.POST.get("nominee_gender")
-                nominee_occupation = request.POST.get("nominee_occupation")
-                nominee_photo = request.FILES.get("nominee_photo")
-                nominee_signature = request.FILES.get("nominee_signature")
-                datestring_format = datetime.datetime.strptime(request.POST.get("deposited_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
-                dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-                deposited_date = dateconvert
-                nominee_datestring_format = datetime.datetime.strptime(request.POST.get("nominee_date_of_birth"),'%m/%d/%Y').strftime('%Y-%m-%d')
-                nominee_dateconvert = datetime.datetime.strptime(nominee_datestring_format, "%Y-%m-%d")
-                nominee_date_of_birth = nominee_dateconvert
-                relationship_with_nominee = request.POST.get("relationship_with_nominee")
-                recurring_deposit = RecurringDeposits.objects.create(reccuring_deposit_number=reccuring_deposit_number, status="Opened", \
-                                        deposited_date=deposited_date, client=client, nominee_occupation=nominee_occupation, \
-                                        nominee_date_of_birth=nominee_date_of_birth, nominee_lastname=nominee_lastname, nominee_gender=nominee_gender, \
-                                        recurring_deposit_amount=recurring_deposit_amount, recurring_deposit_interest_rate=recurring_deposit_interest_rate, \
-                                        recurring_deposit_period=recurring_deposit_period, nominee_firstname=nominee_firstname, \
-                                        relationship_with_nominee=relationship_with_nominee,nominee_photo=nominee_photo,nominee_signature=nominee_signature)
+        try:
+            client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
+            form = ReccuringDepositForm(request.POST, request.FILES)
+            if form.is_valid():
+                recurring_deposit = form.save(commit=False)
+                recurring_deposit.status = "Opened"
+                recurring_deposit.client = client
+                recurring_deposit.save()
                 data = {"error":False, "recurring_deposit_id":recurring_deposit.id}
                 return HttpResponse(json.dumps(data))
-            except Client.DoesNotExist:
-                data = {"error":True, "messagememerr":"No Member exist with this Name and Account Number."}
+            else:
+                data = {"error":True, "message":form.errors}
                 return HttpResponse(json.dumps(data))
-        else:
-            data = {"error":True, "message":form.errors}
+        except Client.DoesNotExist:
+            data = {"error":True, "messagememerr":"No Member exist with this Name and Account Number."}
             return HttpResponse(json.dumps(data))
 
 
