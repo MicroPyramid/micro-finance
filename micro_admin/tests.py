@@ -96,110 +96,102 @@ class Admin_Views_test(TestCase):
 		clientloan = LoanAccount.objects.create(account_no='CL1', interest_type='Flat', client=self.c, created_by=self.u,status="Approved", loan_amount=12000,          loan_repayment_period=12,loan_repayment_every=1,annual_interest_rate=2, loanpurpose_description='Home Loan',interest_charged=20,total_loan_balance=12000,principle_repayment=1000)
 		fxd = FixedDeposits.objects.create(client=self.c, deposited_date='2014-1-1', status='Opened', fixed_deposit_number='f1', fixed_deposit_amount=1200, fixed_deposit_period=12, fixed_deposit_interest_rate=3, nominee_firstname='r', nominee_lastname='k',nominee_gender='M',relationship_with_nominee='friend',nominee_date_of_birth='2014-10-10', nominee_occupation='teacher', )
 		rcd = RecurringDeposits.objects.create(client=self.c, deposited_date='2014-1-1', reccuring_deposit_number='r1', status='Opened', recurring_deposit_amount=1200, recurring_deposit_period=200, recurring_deposit_interest_rate=3, nominee_firstname='ra', nominee_lastname='ku', nominee_gender='M', relationship_with_nominee='friend', nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
-		print SavingsAccount.objects.get(id=2).group
-		print Group.objects.get(id=1).name
-		cl = Client.objects.get(id=1)
-		gl = Group.objects.get(id=1)
-		print SavingsAccount.objects.get(client = cl)
-		print SavingsAccount.objects.get(group = gl)
-		#SavingsAccount.objects.get(client = cl).delete()
 
 
 
+	def test_views(self):
+		client = Client()
+		user_login=self.client.login(username='jagadeesh',password='jag123')
+		self.assertTrue(user_login)
 
-	# def test_views(self):
-	# 	client = Client()
-	# 	user_login=self.client.login(username='jagadeesh',password='jag123')
-	# 	self.assertTrue(user_login)
+		response = self.client.get('/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'login.html')
 
-	# 	response = self.client.get('/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'login.html')
-
-	# 	response = self.client.get('/createbranch/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'createbranch.html')
-
-
-	# 	response = self.client.get('/createclient/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'createclient.html')
-
-	# 	response = self.client.get('/createuser/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'createuser.html')
-
-	# 	response = self.client.get('/creategroup/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'creategroup.html')
-
-	# 	response = self.client.get('/editbranch/1/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'editbranchdetails.html')
+		response = self.client.get('/createbranch/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'createbranch.html')
 
 
-	# 	response = self.client.get('/edituser/1/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'edituser.html')
+		response = self.client.get('/createclient/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'createclient.html')
+
+		response = self.client.get('/createuser/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'createuser.html')
+
+		response = self.client.get('/creategroup/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'creategroup.html')
+
+		response = self.client.get('/editbranch/1/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'editbranchdetails.html')
 
 
-	# 	response = self.client.get('/branchprofile/1')
-	# 	self.assertEqual(response.status_code,301)
-	# 	#self.assertTemplateUsed(response,'branchprofile.html')
+		response = self.client.get('/edituser/1/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'edituser.html')
 
 
-	# 	response = self.client.get('/userprofile/1')
-	# 	self.assertEqual(response.status_code,301)
-	# 	#self.assertTemplateUsed(response,'userprofile.html')
+		response = self.client.get('/branchprofile/1/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'branchprofile.html')
 
 
-	# 	response = self.client.get('/userslist/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'listofusers.html')
+		response = self.client.get('/userprofile/1/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'userprofile.html')
 
 
-	# 	response = self.client.get('/viewbranch/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'viewbranch.html')
+		response = self.client.get('/userslist/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'listofusers.html')
 
 
-	# 	response = self.client.get('/groupslist/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'listofgroups.html')
+		response = self.client.get('/viewbranch/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'viewbranch.html')
 
 
-	# 	response = self.client.get('/viewclient/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'viewclient.html')
+		response = self.client.get('/groupslist/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'listofgroups.html')
 
 
-	# 	response = self.client.get('/deletebranch/1/')
-	# 	self.assertEqual(response.status_code,200)
+		response = self.client.get('/viewclient/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'viewclient.html')
 
 
-	# 	response = self.client.get('/userchangepassword/1/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'user_change_password.html')
+		response = self.client.get('/deletebranch/1/')
+		self.assertEqual(response.status_code,200)
 
 
-	# 	response = self.client.get('/daybookpdfdownload/2014-10-10/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'pdf_daybook.html')
+		response = self.client.get('/userchangepassword/1/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'user_change_password.html')
 
 
-	# 	response = self.client.get('/generalledgerpdfdownload/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'pdfgeneral_ledger.html')
+		response = self.client.get('/daybookpdfdownload/2014-10-10/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'pdf_daybook.html')
 
 
-	# 	response = self.client.get('/paymentslist/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'list_of_payments.html')
+		response = self.client.get('/generalledgerpdfdownload/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'pdfgeneral_ledger.html')
 
 
-	# 	response = self.client.get('/recurringdeposits/')
-	# 	self.assertEqual(response.status_code,200)
-	# 	self.assertTemplateUsed(response,'recurring_deposit_application.html')
+		response = self.client.get('/paymentslist/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'list_of_payments.html')
+
+
+		response = self.client.get('/recurringdeposits/')
+		self.assertEqual(response.status_code,200)
+		self.assertTemplateUsed(response,'recurring_deposit_application.html')
 
 	def test_views_post_data(self):
 		user_login=self.client.login(username='jag',password='jag')
@@ -378,11 +370,6 @@ class Admin_Views_test(TestCase):
 		response = self.client.post('/listofclientsavingsdeposits/1/')
 		self.assertEqual(response.status_code,200)
 
-
-		# cl= Client.objects.get(id=1)
-		# gl = Group.objects.get(id=1)
-		# print SavingsAccount.objects.get(client = cl)
-		# print SavingsAccount.objects.get(group = gl)
 
 		response = self.client.post('/viewgrouploandeposits/1/1/')
 		self.assertEqual(response.status_code,200)
