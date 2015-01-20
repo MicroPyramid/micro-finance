@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permission, _user_has_perm
 
 
 GENDER_TYPES = (
@@ -125,6 +125,7 @@ class User(AbstractBaseUser):
     area = models.CharField(max_length=150, null=True)
     mobile = models.CharField(max_length=10, default='0', null=True)
     pincode = models.CharField(default='', max_length=10, null=True)
+    user_permissions = models.ManyToManyField(Permission, related_name='user_permissions', blank=True)
 
     objects = UserManager()
 
@@ -132,6 +133,22 @@ class User(AbstractBaseUser):
 
     def __unicode__(self):
         return self.username
+
+    def has_perm(self, perm, obj=None):
+        if self.is_active and self.is_admin:
+            return True
+        #return _user_has_perm(self, perm, obj)
+        else:
+            user_perm = self.user_permissions.get(codename=perm)
+            if user_perm:
+                return True
+            else:
+                return False
+
+    class Meta:
+        permissions = (
+            ("branch_manager", "Can manage all accounts under his/her branch."),
+        )
 
 
 class Client(models.Model):

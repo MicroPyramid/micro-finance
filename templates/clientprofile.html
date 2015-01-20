@@ -20,7 +20,7 @@
       <a href="{% url 'micro_admin:viewparticularclientfixeddeposits' client.id%}"><button><i class="fa fa-eye padd"></i>Fixed Deposits</button></a>
       <a href="{% url 'micro_admin:viewparticularclientrecurringdeposits' client.id%}"><button><i class="fa fa-eye padd"></i>Recurring Deposits</button></a>
       <a href="{% url 'micro_admin:updateclientprofile' client.id %}"><button><i class="fa fa-file-image-o padd"></i>Update Profile</button></a>
-      {% if user.is_admin %}
+      {% if user.is_admin or user.user_roles == "BranchManager" %}
       <a href="{% url 'micro_admin:deleteclient' client.id %}"><button><i class="fa fa-trash-o padd"></i>Delete</button></a>
       {% endif %}
       <br clear="all" />
