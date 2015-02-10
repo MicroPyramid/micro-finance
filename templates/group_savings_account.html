@@ -5,9 +5,8 @@
 {% block groupstage %}
 <div class="home-div-gp">
   <div class="wrap-cp-div">
-    {% if user.is_admin %}
+    {% if user.is_admin or user.user_roles == "BranchManager" %}
     <div class="btn-row">
-      <a href="#"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
       {% if savings_account.status == "Withdrawn" %}
       <a title="Account has already been Withdrawn"><button><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a>
       {% else %}
@@ -40,13 +39,12 @@
         <span class="mar-tp-m mar-tp-m24">
         <a href="{% url 'micro_admin:viewgroupsavingswithdrawals' group.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Withdraws</a>
         <a href="{% url 'micro_admin:viewgroupsavingsdeposits' group.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Deposits</a>
-        {% if not user.is_admin %}
+        {% if user.is_admin == 0 and user.user_roles != "BranchManager" %}
         {% if savings_account.status == "Withdrawn" %}
         <a title="Account has already been Withdrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
         {% else %}
         <a href="#" id="withdraw-button" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
         {% endif %}
-        <a href="#" class="view-tab-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</a>
         {% endif %}
         </span>
     </div>
@@ -121,7 +119,7 @@
       e.preventDefault();
       $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Group Savings Account is not Approved")
+          alert(data.errmsg)
           window.location = '/groupsavingsaccount/'+data.group_id+'/';
         }
         else {
@@ -134,7 +132,7 @@
       e.preventDefault();
       $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Group savings account is not Rejected")
+          alert(data.errmsg)
           window.location = '/groupsavingsaccount/'+data.group_id+'/';
         }
         else {
@@ -147,7 +145,7 @@
       e.preventDefault();
       $.post('/closesavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Group savings account is not Closed")
+          alert(data.errmsg)
           window.location = '/groupsavingsaccount/'+data.group_id+'/';
         }
         else {
@@ -160,37 +158,11 @@
       e.preventDefault();
       $.post('/withdrawsavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Group savings account can't be Withdrawn")
+          alert(data.errmsg)
           window.location = '/groupsavingsaccount/'+data.group_id+'/';
         }
         else {
           alert("Group savings account has been Withdrawn sucessfully")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-      }, "json");
-    });
-    $('#deposit-button').click(function(e) {
-      e.preventDefault();
-      $.post('/groupsavingstransactions/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsdepositform').serialize(), function(data) {
-        if (data.error) {
-          alert("Money has not deposited.")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-        else {
-          alert("Money has been sucessfully deposited in the Savings Account.")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-      }, "json");
-    });
-    $('#moneywithdraw-button').click(function(e) {
-      e.preventDefault();
-      $.post('/groupsavingstransactions/'+$('#savingsaccount_id').val()+'/', $('#groupsavingswithdrawform').serialize(), function(data) {
-        if (data.error) {
-          alert("Money has not Withdrawn.")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-        else {
-          alert("Money has been sucessfully withdrawn from the Savings Account.")
           window.location = '/groupsavingsaccount/'+data.group_id+'/';
         }
       }, "json");

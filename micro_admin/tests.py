@@ -101,7 +101,7 @@ class Admin_Views_test(TestCase):
 
 
 		response = self.client.get('/deletebranch/1/')
-		self.assertEqual(response.status_code,200)
+		self.assertEqual(response.status_code,302)
 
 		# response = self.client.get('/updateclientprofile/1/')
 		# self.assertEqual(response.status_code,200)

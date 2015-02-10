@@ -19,7 +19,7 @@
               <th>Group Name</th>
               <th>Role</th>
               <th>Status</th>
-              {% if user.is_admin %}
+              {% if user.is_admin or user.user_roles == "BranchManager" %}
               <th>Edit/Delete</th>
               {% else %}
               <th>Edit</th>
@@ -47,7 +47,7 @@
               {% endif %}
               <td class="ed">
                 <a href="{% url 'micro_admin:editclient' client.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
-                {% if user.is_admin %}
+                {% if user.is_admin or user.user_roles == "BranchManager" %}
                 <a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
                 {% endif %}
               </td>

@@ -19,7 +19,7 @@
               <th>Staff</th>
               <th>Members Count</th>
               <th>Status</th>
-              {% if user.is_admin %}
+              {% if user.is_admin or user.user_roles == "BranchManager" %}
               <th>Delete</th>
               {% endif %}
             </tr>
@@ -38,11 +38,10 @@
               {% else %}
               <td><i class="fa fa-circle red pad-lt"></i></td>
               {% endif %}
-              <td style="padding-left: 18px;">
-                {% if user.is_admin %}
-                <a id="deletegroup" href="{% url 'micro_admin:deletegroup' group.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
-                {% endif %}
-              </td>
+              {% if user.is_admin or user.user_roles == "BranchManager" %}
+                <td style="padding-left: 18px;">
+                <a id="deletegroup" href="{% url 'micro_admin:deletegroup' group.id %}"><i class="fa fa-trash-o trash-icon"></i></a></td>
+              {% endif %}
             </tr>
             {% endfor %}
           </tbody>

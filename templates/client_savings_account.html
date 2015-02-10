@@ -9,8 +9,7 @@
 <div class="container">
   <div class="wrap-cp-div btn-usa-div margin-top-set mar-wid-12">
     <div class="btn-row" >
-      {% if user.is_admin %}
-      <span><a href="#"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a></span>
+      {% if user.is_admin or user.user_roles == "BranchManager" %}
       {% if savingsaccount.status == "Approved" %}
       <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
       {% else %}
@@ -47,8 +46,7 @@
         <span class="mar-tp-m mar-tp-m24">
         <a href="{% url 'micro_admin:listofclientsavingswithdrawals' client.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdrawals</a>
         <a href="{% url 'micro_admin:listofclientsavingsdeposits' client.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Deposits</a>
-        {% if not user.is_admin %}
-        <a href="#" class="view-tab-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</a>
+        {% if user.is_admin == 0 and user.user_roles != "BranchManager" %}
         {% if savingsaccount.status == "Withdrawn" %}
         <a title="Already Withrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
         {% else %}
@@ -130,11 +128,11 @@
       e.preventDefault();
       $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account Not Approved");
+          alert(data.errmsg);
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Approved successfully");
+          alert("Member savings account Approved successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -145,11 +143,11 @@
       e.preventDefault();
       $.post('/withdrawsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account cannot withdraw");
+          alert(data.errmsg);
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Withdrawn successfully");
+          alert("Member savings account Withdrawn successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -160,11 +158,11 @@
       e.preventDefault();
       $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account cannot reject");
+          alert(data.errmsg);
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Rejected successfully");
+          alert("Member savings account Rejected successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
@@ -175,11 +173,11 @@
       e.preventDefault();
       $.post('/closesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Savings Account cannot close");
+          alert(data.errmsg);
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
         else {
-          alert("Closed successfully");
+          alert("Member savings account Closed successfully");
           window.location = '/clientsavingsaccount/'+data.client_id+'/';
         }
       }, "json");
