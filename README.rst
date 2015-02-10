@@ -27,3 +27,9 @@ How to deploy?
 * do necessary changes to settings.py
 * configure nginx with uwsgi for production on server or you can run inside virtualenv for development purposes.
 
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/MicroPyramid/micro-finance/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
