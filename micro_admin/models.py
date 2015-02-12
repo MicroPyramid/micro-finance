@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permission, _user_has_perm
 
 
@@ -139,7 +140,10 @@ class User(AbstractBaseUser):
             return True
         #return _user_has_perm(self, perm, obj)
         else:
-            user_perm = self.user_permissions.get(codename=perm)
+            try:
+                user_perm = self.user_permissions.get(codename=perm)
+            except ObjectDoesNotExist:
+                user_perm = False
             if user_perm:
                 return True
             else:
