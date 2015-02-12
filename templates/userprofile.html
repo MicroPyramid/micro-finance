@@ -14,8 +14,10 @@
     <div class="panel-heading">
     <h3 class="panel-title">{{ selecteduser.username|capfirst }} Profile
       <span>
-      {% if user.id == selecteduser.id %}<a href="{% url 'micro_admin:edituser' selecteduser.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>{% endif %}
-      {% if user.is_admin %}<a href="{% url 'micro_admin:deleteuser' selecteduser.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>{% endif %}
+      {% if user.is_admin or user.user_roles == "BranchManager" %}
+        <a href="{% url 'micro_admin:edituser' selecteduser.id %}"><button class="ed-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
+        <a href="{% url 'micro_admin:deleteuser' selecteduser.id %}"><button class="del-btn"><i class="fa fa-trash-o padd"></i>Delete</button></a>
+      {% endif %}
       </span>
       </h3>
     </div>

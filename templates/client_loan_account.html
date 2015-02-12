@@ -10,8 +10,7 @@
 <div class="container">
   <div class="wrap-cp-div margin-top-set">
     <div class="btn-row" >
-      {% if user.is_admin %}
-      <span><a href="#"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a></span>
+      {% if user.is_admin or user.user_roles == "BranchManager" %}
       {% if loanaccount.status == "Approved" %}
       <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
       {% else %}
@@ -50,8 +49,7 @@
     <span class="mar-tp-m mar-top-m24">
     <a href="{% url 'micro_admin:listofclientloandeposits' loanaccount.client.id loanaccount.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</a>
     <a href="{% url 'micro_admin:ledgeraccount' loanaccount.client.id loanaccount.id %}" class="view-tab-btn">Ledger</a>
-    {% if not user.is_admin %}
-    <a href="#" class="view-tab-btn"><i class="fa fa-pencil-square-o padd"></i>Edit</a>
+    {% if user.is_admin == 0 and user.user_roles != "BranchManager" %}
     {% if loanaccount.status == "Withdrawn" %}
     <a  title="Already Withrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
     {% else %}
@@ -156,7 +154,7 @@
       e.preventDefault();
       $.post('/approveloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Member Loan Account Not Approved")
+          alert("You don't have permission to approve Loan account.")
           window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
         }
         else {
@@ -171,7 +169,7 @@
       e.preventDefault();
       $.post('/withdrawloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Member Loan Account cannot withdraw")
+          alert("You don't have permission to withdraw Loan account.")
           window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
         }
         else {
@@ -186,7 +184,7 @@
       e.preventDefault();
       $.post('/rejectloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Member Loan Account cannot reject")
+          alert("You don't have permission to reject Loan account.")
           window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
         }
         else {
@@ -201,7 +199,7 @@
       e.preventDefault();
       $.post('/closeloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("Member Loan Account cannot close")
+          alert("You don't have permission to close Loan account.")
           window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
         }
         else {
