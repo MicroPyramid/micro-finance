@@ -19,13 +19,13 @@
             <label for="inputEmail3" class="col-sm-4 control-label">First Name</label>
             <div class="col-sm-8">
               <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="first_name" value="{{ client.first_name }}">
+              <input type="text" class="text-box wid-form" id="first_name" name="first_name" value="{{ client.first_name }}">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Last Name</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="last_name" value="{{ client.last_name }}">
+              <input type="text" class="text-box wid-form" id="last_name" name="last_name" value="{{ client.last_name }}">
             </div>
           </div>
           <div class="form-group">
@@ -39,15 +39,21 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
             <div class="col-sm-8">
-              <select class="text-box wid-form select-box-pad" name="branch" readonly>
-                <option value="{{ client.branch.id }}" selected="selected">{{ client.branch.name }}</option>
+              <select class="text-box wid-form select-box-pad" name="branch" id="branch" readonly>
+                {% for entry in branch %}
+                  {% ifequal entry.id client.branch.id %}
+                    <option value="{{ entry.id }}" selected="selected">{{ entry.name }}</option>
+                  {% else %}
+                    <option value="{{ entry.id }}">{{ entry.name }}</option>
+                  {% endifequal %}
+                {% endfor %}
               </select>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Client Roles<span>*</span></label>
             <div class="col-sm-8">
-              <select class="text-box wid-form select-box-pad" name="client_role">
+              <select class="text-box wid-form select-box-pad" name="client_role" id="client_role">
                 <option>Select Client Role</option>
                 {% for l in l %}
                 {% ifequal l client.client_role %}
@@ -62,26 +68,26 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Joined Date</label>
             <div class="col-sm-8">
-            <input type="hidden" class="text-box wid-form" name="date_of_birth" value="{{ client.date_of_birth|date:"Y-m-d" }}" readonly>
-              <input type="text" class="text-box wid-form" name="joined_date" value="{{ client.joined_date|date:"Y-m-d" }}" readonly>
+            <input type="hidden" class="text-box wid-form" id="datepicker-dob" name="date_of_birth" required="True" value="{{ client.date_of_birth|date:"Y-m-d" }}">
+              <input type="text" class="text-box wid-form" id="date-picker-cc" name="joined_date" required="True" value="{{ client.joined_date|date:"Y-m-d" }}">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Annual Income<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="annual_income" required="True" value="{{ client.annual_income }}" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="annual_income" required="True" value="{{ client.annual_income }}" id="annual_income">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Account Number</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="account_number" value="{{ client.account_number }}" readonly>
+              <input type="text" class="text-box wid-form" id="account_number" name="account_number" value="{{ client.account_number }}">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Occupation<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="occupation" required="True" value="{{ client.occupation }}" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="occupation" required="True" value="{{ client.occupation }}" id="occupation">
             </div>
           </div>
         </div>
@@ -91,55 +97,55 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Blood Group</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="blood_group" value="{{ client.blood_group }}" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="blood_group" value="{{ client.blood_group }}" id="blood_group">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Email</label>
             <div class="col-sm-8">
-              <input type="email" class="text-box wid-form" name="email" {% if client.email %} value="{{ client.email }}" {% endif %} id="inputEmail3">
+              <input type="email" class="text-box wid-form" name="email" {% if client.email %} value="{{ client.email }}" {% endif %} id="email">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Mobile</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="mobile" value="{{ client.mobile }}" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="mobile" value="{{ client.mobile }}" id="mobile">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Country<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="country" value="{{ client.country }}" required="True">
+              <input type="text" class="text-box wid-form" id="country" name="country" value="{{ client.country }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">State<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="state" value="{{ client.state }}" required="True">
+              <input type="text" class="text-box wid-form" id="state" name="state" value="{{ client.state }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">District<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="district" value="{{ client.district }}" required="True">
+              <input type="text" class="text-box wid-form" id="district" name="district" value="{{ client.district }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">City<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="city" value="{{ client.city }}" required="True">
+              <input type="text" class="text-box wid-form" id="city" name="city" value="{{ client.city }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Area<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="area" value="{{ client.area }}" required="True">
+              <input type="text" class="text-box wid-form" id="area" name="area" value="{{ client.area }}" required="True">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Pin-Code</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="pincode" value="{{ client.pincode }}" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="pincode" value="{{ client.pincode }}" id="pincode">
             </div>
           </div>
         </div>
@@ -166,9 +172,23 @@
   $(document).ready(function() {
     $('#editclientform').submit(function(e) {
       e.preventDefault();
+      $("span.error").remove();
+      phone_number = $("#mobile").val();
+      if(!phone_number || !(phone_number.length >= 8 && phone_number.length <=10))
+      {
+        error = "Please give a valid phone number.";
+        $('#mobile').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
+        return;
+      }
       $.post('/editclient/'+$('#client_id').val()+'/', $('#editclientform').serialize(), function(data) {
         if (data.error == false) {
           window.location = '/clientprofile/'+data.client_id+'/';
+        }
+        else{
+          $("span.error").remove();
+          $.each(data.message, function( key, value ) {
+            $('#'+key).after("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
+          });
         }
       }, "json");
     });
