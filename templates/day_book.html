@@ -10,7 +10,7 @@
   <form id="daybookform" class="form-horizontal" role="form" method="post" action="{% url 'micro_admin:viewdaybook' %}">
     {% csrf_token %}
     <div class="form-group">
-      <input type="text" name="date" value="{{selected_date}}" id="datepicker" />
+      <input type="text" name="date" value="{{date_formated}}" id="datepicker" />
       <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
     </div>
   </form>

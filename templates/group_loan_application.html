@@ -17,62 +17,56 @@
           <label for="inputEmail3" class="col-sm-5 control-label">Account Number</label>
           <div class="col-sm-7">
             <input type="hidden"  id="group_id" value="{{ group.id }}" style="dispaly:none;">
-            <input type="text" class="text-box wid-form" name="account_no" value="{{account_no}}" id="inputEmail3" required="True" readonly>
+            <input type="text" class="text-box wid-form" name="account_no" value="{{account_no}}" id="account_no" required="True">
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Created By</label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" id="inputEmail3" value="{{ user.username }}" name="created_by" readonly>
+            <input type="text" class="text-box wid-form" id="created_by" value="{{ user.username }}" name="created_by" readonly>
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Amount<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_amount" required="True">
-            <p id="loanamounterror"></p>
+            <input type="text" class="text-box wid-form" name="loan_amount" id="loan_amount" required="True">
           </div>
         </div>
-        <div class="form-group" style="margin-top: -10px;">
+        <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Period (in months)<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_repayment_period" id="inputEmail3" required="True">
-            <p id="loanrepaymentperioderror"></p>
+            <input type="text" class="text-box wid-form" name="loan_repayment_period" id="loan_repayment_period" required="True">
           </div>
         </div>
-        <div class="form-group" style="margin-top: -10px;">
+        <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Every (in months)<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_repayment_every" id="inputEmail3">
-            <p id="loanrepaymenteveryerror"></p>
+            <input type="text" class="text-box wid-form" name="loan_repayment_every" id="loan_repayment_every">
           </div>
         </div>
-        <div class="form-group" style="margin-top: -10px;">
+        <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Interset Type<span>*</span></label>
           <div class="col-sm-7">
-            <select class="text-box wid-form" name="interest_type" required="True">
+            <select class="text-box wid-form" name="interest_type" id="interest_type" required="True">
               <option>Select Interest Type</option>
               <option value="Flat">Flat</option>
               <option value="Declining">Declining</option>
             </select>
-            <p id="interesttypeerror"></p>
           </div>
         </div>
-        <div class="form-group" style="margin-top: -10px;">
+        <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate (%)<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="annual_interest_rate" id="inputEmail3" required="True">
-            <p id="annualinterestrateerror"></p>
+            <input type="text" class="text-box wid-form" name="annual_interest_rate" id="annual_interest_rate" required="True">
           </div>
         </div>
-        <div class="form-group" style="margin-top: -10px;">
+        <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
           <div class="col-sm-7">
-            <textarea name="loanpurpose_description" rows="3" class="txt-area-wid"></textarea>
-            <p id="loanpurposedescriptionerror"></p>
+            <textarea name="loanpurpose_description" id="loanpurpose_description" rows="3" class="txt-area-wid"></textarea>
           </div>
         </div>
-        <div class="form-group btns" style="margin-top: -10px;">
+        <div class="form-group btns">
           <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
           <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
         </div>
@@ -90,24 +84,9 @@
       $.post('/grouploanapplication/'+$('#group_id').val()+'/', $('#grouploanapplicationform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
-          if (data.message.loan_amount) {
-            $("#loanamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loan_amount + "</span>");
-          }
-          if (data.message.loan_repayment_period) {
-            $("#loanrepaymentperioderror").prepend("<span class='error' style='height:11px;color:red;'>" +data.message.loan_repayment_period+ "</span>");
-          }
-          if (data.message.loan_repayment_every) {
-            $("#loanrepaymenteveryerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loan_repayment_every + "</span>");
-          }
-          if (data.message.interest_type) {
-            $("#interesttypeerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.interest_type + "</span>");
-          }
-          if (data.message.annual_interest_rate) {
-            $("#annualinterestrateerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.annual_interest_rate + "</span>");
-          }
-          if (data.message.loanpurpose_description) {
-            $("#loanpurposedescriptionerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loanpurpose_description + "</span>");
-          }
+          $.each(data.message, function( key, value ) {
+            $('#'+key).after("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
+          });
         }
         else {
           alert("Group Loan Application submitted sucessfully");

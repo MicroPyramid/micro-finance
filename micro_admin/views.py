@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 import json
 from django.contrib.auth.models import Permission
 from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, LoanAccount, \
-                                Receipts, FixedDeposits, PAYMENT_TYPES, Payments, RecurringDeposits
+                                Receipts, FixedDeposits, PAYMENT_TYPES, Payments, RecurringDeposits, USER_ROLES
 from micro_admin.forms import BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm, \
                                 ReceiptForm, FixedDepositForm, PaymentForm, ReccuringDepositForm
 from django.contrib.auth.decorators import login_required
@@ -26,7 +26,7 @@ d = decimal.Decimal
 def index(request):
     data = {}
     data.update(csrf(request))
-    return render_to_response("login.html",data)
+    return render_to_response("login.html", data)
 
 
 def user_login(request):
@@ -35,13 +35,13 @@ def user_login(request):
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
-                data = {"error":False,"message":"Loggedin Successfully"}
+                data = {"error": False,"message": "Loggedin Successfully"}
                 return HttpResponse(json.dumps(data))
             else:
-                data = {"error":True, "message":"User is not active."}
+                data = {"error": True, "message": "User is not active."}
                 return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":"Username and Password were incorrect."}
+            data = {"error": True, "message": "Username and Password were incorrect."}
             return HttpResponse(json.dumps(data))
     else:
         if request.user.is_authenticated():
@@ -61,15 +61,15 @@ def user_logout(request):
 def create_branch(request):
     if request.method == "GET":
         data = {}
-        return render(request, "createbranch.html", {"data":data})
+        return render(request, "createbranch.html", {"data": data})
     else:
         form = BranchForm(request.POST)
         if form.is_valid():
             branch = form.save()
-            data = {"error":False, "branch_id":branch.id}
+            data = {"error": False, "branch_id": branch.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":form.errors}
+            data = {"error": True, "message": form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -86,23 +86,23 @@ def edit_branch(request, branch_id):
         form = BranchForm(request.POST, instance=branch)
         if form.is_valid():
             branch = form.save()
-            data = {"error":False, "branch_id":branch.id}
+            data = {"error": False, "branch_id": branch.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":form.errors}
+            data = {"error": True, "message": form.errors}
             return HttpResponse(json.dumps(data))
 
 
 @login_required
 def branch_profile(request,branch_id):
     branch = Branch.objects.get(id=branch_id)
-    return render(request,"branchprofile.html", {"branch":branch})
+    return render(request, "branchprofile.html", {"branch": branch})
 
 
 @login_required
 def view_branch(request):
     branch_list = Branch.objects.all()
-    return render(request,"viewbranch.html",{"branch_list":branch_list})
+    return render(request, "viewbranch.html", {"branch_list": branch_list})
 
 
 @login_required
@@ -119,7 +119,7 @@ def create_client(request):
     if request.method == "GET":
         data = {}
         branch = Branch.objects.all()
-        return render(request,"createclient.html", {"data":data, "branch":branch})
+        return render(request, "createclient.html", {"data": data, "branch": branch})
     else:
         form = ClientForm(request.POST)
         if form.is_valid():
@@ -131,17 +131,17 @@ def create_client(request):
             if request.POST.get("blood_group"):
                 client.blood_group = request.POST.get("blood_group")
             client.save()
-            data = {"error":False, "client_id":client.id}
+            data = {"error": False, "client_id": client.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":form.errors}
+            data = {"error": True, "message": form.errors}
             return HttpResponse(json.dumps(data))
 
 
 @login_required
 def client_profile(request,client_id):
     client = Client.objects.get(id=client_id)
-    return render(request,"clientprofile.html", {"client":client})
+    return render(request, "clientprofile.html", {"client": client})
 
 
 @login_required
@@ -152,7 +152,8 @@ def edit_client(request,client_id):
             l = []
             for i in CLIENT_ROLES:
                 l.append(i[0])
-            return render(request,"editclient.html", {"client":client, "l":l})
+            branch = Branch.objects.all()
+            return render(request, "editclient.html", {"client": client, "l": l, "branch": branch})
         else:
             return HttpResponseRedirect('/viewclient/')
     else:
@@ -165,11 +166,10 @@ def edit_client(request,client_id):
             if request.POST.get("blood_group"):
                 client.blood_group = request.POST.get("blood_group")
             client.save()
-            data = {"error":False, "client_id":client.id}
+            data = {"error": False, "client_id": client.id}
             return HttpResponse(json.dumps(data))
         else:
-            print form.errors
-            data = {"error":True, "message":form.errors}
+            data = {"error": True, "message": form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -178,12 +178,12 @@ def update_clientprofile(request,client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
         if request.user.is_admin or request.user.branch == client.branch:
-            return render(request,"updateclientprofile.html",{"client":client})
+            return render(request, "updateclientprofile.html", {"client": client})
         else:
             return HttpResponseRedirect('/clientprofile/'+client_id+'/')
     else:
         client = Client.objects.get(id=client_id)
-        client.photo=request.FILES.get("photo")
+        client.photo = request.FILES.get("photo")
         client.signature = request.FILES.get("signature")
         client.save()
         return HttpResponseRedirect('/clientprofile/'+client_id+'/')
@@ -192,7 +192,7 @@ def update_clientprofile(request,client_id):
 @login_required
 def view_client(request):
     client_list = Client.objects.all()
-    return render(request,"viewclient.html",{"client_list":client_list})
+    return render(request, "viewclient.html", {"client_list": client_list})
 
 
 @login_required
@@ -210,14 +210,17 @@ def create_user(request):
     if request.method == "GET":
         data = {}
         branches = Branch.objects.all()
-        return render(request, "createuser.html", {"data":data, "branches":branches})
+        userroles = []
+        for i in USER_ROLES:
+            userroles.append(i[0])
+        return render(request, "createuser.html", {"data": data, "branches": branches, "userroles": userroles})
     else:
         user_form = UserForm(request.POST)
         if user_form.is_valid():
             user_name = request.POST.get("username")
             user_password = request.POST.get("password")
             if len(user_password) < 5:
-                data = {"error":True, "pwdmessage":"Password must be at least 5 characters long."}
+                data = {"error": True, "pwdmessage": "Password must be at least 5 characters long."}
                 return HttpResponse(json.dumps(data))
             else:
                 email = request.POST.get("email")
@@ -245,10 +248,10 @@ def create_user(request):
                 if request.POST.get("user_roles") == "BranchManager":
                     user.user_permissions.add(permission)
                 user.save()
-                data = {"error":False, "user_id":user.id}
+                data = {"error": False, "user_id": user.id}
                 return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":user_form.errors}
+            data = {"error": True, "message": user_form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -257,37 +260,46 @@ def edit_user(request, user_id):
     if request.method == "GET":
         user = User.objects.get(id=user_id)
         if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == user.branch) or request.user == user:
-            return render(request, "edituser.html", {"user":user})
+            branch = Branch.objects.all()
+            userroles = []
+            for i in USER_ROLES:
+                userroles.append(i[0])
+            return render(request, "edituser.html", {"user": user, "branch": branch, "userroles": userroles})
         else:
             return HttpResponseRedirect('/userslist/')
     else:
         user = User.objects.get(id=user_id)
-        user.first_name = request.POST.get("first_name")
-        user.last_name = request.POST.get("last_name")
-        user.country = request.POST.get("country")
-        user.state = request.POST.get("state")
-        user.district = request.POST.get("district")
-        user.city = request.POST.get("city")
-        user.area = request.POST.get("area")
-        user.pincode = request.POST.get("pincode")
-        mobile1 = request.POST.get("mobile")
-        if mobile1:
-            user.mobile = mobile1
-        user.save()
-        data = {"error":False, "user_id":user.id}
+        data = request.POST.copy()
+        data['password'] = user.password
+        user_form = UserForm(data, instance=user)
+        if user_form.is_valid():
+            user = user_form.save(commit=False)
+            user.last_name = request.POST.get("last_name")
+            user.country = request.POST.get("country")
+            user.state = request.POST.get("state")
+            user.district = request.POST.get("district")
+            user.city = request.POST.get("city")
+            user.area = request.POST.get("area")
+            user.pincode = request.POST.get("pincode")
+            if request.POST.get("mobile"):
+                user.mobile = request.POST.get("mobile")
+            user.save()
+            data = {"error": False, "user_id": user.id}
+        else:
+            data = {"error": True, "message": user_form.errors}
         return HttpResponse(json.dumps(data))
 
 
 @login_required
 def user_profile(request, user_id):
     selecteduser = User.objects.get(id=user_id)
-    return render(request, "userprofile.html", {"selecteduser":selecteduser})
+    return render(request, "userprofile.html", {"selecteduser": selecteduser})
 
 
 @login_required
 def users_list (request):
     list_of_users = User.objects.filter(is_admin=0)
-    return render(request,"listofusers.html", {"list_of_users":list_of_users})
+    return render(request, "listofusers.html", {"list_of_users": list_of_users})
 
 
 @login_required
@@ -307,7 +319,7 @@ def create_group(request):
     if request.method == "GET":
         data = {}
         branches = Branch.objects.all()
-        return render(request, "creategroup.html", {"data":data, "branches":branches})
+        return render(request, "creategroup.html", {"data": data, "branches": branches})
     else:
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
@@ -315,10 +327,10 @@ def create_group(request):
             group = group_form.save(commit=False)
             group.created_by = created_by
             group.save()
-            data = {"error":False, "group_id":group.id}
+            data = {"error": False, "group_id": group.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":group_form.errors}
+            data = {"error": True, "message": group_form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -329,10 +341,10 @@ def group_profile(request, group_id):
     clients_count = group.clients.all().count()
     if GroupMeetings.objects.filter(group_id=group.id):
         latest_group_meeting = GroupMeetings.objects.filter(group_id=group.id).order_by('-id')[0]
-        return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count, \
+        return render(request, "groupprofile.html", {"group": group, "clients_list": clients_list, "clients_count": clients_count, \
             "latest_group_meeting":latest_group_meeting})
     else:
-        return render(request, "groupprofile.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
+        return render(request, "groupprofile.html", {"group": group, "clients_list": clients_list, "clients_count": clients_count})
 
 
 @login_required
@@ -341,7 +353,7 @@ def assign_staff_to_group(request, group_id):
         group = Group.objects.get(id=group_id)
         users_list = User.objects.filter(is_admin=0)
         if request.user.is_admin or request.user.branch == group.branch:
-            return render(request, "assignstaff.html", {"group":group, "users_list":users_list})
+            return render(request, "assignstaff.html", {"group": group, "users_list": users_list})
         else:
             return HttpResponseRedirect('/groupprofile/'+group_id+'/')
     else:
@@ -350,7 +362,7 @@ def assign_staff_to_group(request, group_id):
         group = Group.objects.get(id=group_id)
         group.staff = user
         group.save()
-        data = {"error":False, "group_id":group.id}
+        data = {"error": False, "group_id": group.id}
         return HttpResponse(json.dumps(data))
 
 
@@ -360,7 +372,7 @@ def addmembers_to_group(request, group_id):
         group = Group.objects.get(id=group_id)
         clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
         if request.user.is_admin or request.user.branch == group.branch:
-            return render(request, "addmember.html", {"group":group, "clients_list":clients_list})
+            return render(request, "addmember.html", {"group": group, "clients_list": clients_list})
         else:
             return HttpResponseRedirect('/groupprofile/'+group_id+'/')
     else:
@@ -374,10 +386,10 @@ def addmembers_to_group(request, group_id):
                 group.save()
                 client.status = "Assigned"
                 client.save()
-            data = {"error":False, "group_id":group.id}
+            data = {"error": False, "group_id": group.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":addmember_form.errors}
+            data = {"error": True, "message": addmember_form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -386,13 +398,13 @@ def viewmembers_under_group(request, group_id):
     group = Group.objects.get(id=group_id)
     clients_list = group.clients.all()
     clients_count = group.clients.all().count()
-    return render(request, "viewmembers.html", {"group":group, "clients_list":clients_list, "clients_count":clients_count})
+    return render(request, "viewmembers.html", {"group": group, "clients_list": clients_list, "clients_count": clients_count})
 
 
 @login_required
 def groups_list(request):
     groups_list = Group.objects.all()
-    return render(request, "listofgroups.html", {"groups_list":groups_list})
+    return render(request, "listofgroups.html", {"groups_list": groups_list})
 
 
 @login_required
@@ -431,13 +443,13 @@ def add_group_meeting(request, group_id):
         group = Group.objects.get(id=group_id)
         if GroupMeetings.objects.filter(group_id=group.id):
             latest_group_meeting = GroupMeetings.objects.filter(group_id=group.id).order_by('-id')[0]
-            return render(request, "add_group_meeting.html", {"group":group, "latest_group_meeting":latest_group_meeting})
+            return render(request, "add_group_meeting.html", {"group": group, "latest_group_meeting": latest_group_meeting})
         else:
-            return render(request, "add_group_meeting.html", {"group":group})
+            return render(request, "add_group_meeting.html", {"group": group})
     else:
         group = Group.objects.get(id=group_id)
         datestring_format = datetime.datetime.strptime(request.POST.get("meeting_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
-        dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+        dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
         meeting_date = dateconvert
         meeting_time = request.POST.get("meeting_time")
         GroupMeetings.objects.create(meeting_date=meeting_date, meeting_time=meeting_time, group=group)
@@ -454,19 +466,19 @@ def client_savings_application(request, client_id):
         else:
             count = SavingsAccount.objects.all().count()
             account_no = "%s%s%d" % ("S", client.branch.id,count+1)
-            return render(request, "client_savings_application.html", {"client":client, "account_no":account_no})
+            return render(request, "client_savings_application.html", {"client": client, "account_no": account_no})
     else:
         form = SavingsAccountForm(request.POST)
         if form.is_valid():
             client_savingsaccount = form.save(commit=False)
-            client_savingsaccount.status="Applied"
+            client_savingsaccount.status = "Applied"
             client_savingsaccount.created_by = User.objects.get(username=request.user)
             client_savingsaccount.client = Client.objects.get(id=client_id)
             client_savingsaccount.save()
-            data = {"error":False, "client_id":client_savingsaccount.client.id}
+            data = {"error": False, "client_id": client_savingsaccount.client.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":form.errors}
+            data = {"error": True, "message": form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -474,7 +486,7 @@ def client_savings_application(request, client_id):
 def client_savings_account(request,client_id):
     client = Client.objects.get(id=client_id)
     savingsaccount = SavingsAccount.objects.get(client=client)
-    return render(request, "client_savings_account.html", {"client":client, "savingsaccount":savingsaccount})
+    return render(request, "client_savings_account.html", {"client": client, "savingsaccount": savingsaccount})
 
 
 @login_required
@@ -487,19 +499,19 @@ def group_savings_application(request, group_id):
         else:
             count = SavingsAccount.objects.all().count()
             account_no = "%s%s%d" % ("S",group.branch.id,count+1)
-            return render(request, "group_savings_application.html", {"group":group, "account_no":account_no})
+            return render(request, "group_savings_application.html", {"group": group, "account_no": account_no})
     else:
         group_savingsaccount_form = SavingsAccountForm(request.POST)
         if group_savingsaccount_form.is_valid():
             group_savingsaccount = group_savingsaccount_form.save(commit=False)
-            group_savingsaccount.status="Applied"
+            group_savingsaccount.status = "Applied"
             group_savingsaccount.created_by = User.objects.get(username=request.user)
             group_savingsaccount.group = Group.objects.get(id=group_id)
             group_savingsaccount.save()
-            data = {"error":False, "group_id":group_savingsaccount.group.id}
+            data = {"error": False, "group_id": group_savingsaccount.group.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":group_savingsaccount_form.errors}
+            data = {"error": True, "message": group_savingsaccount_form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -519,13 +531,13 @@ def group_savings_account(request, group_id):
         membershipfee_amount += client.membershipfee_amount
         bookfee_amount += client.bookfee_amount
         insurance_amount += client.insurance_amount
-    group_totals_dict ={}
+    group_totals_dict = {}
     group_totals_dict["sharecapital_amount"] = sharecapital_amount
     group_totals_dict["entrancefee_amount"] = entrancefee_amount
     group_totals_dict["membershipfee_amount"] = membershipfee_amount
     group_totals_dict["bookfee_amount"] = bookfee_amount
     group_totals_dict["insurance_amount"] = insurance_amount
-    return render(request, "group_savings_account.html", {"group":group, "savings_account":savings_account, "dict":group_totals_dict})
+    return render(request, "group_savings_account.html", {"group": group, "savings_account": savings_account, "dict": group_totals_dict})
 
 
 @login_required
@@ -536,17 +548,17 @@ def approve_savings(request, savingsaccount_id):
             if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.group.branch):
                 savings_account.status = "Approved"
                 savings_account.save()
-                data = {"error":False, "group_id":savings_account.group.id}
+                data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to approve savings account.", "group_id":savings_account.group.id}
+                data = {"error": True, "errmsg": "You don't have permission to approve savings account.", "group_id": savings_account.group.id}
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
             if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.client.branch):
                 savings_account.status = "Approved"
                 savings_account.save()
-                data = {"error":False, "client_id":savings_account.client.id}
+                data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to approve savings account.", "client_id":savings_account.client.id}
+                data = {"error": True, "errmsg": "You don't have permission to approve savings account.", "client_id": savings_account.client.id}
             return HttpResponse(json.dumps(data))
 
 
@@ -558,17 +570,17 @@ def reject_savings(request, savingsaccount_id):
             if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.group.branch):
                 savings_account.status = "Rejected"
                 savings_account.save()
-                data = {"error":False, "group_id":savings_account.group.id}
+                data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to reject savings account.", "group_id":savings_account.group.id}
+                data = {"error": True, "errmsg": "You don't have permission to reject savings account.", "group_id": savings_account.group.id}
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
             if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.client.branch):
                 savings_account.status = "Rejected"
                 savings_account.save()
-                data = {"error":False, "client_id":savings_account.client.id}
+                data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to reject savings account.", "client_id":savings_account.client.id}
+                data = {"error": True, "errmsg": "You don't have permission to reject savings account.", "client_id": savings_account.client.id}
             return HttpResponse(json.dumps(data))
 
 
@@ -580,17 +592,17 @@ def close_savings(request, savingsaccount_id):
             if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.group.branch):
                 savings_account.status = "Closed"
                 savings_account.save()
-                data = {"error":False, "group_id":savings_account.group.id}
+                data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to close savings account.", "group_id":savings_account.group.id}
+                data = {"error": True, "errmsg": "You don't have permission to close savings account.", "group_id": savings_account.group.id}
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
             if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.client.branch):
                 savings_account.status = "Closed"
                 savings_account.save()
-                data = {"error":False, "client_id":savings_account.client.id}
+                data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to close savings account.", "client_id":savings_account.client.id}
+                data = {"error": True, "errmsg": "You don't have permission to close savings account.", "client_id": savings_account.client.id}
             return HttpResponse(json.dumps(data))
 
 
@@ -602,17 +614,17 @@ def withdraw_savings(request, savingsaccount_id):
             if request.user.is_admin or request.user.branch == savings_account.group.branch:
                 savings_account.status = "Withdrawn"
                 savings_account.save()
-                data = {"error":False, "group_id":savings_account.group.id}
+                data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to withdraw savings account.", "group_id":savings_account.group.id}
+                data = {"error": True, "errmsg": "You don't have permission to withdraw savings account.", "group_id": savings_account.group.id}
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
             if request.user.is_admin or request.user.branch == savings_account.client.branch:
                 savings_account.status = "Withdrawn"
                 savings_account.save()
-                data = {"error":False, "client_id":savings_account.client.id}
+                data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error":True, "errmsg":"You don't have permission to withdraw savings account.", "client_id":savings_account.client.id}
+                data = {"error": True, "errmsg": "You don't have permission to withdraw savings account.", "client_id": savings_account.client.id}
             return HttpResponse(json.dumps(data))
 
 
@@ -622,13 +634,13 @@ def group_loan_application(request, group_id):
         group = Group.objects.get(id=group_id)
         count = LoanAccount.objects.all().count()
         account_no = "%s%s%d" % ("L",group.branch.id,count+1)
-        return render(request, "group_loan_application.html", {"group":group, "account_no":account_no})
+        return render(request, "group_loan_application.html", {"group": group, "account_no": account_no})
     else:
         group_loanaccount_form = LoanAccountForm(request.POST)
         if group_loanaccount_form.is_valid():
             group = Group.objects.get(id=group_id)
             loan_account = group_loanaccount_form.save(commit=False)
-            loan_account.status="Applied"
+            loan_account.status = "Applied"
             loan_account.created_by = User.objects.get(username=request.user)
             loan_account.group = group
 
@@ -640,10 +652,10 @@ def group_loan_application(request, group_id):
             loan_account.loan_repayment_amount = d(d(loan_account.principle_repayment) + d(loan_account.interest_charged))
             loan_account.total_loan_balance = d(d(loan_account.loan_amount))
             loan_account.save()
-            data = {"error":False, "loanaccount_id":loan_account.id}
+            data = {"error": False, "loanaccount_id": loan_account.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":group_loanaccount_form.errors}
+            data = {"error": True, "message": group_loanaccount_form.errors}
             return HttpResponse(json.dumps(data))
 
 
@@ -653,12 +665,12 @@ def client_loan_application(request, client_id):
         client = Client.objects.get(id=client_id)
         count = LoanAccount.objects.all().count()
         account_no = "%s%s%d" % ("L",client.branch.id,count+1)
-        return render(request, "client_loan_application.html", {"client":client, "account_no":account_no})
+        return render(request, "client_loan_application.html", {"client": client, "account_no": account_no})
     else:
         form = LoanAccountForm(request.POST)
         if form.is_valid():
             loan_account = form.save(commit=False)
-            loan_account.status="Applied"
+            loan_account.status = "Applied"
             loan_account.created_by = User.objects.get(username=request.user)
             loan_account.client = Client.objects.get(id=client_id)
             interest_charged = d((d(loan_account.loan_amount) * ( d(loan_account.annual_interest_rate) / 12 )) / 100)
@@ -668,23 +680,23 @@ def client_loan_application(request, client_id):
             loan_account.loan_repayment_amount = d(d(loan_account.principle_repayment) + d(loan_account.interest_charged))
             loan_account.total_loan_balance = d(d(loan_account.loan_amount))
             loan_account.save()
-            data = {"error":False, "loanaccount_id":loan_account.id}
+            data = {"error": False, "loanaccount_id": loan_account.id}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":form.errors}
+            data = {"error": True, "message": form.errors}
             return HttpResponse(json.dumps(data))
 
 
 @login_required
 def client_loan_account(request,loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    return render(request, "client_loan_account.html", {"client":loanaccount.client, "loanaccount":loanaccount})
+    return render(request, "client_loan_account.html", {"client": loanaccount.client, "loanaccount": loanaccount})
 
 
 @login_required
 def group_loan_account(request, loanaccount_id):
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    return render(request, "group_loan_account.html", {"group":loan_account.group, "loan_account":loan_account})
+    return render(request, "group_loan_account.html", {"group": loan_account.group, "loan_account": loan_account})
 
 
 @login_required
@@ -700,12 +712,12 @@ def approve_loan(request, loanaccount_id):
                 loan_account.status = "Approved"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
-                data = {"error":False, "loanaccount_id":loan_account.id}
+                data = {"error": False, "loanaccount_id": loan_account.id}
             else:
-                data = {"error":True, "loanaccount_id":loan_account.id}
+                data = {"error": True, "loanaccount_id": loan_account.id}
             return HttpResponse(json.dumps(data))
         except LoanAccount.DoesNotExist:
-            data = {"error":True}
+            data = {"error": True}
             return HttpResponse(json.dumps(data))
 
 
@@ -722,12 +734,12 @@ def reject_loan(request, loanaccount_id):
                 loan_account.status = "Rejected"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
-                data = {"error":False, "loanaccount_id":loan_account.id}
+                data = {"error": False, "loanaccount_id": loan_account.id}
             else:
-                data = {"error":True, "loanaccount_id":loan_account.id}
+                data = {"error": True, "loanaccount_id": loan_account.id}
             return HttpResponse(json.dumps(data))
         except LoanAccount.DoesNotExist:
-            data = {"error":True}
+            data = {"error": True}
             return HttpResponse(json.dumps(data))
 
 @login_required
@@ -743,12 +755,12 @@ def close_loan(request, loanaccount_id):
                 loan_account.status = "Closed"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
-                data = {"error":False, "loanaccount_id":loan_account.id}
+                data = {"error": False, "loanaccount_id": loan_account.id}
             else:
-                data = {"error":True, "loanaccount_id":loan_account.id}
+                data = {"error": True, "loanaccount_id": loan_account.id}
             return HttpResponse(json.dumps(data))
         except LoanAccount.DoesNotExist:
-            data = {"error":True}
+            data = {"error": True}
             return HttpResponse(json.dumps(data))
 
 
@@ -765,12 +777,12 @@ def withdraw_loan(request, loanaccount_id):
                 loan_account.status = "Withdrawn"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
-                data = {"error":False, "loanaccount_id":loan_account.id}
+                data = {"error": False, "loanaccount_id": loan_account.id}
             else:
-                data = {"error":True, "loanaccount_id":loan_account.id}
+                data = {"error": True, "loanaccount_id": loan_account.id}
             return HttpResponse(json.dumps(data))
         except LoanAccount.DoesNotExist:
-            data = {"error":True}
+            data = {"error": True}
             return HttpResponse(json.dumps(data))
 
 
@@ -782,7 +794,7 @@ def view_grouploan_deposits(request, group_id, loanaccount_id):
                         .exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
     count = Receipts.objects.filter(group=group, group_loan_account=loan_account) \
                 .exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0).count()
-    return render(request, "listof_grouploan_deposits.html", {"loan_account":loan_account, "receipts_list":receipts_list, "group":group, "count":count})
+    return render(request, "listof_grouploan_deposits.html", {"loan_account": loan_account, "receipts_list": receipts_list, "group": group, "count": count})
 
 
 @login_required
@@ -791,8 +803,8 @@ def view_groupsavings_deposits(request, group_id):
     savings_account = SavingsAccount.objects.get(group=group)
     receipts_list = Receipts.objects.filter(group=group).exclude(savingsdeposit_thrift_amount=0)
     count = Receipts.objects.filter(group=group).exclude(savingsdeposit_thrift_amount=0).count()
-    return render(request, "listof_groupsavings_deposits.html", {"savings_account":savings_account, \
-                    "receipts_list":receipts_list, "group":group, "count":count})
+    return render(request, "listof_groupsavings_deposits.html", {"savings_account": savings_account, \
+                    "receipts_list": receipts_list, "group": group, "count": count})
 
 
 @login_required
@@ -800,7 +812,7 @@ def view_groupsavings_withdrawals(request, group_id):
     group = Group.objects.get(id=group_id)
     savings_withdrawals_list = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal")
     count = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal").count()
-    return render(request, "listof_groupsavings_withdrawals.html", {"count":count, "savings_withdrawals_list":savings_withdrawals_list, "group":group})
+    return render(request, "listof_groupsavings_withdrawals.html", {"count": count, "savings_withdrawals_list": savings_withdrawals_list, "group": group})
 
 
 @login_required
@@ -809,14 +821,14 @@ def listofclient_loan_deposits(request, client_id, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
     receipts_lists = Receipts.objects.filter(client=client, member_loan_account=loanaccount) \
                         .exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
-    return render(request, "view_clientloan_deposits.html", {"loanaccount":loanaccount, "receipts_lists":receipts_lists})
+    return render(request, "view_clientloan_deposits.html", {"loanaccount": loanaccount, "receipts_lists": receipts_lists})
 
 
 @login_required
 def listofclient_savings_deposits(request,client_id):
     savingsaccount = SavingsAccount.objects.get(client=client_id)
     receipts_lists = Receipts.objects.filter(client=client_id).exclude(savingsdeposit_thrift_amount=0)
-    return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount":savingsaccount, "receipts_lists":receipts_lists})
+    return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
 
 
 @login_required
@@ -824,7 +836,7 @@ def listofclient_savings_withdrawals(request,client_id):
     client = Client.objects.get(id=client_id)
     savings_withdrawals_list = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal")
     count = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal").count()
-    return render(request, "listof_clientsavingswithdrawals.html", {"count":count, "savings_withdrawals_list":savings_withdrawals_list, "client":client})
+    return render(request, "listof_clientsavingswithdrawals.html", {"count": count, "savings_withdrawals_list": savings_withdrawals_list, "client": client})
 
 
 @login_required
@@ -848,12 +860,12 @@ def issue_loan(request, loanaccount_id):
 def receipts_deposit(request):
     if request.method == "GET":
         branches = Branch.objects.all()
-        return render(request, "receiptsform.html", {"branches":branches})
+        return render(request, "receiptsform.html", {"branches": branches})
     elif request.method == "POST":
         receipt_form = ReceiptForm(request.POST)
         if receipt_form.is_valid():
             datestring_format = datetime.datetime.strptime(request.POST.get("date"),"%m/%d/%Y").strftime("%Y-%m-%d")
-            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             date = dateconvert
             branch = Branch.objects.get(id=request.POST.get("branch"))
             receipt_number = request.POST.get("receipt_number")
@@ -942,7 +954,7 @@ def receipts_deposit(request):
                             pass
 
                     except SavingsAccount.DoesNotExist:
-                        data = {"error":True, "message1":"Member does not have savings account to make thrift deposit."}
+                        data = {"error": True, "message1": "Member does not have savings account to make thrift deposit."}
                         return HttpResponse(json.dumps(data))
 
                 if request.POST.get("recurringdeposit_amount"):
@@ -950,7 +962,7 @@ def receipts_deposit(request):
                         savings_account = SavingsAccount.objects.get(client=client)
                         savings_account.recurringdeposit_amount += d(request.POST.get("recurringdeposit_amount"))
                     except SavingsAccount.DoesNotExist:
-                        data = {"error":True, "message1":"Member does not have savings account."}
+                        data = {"error": True, "message1": "Member does not have savings account."}
                         return HttpResponse(json.dumps(data))
                 if request.POST.get("insurance_amount"):
                     client.insurance_amount += d(request.POST.get("insurance_amount"))
@@ -1257,19 +1269,19 @@ def receipts_deposit(request):
                     data = {"error":False}
                     return HttpResponse(json.dumps(data))
                 else:
-                    data = {"error":True, "message1":"Empty Receipt can't be generated."}
+                    data = {"error": True, "message1": "Empty Receipt can't be generated."}
                     return HttpResponse(json.dumps(data))
             except Client.DoesNotExist:
-                data = {"error":True, "message1":"No Client exists with this First Name and Account number."}
+                data = {"error": True, "message1": "No Client exists with this First Name and Account number."}
                 return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "message":receipt_form.errors}
+            data = {"error": True, "message": receipt_form.errors}
             return HttpResponse(json.dumps(data))
 
 
 def receipts_list(request):
     receipt_list = Receipts.objects.all().order_by("-id")
-    return render(request, "listof_receipts.html", {"receipt_list":receipt_list})
+    return render(request, "listof_receipts.html", {"receipt_list": receipt_list})
 
 
 def ledger_account(request, client_id, loanaccount_id):
@@ -1277,7 +1289,7 @@ def ledger_account(request, client_id, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
     receipts_list = Receipts.objects.filter(client=client_id, member_loan_account=loanaccount) \
                         .exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
-    return render(request, "client_ledger_account.html", {"loanaccount":loanaccount, "receipts_list":receipts_list, "client":client})
+    return render(request, "client_ledger_account.html", {"loanaccount": loanaccount, "receipts_list": receipts_list, "client": client})
 
 
 def general_ledger_function(request):
@@ -1339,7 +1351,7 @@ def general_ledger_function(request):
 @login_required
 def general_ledger(request):
     general_ledger_list = general_ledger_function(request)
-    return render(request, "generalledger.html", {"list":general_ledger_list})
+    return render(request, "generalledger.html", {"list": general_ledger_list})
 
 
 @login_required
@@ -1347,7 +1359,7 @@ def fixed_deposits(request):
     if request.method == "GET":
         data = {}
         data.update(csrf(request))
-        return render(request,"fixed_deposit_application.html", {"data":data})
+        return render(request,"fixed_deposit_application.html", {"data": data})
     else:
         try:
             client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
@@ -1361,53 +1373,53 @@ def fixed_deposits(request):
                 fixed_deposit.maturity_amount = d(d(fixed_deposit.fixed_deposit_amount) + d(fixed_deposit_interest_charged))
                 fixed_deposit.fixed_deposit_interest = d(d(fixed_deposit.maturity_amount) - d(fixed_deposit.fixed_deposit_amount))
                 fixed_deposit.save()
-                data = {"error":False, "fixed_deposit_id":fixed_deposit.id}
+                data = {"error": False, "fixed_deposit_id": fixed_deposit.id}
                 return HttpResponse(json.dumps(data))
             else:
-                data = {"error":True, "message":form.errors}
+                data = {"error": True, "message": form.errors}
                 return HttpResponse(json.dumps(data))
 
         except Client.DoesNotExist:
-            data = {"error":True, "messagememerr":"No Member exist with this First Name and Account Number."}
+            data = {"error": True, "messagememerr": "No Member exist with this First Name and Account Number."}
             return HttpResponse(json.dumps(data))
 
 
 @login_required
 def client_fixed_deposits_profile(request,fixed_deposit_id):
     fixed_deposit = FixedDeposits.objects.get(id=fixed_deposit_id)
-    return render(request, "client_fixed_deposits_profile.html", {"fixed_deposit":fixed_deposit})
+    return render(request, "client_fixed_deposits_profile.html", {"fixed_deposit": fixed_deposit})
 
 
 @login_required
 def view_client_fixed_deposits(request):
     fixed_deposit_list = FixedDeposits.objects.all().order_by("-id")
-    return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list":fixed_deposit_list})
+    return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list": fixed_deposit_list})
 
 
 @login_required
 def view_particular_client_fixed_deposits(request,client_id):
     client = Client.objects.get(id=client_id)
     fixed_deposit_list = FixedDeposits.objects.filter(client=client_id).order_by("-id")
-    return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list":fixed_deposit_list, "client":client})
+    return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list": fixed_deposit_list, "client": client})
 
 
 @login_required
 def client_recurring_deposits_profile(request, recurring_deposit_id):
     recurring_deposit = RecurringDeposits.objects.get(id=recurring_deposit_id)
-    return render(request, "client_recurring_deposits_profile.html", {"recurring_deposit":recurring_deposit})
+    return render(request, "client_recurring_deposits_profile.html", {"recurring_deposit": recurring_deposit})
 
 
 @login_required
 def view_client_recurring_deposits(request):
     recurring_deposit_list = RecurringDeposits.objects.all().order_by("-id")
-    return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list":recurring_deposit_list})
+    return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list": recurring_deposit_list})
 
 
 @login_required
 def view_particular_client_recurring_deposits(request, client_id):
     client = Client.objects.get(id=client_id)
     recurring_deposit_list = RecurringDeposits.objects.filter(client=client_id).order_by("-id")
-    return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list":recurring_deposit_list, "client":client})
+    return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list": recurring_deposit_list, "client": client})
 
 
 @login_required
@@ -1677,31 +1689,32 @@ def view_day_book(request):
     if request.method == "POST":
         datestring_format = datetime.datetime.strptime(request.POST.get("date"),"%m/%d/%Y").strftime("%Y-%m-%d")
         date = datestring_format
-        date = str(date)
+        # date = str(date)
         receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list = day_book_function(request, date)
     elif request.method == "GET":
         if request.GET.get("date"):
             date = request.GET.get("date")
         else:
             date = datetime.datetime.now().date()
-        date = str(date)
+        # date = str(date)
         receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list = day_book_function(request, date)
-    return render(request,"day_book.html", {"receipts_list":receipts_list, "total_payments":total_payments, \
-                    "travellingallowance_list":travellingallowance_list, "loans_list":loans_list, "paymentofsalary_list":paymentofsalary_list, \
-                    "printingcharges_list":printingcharges_list,"stationarycharges_list":stationarycharges_list,"othercharges_list":othercharges_list, \
-                    "savingswithdrawal_list":savingswithdrawal_list, "recurringwithdrawal_list":recurringwithdrawal_list, \
-                    "fixedwithdrawal_list":fixedwithdrawal_list, "total":total, "dict_payments":dict_payments, "dict":dict, \
-                    "selected_date":selected_date, "grouped_receipts_list":grouped_receipts_list, "thrift_deposit_sum_list":thrift_deposit_sum_list, \
-                    "loanprinciple_amount_sum_list":loanprinciple_amount_sum_list, "loaninterest_amount_sum_list":loaninterest_amount_sum_list, \
-                    "entrancefee_amount_sum_list":entrancefee_amount_sum_list, "membershipfee_amount_sum_list":membershipfee_amount_sum_list, \
-                    "bookfee_amount_sum_list":bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list":loanprocessingfee_amount_sum_list, \
-                    "insurance_amount_sum_list":insurance_amount_sum_list})
+    date_formated = datetime.datetime.strptime(str(selected_date),"%Y-%m-%d").strftime("%m/%d/%Y")
+    return render(request, "day_book.html", {"receipts_list": receipts_list, "total_payments": total_payments, \
+                    "travellingallowance_list": travellingallowance_list, "loans_list": loans_list, "paymentofsalary_list": paymentofsalary_list, \
+                    "printingcharges_list": printingcharges_list,"stationarycharges_list": stationarycharges_list,"othercharges_list": othercharges_list, \
+                    "savingswithdrawal_list": savingswithdrawal_list, "recurringwithdrawal_list": recurringwithdrawal_list, \
+                    "fixedwithdrawal_list": fixedwithdrawal_list, "total": total, "dict_payments": dict_payments, "dict": dict, \
+                    "selected_date": selected_date, "date_formated": date_formated, "grouped_receipts_list": grouped_receipts_list, "thrift_deposit_sum_list": thrift_deposit_sum_list, \
+                    "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list, "loaninterest_amount_sum_list": loaninterest_amount_sum_list, \
+                    "entrancefee_amount_sum_list": entrancefee_amount_sum_list, "membershipfee_amount_sum_list": membershipfee_amount_sum_list, \
+                    "bookfee_amount_sum_list": bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list, \
+                    "insurance_amount_sum_list": insurance_amount_sum_list})
 
 
 @login_required
 def recurring_deposits(request):
     if request.method == "GET":
-        return render(request,"recurring_deposit_application.html")
+        return render(request, "recurring_deposit_application.html")
     else:
         try:
             client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), account_number=request.POST.get("client_account_no"))
@@ -1711,20 +1724,20 @@ def recurring_deposits(request):
                 recurring_deposit.status = "Opened"
                 recurring_deposit.client = client
                 recurring_deposit.save()
-                data = {"error":False, "recurring_deposit_id":recurring_deposit.id}
+                data = {"error": False, "recurring_deposit_id":recurring_deposit.id}
                 return HttpResponse(json.dumps(data))
             else:
-                data = {"error":True, "message":form.errors}
+                data = {"error": True, "message": form.errors}
                 return HttpResponse(json.dumps(data))
         except Client.DoesNotExist:
-            data = {"error":True, "messagememerr":"No Member exist with this Name and Account Number."}
+            data = {"error": True, "messagememerr": "No Member exist with this Name and Account Number."}
             return HttpResponse(json.dumps(data))
 
 
 @login_required
 def payments_list(request):
     payments_list = Payments.objects.all().order_by("-id")
-    return render(request,"list_of_payments.html", {"payments_list":payments_list})
+    return render(request, "list_of_payments.html", {"payments_list": payments_list})
 
 
 @login_required
@@ -1734,12 +1747,12 @@ def pay_slip(request):
         voucher_types = []
         for voucher_type in PAYMENT_TYPES:
             voucher_types.append(voucher_type[0])
-        return render(request, "paymentform.html", {"branches":branches, "voucher_types":voucher_types})
+        return render(request, "paymentform.html", {"branches": branches, "voucher_types": voucher_types})
     elif request.method == "POST":
         payment_form = PaymentForm(request.POST)
         if payment_form.is_valid():
             datestring_format = datetime.datetime.strptime(request.POST.get("date"),"%m/%d/%Y").strftime("%Y-%m-%d")
-            dateconvert=datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+            dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             date = dateconvert
             branch = Branch.objects.get(id=request.POST.get("branch"))
             voucher_number = request.POST.get("voucher_number")
@@ -1752,7 +1765,7 @@ def pay_slip(request):
 
                 if request.POST.get("payment_type") == "TravellingAllowance" or request.POST.get("payment_type") == "Paymentofsalary" :
                     if not request.POST.get("staff_username"):
-                        data = {"error":True, "message1":"Please enter Employee Username"}
+                        data = {"error": True, "message1": "Please enter Employee Username"}
                         return HttpResponse(json.dumps(data))
                     elif request.POST.get("staff_username"):
                         try:
@@ -1761,16 +1774,16 @@ def pay_slip(request):
                                 if d(request.POST.get("total_amount")) == d(request.POST.get("amount")) :
                                     Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, payment_type=payment_type, \
                                                             staff=staff, amount=amount, total_amount=total_amount, totalamount_in_words=totalamount_in_words)
-                                    data = {"error":False}
+                                    data = {"error": False}
                                     return HttpResponse(json.dumps(data))
                                 else:
-                                    data = {"error":True, "message1":"Entered total amount is not equal to amount."}
+                                    data = {"error": True, "message1": "Entered total amount is not equal to amount."}
                                     return HttpResponse(json.dumps(data))
                             else:
-                                data = {"error":True, "message1":"Interest must be empty for TA and Payment of salary Voucher."}
+                                data = {"error": True, "message1": "Interest must be empty for TA and Payment of salary Voucher."}
                                 return HttpResponse(json.dumps(data))
                         except User.DoesNotExist:
-                            data = {"error":True, "message1":"Entered Employee Username is incorrect"}
+                            data = {"error": True, "message1": "Entered Employee Username is incorrect"}
                             return HttpResponse(json.dumps(data))
 
                 elif request.POST.get("payment_type") == "PrintingCharges" or request.POST.get("payment_type") == "StationaryCharges" or request.POST.get("payment_type") == "OtherCharges" :
@@ -1778,22 +1791,22 @@ def pay_slip(request):
                         if d(request.POST.get("total_amount")) == d(request.POST.get("amount")) :
                             Payments.objects.create(date=date, branch=branch, voucher_number=voucher_number, payment_type=payment_type, amount=amount, \
                                                         total_amount=total_amount, totalamount_in_words=totalamount_in_words)
-                            data = {"error":False}
+                            data = {"error": False}
                             return HttpResponse(json.dumps(data))
                         else:
-                            data = {"error":True, "message1":"Entered total amount is not equal to amount."}
+                            data = {"error": True, "message1": "Entered total amount is not equal to amount."}
                             return HttpResponse(json.dumps(data))
                     else:
-                        data = {"error":True, "message1":"Interest must be empty for Charges Voucher."}
+                        data = {"error": True, "message1": "Interest must be empty for Charges Voucher."}
                         return HttpResponse(json.dumps(data))
 
                 elif request.POST.get("payment_type") == "SavingsWithdrawal" :
                     if not request.POST.get("client_name"):
-                        data = {"error":True, "message1":"Please enter the Member First Name"}
+                        data = {"error": True, "message1": "Please enter the Member First Name"}
                         return HttpResponse(json.dumps(data))
                     elif request.POST.get("client_name"):
                         if not request.POST.get("client_account_number"):
-                            data = {"error":True, "message1":"Please enter the Member Account number"}
+                            data = {"error": True, "message1": "Please enter the Member Account number"}
                             return HttpResponse(json.dumps(data))
                         try:
                             client = Client.objects.get(first_name__iexact=request.POST.get("client_name"), \
@@ -1980,8 +1993,8 @@ def view_group_loanslist(request, group_id):
     group = Group.objects.get(id=group_id)
     loan_accounts_list = LoanAccount.objects.filter(group=group)
     loan_accounts_count = LoanAccount.objects.filter(group=group).count()
-    return render(request, "listof_grouploan_accounts.html", {"group":group, "loan_accounts_list":loan_accounts_list, \
-                    "loan_accounts_count":loan_accounts_count})
+    return render(request, "listof_grouploan_accounts.html", {"group": group, "loan_accounts_list": loan_accounts_list, \
+                    "loan_accounts_count": loan_accounts_count})
 
 
 @login_required
@@ -1989,8 +2002,8 @@ def view_client_loanslist(request, client_id):
     client = Client.objects.get(id=client_id)
     loan_accounts_list = LoanAccount.objects.filter(client=client)
     loan_accounts_count = LoanAccount.objects.filter(client=client).count()
-    return render(request, "listof_clientloan_accounts.html", {"client":client, "loan_accounts_list":loan_accounts_list, \
-                    "loan_accounts_count":loan_accounts_count})
+    return render(request, "listof_clientloan_accounts.html", {"client": client, "loan_accounts_list": loan_accounts_list, \
+                    "loan_accounts_count": loan_accounts_count})
 
 
 @login_required
@@ -2130,7 +2143,7 @@ def clientledger_exceldownload(request, client_id):
         wb.save(response)
         return response
     except Exception, err:
-        errmsg = "%s"%(err)
+        errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
 
@@ -2140,7 +2153,7 @@ def clientledger_pdfdownload(request, client_id):
     receipts_list = Receipts.objects.filter(client=client_id).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
     try:
         template = get_template("pdfledger.html")
-        context = Context({'pagesize':'A4',"receipts_list":receipts_list,"client":client,"mediaroot":settings.MEDIA_ROOT})
+        context = Context({'pagesize': 'A4',"receipts_list": receipts_list, "client": client, "mediaroot": settings.MEDIA_ROOT})
         html  = template.render(context)
         result = StringIO.StringIO()
         pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
@@ -2149,7 +2162,7 @@ def clientledger_pdfdownload(request, client_id):
         else:
             return HttpResponse('We had some errors')
     except Exception, err:
-        errmsg = "%s"%(err)
+        errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
 
@@ -2158,7 +2171,7 @@ def general_ledger_pdfdownload(request):
     list = general_ledger_function(request)
     try:
         template = get_template("pdfgeneral_ledger.html")
-        context = Context({'pagesize':'A4',"list":list,"mediaroot":settings.MEDIA_ROOT})
+        context = Context({'pagesize': 'A4', "list": list, "mediaroot": settings.MEDIA_ROOT})
         html  = template.render(context)
         result = StringIO.StringIO()
         pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
@@ -2176,16 +2189,16 @@ def daybook_pdfdownload(request, date):
     receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list = day_book_function(request, date)
     try:
         template = get_template("pdf_daybook.html")
-        context = Context({"receipts_list":receipts_list, "total_payments":total_payments, "travellingallowance_list":travellingallowance_list, \
-                            "loans_list":loans_list, "paymentofsalary_list":paymentofsalary_list, "printingcharges_list":printingcharges_list, \
-                            "stationarycharges_list":stationarycharges_list,"othercharges_list":othercharges_list, \
-                            "savingswithdrawal_list":savingswithdrawal_list, "recurringwithdrawal_list":recurringwithdrawal_list, \
-                            "fixedwithdrawal_list":fixedwithdrawal_list, "total":total, "dict_payments":dict_payments, "dict":dict, \
-                            "selected_date":selected_date, "grouped_receipts_list":grouped_receipts_list, "thrift_deposit_sum_list":thrift_deposit_sum_list, \
-                            "loanprinciple_amount_sum_list":loanprinciple_amount_sum_list, "loaninterest_amount_sum_list":loaninterest_amount_sum_list, \
-                            "entrancefee_amount_sum_list":entrancefee_amount_sum_list, "membershipfee_amount_sum_list":membershipfee_amount_sum_list, \
-                            "bookfee_amount_sum_list":bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list":loanprocessingfee_amount_sum_list, \
-                            "insurance_amount_sum_list":insurance_amount_sum_list})
+        context = Context({"receipts_list": receipts_list, "total_payments": total_payments, "travellingallowance_list": travellingallowance_list, \
+                            "loans_list": loans_list, "paymentofsalary_list": paymentofsalary_list, "printingcharges_list": printingcharges_list, \
+                            "stationarycharges_list": stationarycharges_list,"othercharges_list": othercharges_list, \
+                            "savingswithdrawal_list": savingswithdrawal_list, "recurringwithdrawal_list": recurringwithdrawal_list, \
+                            "fixedwithdrawal_list": fixedwithdrawal_list, "total": total, "dict_payments": dict_payments, "dict": dict, \
+                            "selected_date": selected_date, "grouped_receipts_list": grouped_receipts_list, "thrift_deposit_sum_list": thrift_deposit_sum_list, \
+                            "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list, "loaninterest_amount_sum_list": loaninterest_amount_sum_list, \
+                            "entrancefee_amount_sum_list": entrancefee_amount_sum_list, "membershipfee_amount_sum_list": membershipfee_amount_sum_list, \
+                            "bookfee_amount_sum_list": bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list, \
+                            "insurance_amount_sum_list": insurance_amount_sum_list})
         html  = template.render(context)
         result = StringIO.StringIO()
         pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
@@ -2194,7 +2207,7 @@ def daybook_pdfdownload(request, date):
         else:
             return HttpResponse('We had some errors')
     except Exception, err:
-        errmsg = "%s"%(err)
+        errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
 
@@ -2210,23 +2223,23 @@ def user_change_password(request, user_id):
             new_password = request.POST.get("new_password")
             new_pwd_length = len(new_password)
             if new_pwd_length < 1 :
-                data = {"error":True, "newpwderror":"Password cannot be blank."}
+                data = {"error": True, "newpwderror": "Password cannot be blank."}
                 return HttpResponse(json.dumps(data))
             elif new_pwd_length < 5 :
-                data = {"error":True, "newpwderror":"Your password must be at least 5 characters long."}
+                data = {"error": True, "newpwderror": "Your password must be at least 5 characters long."}
                 return HttpResponse(json.dumps(data))
             else:
                 confirm_new_password = request.POST.get("confirm_new_password")
                 if new_password != confirm_new_password :
-                    data = {"error":True, "matchpwdserror":"Password and Confirm Password don't match."}
+                    data = {"error": True, "matchpwdserror": "Password and Confirm Password don't match."}
                     return HttpResponse(json.dumps(data))
                 elif new_password == confirm_new_password :
                     user.set_password(new_password)
                     user.save()
-                    data = {"error":False}
+                    data = {"error": False}
                     return HttpResponse(json.dumps(data))
         else:
-            data = {"error":True, "currentpwderror":"Entered Current Password is incorrect."}
+            data = {"error": True, "currentpwderror": "Entered Current Password is incorrect."}
             return HttpResponse(json.dumps(data))
 
 
@@ -2264,19 +2277,19 @@ def getmember_loanaccounts(request):
                                 grouploanlist.append(dict)
                             else:
                                 continue
-                        data = {"error":False, "list":list, "grouploanlist":grouploanlist, "groupname":groupname, "groupaccountnumber":groupaccountnumber}
+                        data = {"error": False, "list": list, "grouploanlist": grouploanlist, "groupname": groupname, "groupaccountnumber": groupaccountnumber}
                     except Exception:
-                        data = {"error":False, "list":list, "groupname":groupname, "groupaccountnumber":groupaccountnumber}
+                        data = {"error": False, "list": list, "groupname": groupname, "groupaccountnumber": groupaccountnumber}
 
                 except ObjectDoesNotExist:
-                    data = {"error":False, "list":list}
+                    data = {"error": False, "list": list}
 
             except Exception:
-                data = {"error":False}
+                data = {"error": False}
         except Client.DoesNotExist:
-            data = {"error":True, "message1":"No Member exists with this Account Number."}
+            data = {"error": True, "message1": "No Member exists with this Account Number."}
     else:
-        data = {"error":False}
+        data = {"error": False}
     return HttpResponse(json.dumps(data))
 
 
@@ -2288,10 +2301,10 @@ def getloan_demands(request):
             if d(loan_account.total_loan_balance) or d(loan_account.interest_charged) or d(loan_account.loan_repayment_amount) or d(loan_account.principle_repayment) :
                 demand_loanprinciple = str(loan_account.principle_repayment)
                 demand_loaninterest = str(loan_account.interest_charged)
-                data = {"error":False, "demand_loanprinciple":demand_loanprinciple, "demand_loaninterest":demand_loaninterest}
+                data = {"error": False, "demand_loanprinciple": demand_loanprinciple, "demand_loaninterest": demand_loaninterest}
             else:
-                data = {"error":True, "message1":"Loan has been cleared sucessfully."}
+                data = {"error": True, "message1": "Loan has been cleared sucessfully."}
         else:
-            data = {"error":True, "message1":"Member Loan is under pending for approval."}
+            data = {"error": True, "message1": "Member Loan is under pending for approval."}
         return HttpResponse(json.dumps(data))
 
