@@ -23,7 +23,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ thrift_deposit_sum.account_number }}</td>
-          <td>-</td>
+          {% if thrift_deposit_sum.receipt_number|length > 1 %}
+            <td>
+              {% for receipt in thrift_deposit_sum.receipt_number %}
+                {{receipt}}
+                {%if not forloop.last%},{%endif%}
+              {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ thrift_deposit_sum.receipt_number }}</td>
+          {% endif %}
           <td>{{ thrift_deposit_sum.group_name }}</td>
           <td>{{ thrift_deposit_sum.thrift_deposit_sum|floatformat:2 }}</td>
           <td>-</td>
@@ -36,6 +45,93 @@
           <td>-</td>
         </tr>
         <tr style="text-align:center">
+          <td colspan="6" class="color-inner-hedng box-center"><b>Fixed Deposits</b></td>
+        </tr>
+        {% for fixed_deposit_sum in fixed_deposit_sum_list %}
+        {% if fixed_deposit_sum.fixed_deposit_sum %}
+        <tr>
+          <td>{{ selected_date }}</td>
+          <td>{{ fixed_deposit_sum.account_number }}</td>
+          {% if fixed_deposit_sum.receipt_number|length > 1 %}
+            <td>
+              {% for receipt in fixed_deposit_sum.receipt_number %}
+                {{receipt}}
+                {%if not forloop.last%},{%endif%}
+              {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ fixed_deposit_sum.receipt_number }}</td>
+          {% endif %}
+          <td>{{ fixed_deposit_sum.group_name }}</td>
+          <td>{{ fixed_deposit_sum.fixed_deposit_sum|floatformat:2 }}</td>
+          <td>-</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        <tr>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Savings</b></td>
+          <td>{{ dict.total_fixed_deposit_sum|floatformat:2 }}</td>
+          <td>-</td>
+        </tr>
+        <tr style="text-align:center">
+          <td colspan="6" class="color-inner-hedng box-center"><b>Recurring Deposits</b></td>
+        </tr>
+        {% for recurring_deposit_sum in recurring_deposit_sum_list %}
+        {% if recurring_deposit_sum.recurring_deposit_sum %}
+        <tr>
+          <td>{{ selected_date }}</td>
+          <td>{{ recurring_deposit_sum.account_number }}</td>
+          {% if recurring_deposit_sum.receipt_number %}
+            <td>
+            {% for receipt in recurring_deposit_sum.receipt_number %}
+              {{ receipt }}
+              {%if not forloop.last%},{%endif%}
+            {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ recurring_deposit_sum.receipt_number }}</td>
+          {% endif %}
+          <td>{{ recurring_deposit_sum.group_name }}</td>
+          <td>{{ recurring_deposit_sum.recurring_deposit_sum|floatformat:2 }}</td>
+          <td>-</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        <tr>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Savings</b></td>
+          <td>{{ dict.total_recurring_deposit_sum|floatformat:2 }}</td>
+          <td>-</td>
+        </tr>
+        <tr style="text-align:center">
+          <td colspan="6" class="color-inner-hedng box-center"><b>Share Capital</b></td>
+        </tr>
+        {% for share_capital_amount in share_capital_amount_sum_list %}
+        {% if share_capital_amount.share_capital_amount_sum %}
+        <tr>
+          <td>{{ selected_date }}</td>
+          <td>{{ share_capital_amount.account_number }}</td>
+          {% if share_capital_amount.receipt_number %}
+            <td>
+            {% for receipt in share_capital_amount.receipt_number %}
+              {{ receipt }}
+              {%if not forloop.last%},{%endif%}
+            {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ share_capital_amount.receipt_number }}</td>
+          {% endif %}
+          <td>{{ share_capital_amount.group_name }}</td>
+          <td>{{ share_capital_amount.share_capital_amount_sum|floatformat:2 }}</td>
+          <td>-</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        <tr>
+          <td colspan="4" style="text-align:right" class="color-inner-hedng box-center"><b>Total Savings</b></td>
+          <td>{{ dict.total_share_capital_amount_sum|floatformat:2 }}</td>
+          <td>-</td>
+        </tr>
+        <tr style="text-align:center">
           <td colspan="6" class="color-inner-hedng box-center"><b>Loan Recoveries</b></td>
         </tr>
         {% for loanprinciple_amount in loanprinciple_amount_sum_list %}
@@ -43,7 +139,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ loanprinciple_amount.account_number }}</td>
-          <td>-</td>
+          {% if loanprinciple_amount.group_id %}
+            <td>
+              {% for receipt in loanprinciple_amount.receipt_number %}
+                {{receipt}}
+                {%if not forloop.last%},{%endif%}
+              {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ loanprinciple_amount.receipt_number }}</td>
+          {% endif %}
           <td>{{ loanprinciple_amount.group_name }}</td>
           <td>{{ loanprinciple_amount.loanprinciple_amount_sum|floatformat:2 }}</td>
           <td>-</td>
@@ -63,7 +168,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ loaninterest_amount.account_number }}</td>
-          <td>-</td>
+          {% if loaninterest_amount.group_id %}
+            <td>
+              {% for receipt in loaninterest_amount.receipt_number %}
+                {{ receipt }}
+                {%if not forloop.last%},{%endif%}
+              {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ loaninterest_amount.receipt_number }}</td>
+          {% endif %}
           <td>{{ loaninterest_amount.group_name }}</td>
           <td>{{ loaninterest_amount.loaninterest_amount_sum|floatformat:2 }}</td>
           <td>-</td>
@@ -83,7 +197,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ entrancefee_amount.account_number }}</td>
-          <td>-</td>
+          {% if entrancefee_amount.group_id %}
+            <td>
+              {% for receipt in entrancefee_amount.receipt_number %}
+                {{ receipt }}
+                {%if not forloop.last%},{%endif%}
+              {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ entrancefee_amount.receipt_number }}</td>
+          {% endif %}
           <td>{{ entrancefee_amount.group_name }}</td>
           <td>{{ entrancefee_amount.entrancefee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
@@ -103,7 +226,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ membershipfee_amount.account_number }}</td>
-          <td>-</td>
+          {% if membershipfee_amount.group_id %}
+            <td>
+            {% for receipt in membershipfee_amount.receipt_number %}
+              {{ receipt }}
+              {%if not forloop.last%},{%endif%}
+            {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ membershipfee_amount.receipt_number }}</td>
+          {% endif %}
           <td>{{ membershipfee_amount.group_name }}</td>
           <td>{{ membershipfee_amount.membershipfee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
@@ -123,7 +255,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ bookfee_amount.account_number }}</td>
-          <td>-</td>
+          {% if bookfee_amount.group_id %}
+            <td>
+            {% for receipt in bookfee_amount.receipt_number %}
+              {{ receipt }}
+              {%if not forloop.last%},{%endif%}
+            {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ bookfee_amount.receipt_number }}</td>
+          {% endif %}
           <td>{{ bookfee_amount.group_name }}</td>
           <td>{{ bookfee_amount.bookfee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
@@ -143,7 +284,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ loanprocessingfee_amount.account_number }}</td>
-          <td>-</td>
+          {% if loanprocessingfee_amount.group_id %}
+            <td>
+            {% for receipt in loanprocessingfee_amount.receipt_number %}
+              {{ receipt }}
+              {%if not forloop.last%},{%endif%}
+            {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ loanprocessingfee_amount.receipt_number }}</td>
+          {% endif %}
           <td>{{ loanprocessingfee_amount.group_name }}</td>
           <td>{{ loanprocessingfee_amount.loanprocessingfee_amount_sum|floatformat:2 }}</td>
           <td>-</td>
@@ -163,7 +313,16 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ insurance_amount.account_number }}</td>
-          <td>-</td>
+          {% if insurance_amount.group_id %}
+            <td>
+            {% for receipt in insurance_amount.receipt_number %}
+              {{ receipt }}
+              {%if not forloop.last%},{%endif%}
+            {% endfor %}
+            </td>
+          {% else %}
+          <td>{{ insurance_amount.receipt_number }}</td>
+          {% endif %}
           <td>{{ insurance_amount.group_name }}</td>
           <td>{{ insurance_amount.insurance_amount_sum|floatformat:2 }}</td>
           <td>-</td>
