@@ -2303,7 +2303,7 @@ def general_ledger_pdfdownload(request):
 
 @login_required
 def daybook_pdfdownload(request, date):
-    receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list = day_book_function(request, date)
+    receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, recurring_deposit_sum_list, fixed_deposit_sum_list, share_capital_amount_sum_list = day_book_function(request, date)
     try:
         template = get_template("pdf_daybook.html")
         context = Context({"receipts_list": receipts_list, "total_payments": total_payments, "travellingallowance_list": travellingallowance_list, \
