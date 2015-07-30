@@ -49,7 +49,6 @@ def user_login(request):
             return render(request, "index.html", {"user": user})
 
 
-@login_required
 def user_logout(request):
     if not request.user.is_authenticated():
         return HttpResponse("")
