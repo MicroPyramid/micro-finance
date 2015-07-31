@@ -78,6 +78,11 @@ class Modelform_test(TestCase):
         form = PaymentForm(data={"date":'10/10/2014', "branch":self.b.id, "voucher_number":1231, "payment_type":'Loans', "amount":500, "interest":3, "total_amount":5000, "totalamount_in_words":'1 rupee'})
         self.assertTrue(form.is_valid())
 
+    # PAYMENT FORM INVALID
+    def test_PaymentForm(self):
+        form = PaymentForm(data={"date": "", "branch": "", "voucher_number": "", "payment_type": "", "amount": "", "interest": "", "total_amount": "", "totalamount_in_words": ""})
+        self.assertFalse(form.is_valid())
+
     def test_FixedDepositForm(self):
         form = FixedDepositForm(data={"nominee_firstname":'john', "nominee_lastname":'kumar', "nominee_occupation":'Big data analyst', "fixed_deposit_number":12, "deposited_date":'10/10/2014', "fixed_deposit_amount":12, "fixed_deposit_period":10, "fixed_deposit_interest_rate":3, "relationship_with_nominee":'friend', "nominee_photo":self.f, "nominee_signature":self.f})
         #self.assertTrue(form.is_valid())
@@ -109,20 +114,37 @@ class Admin_Views_test(TestCase):
         self.b = Branch.objects.create(name='sbh', opening_date='2014-10-10', country='ind', state='AP', district='Nellore', city='Nellore', area='circle', phone_number=944454651165, pincode=502286)
         self.u = User.objects.create_user(username = 'jag',email='jagadeesh@gmail.com',branch=self.b,password='jag')
         self.c = Client.objects.create(first_name="Micro", last_name="Pyramid",created_by=self.u , date_of_birth='2014-10-10', joined_date="2014-10-10", branch = self.b, account_number=123, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP',district='Nellore', city='Nellore', area='rfc')
-        self.cs = SavingsAccount.objects.create(account_no='CS1',client=self.c, opening_date='2014-1-1', min_required_balance=0, annual_interest_rate=1,created_by=self.u,status='Approved')
+        self.c1 = Client.objects.create(first_name="Micro1", last_name="Pyramid",created_by=self.u , date_of_birth='2014-10-10', joined_date="2014-10-10", branch = self.b, account_number=1234, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP',district='Nellore', city='Nellore', area='rfc')
+        
+        self.cs = SavingsAccount.objects.create(account_no='CS1',client=self.c, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1,created_by=self.u,status='Approved')
+        self.cs1 = SavingsAccount.objects.create(account_no='CS2',client=self.c1, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1,created_by=self.u,status='Approved')
+
         self.g = Group.objects.create(name='group1', created_by=self.u, account_number='1', activation_date='2014-1-1', branch=self.b)
         self.g.clients.add(self.c)
         self.g.save()
         self.c.status = 'Assigned'
         self.c.save()
+
+        self.group_client = Client.objects.create(first_name="Micro2", last_name="Pyramid",created_by=self.u , date_of_birth='2014-10-10', joined_date="2014-10-10", branch = self.b, account_number=1, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP',district='Nellore', city='Nellore', area='rfc')
+        self.g1 = Group.objects.create(name='group2', created_by=self.u, account_number='2', activation_date='2014-1-1', branch=self.b)
+        self.g1.clients.add(self.group_client)
+        self.g1.clients.add(self.c1)
+        self.g1.save()
+        self.group_client.status = 'Assigned'
+        self.group_client.save()
+
         self.u2 = User.objects.create_user(username = 'ravi',email='ravi@gmail.com',branch=self.b,password='ravi')
-        self.gs = SavingsAccount.objects.create(account_no='GS1',group=self.g, opening_date='2014-1-1', min_required_balance=0, annual_interest_rate=1,created_by=self.u2,status='Approved')
-        self.grouploan = LoanAccount.objects.create(account_no='GL1', interest_type='Flat', group=self.g, created_by=self.u,status="Approved", loan_amount=12000,          loan_repayment_period=12,loan_repayment_every=1,annual_interest_rate=2, loanpurpose_description='Home Loan',interest_charged=20,total_loan_balance=12000,principle_repayment=1000)
+        self.gs = SavingsAccount.objects.create(account_no='GS1',group=self.g, opening_date='2014-1-1', min_required_balance=0,  savings_balance=100, annual_interest_rate=1,created_by=self.u2,status='Approved')
+        self.gs1 = SavingsAccount.objects.create(account_no='GS2',group=self.g1, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1,created_by=self.u,status='Approved')
+        
+        self.grouploan = LoanAccount.objects.create(account_no='GL1', interest_type='Flat', group=self.g, created_by=self.u,status="Approved", loan_amount=12000, loan_repayment_period=12,loan_repayment_every=1,annual_interest_rate=2, loanpurpose_description='Home Loan',interest_charged=20,total_loan_balance=12000,principle_repayment=1000)
         self.clientloan = LoanAccount.objects.create(account_no='CL1', interest_type='Flat', client=self.c, created_by=self.u,status="Approved", loan_amount=12000,          loan_repayment_period=12,loan_repayment_every=1,annual_interest_rate=2, loanpurpose_description='Home Loan',interest_charged=20,total_loan_balance=12000,principle_repayment=1000)
+        self.loanaccount_group2 = LoanAccount.objects.create(account_no='GL2', interest_type='Flat', group=self.g1, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
         fxd = FixedDeposits.objects.create(client=self.c, deposited_date='2014-1-1', status='Opened', fixed_deposit_number='f1', fixed_deposit_amount=1200, fixed_deposit_period=12, fixed_deposit_interest_rate=3, nominee_firstname='r', nominee_lastname='k',nominee_gender='M',relationship_with_nominee='friend',nominee_date_of_birth='2014-10-10', nominee_occupation='teacher', )
         rcd = RecurringDeposits.objects.create(client=self.c, deposited_date='2014-1-1', reccuring_deposit_number='r1', status='Opened', recurring_deposit_amount=1200, recurring_deposit_period=200, recurring_deposit_interest_rate=3, nominee_firstname='ra', nominee_lastname='ku', nominee_gender='M', relationship_with_nominee='friend', nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
-
-
+        self.f = NamedTemporaryFile(delete=False, suffix='.jpg',)
+        self.receipt = Receipts.objects.create(receipt_number=1, date="2015-2-20", staff=self.u, branch=self.b, client=self.c, entrancefee_amount="100")
+        self.payments = Payments.objects.create(date="2015-2-20", staff=self.u, branch=self.b, client=self.c, payment_type="OtherCharges", voucher_number=1, amount=100, total_amount=101, interest=1, totalamount_in_words="hundred")
 
     def test_views(self):
         client = Client()
@@ -668,3 +690,250 @@ class Admin_Views_test(TestCase):
     #     response = self.client.post('/receiptsdeposit/', {"loan_account_no": 12, "date": '10/10/2015', 'client': self.c.first_name, 'member_loan_account': 123, "branch": self.b.id, "receipt_number": 3, "loanprocessingfee_amount": 700})
     #     self.assertEqual(response.status_code, 200)
 
+    def test_ledger_account(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.get('/ledgeraccount/'+str(self.c.id)+'/'+str(self.clientloan.id)+'/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "client_ledger_account.html")
+
+    def test_general_ledger(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.get('/generalledger/', {"date": '2015-2-20'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "generalledger.html")
+
+    def test_day_book(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/viewdaybook/', {"date": '2/20/2015'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "day_book.html")
+
+    def test_payslip_post_data(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"date": '2/20/2015', "branch": self.b.id, "voucher_number": 25, "payment_type": 'OtherCharges', "amount": 0, "interest": '', "total_amount": 0, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_invalid_data(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"date": "", "branch": "", "voucher_number": "", "payment_type": "", "amount": "", "interest": "", "total_amount": "", "totalamount_in_words": ""})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data1(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"date": '2/20/2015', "branch": self.b.id, "voucher_number": 36, "payment_type": 'TravellingAllowance', "amount": 500, "interest": '', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data2(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"date": '2/20/2015', "branch": self.b.id, "voucher_number": 2, "payment_type": 'TravellingAllowance', "amount": 500, "interest": '', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Please enter Employee Username
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data3(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"staff_username": 'user', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 3, "payment_type": 'TravellingAllowance', "amount": 500, "interest": '', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Entered Employee Username is incorrect
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data4(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        User.objects.create_user(username='user1', password='user1', email="user1@mp.com", branch=self.b,)
+        response = self.client.post('/payslip/', {"staff_username": 'user1', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 4, "payment_type": 'TravellingAllowance', "amount": 500, "interest": '', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # False
+        self.assertTrue('"error": false' in response.content)
+
+    def test_payslip_post_data5(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        User.objects.create(username='user1', password='user1', email="user1@mp.com", branch=self.b,)
+        response = self.client.post('/payslip/', {"staff_username": 'user1', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 5, "payment_type": 'TravellingAllowance', "amount": 500, "interest": '2', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # "Interest must be empty for TA and Payment of salary Voucher."
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data6(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        User.objects.create(username='user1', password='user1', email="user1@mp.com", branch=self.b,)
+        response = self.client.post('/payslip/', {"staff_username": 'user1', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 6, "payment_type": 'TravellingAllowance', "amount": 50, "interest": '', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Entered total amount is not equal to amount.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data7(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"date": '2/20/2015', "branch": self.b.id, "voucher_number": 7, "payment_type": 'PrintingCharges', "amount": 500, "interest": '', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": false' in response.content)
+
+    def test_payslip_post_data8(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"date": '2/20/2015', "branch": self.b.id, "voucher_number": 8, "payment_type": 'PrintingCharges', "amount": 50, "interest": '', "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data9(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"date": '2/20/2015', "branch": self.b.id, "voucher_number": 9, "payment_type": 'PrintingCharges', "amount": 50, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_10(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"client_name": "", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 10, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Please enter the Member First Name
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_11(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"client_name": "Micro1", "client_account_number": '', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 11, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Please enter the Member Account number
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_12(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"client_name": "Micro1", "client_account_number": '1234', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 12, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Please enter the Group name of the Member.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_13(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"client_name": "Micro12", "client_account_number": '12345', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 13, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Member does not exists with this First Name and A/C Number. Please enter correct details.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_14(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        Client.objects.create(first_name="Micro12", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.b, account_number=12345, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP',district='Nellore', city='Nellore', area='rfc')
+        response = self.client.post('/payslip/', {"client_name": "Micro12", "client_account_number": '12345', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 14, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Member does not have Savings Account to withdraw amount.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_15(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"client_name": "Micro1", "client_account_number": '1234', "date": '2/20/2015', "branch": self.b.id, "voucher_number": 15, "payment_type": 'SavingsWithdrawal', "amount": 500, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Member Savings Account does not have sufficient balance.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_16(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "", "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 16, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": '', "total_amount": 50, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Please enter the Group name of the Member.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_17(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "client_name": "Micro", "client_account_number": 123, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 17, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": '', "total_amount": 50, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Member does not belong to the entered Group Name.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_18(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": 3, "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 18, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": '', "total_amount": 50, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        # Entered Group A/C Number is incorrect.
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_19(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": 2, "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 19, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": '', "total_amount": 50, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": false' in response.content)
+
+    def test_payslip_post_data_20(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": 2, "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 20, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": '', "total_amount": 51, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_21(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": 2, "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 21, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 51, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": false' in response.content)
+
+    def test_payslip_post_data_22(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": 2, "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 22, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_23(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 23, "payment_type": 'Loans', "amount": 50, "interest": 1, "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_24(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": 2, "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 23, "payment_type": 'Loans', "amount": 50, "interest": "", "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_25(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 24, "payment_type": 'Loans', "amount": 50, "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_26(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": "",  "date": '2/20/2015', "branch": self.b.id, "voucher_number": 25, "payment_type": 'Loans', "amount": 50, "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_27(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group3", "group_account_number": "3", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 26, "payment_type": 'Loans', "amount": 50, "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_28(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": "2", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 26, "payment_type": 'Loans', "amount": 50, "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_29(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": "2", "group_loan_account_no": "GL2", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 27, "payment_type": 'Loans', "amount": 50, "total_amount": 52, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_30(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": "2", "group_loan_account_no": "GL2", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 27, "payment_type": 'Loans', "amount": 50, "total_amount": 50, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_31(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": "2", "group_loan_account_no": "GL2", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 27, "payment_type": 'Loans', "amount": 12000, "total_amount": 12000, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": false' in response.content)
+
+    def test_payslip_post_data_32(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        g2 = Group.objects.create(name='group4', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.b)
+        loanaccount_group4 = LoanAccount.objects.create(account_no='GL4', interest_type='Flat', group=g2, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        response = self.client.post('/payslip/', {"group_name": "group4", "group_account_number": "4", "group_loan_account_no": "GL4", "date": '2/20/2015', "branch": self.b.id, "voucher_number": 27, "payment_type": 'Loans', "amount": 12000, "total_amount": 12000, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
+
+    def test_payslip_post_data_33(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        response = self.client.post('/payslip/', {"group_name": "group2", "group_account_number": "", "client_name": "Micro1", "client_account_number": 1234, "date": '2/20/2015', "branch": self.b.id, "voucher_number": 18, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": '', "total_amount": 50, "totalamount_in_words": '1 rupee'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": true' in response.content)
