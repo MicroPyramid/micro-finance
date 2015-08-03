@@ -1054,7 +1054,6 @@ def receipts_deposit(request):
                                                                         group_loan_account.total_loan_paid = d(d(group_loan_account.total_loan_amount_repaid) + d(group_loan_account.total_interest_repaid))
                                                                         group_loan_account.total_loan_balance -= d(request.POST.get("loanprinciple_amount"))
 
-
                                                                         if d(loan_account.total_loan_amount_repaid) == d(loan_account.loan_amount) and d(loan_account.total_loan_balance) == d(0):
                                                                             if d(request.POST.get("loanprinciple_amount")) > d(loan_account.principle_repayment) :
                                                                                 data = {"error":True, "message1":"Amount is greater than issued loan amount. Transaction can't be done."}
@@ -1264,7 +1263,6 @@ def receipts_deposit(request):
                         group_savings_account.save()
                     except NameError:
                         pass
-
                     data = {"error":False}
                     return HttpResponse(json.dumps(data))
                 else:
