@@ -23,6 +23,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 d = decimal.Decimal
 
+
 def index(request):
     data = {}
     data.update(csrf(request))
@@ -35,7 +36,7 @@ def user_login(request):
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
-                data = {"error": False,"message": "Loggedin Successfully"}
+                data = {"error": False, "message": "Loggedin Successfully"}
                 return HttpResponse(json.dumps(data))
             else:
                 data = {"error": True, "message": "User is not active."}
@@ -77,9 +78,9 @@ def edit_branch(request, branch_id):
     if request.method == "GET":
         branch = Branch.objects.get(id=branch_id)
         if request.user.is_admin:
-            return render(request, "editbranchdetails.html", {"branch":branch, "branch_id":branch_id})
+            return render(request, "editbranchdetails.html", {"branch": branch, "branch_id": branch_id})
         else:
-            return render(request,"branchprofile.html", {"branch":branch})
+            return render(request, "branchprofile.html", {"branch": branch})
     else:
         branch = Branch.objects.get(id=branch_id)
         form = BranchForm(request.POST, instance=branch)
@@ -93,7 +94,7 @@ def edit_branch(request, branch_id):
 
 
 @login_required
-def branch_profile(request,branch_id):
+def branch_profile(request, branch_id):
     branch = Branch.objects.get(id=branch_id)
     return render(request, "branchprofile.html", {"branch": branch})
 
@@ -105,7 +106,7 @@ def view_branch(request):
 
 
 @login_required
-def delete_branch(request,branch_id):
+def delete_branch(request, branch_id):
     if request.user.is_admin:
         branch = Branch.objects.get(id=branch_id)
         branch.is_active = 0
@@ -138,14 +139,14 @@ def create_client(request):
 
 
 @login_required
-def client_profile(request,client_id):
+def client_profile(request, client_id):
     client = Client.objects.get(id=client_id)
     return render(request, "clientprofile.html", {"client": client})
 
 
 @login_required
-def edit_client(request,client_id):
-    if request.method =="GET":
+def edit_client(request, client_id):
+    if request.method == "GET":
         client = Client.objects.get(id=client_id)
         if request.user.is_admin or request.user.branch == client.branch:
             l = []
@@ -173,7 +174,7 @@ def edit_client(request,client_id):
 
 
 @login_required
-def update_clientprofile(request,client_id):
+def update_clientprofile(request, client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
         if request.user.is_admin or request.user.branch == client.branch:
@@ -195,13 +196,12 @@ def view_client(request):
 
 
 @login_required
-def delete_client(request,client_id):
+def delete_client(request, client_id):
     client = Client.objects.get(id=client_id)
     if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == client.branch):
         client.is_active = 0
         client.save()
     return HttpResponseRedirect('/viewclient/')
-
 
 
 @login_required
@@ -240,7 +240,7 @@ def create_user(request):
                 if mobile1:
                     user.mobile = mobile1
                 if date_of_birth1:
-                    datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"),"%m/%d/%Y").strftime('%Y-%m-%d')
+                    datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"), "%m/%d/%Y").strftime('%Y-%m-%d')
                     dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
                     user.date_of_birth = dateconvert
                 permission = Permission.objects.get(codename="branch_manager")
@@ -296,7 +296,7 @@ def user_profile(request, user_id):
 
 
 @login_required
-def users_list (request):
+def users_list(request):
     list_of_users = User.objects.filter(is_admin=0)
     return render(request, "listofusers.html", {"list_of_users": list_of_users})
 
@@ -341,7 +341,7 @@ def group_profile(request, group_id):
     if GroupMeetings.objects.filter(group_id=group.id):
         latest_group_meeting = GroupMeetings.objects.filter(group_id=group.id).order_by('-id')[0]
         return render(request, "groupprofile.html", {"group": group, "clients_list": clients_list, "clients_count": clients_count, \
-            "latest_group_meeting":latest_group_meeting})
+            "latest_group_meeting": latest_group_meeting})
     else:
         return render(request, "groupprofile.html", {"group": group, "clients_list": clients_list, "clients_count": clients_count})
 
@@ -433,7 +433,7 @@ def removemembers_from_group(request, group_id, client_id):
 @login_required
 def group_meetings(request, group_id):
     group = Group.objects.get(id=group_id)
-    return HttpResponse("List of Group of Meetings")
+    return HttpResponse("List of Group #%s of Meetings" % group.id)
 
 
 @login_required
@@ -447,7 +447,7 @@ def add_group_meeting(request, group_id):
             return render(request, "add_group_meeting.html", {"group": group})
     else:
         group = Group.objects.get(id=group_id)
-        datestring_format = datetime.datetime.strptime(request.POST.get("meeting_date"),'%m/%d/%Y').strftime('%Y-%m-%d')
+        datestring_format = datetime.datetime.strptime(request.POST.get("meeting_date"), '%m/%d/%Y').strftime('%Y-%m-%d')
         dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
         meeting_date = dateconvert
         meeting_time = request.POST.get("meeting_time")
@@ -464,7 +464,7 @@ def client_savings_application(request, client_id):
             return HttpResponseRedirect('/clientsavingsaccount/'+client_id+'/')
         else:
             count = SavingsAccount.objects.all().count()
-            account_no = "%s%s%d" % ("S", client.branch.id,count+1)
+            account_no = "%s%s%d" % ("S", client.branch.id, count+1)
             return render(request, "client_savings_application.html", {"client": client, "account_no": account_no})
     else:
         form = SavingsAccountForm(request.POST)
@@ -482,7 +482,7 @@ def client_savings_application(request, client_id):
 
 
 @login_required
-def client_savings_account(request,client_id):
+def client_savings_account(request, client_id):
     client = Client.objects.get(id=client_id)
     savingsaccount = SavingsAccount.objects.get(client=client)
     return render(request, "client_savings_account.html", {"client": client, "savingsaccount": savingsaccount})
@@ -497,7 +497,7 @@ def group_savings_application(request, group_id):
             return HttpResponseRedirect('/groupsavingsaccount/'+group_id+'/')
         else:
             count = SavingsAccount.objects.all().count()
-            account_no = "%s%s%d" % ("S",group.branch.id,count+1)
+            account_no = "%s%s%d" % ("S", group.branch.id, count+1)
             return render(request, "group_savings_application.html", {"group": group, "account_no": account_no})
     else:
         group_savingsaccount_form = SavingsAccountForm(request.POST)
@@ -632,7 +632,7 @@ def group_loan_application(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
         count = LoanAccount.objects.all().count()
-        account_no = "%s%s%d" % ("L",group.branch.id,count+1)
+        account_no = "%s%s%d" % ("L", group.branch.id, count+1)
         return render(request, "group_loan_application.html", {"group": group, "account_no": account_no})
     else:
         group_loanaccount_form = LoanAccountForm(request.POST)
@@ -643,7 +643,7 @@ def group_loan_application(request, group_id):
             loan_account.created_by = User.objects.get(username=request.user)
             loan_account.group = group
 
-            interest_charged = d((d(loan_account.loan_amount) * ( d(loan_account.annual_interest_rate) / 12 )) / 100)
+            interest_charged = d((d(loan_account.loan_amount) * (d(loan_account.annual_interest_rate) / 12 )) / 100)
             loan_account.principle_repayment = d(int(loan_account.loan_repayment_every) * \
                                                                 (d(loan_account.loan_amount) / d(loan_account.loan_repayment_period)) \
                                                                 )
@@ -663,7 +663,7 @@ def client_loan_application(request, client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
         count = LoanAccount.objects.all().count()
-        account_no = "%s%s%d" % ("L",client.branch.id,count+1)
+        account_no = "%s%s%d" % ("L", client.branch.id, count+1)
         return render(request, "client_loan_application.html", {"client": client, "account_no": account_no})
     else:
         form = LoanAccountForm(request.POST)
@@ -687,7 +687,7 @@ def client_loan_application(request, client_id):
 
 
 @login_required
-def client_loan_account(request,loanaccount_id):
+def client_loan_account(request, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
     return render(request, "client_loan_account.html", {"client": loanaccount.client, "loanaccount": loanaccount})
 
@@ -740,6 +740,7 @@ def reject_loan(request, loanaccount_id):
         except LoanAccount.DoesNotExist:
             data = {"error": True}
             return HttpResponse(json.dumps(data))
+
 
 @login_required
 def close_loan(request, loanaccount_id):
@@ -824,14 +825,14 @@ def listofclient_loan_deposits(request, client_id, loanaccount_id):
 
 
 @login_required
-def listofclient_savings_deposits(request,client_id):
+def listofclient_savings_deposits(request, client_id):
     savingsaccount = SavingsAccount.objects.get(client=client_id)
     receipts_lists = Receipts.objects.filter(client=client_id).exclude(savingsdeposit_thrift_amount=0)
     return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
 
 
 @login_required
-def listofclient_savings_withdrawals(request,client_id):
+def listofclient_savings_withdrawals(request, client_id):
     client = Client.objects.get(id=client_id)
     savings_withdrawals_list = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal")
     count = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal").count()
@@ -863,7 +864,7 @@ def receipts_deposit(request):
     elif request.method == "POST":
         receipt_form = ReceiptForm(request.POST)
         if receipt_form.is_valid():
-            datestring_format = datetime.datetime.strptime(request.POST.get("date"),"%m/%d/%Y").strftime("%Y-%m-%d")
+            datestring_format = datetime.datetime.strptime(request.POST.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
             dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
             date = dateconvert
             branch = Branch.objects.get(id=request.POST.get("branch"))
@@ -882,7 +883,7 @@ def receipts_deposit(request):
                 if request.POST.get("bookfee_amount"):
                     client.bookfee_amount += d(request.POST.get("bookfee_amount"))
                 if request.POST.get("loanprocessingfee_amount"):
-                    if request.POST.get("loan_account_no") :
+                    if request.POST.get("loan_account_no"):
                         try:
                             loan_account = LoanAccount.objects.get(client=client, account_no=request.POST.get("loan_account_no"))
                             loan_account.loanprocessingfee_amount += d(request.POST.get("loanprocessingfee_amount"))
@@ -892,33 +893,33 @@ def receipts_deposit(request):
                                     try:
                                         group = Group.objects.get(name__iexact=request.POST.get("group_name"), account_number=request.POST.get("group_account_number"))
                                         if request.POST.get("group_name").lower() == client_group.name.lower() and int(request.POST.get("group_account_number")) == int(client_group.account_number):
-                                            if request.POST.get("group_loan_account_no") :
+                                            if request.POST.get("group_loan_account_no"):
                                                 try:
                                                     group_loan_account = LoanAccount.objects.get(group=group, account_no=request.POST.get("group_loan_account_no"))
                                                     group_loan_account.loanprocessingfee_amount += d(request.POST.get("loanprocessingfee_amount"))
                                                 except LoanAccount.DoesNotExist:
-                                                    data = {"error":True, "message1":"Loan does not exists with this Loan Account Number for this Group."}
+                                                    data = {"error": True, "message1": "Loan does not exists with this Loan Account Number for this Group."}
                                                     return HttpResponse(json.dumps(data))
                                             else:
-                                                data = {"error":True, "message1":"Please enter the group loan account number."}
+                                                data = {"error": True, "message1": "Please enter the group loan account number."}
                                                 return HttpResponse(json.dumps(data))
                                         else:
-                                            data = {"error":True, "message1":"Member does not belong to this group."}
+                                            data = {"error": True, "message1": "Member does not belong to this group."}
                                             return HttpResponse(json.dumps(data))
                                     except Group.DoesNotExist:
-                                        data = {"error":True, "message1":"No Group exists with this name."}
+                                        data = {"error": True, "message1": "No Group exists with this name."}
                                         return HttpResponse(json.dumps(data))
                                 else:
-                                    data = {"error":True, "message1":"Please enter the Group Name and Account Number."}
+                                    data = {"error": True, "message1": "Please enter the Group Name and Account Number."}
                                     return HttpResponse(json.dumps(data))
                             except ObjectDoesNotExist:
-                                data = {"error":True, "message1":"Member has not been assigned to any group."}
+                                data = {"error": True, "message1": "Member has not been assigned to any group."}
                                 return HttpResponse(json.dumps(data))
                         except LoanAccount.DoesNotExist:
-                            data = {"error":True, "message1":"Loan does not exists with this Loan Account Number for this Member."}
+                            data = {"error": True, "message1": "Loan does not exists with this Loan Account Number for this Member."}
                             return HttpResponse(json.dumps(data))
                     else:
-                        data = {"error":True, "message1":"Please enter the Member Loan Account Number to pay the Loan processing fee."}
+                        data = {"error": True, "message1": "Please enter the Member Loan Account Number to pay the Loan processing fee."}
                         return HttpResponse(json.dumps(data))
 
                 if request.POST.get("savingsdeposit_thrift_amount"):
@@ -938,16 +939,16 @@ def receipts_deposit(request):
                                             group_savings_account.savings_balance += d(request.POST.get("savingsdeposit_thrift_amount"))
                                             group_savings_account.total_deposits += d(request.POST.get("savingsdeposit_thrift_amount"))
                                         except SavingsAccount.DoesNotExist:
-                                            data = {"error":True, "message1":"Group does not have savings account to make thrift deposit."}
+                                            data = {"error": True, "message1": "Group does not have savings account to make thrift deposit."}
                                             return HttpResponse(json.dumps(data))
                                     else:
-                                        data = {"error":True, "message1":"Member does not belong to this Group.Please check Group Name and Account Number."}
+                                        data = {"error": True, "message1": "Member does not belong to this Group.Please check Group Name and Account Number."}
                                         return HttpResponse(json.dumps(data))
                                 except Group.DoesNotExist:
-                                    data = {"error":True, "message1":"No Group exists with this Name and Account Number."}
+                                    data = {"error": True, "message1": "No Group exists with this Name and Account Number."}
                                     return HttpResponse(json.dumps(data))
                             else:
-                                data = {"error":True, "message1":"Please enter Group Name and Account Number."}
+                                data = {"error": True, "message1": "Please enter Group Name and Account Number."}
                                 return HttpResponse(json.dumps(data))
                         except ObjectDoesNotExist:
                             pass
@@ -968,7 +969,7 @@ def receipts_deposit(request):
 
                 try:
                     loan_account = LoanAccount.objects.get(client=client, account_no=request.POST.get("loan_account_no"))
-                    if loan_account.status == "Approved" :
+                    if loan_account.status == "Approved":
                         if d(loan_account.total_loan_balance) or d(loan_account.interest_charged) or d(loan_account.loan_repayment_amount) or d(loan_account.principle_repayment) :
                             var_demand_loanprinciple_amount_atinstant = d(loan_account.principle_repayment)
                             var_demand_loaninterest_amount_atinstant = d(loan_account.interest_charged)
@@ -978,11 +979,11 @@ def receipts_deposit(request):
                 except LoanAccount.DoesNotExist:
                     pass
 
-                if d(request.POST.get("loaninterest_amount")) != int(0) :
-                    if request.POST.get("loan_account_no") :
+                if d(request.POST.get("loaninterest_amount")) != int(0):
+                    if request.POST.get("loan_account_no"):
                         try:
                             loan_account = LoanAccount.objects.get(client=client, account_no=request.POST.get("loan_account_no"))
-                            if request.POST.get("group_loan_account_no") :
+                            if request.POST.get("group_loan_account_no"):
                                 try:
                                     client_group = client.group_set.get()
                                     if request.POST.get("group_name") and request.POST.get("group_account_number"):
@@ -1394,7 +1395,7 @@ def view_client_fixed_deposits(request):
 
 
 @login_required
-def view_particular_client_fixed_deposits(request,client_id):
+def view_particular_client_fixed_deposits(request, client_id):
     client = Client.objects.get(id=client_id)
     fixed_deposit_list = FixedDeposits.objects.filter(client=client_id).order_by("-id")
     return render(request, "view_client_fixed_deposits.html", {"fixed_deposit_list": fixed_deposit_list, "client": client})
@@ -1419,10 +1420,10 @@ def view_particular_client_recurring_deposits(request, client_id):
     return render(request, "view_client_recurring_deposits.html", {"recurring_deposit_list": recurring_deposit_list, "client": client})
 
 
-def get_receipts_list(list, receipt, value):
+def get_receipts_list(receipts_list, receipt, value):
     if value > 0:
-        list.append(receipt)
-    return list
+        receipts_list.append(receipt)
+    return receipts_list
 
 
 @login_required
@@ -1503,79 +1504,79 @@ def day_book_function(request, date):
                 share_capital_amount_sum += d(receipt.sharecapital_amount)
 
             group = Group.objects.get(id=group_id)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["receipt_number"] = share_capital_receipts_list
-            dict["share_capital_amount_sum"] = share_capital_amount_sum
-            dict["account_number"] = group.account_number
-            share_capital_amount_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["receipt_number"] = recurring_deposit_receipts_list
-            dict["recurring_deposit_sum"] = recurring_deposit_sum
-            dict["account_number"] = group.account_number
-            recurring_deposit_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["receipt_number"] = fixed_deposit_receipts_list
-            dict["fixed_deposit_sum"] = fixed_deposit_sum
-            dict["account_number"] = group.account_number
-            fixed_deposit_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["receipt_number"] = thrift_deposit_receipts_list
-            dict["thrift_deposit_sum"] = thrift_deposit_sum
-            dict["account_number"] = group.account_number
-            thrift_deposit_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["group_id"] = group.id
-            dict["receipt_number"] = loanprinciple_receipts_list
-            dict["loanprinciple_amount_sum"] = loanprinciple_amount_sum
-            dict["account_number"] = group.account_number
-            loanprinciple_amount_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["group_id"] = group.id
-            dict["receipt_number"] = loaninterest_receipts_list
-            dict["loaninterest_amount_sum"] = loaninterest_amount_sum
-            dict["account_number"] = group.account_number
-            loaninterest_amount_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["group_id"] = group.id
-            dict["receipt_number"] = entrancefee_receipts_list
-            dict["entrancefee_amount_sum"] = entrancefee_amount_sum
-            dict["account_number"] = group.account_number
-            entrancefee_amount_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["group_id"] = group.id
-            dict["receipt_number"] = membershipfee_receipts_list
-            dict["membershipfee_amount_sum"] = membershipfee_amount_sum
-            dict["account_number"] = group.account_number
-            membershipfee_amount_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["group_id"] = group.id
-            dict["receipt_number"] = bookfee_receipts_list
-            dict["bookfee_amount_sum"] = bookfee_amount_sum
-            dict["account_number"] = group.account_number
-            bookfee_amount_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["group_id"] = group.id
-            dict["receipt_number"] = loanprocessingfee_receipts_list
-            dict["loanprocessingfee_amount_sum"] = loanprocessingfee_amount_sum
-            dict["account_number"] = group.account_number
-            loanprocessingfee_amount_sum_list.append(dict)
-            dict = {}
-            dict["group_name"] = group.name
-            dict["group_id"] = group.id
-            dict["receipt_number"] = insurance_receipts_list
-            dict["insurance_amount_sum"] = insurance_amount_sum
-            dict["account_number"] = group.account_number
-            insurance_amount_sum_list.append(dict)
+            share_capital_amount_sum_dict = {}
+            share_capital_amount_sum_dict["group_name"] = group.name
+            share_capital_amount_sum_dict["receipt_number"] = share_capital_receipts_list
+            share_capital_amount_sum_dict["share_capital_amount_sum"] = share_capital_amount_sum
+            share_capital_amount_sum_dict["account_number"] = group.account_number
+            share_capital_amount_sum_list.append(share_capital_amount_sum_dict)
+            recurring_deposit_sum_dict = {}
+            recurring_deposit_sum_dict["group_name"] = group.name
+            recurring_deposit_sum_dict["receipt_number"] = recurring_deposit_receipts_list
+            recurring_deposit_sum_dict["recurring_deposit_sum"] = recurring_deposit_sum
+            recurring_deposit_sum_dict["account_number"] = group.account_number
+            recurring_deposit_sum_list.append(recurring_deposit_sum_dict)
+            fixed_deposit_sum_dict = {}
+            fixed_deposit_sum_dict["group_name"] = group.name
+            fixed_deposit_sum_dict["receipt_number"] = fixed_deposit_receipts_list
+            fixed_deposit_sum_dict["fixed_deposit_sum"] = fixed_deposit_sum
+            fixed_deposit_sum_dict["account_number"] = group.account_number
+            fixed_deposit_sum_list.append(fixed_deposit_sum_dict)
+            thrift_deposit_sum_dict = {}
+            thrift_deposit_sum_dict["group_name"] = group.name
+            thrift_deposit_sum_dict["receipt_number"] = thrift_deposit_receipts_list
+            thrift_deposit_sum_dict["thrift_deposit_sum"] = thrift_deposit_sum
+            thrift_deposit_sum_dict["account_number"] = group.account_number
+            thrift_deposit_sum_list.append(thrift_deposit_sum_dict)
+            loanprinciple_amount_sum_dict = {}
+            loanprinciple_amount_sum_dict["group_name"] = group.name
+            loanprinciple_amount_sum_dict["group_id"] = group.id
+            loanprinciple_amount_sum_dict["receipt_number"] = loanprinciple_receipts_list
+            loanprinciple_amount_sum_dict["loanprinciple_amount_sum"] = loanprinciple_amount_sum
+            loanprinciple_amount_sum_dict["account_number"] = group.account_number
+            loanprinciple_amount_sum_list.append(loanprinciple_amount_sum_dict)
+            loaninterest_amount_sum_dict = {}
+            loaninterest_amount_sum_dict["group_name"] = group.name
+            loaninterest_amount_sum_dict["group_id"] = group.id
+            loaninterest_amount_sum_dict["receipt_number"] = loaninterest_receipts_list
+            loaninterest_amount_sum_dict["loaninterest_amount_sum"] = loaninterest_amount_sum
+            loaninterest_amount_sum_dict["account_number"] = group.account_number
+            loaninterest_amount_sum_list.append(loaninterest_amount_sum_dict)
+            entrancefee_amount_sum_dict = {}
+            entrancefee_amount_sum_dict["group_name"] = group.name
+            entrancefee_amount_sum_dict["group_id"] = group.id
+            entrancefee_amount_sum_dict["receipt_number"] = entrancefee_receipts_list
+            entrancefee_amount_sum_dict["entrancefee_amount_sum"] = entrancefee_amount_sum
+            entrancefee_amount_sum_dict["account_number"] = group.account_number
+            entrancefee_amount_sum_list.append(entrancefee_amount_sum_dict)
+            membershipfee_amount_sum_dict = {}
+            membershipfee_amount_sum_dict["group_name"] = group.name
+            membershipfee_amount_sum_dict["group_id"] = group.id
+            membershipfee_amount_sum_dict["receipt_number"] = membershipfee_receipts_list
+            membershipfee_amount_sum_dict["membershipfee_amount_sum"] = membershipfee_amount_sum
+            membershipfee_amount_sum_dict["account_number"] = group.account_number
+            membershipfee_amount_sum_list.append(membershipfee_amount_sum_dict)
+            bookfee_amount_sum_dict = {}
+            bookfee_amount_sum_dict["group_name"] = group.name
+            bookfee_amount_sum_dict["group_id"] = group.id
+            bookfee_amount_sum_dict["receipt_number"] = bookfee_receipts_list
+            bookfee_amount_sum_dict["bookfee_amount_sum"] = bookfee_amount_sum
+            bookfee_amount_sum_dict["account_number"] = group.account_number
+            bookfee_amount_sum_list.append(bookfee_amount_sum_dict)
+            loanprocessingfee_sum_dict = {}
+            loanprocessingfee_sum_dict["group_name"] = group.name
+            loanprocessingfee_sum_dict["group_id"] = group.id
+            loanprocessingfee_sum_dict["receipt_number"] = loanprocessingfee_receipts_list
+            loanprocessingfee_sum_dict["loanprocessingfee_amount_sum"] = loanprocessingfee_amount_sum
+            loanprocessingfee_sum_dict["account_number"] = group.account_number
+            loanprocessingfee_amount_sum_list.append(loanprocessingfee_sum_dict)
+            insurance_amount_sum_dict = {}
+            insurance_amount_sum_dict["group_name"] = group.name
+            insurance_amount_sum_dict["group_id"] = group.id
+            insurance_amount_sum_dict["receipt_number"] = insurance_receipts_list
+            insurance_amount_sum_dict["insurance_amount_sum"] = insurance_amount_sum
+            insurance_amount_sum_dict["account_number"] = group.account_number
+            insurance_amount_sum_list.append(insurance_amount_sum_dict)
         else:
             receipts_list = Receipts.objects.filter(date=selected_date, group=0)
             thrift_deposit_sum = 0
@@ -1603,122 +1604,122 @@ def day_book_function(request, date):
                 recurring_deposit_sum = d(receipt.recurringdeposit_amount)
                 share_capital_amount_sum = d(receipt.sharecapital_amount)
 
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["recurring_deposit_sum"] = recurring_deposit_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                recurring_deposit_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["share_capital_amount_sum"] = share_capital_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                share_capital_amount_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["fixed_deposit_sum"] = fixed_deposit_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                fixed_deposit_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["thrift_deposit_sum"] = thrift_deposit_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                thrift_deposit_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["loanprinciple_amount_sum"] = loanprinciple_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                loanprinciple_amount_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["loaninterest_amount_sum"] = loaninterest_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                loaninterest_amount_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["entrancefee_amount_sum"] = entrancefee_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                entrancefee_amount_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["membershipfee_amount_sum"] = membershipfee_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                membershipfee_amount_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["bookfee_amount_sum"] = bookfee_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                bookfee_amount_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["loanprocessingfee_amount_sum"] = loanprocessingfee_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                loanprocessingfee_amount_sum_list.append(dict)
-                dict = {}
-                dict["group_name"] = receipt.client.first_name
-                dict["insurance_amount_sum"] = insurance_amount_sum
-                dict["account_number"] = receipt.client.account_number
-                dict["receipt_number"] = receipt.receipt_number
-                insurance_amount_sum_list.append(dict)
+                recurring_deposit_sum_dict = {}
+                recurring_deposit_sum_dict["group_name"] = receipt.client.first_name
+                recurring_deposit_sum_dict["recurring_deposit_sum"] = recurring_deposit_sum
+                recurring_deposit_sum_dict["account_number"] = receipt.client.account_number
+                recurring_deposit_sum_dict["receipt_number"] = receipt.receipt_number
+                recurring_deposit_sum_list.append(recurring_deposit_sum_dict)
+                share_capital_sum_dict = {}
+                share_capital_sum_dict["group_name"] = receipt.client.first_name
+                share_capital_sum_dict["share_capital_amount_sum"] = share_capital_amount_sum
+                share_capital_sum_dict["account_number"] = receipt.client.account_number
+                share_capital_sum_dict["receipt_number"] = receipt.receipt_number
+                share_capital_amount_sum_list.append(share_capital_sum_dict)
+                fixed_deposit_sum_dict = {}
+                fixed_deposit_sum_dict["group_name"] = receipt.client.first_name
+                fixed_deposit_sum_dict["fixed_deposit_sum"] = fixed_deposit_sum
+                fixed_deposit_sum_dict["account_number"] = receipt.client.account_number
+                fixed_deposit_sum_dict["receipt_number"] = receipt.receipt_number
+                fixed_deposit_sum_list.append(fixed_deposit_sum_dict)
+                thrift_deposit_sum_dict = {}
+                thrift_deposit_sum_dict["group_name"] = receipt.client.first_name
+                thrift_deposit_sum_dict["thrift_deposit_sum"] = thrift_deposit_sum
+                thrift_deposit_sum_dict["account_number"] = receipt.client.account_number
+                thrift_deposit_sum_dict["receipt_number"] = receipt.receipt_number
+                thrift_deposit_sum_list.append(thrift_deposit_sum_dict)
+                loanprinciple_amount_sum_dict = {}
+                loanprinciple_amount_sum_dict["group_name"] = receipt.client.first_name
+                loanprinciple_amount_sum_dict["loanprinciple_amount_sum"] = loanprinciple_amount_sum
+                loanprinciple_amount_sum_dict["account_number"] = receipt.client.account_number
+                loanprinciple_amount_sum_dict["receipt_number"] = receipt.receipt_number
+                loanprinciple_amount_sum_list.append(loanprinciple_amount_sum_dict)
+                loaninterest_sum_dict = {}
+                loaninterest_sum_dict["group_name"] = receipt.client.first_name
+                loaninterest_sum_dict["loaninterest_amount_sum"] = loaninterest_amount_sum
+                loaninterest_sum_dict["account_number"] = receipt.client.account_number
+                loaninterest_sum_dict["receipt_number"] = receipt.receipt_number
+                loaninterest_amount_sum_list.append(loaninterest_sum_dict)
+                entrancefee_sum_dict = {}
+                entrancefee_sum_dict["group_name"] = receipt.client.first_name
+                entrancefee_sum_dict["entrancefee_amount_sum"] = entrancefee_amount_sum
+                entrancefee_sum_dict["account_number"] = receipt.client.account_number
+                entrancefee_sum_dict["receipt_number"] = receipt.receipt_number
+                entrancefee_amount_sum_list.append(entrancefee_sum_dict)
+                membershipfee_sum_dict = {}
+                membershipfee_sum_dict["group_name"] = receipt.client.first_name
+                membershipfee_sum_dict["membershipfee_amount_sum"] = membershipfee_amount_sum
+                membershipfee_sum_dict["account_number"] = receipt.client.account_number
+                membershipfee_sum_dict["receipt_number"] = receipt.receipt_number
+                membershipfee_amount_sum_list.append(membershipfee_sum_dict)
+                bookfee_sum_dict = {}
+                bookfee_sum_dict["group_name"] = receipt.client.first_name
+                bookfee_sum_dict["bookfee_amount_sum"] = bookfee_amount_sum
+                bookfee_sum_dict["account_number"] = receipt.client.account_number
+                bookfee_sum_dict["receipt_number"] = receipt.receipt_number
+                bookfee_amount_sum_list.append(bookfee_sum_dict)
+                loanprocessingfee_sum_dict = {}
+                loanprocessingfee_sum_dict["group_name"] = receipt.client.first_name
+                loanprocessingfee_sum_dict["loanprocessingfee_amount_sum"] = loanprocessingfee_amount_sum
+                loanprocessingfee_sum_dict["account_number"] = receipt.client.account_number
+                loanprocessingfee_sum_dict["receipt_number"] = receipt.receipt_number
+                loanprocessingfee_amount_sum_list.append(loanprocessingfee_sum_dict)
+                insurance_sum_dict = {}
+                insurance_sum_dict["group_name"] = receipt.client.first_name
+                insurance_sum_dict["insurance_amount_sum"] = insurance_amount_sum
+                insurance_sum_dict["account_number"] = receipt.client.account_number
+                insurance_sum_dict["receipt_number"] = receipt.receipt_number
+                insurance_amount_sum_list.append(insurance_sum_dict)
 
-    dict = {}
+    total_dict = {}
     total_recurring_deposit_sum = 0
     for dictionary in recurring_deposit_sum_list:
         total_recurring_deposit_sum += dictionary["recurring_deposit_sum"]
-    dict["total_recurring_deposit_sum"] = total_recurring_deposit_sum
+    total_dict["total_recurring_deposit_sum"] = total_recurring_deposit_sum
     total_share_capital_amount_sum = 0
     for dictionary in share_capital_amount_sum_list:
         total_share_capital_amount_sum += dictionary["share_capital_amount_sum"]
-    dict["total_share_capital_amount_sum"] = total_share_capital_amount_sum
+    total_dict["total_share_capital_amount_sum"] = total_share_capital_amount_sum
     total_fixed_deposit_sum = 0
     for dictionary in fixed_deposit_sum_list:
         total_fixed_deposit_sum += dictionary["fixed_deposit_sum"]
-    dict["total_fixed_deposit_sum"] = total_fixed_deposit_sum
+    total_dict["total_fixed_deposit_sum"] = total_fixed_deposit_sum
     total_thrift_deposit_sum = 0
     for dictionary in thrift_deposit_sum_list:
         total_thrift_deposit_sum += dictionary["thrift_deposit_sum"]
-    dict["total_thrift_deposit_sum"] = total_thrift_deposit_sum
+    total_dict["total_thrift_deposit_sum"] = total_thrift_deposit_sum
     total_loanprinciple_amount_sum = 0
     for dictionary in loanprinciple_amount_sum_list:
         total_loanprinciple_amount_sum += dictionary["loanprinciple_amount_sum"]
-    dict["total_loanprinciple_amount_sum"] = total_loanprinciple_amount_sum
+    total_dict["total_loanprinciple_amount_sum"] = total_loanprinciple_amount_sum
     total_loaninterest_amount_sum = 0
     for dictionary in loaninterest_amount_sum_list:
         total_loaninterest_amount_sum += dictionary["loaninterest_amount_sum"]
-    dict["total_loaninterest_amount_sum"] = total_loaninterest_amount_sum
+    total_dict["total_loaninterest_amount_sum"] = total_loaninterest_amount_sum
     total_entrancefee_amount_sum = 0
     for dictionary in entrancefee_amount_sum_list:
         total_entrancefee_amount_sum += dictionary["entrancefee_amount_sum"]
-    dict["total_entrancefee_amount_sum"] = total_entrancefee_amount_sum
+    total_dict["total_entrancefee_amount_sum"] = total_entrancefee_amount_sum
     total_membershipfee_amount_sum = 0
     for dictionary in membershipfee_amount_sum_list:
         total_membershipfee_amount_sum += dictionary["membershipfee_amount_sum"]
-    dict["total_membershipfee_amount_sum"] = total_membershipfee_amount_sum
+    total_dict["total_membershipfee_amount_sum"] = total_membershipfee_amount_sum
     total_bookfee_amount_sum = 0
     for dictionary in bookfee_amount_sum_list:
         total_bookfee_amount_sum += dictionary["bookfee_amount_sum"]
-    dict["total_bookfee_amount_sum"] = total_bookfee_amount_sum
+    total_dict["total_bookfee_amount_sum"] = total_bookfee_amount_sum
     total_loanprocessingfee_amount_sum = 0
     for dictionary in loanprocessingfee_amount_sum_list:
         total_loanprocessingfee_amount_sum += dictionary["loanprocessingfee_amount_sum"]
-    dict["total_loanprocessingfee_amount_sum"] = total_loanprocessingfee_amount_sum
+    total_dict["total_loanprocessingfee_amount_sum"] = total_loanprocessingfee_amount_sum
     total_insurance_amount_sum = 0
     for dictionary in insurance_amount_sum_list:
         total_insurance_amount_sum += dictionary["insurance_amount_sum"]
-    dict["total_insurance_amount_sum"] = total_insurance_amount_sum
+    total_dict["total_insurance_amount_sum"] = total_insurance_amount_sum
 
     total = 0
-    for key in dict:
-        total += dict[key]
+    for key in total_dict:
+        total += total_dict[key]
 
     payments_list = Payments.objects.filter(date=selected_date)
     travellingallowance_list = []
@@ -1792,7 +1793,7 @@ def day_book_function(request, date):
         total_payments += dict_payments[key]
 
     return receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, \
-            othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, \
+            othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, total_dict, \
             selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, \
             entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, fixed_deposit_sum_list, \
             recurring_deposit_sum_list, share_capital_amount_sum_list
@@ -1804,25 +1805,25 @@ def view_day_book(request):
         datestring_format = datetime.datetime.strptime(request.POST.get("date"),"%m/%d/%Y").strftime("%Y-%m-%d")
         date = datestring_format
         # date = str(date)
-        receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list = day_book_function(request, date)
+        receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, total_dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list = day_book_function(request, date)
     elif request.method == "GET":
         if request.GET.get("date"):
             date = request.GET.get("date")
         else:
             date = datetime.datetime.now().date()
         # date = str(date)
-        receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list = day_book_function(request, date)
+        receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, total_dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list = day_book_function(request, date)
     date_formated = datetime.datetime.strptime(str(selected_date),"%Y-%m-%d").strftime("%m/%d/%Y")
-    return render(request, "day_book.html", {"recurring_deposit_sum_list": recurring_deposit_sum_list, "fixed_deposit_sum_list": fixed_deposit_sum_list, "receipts_list": receipts_list, "total_payments": total_payments, \
+    return render(request, "day_book.html", {"receipts_list": receipts_list, "total_payments": total_payments, \
                     "travellingallowance_list": travellingallowance_list, "loans_list": loans_list, "paymentofsalary_list": paymentofsalary_list, \
                     "printingcharges_list": printingcharges_list,"stationarycharges_list": stationarycharges_list,"othercharges_list": othercharges_list, \
                     "savingswithdrawal_list": savingswithdrawal_list, "recurringwithdrawal_list": recurringwithdrawal_list, \
-                    "fixedwithdrawal_list": fixedwithdrawal_list, "total": total, "dict_payments": dict_payments, "dict": dict, \
+                    "fixedwithdrawal_list": fixedwithdrawal_list, "total": total, "dict_payments": dict_payments, "dict": total_dict, \
                     "selected_date": selected_date, "date_formated": date_formated, "grouped_receipts_list": grouped_receipts_list, "thrift_deposit_sum_list": thrift_deposit_sum_list, \
                     "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list, "loaninterest_amount_sum_list": loaninterest_amount_sum_list, \
                     "entrancefee_amount_sum_list": entrancefee_amount_sum_list, "membershipfee_amount_sum_list": membershipfee_amount_sum_list, \
                     "bookfee_amount_sum_list": bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list, \
-                    "insurance_amount_sum_list": insurance_amount_sum_list, "share_capital_amount_sum_list": share_capital_amount_sum_list})
+                    "insurance_amount_sum_list": insurance_amount_sum_list, "share_capital_amount_sum_list": share_capital_amount_sum_list, "recurring_deposit_sum_list": recurring_deposit_sum_list, "fixed_deposit_sum_list": fixed_deposit_sum_list})
 
 
 @login_required
@@ -2282,10 +2283,10 @@ def clientledger_pdfdownload(request, client_id):
 
 @login_required
 def general_ledger_pdfdownload(request):
-    list = general_ledger_function(request)
+    general_ledger_list = general_ledger_function(request)
     try:
         template = get_template("pdfgeneral_ledger.html")
-        context = Context({'pagesize': 'A4', "list": list, "mediaroot": settings.MEDIA_ROOT})
+        context = Context({'pagesize': 'A4', "list": general_ledger_list, "mediaroot": settings.MEDIA_ROOT})
         html  = template.render(context)
         result = StringIO.StringIO()
         pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
@@ -2300,19 +2301,19 @@ def general_ledger_pdfdownload(request):
 
 @login_required
 def daybook_pdfdownload(request, date):
-    receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, recurring_deposit_sum_list, fixed_deposit_sum_list, share_capital_amount_sum_list = day_book_function(request, date)
+    receipts_list, total_payments, travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, stationarycharges_list, othercharges_list, savingswithdrawal_list, recurringwithdrawal_list, fixedwithdrawal_list, total, dict_payments, total_dict, selected_date, grouped_receipts_list, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, recurring_deposit_sum_list, fixed_deposit_sum_list, share_capital_amount_sum_list = day_book_function(request, date)
     try:
         template = get_template("pdf_daybook.html")
         context = Context({"receipts_list": receipts_list, "total_payments": total_payments, "travellingallowance_list": travellingallowance_list, \
                             "loans_list": loans_list, "paymentofsalary_list": paymentofsalary_list, "printingcharges_list": printingcharges_list, \
-                            "stationarycharges_list": stationarycharges_list,"othercharges_list": othercharges_list, \
+                            "stationarycharges_list": stationarycharges_list, "othercharges_list": othercharges_list, \
                             "savingswithdrawal_list": savingswithdrawal_list, "recurringwithdrawal_list": recurringwithdrawal_list, \
-                            "fixedwithdrawal_list": fixedwithdrawal_list, "total": total, "dict_payments": dict_payments, "dict": dict, \
+                            "fixedwithdrawal_list": fixedwithdrawal_list, "total": total, "dict_payments": dict_payments, "dict": total_dict, \
                             "selected_date": selected_date, "grouped_receipts_list": grouped_receipts_list, "thrift_deposit_sum_list": thrift_deposit_sum_list, \
                             "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list, "loaninterest_amount_sum_list": loaninterest_amount_sum_list, \
                             "entrancefee_amount_sum_list": entrancefee_amount_sum_list, "membershipfee_amount_sum_list": membershipfee_amount_sum_list, \
                             "bookfee_amount_sum_list": bookfee_amount_sum_list, "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list, \
-                            "insurance_amount_sum_list": insurance_amount_sum_list})
+                            "insurance_amount_sum_list": insurance_amount_sum_list, "share_capital_amount_sum_list": share_capital_amount_sum_list, "recurring_deposit_sum_list": recurring_deposit_sum_list, "fixed_deposit_sum_list": fixed_deposit_sum_list})
         html  = template.render(context)
         result = StringIO.StringIO()
         pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
