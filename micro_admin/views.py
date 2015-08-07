@@ -78,7 +78,7 @@ def edit_branch(request, branch_id):
     if request.method == "GET":
         branch = Branch.objects.get(id=branch_id)
         if request.user.is_admin:
-            return render(request, "editbranchdetails.html", {"branch": branch, "branch_id": anch_id})
+            return render(request, "editbranchdetails.html", {"branch": branch, "branch_id": branch_id})
         else:
             return render(request, "branchprofile.html", {"branch": branch})
     else:
