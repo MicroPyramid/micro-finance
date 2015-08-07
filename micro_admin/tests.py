@@ -104,39 +104,47 @@ class Admin_Views_test(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser('jagadeesh', 'jag123')
         self.branch = Branch.objects.create(name='sbh', opening_date='2014-10-10', country='ind', state='AP', district='Nellore', city='Nellore', area='circle', phone_number=944454651165, pincode=502286)
-        self.u = User.objects.create_user(username='jag', email='jagadeesh@gmail.com', branch=self.branch, password='jag')
-        self.c = Client.objects.create(first_name="Micro", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=123, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        self.c1 = Client.objects.create(first_name="Micro1", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=1234, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
 
-        self.cs = SavingsAccount.objects.create(account_no='CS1', client=self.c, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.u, status='Approved')
-        self.cs1 = SavingsAccount.objects.create(account_no='CS2', client=self.c1, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.u, status='Approved')
+        self.staff = User.objects.create_user(username='jag', email='jagadeesh@gmail.com', branch=self.branch, password='jag')
+        self.staff1 = User.objects.create_user(username='ravi', email='ravi@gmail.com', branch=self.branch, password='ravi')
 
-        self.g = Group.objects.create(name='group1', created_by=self.u, account_number='1', activation_date='2014-1-1', branch=self.branch)
-        self.g.clients.add(self.c)
-        self.g.save()
-        self.c.status = 'Assigned'
-        self.c.save()
+        self.member1 = Client.objects.create(first_name="Micro", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=123, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        self.member2 = Client.objects.create(first_name="Micro1", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=1234, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
 
-        self.group_client = Client.objects.create(first_name="Micro2", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=1, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        self.g1 = Group.objects.create(name='group2', created_by=self.u, account_number='2', activation_date='2014-1-1', branch=self.branch)
-        self.g1.clients.add(self.group_client)
-        self.g1.clients.add(self.c1)
-        self.g1.save()
+        self.member1_savings_account = SavingsAccount.objects.create(account_no='CS1', client=self.member1, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.staff, status='Approved')
+        self.member2_savings_account = SavingsAccount.objects.create(account_no='CS2', client=self.member2, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.staff, status='Approved')
+
+        self.group1 = Group.objects.create(name='group1', created_by=self.staff, account_number='1', activation_date='2014-1-1', branch=self.branch)
+        self.group1.clients.add(self.member1)
+        self.group1.save()
+
+        self.member1.status = 'Assigned'
+        self.member1.save()
+
+        self.group_client = Client.objects.create(first_name="Micro2", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=1, gender="M", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
         self.group_client.status = 'Assigned'
         self.group_client.save()
 
-        self.u2 = User.objects.create_user(username='ravi', email='ravi@gmail.com', branch=self.branch, password='ravi')
-        self.gs = SavingsAccount.objects.create(account_no='GS1', group=self.g, opening_date='2014-1-1', min_required_balance=0,  savings_balance=100, annual_interest_rate=1, created_by=self.u2, status='Approved')
-        self.gs1 = SavingsAccount.objects.create(account_no='GS2', group=self.g1, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.u, status='Approved')
-        self.grouploan = LoanAccount.objects.create(account_no='GL1', interest_type='Flat', group=self.g, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
-        self.clientloan = LoanAccount.objects.create(account_no='CL1', interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        self.group2 = Group.objects.create(name='group2', created_by=self.staff, account_number='2', activation_date='2014-1-1', branch=self.branch)
+        self.group2.clients.add(self.group_client)
+        self.group2.clients.add(self.member2)
+        self.group2.save()
 
-        self.loanaccount_group2 = LoanAccount.objects.create(account_no='GL2', interest_type='Flat', group=self.g1, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
-        fxd = FixedDeposits.objects.create(client=self.c, deposited_date='2014-1-1', status='Opened', fixed_deposit_number='f1', fixed_deposit_amount=1200, fixed_deposit_period=12, fixed_deposit_interest_rate=3, nominee_firstname='r', nominee_lastname='k', nominee_gender='M', relationship_with_nominee='friend', nominee_date_of_birth='2014-10-10', nominee_occupation='teacher', )
-        rcd = RecurringDeposits.objects.create(client=self.c, deposited_date='2014-1-1', reccuring_deposit_number='r1', status='Opened', recurring_deposit_amount=1200, recurring_deposit_period=200, recurring_deposit_interest_rate=3, nominee_firstname='ra', nominee_lastname='ku', nominee_gender='M', relationship_with_nominee='friend', nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        self.group1_savings_account = SavingsAccount.objects.create(account_no='GS1', group=self.group1, opening_date='2014-1-1', min_required_balance=0,  savings_balance=100, annual_interest_rate=1, created_by=self.staff1, status='Approved')
+        self.group2_savings_account = SavingsAccount.objects.create(account_no='GS2', group=self.group2, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.staff, status='Approved')
+
+        self.grouploan = LoanAccount.objects.create(account_no='GL1', interest_type='Flat', group=self.group1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        self.clientloan = LoanAccount.objects.create(account_no='CL1', interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+
+        self.loanaccount_group2 = LoanAccount.objects.create(account_no='GL2', interest_type='Flat', group=self.group2, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+
+        fixed_deposit = FixedDeposits.objects.create(client=self.member1, deposited_date='2014-1-1', status='Opened', fixed_deposit_number='f1', fixed_deposit_amount=1200, fixed_deposit_period=12, fixed_deposit_interest_rate=3, nominee_firstname='r', nominee_lastname='k', nominee_gender='M', relationship_with_nominee='friend', nominee_date_of_birth='2014-10-10', nominee_occupation='teacher', )
+        recurring_deposit = RecurringDeposits.objects.create(client=self.member1, deposited_date='2014-1-1', reccuring_deposit_number='r1', status='Opened', recurring_deposit_amount=1200, recurring_deposit_period=200, recurring_deposit_interest_rate=3, nominee_firstname='ra', nominee_lastname='ku', nominee_gender='M', relationship_with_nominee='friend', nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+
         self.temp_file = NamedTemporaryFile(delete=False, suffix='.jpg',)
-        self.receipt = Receipts.objects.create(receipt_number=1, date="2015-2-20", staff=self.u, branch=self.branch, client=self.c, entrancefee_amount="100")
-        self.payments = Payments.objects.create(date="2015-2-20", staff=self.u, branch=self.branch, client=self.c, payment_type="OtherCharges", voucher_number=1, amount=100, total_amount=101, interest=1, totalamount_in_words="hundred")
+
+        self.receipt = Receipts.objects.create(receipt_number=1, date="2015-2-20", staff=self.staff, branch=self.branch, client=self.member1, entrancefee_amount="100")
+        self.payments = Payments.objects.create(date="2015-2-20", staff=self.staff, branch=self.branch, client=self.member1, payment_type="OtherCharges", voucher_number=1, amount=100, total_amount=101, interest=1, totalamount_in_words="hundred")
 
     def test_views(self):
         client = Client()
@@ -230,7 +238,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
-        response = self.client.post('/createclient/', {"first_name": "Micro", "last_name": "Pyramid", "created_by": self.u.username, "date_of_birth": '10/10/2014', "joined_date": "10/10/2014", "branch": self.branch.id, "account_number": 561, "gender": "M", "client_role": "FirstLeader", "occupation": "Teacher", "annual_income": 2000, "country": 'Ind', "state": 'AP', "district": 'Nellore', "city": 'Nellore', "area": 'rfc', "mobile": 944454651165, "pincode": 502286})
+        response = self.client.post('/createclient/', {"first_name": "Micro", "last_name": "Pyramid", "created_by": self.staff.username, "date_of_birth": '10/10/2014', "joined_date": "10/10/2014", "branch": self.branch.id, "account_number": 561, "gender": "M", "client_role": "FirstLeader", "occupation": "Teacher", "annual_income": 2000, "country": 'Ind', "state": 'AP', "district": 'Nellore', "city": 'Nellore', "area": 'rfc', "mobile": 944454651165, "pincode": 502286})
         self.assertTrue('"error": false' in response.content)
         self.assertEqual(response.status_code, 200)
 
@@ -238,7 +246,7 @@ class Admin_Views_test(TestCase):
         self.assertTrue('"error": false}' in response.content)
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/creategroup/', {"name": 'Star', "account_number": 123456, "created_by": self.u.username, "activation_date": '10/10/2014', "branch": self.branch.id})
+        response = self.client.post('/creategroup/', {"name": 'Star', "account_number": 123456, "created_by": self.staff.username, "activation_date": '10/10/2014', "branch": self.branch.id})
         self.assertTrue('"error": false}' in response.content)
         self.assertEqual(response.status_code, 200)
 
@@ -255,7 +263,7 @@ class Admin_Views_test(TestCase):
         # response = self.client.post('/groupsavingsapplication/1/',{"account_no":123, "opening_date":'10/10/2014', "min_required_balance":0, "annual_interest_rate":3})
         # self.assertEqual(response.status_code,200)
 
-        response = self.client.post('/grouploanapplication/1/', {"account_no": 123, "interest_type": 'Flat', "created_by": self.u.username, "loan_amount": 1000, "loan_repayment_period": 10, "loan_repayment_every": 10, "annual_interest_rate": 3, "loanpurpose_description": 'self finance'})
+        response = self.client.post('/grouploanapplication/1/', {"account_no": 123, "interest_type": 'Flat', "created_by": self.staff.username, "loan_amount": 1000, "loan_repayment_period": 10, "loan_repayment_every": 10, "annual_interest_rate": 3, "loanpurpose_description": 'self finance'})
         self.assertEqual(response.status_code, 200)
 
         # response = self.client.post('/receiptsdeposit/',{"date":'10/10/2014', 'name':self.c.first_name,'account_number':123, "branch":self.branch.id, "receipt_number":12345, 'loan_account_no':123,'sharecapital_amount':200, 'savingsdeposit_thrift_amount':200})
@@ -264,7 +272,7 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/daybookpdfdownload/2014-10-10/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/clientloanapplication/1/', {"account_no": 12, "created_by": self.u.username, "loan_amount": 10000, "interest_type": 'Flat', "loan_repayment_period": 123, "loan_repayment_every": 12, "annual_interest_rate": 12, "loanpurpose_description": 'Hospitality'})
+        response = self.client.post('/clientloanapplication/1/', {"account_no": 12, "created_by": self.staff.username, "loan_amount": 10000, "interest_type": 'Flat', "loan_repayment_period": 123, "loan_repayment_every": 12, "annual_interest_rate": 12, "loanpurpose_description": 'Hospitality'})
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/updateclientprofile/1/')
@@ -325,7 +333,6 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 302)
 
         # response = self.client.post('/groupsavingsapplication/1/',{"account_no":123, "created_by" : self.u.username, "opening_date":'10/10/2014','created_by':self.u.id,'status':"Applied", "min_required_balance":0, "annual_interest_rate":3})
-        # print response.content
         # self.assertEqual(response.status_code,200)
 
         # response = self.client.post('/groupsavingsapplication/1/',{"account_no":123, "opening_date":'10/10/2014', "created_by" : self.u.username, "min_required_balance":0, "annual_interest_rate":3})
@@ -463,8 +470,8 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post('/userchangepassword/1/', {'current_password': 'jag123', 'new_password': '123123', 'confirm_new_password': '123123'})
-        self.assertTrue('{"error": false}' in response.content)
         self.assertEqual(response.status_code, 200)
+        self.assertTrue('"error": false' in response.content)
 
         response = self.client.post('/getmemberloanaccounts/', {'account_number': 123})
         self.assertEqual(response.status_code, 200)
@@ -508,9 +515,9 @@ class Admin_Views_test(TestCase):
 
     def test_removemembers_from_group_view(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.get('/removemember/'+str(self.g.id)+'/'+str(self.c.id)+'/')
+        response = self.client.get('/removemember/'+str(self.group1.id)+'/'+str(self.member1.id)+'/')
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/groupprofile/'+str(self.g.id)+"/", status_code=302, target_status_code=200)
+        self.assertRedirects(response, '/groupprofile/'+str(self.group1.id)+"/", status_code=302, target_status_code=200)
 
     def test_create_client_invalid_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
@@ -526,91 +533,91 @@ class Admin_Views_test(TestCase):
 
     def test_addmembers_to_group_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/addmember/'+str(self.g.id)+'/', {"clients": [self.c.id]})
+        response = self.client.post('/addmember/'+str(self.group1.id)+'/', {"clients": [self.member1.id]})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_addmembers_to_group_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/addmember/'+str(self.g.id)+'/', {"clients": ""})
+        response = self.client.post('/addmember/'+str(self.group1.id)+'/', {"clients": ""})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
 
     # def test_group_delete(self):
     #     group_count = Group.objects.count()
-    #     response = self.client.get("/deletegroup/"+str(self.g.id)+"/")
+    #     response = self.client.get("/deletegroup/"+str(self.group1.id)+"/")
     #     self.assertEqual(response.status_code, 302)
     #     self.assertEqual(Group.objects.count(), group_count-1)
     #     self.assertRedirects(response, "/groupslist/", status_code=302, target_status_code=200)
     def test_add_group_meeting_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/addgroupmeeting/'+str(self.g.id)+'/', {"meeting_date": "2/20/2015", "meeting_time": "10-10-10", "group": self.g.id})
+        response = self.client.post('/addgroupmeeting/'+str(self.group1.id)+'/', {"meeting_date": "2/20/2015", "meeting_time": "10-10-10", "group": self.group1.id})
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/groupprofile/'+str(self.g.id)+"/", status_code=302, target_status_code=200)
+        self.assertRedirects(response, '/groupprofile/'+str(self.group1.id)+"/", status_code=302, target_status_code=200)
 
     def test_client_savings_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/clientsavingsapplication/'+str(self.c.id)+'/', {"account_no": 123, "opening_date": '10/10/2014', "min_required_balance": 0, "annual_interest_rate": 3})
+        response = self.client.post('/clientsavingsapplication/'+str(self.member1.id)+'/', {"account_no": 123, "opening_date": '10/10/2014', "min_required_balance": 0, "annual_interest_rate": 3})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_client_savings_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/clientsavingsapplication/'+str(self.c.id)+'/', {"account_no": '', "opening_date": '', "min_required_balance": '', "annual_interest_rate": ''})
+        response = self.client.post('/clientsavingsapplication/'+str(self.member1.id)+'/', {"account_no": '', "opening_date": '', "min_required_balance": '', "annual_interest_rate": ''})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
 
     def test_group_savings_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/groupsavingsapplication/'+str(self.g.id)+'/', {"account_no": 123, "opening_date": '10/10/2014', "min_required_balance": 0, "annual_interest_rate": 3})
+        response = self.client.post('/groupsavingsapplication/'+str(self.group1.id)+'/', {"account_no": 123, "opening_date": '10/10/2014', "min_required_balance": 0, "annual_interest_rate": 3})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_group_savings_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/groupsavingsapplication/'+str(self.g.id)+'/', {"account_no": '', "opening_date": '', "min_required_balance": '', "annual_interest_rate": ''})
+        response = self.client.post('/groupsavingsapplication/'+str(self.group1.id)+'/', {"account_no": '', "opening_date": '', "min_required_balance": '', "annual_interest_rate": ''})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
 
     def test_group_savings_account(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.get('/groupsavingsaccount/'+str(self.g.id)+'/')
+        response = self.client.get('/groupsavingsaccount/'+str(self.group1.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "group_savings_account.html")
 
     def test_group_loan_application(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.get('/grouploanapplication/'+str(self.g.id)+'/')
+        response = self.client.get('/grouploanapplication/'+str(self.group1.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "group_loan_application.html")
 
     def test_group_loan_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/grouploanapplication/'+str(self.g.id)+'/', {"account_no": 12, 'created_by': self.u.id, "loan_amount": 10000, "interest_type": 'Flat', "loan_repayment_period": 123, "loan_repayment_every": 12, "annual_interest_rate": 12, "loanpurpose_description": 'Hospitality'})
+        response = self.client.post('/grouploanapplication/'+str(self.group1.id)+'/', {"account_no": 12, 'created_by': self.staff.id, "loan_amount": 10000, "interest_type": 'Flat', "loan_repayment_period": 123, "loan_repayment_every": 12, "annual_interest_rate": 12, "loanpurpose_description": 'Hospitality'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_group_loan_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/grouploanapplication/'+str(self.g.id)+'/', {"account_no": '', 'created_by': self.u.id, "loan_amount": '', "interest_type": '', "loan_repayment_period": '', "loan_repayment_every": '', "annual_interest_rate": '', "loanpurpose_description": ''})
+        response = self.client.post('/grouploanapplication/'+str(self.group1.id)+'/', {"account_no": '', 'created_by': self.staff.id, "loan_amount": '', "interest_type": '', "loan_repayment_period": '', "loan_repayment_every": '', "annual_interest_rate": '', "loanpurpose_description": ''})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
 
     def test_client_loan_application(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.get('/clientloanapplication/'+str(self.c.id)+'/')
+        response = self.client.get('/clientloanapplication/'+str(self.member1.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "client_loan_application.html")
 
     def test_client_loan_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/clientloanapplication/'+str(self.c.id)+'/', {"account_no": '', 'created_by': self.u.id, "loan_amount": '', "interest_type": '', "loan_repayment_period": '', "loan_repayment_every": '', "annual_interest_rate": '', "loanpurpose_description": ''})
+        response = self.client.post('/clientloanapplication/'+str(self.member1.id)+'/', {"account_no": '', 'created_by': self.staff.id, "loan_amount": '', "interest_type": '', "loan_repayment_period": '', "loan_repayment_every": '', "annual_interest_rate": '', "loanpurpose_description": ''})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
 
     def test_listofclient_savings_withdrawals(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.get('/listofclientsavingswithdrawals/'+str(self.c.id)+'/')
+        response = self.client.get('/listofclientsavingswithdrawals/'+str(self.member1.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "listof_clientsavingswithdrawals.html")
 
@@ -665,7 +672,7 @@ class Admin_Views_test(TestCase):
 
     def test_ledger_account(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.get('/ledgeraccount/'+str(self.c.id)+'/'+str(self.clientloan.id)+'/')
+        response = self.client.get('/ledgeraccount/'+str(self.member1.id)+'/'+str(self.clientloan.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "client_ledger_account.html")
 
@@ -785,7 +792,7 @@ class Admin_Views_test(TestCase):
 
     def test_payslip_post_data_14(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        Client.objects.create(first_name="Micro12", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=12345, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        Client.objects.create(first_name="Micro12", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=12345, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
         response = self.client.post('/payslip/', {"client_name": "Micro12", "client_account_number": '12345', "date": '2/20/2015', "branch": self.branch.id, "voucher_number": 14, "payment_type": 'SavingsWithdrawal', "amount": 50, "interest": 1, "total_amount": 500, "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Member does not have Savings Account to withdraw amount.
@@ -899,8 +906,8 @@ class Admin_Views_test(TestCase):
 
     def test_payslip_post_data_32(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        g2 = Group.objects.create(name='group4', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
-        loanaccount_group4 = LoanAccount.objects.create(account_no='GL4', interest_type='Flat', group=g2, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        g2 = Group.objects.create(name='group4', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        loanaccount_group4 = LoanAccount.objects.create(account_no='GL4', interest_type='Flat', group=g2, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
         response = self.client.post('/payslip/', {"group_name": "group4", "group_account_number": "4", "group_loan_account_no": "GL4", "date": '2/20/2015', "branch": self.branch.id, "voucher_number": 27, "payment_type": 'Loans', "amount": 12000, "total_amount": 12000, "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
@@ -1010,8 +1017,8 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data14(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.c4 = Client.objects.create(first_name="Micro4", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=4, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        LoanAccount.objects.create(account_no='CL4', interest_type='Flat', client=self.c4, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        self.c4 = Client.objects.create(first_name="Micro4", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=4, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        LoanAccount.objects.create(account_no='CL4', interest_type='Flat', client=self.c4, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "", "loaninterest_amount": 0, "loanprocessingfee_amount": 1000, "date": "2/2/2015", "name": "Micro4", "account_number": "4", "branch": self.branch.id, "receipt_number": 5, "loan_account_no": "CL4"})
         self.assertEqual(response.status_code, 200)
         # Member has not been assigned to any group.
@@ -1026,10 +1033,10 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data16(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.group_client1 = Client.objects.create(first_name="Micro4", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=4, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        self.group_client1_SA = SavingsAccount.objects.create(account_no='CS4', client=self.group_client1, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.u, status='Approved')
+        self.group_client1 = Client.objects.create(first_name="Micro4", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=4, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        self.group_client1_SA = SavingsAccount.objects.create(account_no='CS4', client=self.group_client1, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.staff, status='Approved')
 
-        self.g3 = Group.objects.create(name='group3', created_by=self.u, account_number='3', activation_date='2014-1-1', branch=self.branch)
+        self.g3 = Group.objects.create(name='group3', created_by=self.staff, account_number='3', activation_date='2014-1-1', branch=self.branch)
         self.g3.clients.add(self.group_client1)
         self.g3.save()
         response = self.client.post("/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100, "group_name": "group3", "group_account_number": 3, "loaninterest_amount": 0, "date": "2/2/2015", "name": "Micro", "account_number": "123", "branch": self.branch.id, "receipt_number": 6})
@@ -1039,10 +1046,10 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data17(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        self.group_client2_SA = SavingsAccount.objects.create(account_no='CS5', client=self.group_client2, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.u, status='Approved')
+        self.group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        self.group_client2_SA = SavingsAccount.objects.create(account_no='CS5', client=self.group_client2, opening_date='2014-1-1', min_required_balance=0, savings_balance=100, annual_interest_rate=1, created_by=self.staff, status='Approved')
 
-        self.g4 = Group.objects.create(name='group4', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        self.g4 = Group.objects.create(name='group4', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
         self.g4.clients.add(self.group_client2)
         self.g4.save()
         response = self.client.post("/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100, "group_name": "group4", "group_account_number": 4, "group_loan_account_no": "", "loan_account_no": "CL1", "loaninterest_amount": 0, "date": "2/2/2015", "name": "Micro5", "account_number": 5, "branch": self.branch.id, "receipt_number": 7})
@@ -1052,8 +1059,8 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data18(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.group_client3 = Client.objects.create(first_name="Micro6", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=6, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        self.g.clients.add(self.group_client3)
+        self.group_client3 = Client.objects.create(first_name="Micro6", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=6, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        self.group1.clients.add(self.group_client3)
         response = self.client.post("/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100, "group_name": "group1", "group_account_number": 1, "loaninterest_amount": 0, "date": "2/2/2015", "name": "Micro6", "account_number": "6", "branch": self.branch.id, "receipt_number": 11})
         self.assertEqual(response.status_code, 200)
         # Member does not have savings account to make thrift deposit.
@@ -1082,7 +1089,7 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data22(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        client = Client.objects.create(first_name="Micro7", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=7, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        client = Client.objects.create(first_name="Micro7", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=7, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
 
         response = self.client.post("/receiptsdeposit/", {"recurringdeposit_amount": 100, "loan_account_no": "CL1", "loaninterest_amount": 0, "date": "2/2/2015", "name": "Micro7", "account_number": "7", "branch": self.branch.id, "receipt_number": 13})
         self.assertEqual(response.status_code, 200)
@@ -1126,9 +1133,9 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data28(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        self.clientloan = LoanAccount.objects.create(account_no='CL5', interest_type='Flat', client=self.group_client2, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
-        self.g4 = Group.objects.create(name='group5', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        self.group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        self.clientloan = LoanAccount.objects.create(account_no='CL5', interest_type='Flat', client=self.group_client2, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        self.g4 = Group.objects.create(name='group5', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
         self.g4.clients.add(self.group_client2)
         self.g4.save()
         response = self.client.post("/receiptsdeposit/", {"group_name": "group5", "group_account_number": 4, "group_loan_account_no": "GL1", "loaninterest_amount": 100, "loan_account_no": "CL5", "insurance_amount": 10, "date": "2/2/2015", "name": "Micro5", "account_number": "5", "branch": self.branch.id, "receipt_number": 19})
@@ -1138,7 +1145,7 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data29(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.g4 = Group.objects.create(name='group5', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        self.g4 = Group.objects.create(name='group5', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
         response = self.client.post("/receiptsdeposit/", {"group_name": "group5", "group_account_number": 4, "group_loan_account_no": "GL1", "loaninterest_amount": 100, "loan_account_no": "CL1", "insurance_amount": 10, "date": "2/2/2015", "name": "Micro", "account_number": "123", "branch": self.branch.id, "receipt_number": 20})
         self.assertEqual(response.status_code, 200)
         # Member does not belong to this Group.Please check Group Name and Account Number.__loaninterest_amount
@@ -1146,7 +1153,7 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data30(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.g4 = Group.objects.create(name='group5', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        self.g4 = Group.objects.create(name='group5', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
         response = self.client.post("/receiptsdeposit/", {"group_name": "group5", "group_account_number": 11, "group_loan_account_no": "GL1", "loaninterest_amount": 100, "loan_account_no": "CL1", "insurance_amount": 10, "date": "2/2/2015", "name": "Micro", "account_number": "123", "branch": self.branch.id, "receipt_number": 21})
         self.assertEqual(response.status_code, 200)
         # No Group exists with this Name and Account Number.__loaninterest_amount
@@ -1154,7 +1161,7 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data31(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.g4 = Group.objects.create(name='group5', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        self.g4 = Group.objects.create(name='group5', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
         response = self.client.post("/receiptsdeposit/", {"group_name": "", "group_account_number": "", "group_loan_account_no": "GL1", "loaninterest_amount": 100, "loan_account_no": "CL1", "insurance_amount": 10, "date": "2/2/2015", "name": "Micro", "account_number": "123", "branch": self.branch.id, "receipt_number": 22})
         self.assertEqual(response.status_code, 200)
         # Please enter Group Name and Account Number.__loaninterest_amount
@@ -1162,9 +1169,9 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data32(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        clientloan = LoanAccount.objects.create(account_no='CL5', interest_type='Flat', client=group_client2, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
-        g5 = Group.objects.create(name='group5', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        clientloan = LoanAccount.objects.create(account_no='CL5', interest_type='Flat', client=group_client2, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        g5 = Group.objects.create(name='group5', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
         response = self.client.post("/receiptsdeposit/", {"group_name": "group5", "group_account_number": 4, "group_loan_account_no": "GL1", "loaninterest_amount": 100, "loan_account_no": "CL5", "insurance_amount": 10, "date": "2/2/2015", "name": "Micro5", "account_number": "5", "branch": self.branch.id, "receipt_number": 23})
         self.assertEqual(response.status_code, 200)
         # Member has not been assigned to any group._loaninterest_amount
@@ -1186,9 +1193,9 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data35(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        clientloan = LoanAccount.objects.create(account_no='CL5', interest_type='Flat', client=group_client2, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
-        g5 = Group.objects.create(name='group5', created_by=self.u, account_number='4', activation_date='2014-1-1', branch=self.branch)
+        group_client2 = Client.objects.create(first_name="Micro5", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=5, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        clientloan = LoanAccount.objects.create(account_no='CL5', interest_type='Flat', client=group_client2, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        g5 = Group.objects.create(name='group5', created_by=self.staff, account_number='4', activation_date='2014-1-1', branch=self.branch)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group5", "group_account_number": 4, "loanprinciple_amount": 100, "loan_account_no": "CL5", "date": "2/2/2015", "loaninterest_amount": 0, "name": "Micro5", "account_number": 5, "branch": self.branch.id, "receipt_number": 26})
         self.assertEqual(response.status_code, 200)
@@ -1234,10 +1241,10 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data41(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        group_client6 = Client.objects.create(first_name="Micro6", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=6, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
-        clientloan = LoanAccount.objects.create(account_no='CL6', interest_type='Flat', client=group_client6, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=0, principle_repayment=1000)
+        group_client6 = Client.objects.create(first_name="Micro6", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=6, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        clientloan = LoanAccount.objects.create(account_no='CL6', interest_type='Flat', client=group_client6, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=0, principle_repayment=1000)
 
-        g6 = Group.objects.create(name='group6', created_by=self.u, account_number='6', activation_date='2014-1-1', branch=self.branch)
+        g6 = Group.objects.create(name='group6', created_by=self.staff, account_number='6', activation_date='2014-1-1', branch=self.branch)
         g6.clients.add(group_client6)
         g6.save()
         # LoanAccount.objects.create(account_no='GL6', interest_type='Flat', group=g6, loan_repayment_amount=0, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=0, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=0, total_loan_balance=0, principle_repayment=0, loan_issued_date="2015-2-2")
@@ -1251,7 +1258,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=0, total_loan_balance=0, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=0, total_loan_balance=0, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 13000, "loan_account_no": "CL5", "date": "2/2/2015", "loaninterest_amount": 0, "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 33})
         self.assertEqual(response.status_code, 200)
@@ -1262,7 +1269,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=10, total_loan_balance=1000, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=10, total_loan_balance=1000, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 100, "loan_account_no": "CL5", "date": "2/2/2015", "loaninterest_amount": 100, "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 34})
         self.assertEqual(response.status_code, 200)
@@ -1273,7 +1280,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, total_loan_balance=14000, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, total_loan_balance=14000, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 13000, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 35})
         self.assertEqual(response.status_code, 200)
@@ -1284,7 +1291,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, total_loan_balance=14000, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(loan_repayment_amount=0, account_no='CL5', interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, total_loan_balance=14000, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 1000, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 36})
         self.assertEqual(response.status_code, 200)
@@ -1295,7 +1302,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 37})
         self.assertEqual(response.status_code, 200)
@@ -1306,7 +1313,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=100)
+        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=100)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 38})
         self.assertEqual(response.status_code, 200)
@@ -1317,7 +1324,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 39})
         self.assertEqual(response.status_code, 200)
@@ -1328,7 +1335,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, principle_repayment=100)
+        self.clientloan = LoanAccount.objects.create(total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=0, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, principle_repayment=100)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 40})
         self.assertEqual(response.status_code, 200)
@@ -1339,7 +1346,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 41})
         self.assertEqual(response.status_code, 200)
@@ -1350,7 +1357,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 42})
         self.assertEqual(response.status_code, 200)
@@ -1361,7 +1368,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 10, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 41})
         self.assertEqual(response.status_code, 200)
@@ -1372,7 +1379,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 10, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 42})
         self.assertEqual(response.status_code, 200)
@@ -1383,7 +1390,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 10, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 43})
         self.assertEqual(response.status_code, 200)
@@ -1394,7 +1401,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=100)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=24, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=100)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 10, "loaninterest_amount": 10, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 44})
         self.assertEqual(response.status_code, 200)
@@ -1403,7 +1410,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=1, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=1, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=14, principle_repayment=0)
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 14, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 45})
         self.assertEqual(response.status_code, 200)
         #
@@ -1413,7 +1420,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL5', total_loan_balance=1000, interest_type='Flat', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 10, "loan_account_no": "CL5", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 46})
         self.assertEqual(response.status_code, 200)
@@ -1424,7 +1431,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=1, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL6', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=1, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL6', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL6", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 54})
         self.assertEqual(response.status_code, 200)
@@ -1435,7 +1442,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=1, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL6', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=1, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL6', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 10, "loan_account_no": "CL6", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 55})
         self.assertEqual(response.status_code, 200)
@@ -1444,7 +1451,7 @@ class Admin_Views_test(TestCase):
     #     user_login = self.client.login(username="jagadeesh", password="jag123")
     #     self.grouploan.loan_issued_date = '2015-2-2'
     #     self.grouploan.save()
-    #     self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=2, total_loan_amount_repaid=100, loan_repayment_amount=0, account_no='CL7', total_loan_balance=10, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=24000, loan_repayment_period=2, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+    #     self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=2, total_loan_amount_repaid=100, loan_repayment_amount=0, account_no='CL7', total_loan_balance=10, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=24000, loan_repayment_period=2, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
     #     response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 12000, "loaninterest_amount": 10, "loan_account_no": "CL7", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 56})
     #     self.assertEqual(response.status_code, 200)
@@ -1453,7 +1460,7 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data57(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL6', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Applied", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL6', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Applied", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL6", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 47})
         self.assertEqual(response.status_code, 200)
@@ -1462,7 +1469,7 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data58(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL7', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Rejected", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL7', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Rejected", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL7", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 48})
         self.assertEqual(response.status_code, 200)
@@ -1471,7 +1478,7 @@ class Admin_Views_test(TestCase):
 
     def test_receipts_deposit_post_data59(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL8', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Closed", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL8', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Closed", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL8", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 49})
         self.assertEqual(response.status_code, 200)
@@ -1482,7 +1489,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.status = 'Applied'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL9', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL9', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL9", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 50})
         self.assertEqual(response.status_code, 200)
@@ -1493,7 +1500,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.status = 'Applied'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL10', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL10', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL10", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 51})
         self.assertEqual(response.status_code, 200)
@@ -1504,7 +1511,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.status = 'Rejected'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL11', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL11', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL11", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 52})
         self.assertEqual(response.status_code, 200)
@@ -1515,7 +1522,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.grouploan.status = 'Closed'
         self.grouploan.save()
-        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL12', total_loan_balance=1000, interest_type='Declining', client=self.c, created_by=self.u, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
+        self.clientloan = LoanAccount.objects.create(no_of_repayments_completed=11, total_loan_amount_repaid=12000, loan_repayment_amount=0, account_no='CL12', total_loan_balance=1000, interest_type='Declining', client=self.member1, created_by=self.staff, status="Approved", loan_amount=13000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=12, principle_repayment=0)
 
         response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loanprinciple_amount": 0, "loaninterest_amount": 12, "loan_account_no": "CL12", "date": "2/2/2015", "name": "Micro", "account_number": 123, "branch": self.branch.id, "receipt_number": 53})
         self.assertEqual(response.status_code, 200)
@@ -1560,69 +1567,69 @@ class Admin_Views_test(TestCase):
 
     def test_withdraw_savings_post_data_group(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/withdrawsavings/'+str(self.gs.id)+'/')
+        response = self.client.post('/withdrawsavings/'+str(self.group1_savings_account.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_close_savings_post_data_group(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/closesavings/'+str(self.gs.id)+'/')
+        response = self.client.post('/closesavings/'+str(self.group1_savings_account.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_close_savings_post_data_client(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/closesavings/'+str(self.cs.id)+'/')
+        response = self.client.post('/closesavings/'+str(self.member1_savings_account.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_reject_savings_post_data_group(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/rejectsavings/'+str(self.gs.id)+'/')
+        response = self.client.post('/rejectsavings/'+str(self.group1_savings_account.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_reject_savings_post_data_client(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/rejectsavings/'+str(self.cs.id)+'/')
+        response = self.client.post('/rejectsavings/'+str(self.member1_savings_account.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_apporve_savings_post_data_client(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/approvesavings/'+str(self.cs.id)+'/')
+        response = self.client.post('/approvesavings/'+str(self.member1_savings_account.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_apporve_savings_post_data_group(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.post('/approvesavings/'+str(self.gs.id)+'/')
+        response = self.client.post('/approvesavings/'+str(self.group1_savings_account.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": false' in response.content)
 
     def test_group_delete(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        response = self.client.get("/deletegroup/"+str(self.g.id)+"/")
+        response = self.client.get("/deletegroup/"+str(self.group1.id)+"/")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/groupslist/", status_code=302, target_status_code=200)
 
     def test_group_delete1(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        self.group_delete = Group.objects.create(name='group10', created_by=self.u, account_number='10', activation_date='2014-1-1', branch=self.branch)
+        self.group_delete = Group.objects.create(name='group10', created_by=self.staff, account_number='10', activation_date='2014-1-1', branch=self.branch)
         response = self.client.get("/deletegroup/"+str(self.group_delete.id)+"/")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/groupslist/", status_code=302, target_status_code=200)
 
     def test_getloan_demands(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        self.grouploan_account = LoanAccount.objects.create(account_no='GL3', interest_type='Flat', group=self.g, created_by=self.u, status="Applied", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
+        self.grouploan_account = LoanAccount.objects.create(account_no='GL3', interest_type='Flat', group=self.group1, created_by=self.staff, status="Applied", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=20, total_loan_balance=12000, principle_repayment=1000)
         response = self.client.post('/getloandemands/', {'loan_account_no': 'GL3'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
 
     def test_getloan_demands1(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        self.grouploan_account = LoanAccount.objects.create(account_no='GL3', loan_repayment_amount=0, interest_type='Flat', group=self.g, created_by=self.u, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=0, total_loan_balance=0, principle_repayment=0)
+        self.grouploan_account = LoanAccount.objects.create(account_no='GL3', loan_repayment_amount=0, interest_type='Flat', group=self.group1, created_by=self.staff, status="Approved", loan_amount=12000, loan_repayment_period=12, loan_repayment_every=1, annual_interest_rate=2, loanpurpose_description='Home Loan', interest_charged=0, total_loan_balance=0, principle_repayment=0)
         response = self.client.post('/getloandemands/', {'loan_account_no': 'GL3'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('"error": true' in response.content)
@@ -1635,7 +1642,7 @@ class Admin_Views_test(TestCase):
 
     def test_getmemberloanaccounts1(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        Client.objects.create(first_name="Micro1", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=9, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        Client.objects.create(first_name="Micro1", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=9, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
         response = self.client.post('/getmemberloanaccounts/',  {'account_number': 10})
         self.assertEqual(response.status_code, 200)
         # No Member exists with this Account Number.
@@ -1643,9 +1650,7 @@ class Admin_Views_test(TestCase):
 
     def test_getmemberloanaccounts2(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
-        Client.objects.create(first_name="Micro11", last_name="Pyramid", created_by=self.u, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=11, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
+        Client.objects.create(first_name="Micro11", last_name="Pyramid", created_by=self.staff, date_of_birth='2014-10-10', joined_date="2014-10-10", branch=self.branch, account_number=11, gender="F", client_role="FirstLeader", occupation="Teacher", annual_income=2000, country='Ind', state='AP', district='Nellore', city='Nellore', area='rfc')
         response = self.client.post('/getmemberloanaccounts/',  {'account_number': 11})
         self.assertEqual(response.status_code, 200)
         # self.assertTrue('"error": true' in response.content)
-
-
