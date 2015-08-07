@@ -83,14 +83,6 @@ class Modelform_test(TestCase):
         form = PaymentForm(data={"date": "", "branch": "", "voucher_number": "", "payment_type": "", "amount": "", "interest": "", "total_amount": "", "totalamount_in_words": ""})
         self.assertFalse(form.is_valid())
 
-    def test_FixedDepositForm(self):
-        form = FixedDepositForm(data={"nominee_firstname": 'john', "nominee_lastname": 'kumar', "nominee_occupation": 'Big data analyst', "fixed_deposit_number": 12, "deposited_date": '10/10/2014', "fixed_deposit_amount": 12, "fixed_deposit_period": 10, "fixed_deposit_interest_rate": 3, "relationship_with_nominee": 'friend', "nominee_photo": self.temp_file, "nominee_signature": self.temp_file})
-        # self.assertTrue(form.is_valid())
-
-    def test_ReccuringDepositForm(self):
-        form = ReccuringDepositForm(data={"nominee_firstname": 'john', "nominee_lastname": 'johny', "nominee_occupation": 'devoloper', "reccuring_deposit_number": 123, "deposited_date": '10/10/2014', "recurring_deposit_amount": 500, "recurring_deposit_period": 20, "recurring_deposit_interest_rate": 20, "relationship_with_nominee": 'friend', "nominee_photo": self.temp_file, "nominee_signature": self.temp_file})
-        # self.assertTrue(form.is_valid())
-
 
 class template_tags(TestCase):
 
@@ -226,6 +218,36 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'recurring_deposit_application.html')
 
+        with open('static/images/test.png', 'r') as signature:
+            with open('static/images/test.png', 'r') as photo:
+                response = self.client.post('/recurringdeposits/', {"nominee_date_of_birth": "2/2/2010", "nominee_gender": "F", "client_name": "Micro", "client_account_no": 123, "nominee_firstname": 'john', "nominee_lastname": 'johny', "nominee_occupation": 'devoloper', "reccuring_deposit_number": 12344, "deposited_date": '10/10/2014', "recurring_deposit_amount": 500, "recurring_deposit_period": 20, "recurring_deposit_interest_rate": 20, "relationship_with_nominee": 'friend', "nominee_signature": signature, "nominee_photo": photo, "client": self.member1}, format='multipart/form-data')
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue('"error": false' in response.content)
+
+                response = self.client.post('/recurringdeposits/', {"nominee_date_of_birth": "2/2/2010", "nominee_gender": "F", "client_name": "Micro111", "client_account_no": 123, "nominee_firstname": 'john', "nominee_lastname": 'johny', "nominee_occupation": 'devoloper', "reccuring_deposit_number": 12344, "deposited_date": '10/10/2014', "recurring_deposit_amount": 500, "recurring_deposit_period": 20, "recurring_deposit_interest_rate": 20, "relationship_with_nominee": 'friend', "nominee_signature": signature, "nominee_photo": photo, "client": self.member1}, format='multipart/form-data')
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue('"error": true' in response.content)
+
+        response = self.client.post('/recurringdeposits/', {"client_name": "Micro", "client_account_no": 123, "nominee_date_of_birth": "", "nominee_gender": "", "nominee_firstname": '', "nominee_lastname": '', "nominee_occupation": '', "reccuring_deposit_number": "", "deposited_date": '', "recurring_deposit_amount": "", "recurring_deposit_period": "", "recurring_deposit_interest_rate": "", "relationship_with_nominee": '', "nominee_signature": "", "nominee_photo": "", "client": self.member1})
+        self.assertEqual(response.status_code, 200)
+
+        with open('static/images/test.png', 'r') as signature:
+            with open('static/images/test.png', 'r') as photo:
+                response = self.client.post('/fixeddeposits/', {"client_name": "Micro", "client_account_no": 123, "nominee_firstname": 'john', "nominee_lastname": 'kumar', "nominee_gender": "F", "nominee_date_of_birth": "1/2/2015", "nominee_occupation": 'Big data analyst', "fixed_deposit_number": 12, "deposited_date": '10/10/2014', "fixed_deposit_amount": 12, "fixed_deposit_period": 10, "fixed_deposit_interest_rate": 3, "relationship_with_nominee": 'friend', "nominee_photo": photo, "nominee_signature": signature})
+                self.assertEqual(response.status_code, 200)
+
+                response = self.client.post('/fixeddeposits/', {"client_name": "Micro44", "client_account_no": 123, "nominee_firstname": 'john', "nominee_lastname": 'kumar', "nominee_gender": "F", "nominee_date_of_birth": "1/2/2015", "nominee_occupation": 'Big data analyst', "fixed_deposit_number": 12, "deposited_date": '10/10/2014', "fixed_deposit_amount": 12, "fixed_deposit_period": 10, "fixed_deposit_interest_rate": 3, "relationship_with_nominee": 'friend', "nominee_photo": photo, "nominee_signature": signature})
+                self.assertEqual(response.status_code, 200)
+
+        response = self.client.post('/fixeddeposits/', {"client_name": "Micro", "client_account_no": 123, "nominee_firstname": '', "nominee_lastname": '', "nominee_gender": "", "nominee_date_of_birth": "", "nominee_occupation": '', "fixed_deposit_number": "", "deposited_date": '', "fixed_deposit_amount": "", "fixed_deposit_period": "", "fixed_deposit_interest_rate": "", "relationship_with_nominee": '', "nominee_photo": "", "nominee_signature": ""})
+        self.assertEqual(response.status_code, 200)
+
+        with open('static/images/test.png', 'r') as signature:
+            with open('static/images/test.png', 'r') as photo:
+                response = self.client.post('/updateclientprofile/'+str(self.member1.id)+'/', {"photo": photo, "signature": signature})
+                self.assertEqual(response.status_code, 302)
+                self.assertRedirects(response, '/clientprofile/'+str(self.member1.id)+'/', status_code=302, target_status_code=200)
+
     def test_views_post_data(self):
         user_login = self.client.login(username='jag', password='jag')
         self.assertTrue(user_login)
@@ -259,9 +281,6 @@ class Admin_Views_test(TestCase):
         response = self.client.post('/editclient/1/', {"first_name": "Micro", "last_name": "Pyramid", "date_of_birth": '10/10/2014', "joined_date": "10/10/2014", "branch": self.branch.id, "account_number": 123, "gender": "M", "client_role": "FirstLeader", "occupation": "Teacher", "annual_income": 2000, "country": 'Ind', "state": 'AP', "district": 'Nellore', "city": 'Nellore', "area": 'rfc', "mobile": 944454651165, "pincode": 502286})
         self.assertTrue('"error": false}' in response.content)
         self.assertEqual(response.status_code, 200)
-
-        # response = self.client.post('/groupsavingsapplication/1/',{"account_no":123, "opening_date":'10/10/2014', "min_required_balance":0, "annual_interest_rate":3})
-        # self.assertEqual(response.status_code,200)
 
         response = self.client.post('/grouploanapplication/1/', {"account_no": 123, "interest_type": 'Flat', "created_by": self.staff.username, "loan_amount": 1000, "loan_repayment_period": 10, "loan_repayment_every": 10, "annual_interest_rate": 3, "loanpurpose_description": 'self finance'})
         self.assertEqual(response.status_code, 200)
@@ -431,14 +450,6 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/paymentslist/')
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get('/recurringdeposits/')
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.post('/recurringdeposits/', {'client_name': 'Micro', 'client_account_no': '123', "nominee_firstname": 'john', "nominee_lastname": 'johny', "nominee_occupation": 'devoloper', "reccuring_deposit_number": 123, "deposited_date": '10/10/2014', "recurring_deposit_amount": 500, "recurring_deposit_period": 20, "recurring_deposit_interest_rate": 20, "relationship_with_nominee": 'friend'})
-        # "nominee_photo":self.temp_file, "nominee_signature":self.temp_file})
-        # print response.content
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clientrecurringdepositsprofile/1/')
@@ -641,7 +652,6 @@ class Admin_Views_test(TestCase):
 
     # def test_withdraw_loan_post_data_admin(self):
     #     user_login = self.client.login(username='jagadeesh', password='jag123')
-    #     print self.u.is_admin
     #     response = self.client.post("/withdrawloan/"+str(self.grouploan.id)+"/")
     #     self.assertEqual(response.status_code, 200)
     #     self.assertTrue('"error": false' in response.content)
@@ -657,18 +667,6 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/receiptsdeposit/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "receiptsform.html")
-
-    # def test_receipts_deposit_post_data_membershipfee(self):
-    #     user_login = self.client.login(username='jagadeesh', password='jag123')
-    #     Client.objects.get(first_name__iexact=self.c.first_name, account_number=self.c.account_number)
-    #     response = self.client.post('/receiptsdeposit/', {"date": '10/10/2015', 'client': self.c.first_name, 'member_loan_account': 123, "branch": self.branch.id, "receipt_number": 2, "membershipfee_amount": 100})
-    #     self.assertEqual(response.status_code, 200)
-
-    # def test_receipts_deposit_post_data_loan_acct_num(self):
-    #     user_login = self.client.login(username='jagadeesh', password='jag123')
-    #     Client.objects.get(first_name__iexact=self.c.first_name, account_number=self.c.account_number)
-    #     response = self.client.post('/receiptsdeposit/', {"loan_account_no": 12, "date": '10/10/2015', 'client': self.c.first_name, 'member_loan_account': 123, "branch": self.branch.id, "receipt_number": 3, "loanprocessingfee_amount": 700})
-    #     self.assertEqual(response.status_code, 200)
 
     def test_ledger_account(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
