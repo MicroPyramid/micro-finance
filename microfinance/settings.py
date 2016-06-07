@@ -8,7 +8,6 @@ SECRET_KEY = 'y409=qwy(=u^%7t$aa)j=83^f!-oqyy2omq%pj1+koeh2aryvd'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['localhost']
 
@@ -42,8 +41,6 @@ WSGI_APPLICATION = 'microfinance.wsgi.application'
 
 AUTH_USER_MODEL = 'micro_admin.User'
 
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -56,8 +53,6 @@ DATABASES = {
     }
 }
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.7/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
