@@ -23,7 +23,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
     'micro_admin'
 )
 
@@ -48,8 +47,12 @@ AUTH_USER_MODEL = 'micro_admin.User'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mfi',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -70,26 +73,28 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (BASE_DIR + '/static',)
 
-TEMPLATE_DIRS = (BASE_DIR +'/templates',)
-
 MEDIA_ROOT = BASE_DIR
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.request",
-)
 
-TEMPLATE_LOADERS = (
-    ("django.template.loaders.cached.Loader", (
-        "django.template.loaders.filesystem.Loader",
-        "django.template.loaders.app_directories.Loader",
-    )),
-)
-
-
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR + "/templates/"],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors':
+            [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
 
 LOGGING = {
     'version': 1,

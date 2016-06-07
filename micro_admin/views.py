@@ -1,6 +1,6 @@
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
 from django.contrib.auth.models import Permission
@@ -15,11 +15,13 @@ from django.conf import settings
 import csv
 from django.utils.encoding import smart_str
 import xlwt
-from xhtml2pdf import pisa
+# from xhtml2pdf import pisa
 from django.template.loader import get_template
-import cStringIO as StringIO
+# import cStringIO as StringIO
 from django.template import Context
 from django.core.exceptions import ObjectDoesNotExist
+
+from weasyprint import HTML
 
 d = decimal.Decimal
 
@@ -2273,7 +2275,7 @@ def clientledger_csvdownload(request, client_id):
                 smart_str(receipt.principle_loan_balance_atinstant),
             ])
         return response
-    except Exception, err:
+    except Exception as err:
         errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
@@ -2351,7 +2353,7 @@ def clientledger_exceldownload(request, client_id):
 
         wb.save(response)
         return response
-    except Exception, err:
+    except Exception as err:
         errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
@@ -2365,12 +2367,12 @@ def clientledger_pdfdownload(request, client_id):
         context = Context({'pagesize': 'A4', "receipts_list": receipts_list, "client": client, "mediaroot": settings.MEDIA_ROOT})
         html = template.render(context)
         result = StringIO.StringIO()
-        pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+        # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
         if not pdf.err:
             return HttpResponse(result.getvalue(), content_type='application/pdf')
         else:
             return HttpResponse('We had some errors')
-    except Exception, err:
+    except Exception as err:
         errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
@@ -2383,12 +2385,12 @@ def general_ledger_pdfdownload(request):
         context = Context({'pagesize': 'A4', "list": general_ledger_list, "mediaroot": settings.MEDIA_ROOT})
         html = template.render(context)
         result = StringIO.StringIO()
-        pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+        # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
         if not pdf.err:
             return HttpResponse(result.getvalue(), content_type='application/pdf')
         else:
             return HttpResponse('We had some errors')
-    except Exception, err:
+    except Exception as err:
         errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
@@ -2410,12 +2412,12 @@ def daybook_pdfdownload(request, date):
                             "insurance_amount_sum_list": insurance_amount_sum_list, "share_capital_amount_sum_list": share_capital_amount_sum_list, "recurring_deposit_sum_list": recurring_deposit_sum_list, "fixed_deposit_sum_list": fixed_deposit_sum_list})
         html  = template.render(context)
         result = StringIO.StringIO()
-        pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+        # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
         if not pdf.err:
             return HttpResponse(result.getvalue(), content_type='application/pdf')
         else:
             return HttpResponse('We had some errors')
-    except Exception, err:
+    except Exception as err:
         errmsg = "%s" % (err)
         return HttpResponse(errmsg)
 
@@ -2516,4 +2518,3 @@ def getloan_demands(request):
         else:
             data = {"error": True, "message1": "Member Loan is under pending for approval."}
         return HttpResponse(json.dumps(data))
-

@@ -198,7 +198,7 @@ class Group(models.Model):
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
     staff = models.ForeignKey(User, null=True, blank=True)
-    clients = models.ManyToManyField(Client, null=True, blank=True)
+    clients = models.ManyToManyField(Client, blank=True)
     status = models.CharField(max_length=50, default="UnAssigned")
 
     def __unicode__(self):
@@ -210,7 +210,7 @@ class Centers(models.Model):
     created_date = models.DateField()
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
-    groups = models.ManyToManyField(Group, null=True,blank=True)
+    groups = models.ManyToManyField(Group, blank=True)
 
     def __unicode__(self):
         return self.name
