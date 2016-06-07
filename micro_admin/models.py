@@ -1,77 +1,77 @@
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permission, _user_has_perm
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permission
 
 
 GENDER_TYPES = (
-        ('M', 'Male'),
-        ('F', 'Female'),
-    )
+    ('M', 'Male'),
+    ('F', 'Female'),
+)
 
 USER_ROLES = (
-        ('BranchManager','BranchManager'),
-        ('LoanOfficer', 'LoanOfficer'),
-        ('Cashier', 'Cashier')
-    )
+    ('BranchManager', 'BranchManager'),
+    ('LoanOfficer', 'LoanOfficer'),
+    ('Cashier', 'Cashier')
+)
 
 CLIENT_ROLES = (
-        ('FirstLeader','FirstLeader'),
-        ('SecondLeader', 'SecondLeader'),
-        ('GroupMember', 'GroupMember')
-    )
+    ('FirstLeader', 'FirstLeader'),
+    ('SecondLeader', 'SecondLeader'),
+    ('GroupMember', 'GroupMember')
+)
 
 ACCOUNT_STATUS = (
-        ('Applied', 'Applied'),
-        ('Withdrawn', 'Withdrawn'),
-        ('Approved', 'Approved'),
-        ('Rejected', 'Rejected'),
-        ('Closed', 'Closed'),
-    )
+    ('Applied', 'Applied'),
+    ('Withdrawn', 'Withdrawn'),
+    ('Approved', 'Approved'),
+    ('Rejected', 'Rejected'),
+    ('Closed', 'Closed'),
+)
 
 
 INTEREST_TYPES = (
-        ('Flat', 'Flat'),
-        ('Declining', 'Declining'),
-    )
+    ('Flat', 'Flat'),
+    ('Declining', 'Declining'),
+)
 
 RECEIPT_TYPES = (
-        ('EntranceFee', 'EntranceFee'),
-        ('MembershipFee', 'MembershipFee'),
-        ('BookFee', 'BookFee'),
-        ('LoanProcessingFee', 'LoanProcessingFee'),
-        ('SavingsDeposit', 'SavingsDeposit'),
-        ('FixedDeposit', 'FixedDeposit'),
-        ('RecurringDeposit', 'RecurringDeposit'),
-        ('AdditionalSavings', 'AdditionalSavings'),
-        ('ShareCapital', 'ShareCapital'),
-        ('PeenalInterest', 'PeenalInterest'),
-        ('LoanDeposit', 'LoanDeposit'),
-        ('Insurance', 'Insurance'),
-    )
+    ('EntranceFee', 'EntranceFee'),
+    ('MembershipFee', 'MembershipFee'),
+    ('BookFee', 'BookFee'),
+    ('LoanProcessingFee', 'LoanProcessingFee'),
+    ('SavingsDeposit', 'SavingsDeposit'),
+    ('FixedDeposit', 'FixedDeposit'),
+    ('RecurringDeposit', 'RecurringDeposit'),
+    ('AdditionalSavings', 'AdditionalSavings'),
+    ('ShareCapital', 'ShareCapital'),
+    ('PeenalInterest', 'PeenalInterest'),
+    ('LoanDeposit', 'LoanDeposit'),
+    ('Insurance', 'Insurance'),
+)
 
 FD_RD_STATUS = (
-       ('Opened', 'Opened'),
-       ('Closed', 'Closed'),
-   )
+    ('Opened', 'Opened'),
+    ('Closed', 'Closed'),
+)
 
 PAYMENT_TYPES = (
-        ('Loans', 'Loans'),
-        ('TravellingAllowance', 'TravellingAllowance'),
-        ('Paymentofsalary', 'Paymentofsalary'),
-        ('PrintingCharges', 'PrintingCharges'),
-        ('StationaryCharges', 'StationaryCharges'),
-        ('OtherCharges', 'OtherCharges'),
-        ('SavingsWithdrawal', 'SavingsWithdrawal'),
-        ('FixedWithdrawal', 'FixedWithdrawal'),
-        ('RecurringWithdrawal', 'RecurringWithdrawal'),
-    )
+    ('Loans', 'Loans'),
+    ('TravellingAllowance', 'TravellingAllowance'),
+    ('Paymentofsalary', 'Paymentofsalary'),
+    ('PrintingCharges', 'PrintingCharges'),
+    ('StationaryCharges', 'StationaryCharges'),
+    ('OtherCharges', 'OtherCharges'),
+    ('SavingsWithdrawal', 'SavingsWithdrawal'),
+    ('FixedWithdrawal', 'FixedWithdrawal'),
+    ('RecurringWithdrawal', 'RecurringWithdrawal'),
+)
 
 
 class Branch(models.Model):
     name = models.CharField(max_length=100, unique=True)
     opening_date = models.DateField()
-    #location = models.TextField(max_length=100)
+    # location = models.TextField(max_length=100)
     country = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     district = models.CharField(max_length=50)
@@ -112,9 +112,9 @@ class User(AbstractBaseUser):
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, null=True)
-    gender = models.CharField(choices = GENDER_TYPES ,max_length = 10)
-    branch = models.ForeignKey(Branch,null=True,blank=True)
-    user_roles = models.CharField(choices= USER_ROLES, max_length=20)
+    gender = models.CharField(choices=GENDER_TYPES, max_length=10)
+    branch = models.ForeignKey(Branch, null=True, blank=True)
+    user_roles = models.CharField(choices=USER_ROLES, max_length=20)
     date_of_birth = models.DateField(default='2000-01-01', null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
@@ -138,7 +138,7 @@ class User(AbstractBaseUser):
     def has_perm(self, perm, obj=None):
         if self.is_active and self.is_admin:
             return True
-        #return _user_has_perm(self, perm, obj)
+        # return _user_has_perm(self, perm, obj)
         else:
             try:
                 user_perm = self.user_permissions.get(codename=perm)
@@ -163,7 +163,7 @@ class Client(models.Model):
     account_number = models.CharField(max_length=50, unique=True)
     date_of_birth = models.DateField()
     blood_group = models.CharField(max_length=10, default=True, null=True)
-    gender = models.CharField(choices = GENDER_TYPES , max_length=10)
+    gender = models.CharField(choices=GENDER_TYPES, max_length=10)
     client_role = models.CharField(choices=CLIENT_ROLES, max_length=20)
     occupation = models.CharField(max_length=200)
     annual_income = models.BigIntegerField()
@@ -173,10 +173,10 @@ class Client(models.Model):
     district = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
     area = models.CharField(max_length=150)
-    mobile = models.CharField(max_length=20,default=True, null=True)
-    pincode = models.CharField(max_length=20,default=True, null=True)
+    mobile = models.CharField(max_length=20, default=True, null=True)
+    pincode = models.CharField(max_length=20, default=True, null=True)
     photo = models.ImageField(upload_to=settings.PHOTO_PATH, null=True)
-    signature = models.ImageField(upload_to =settings.SIGNATURE_PATH, null=True)
+    signature = models.ImageField(upload_to=settings.SIGNATURE_PATH, null=True)
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
     status = models.CharField(max_length=50, default="UnAssigned", null=True)
@@ -198,7 +198,7 @@ class Group(models.Model):
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
     staff = models.ForeignKey(User, null=True, blank=True)
-    clients = models.ManyToManyField(Client, null=True, blank=True)
+    clients = models.ManyToManyField(Client, blank=True)
     status = models.CharField(max_length=50, default="UnAssigned")
 
     def __unicode__(self):
@@ -210,7 +210,7 @@ class Centers(models.Model):
     created_date = models.DateField()
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
-    groups = models.ManyToManyField(Group, null=True,blank=True)
+    groups = models.ManyToManyField(Group, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -282,7 +282,7 @@ class Receipts(models.Model):
     branch = models.ForeignKey(Branch)
     receipt_number = models.CharField(max_length=50, unique=True)
     client = models.ForeignKey(Client, null=True, blank=True)
-    group = models.ForeignKey(Group, null=True, blank=True,default=0)
+    group = models.ForeignKey(Group, null=True, blank=True, default=0)
     member_loan_account = models.ForeignKey(LoanAccount, null=True, blank=True)
     group_loan_account = models.ForeignKey(LoanAccount, null=True, blank=True, related_name="group_loan_account")
     sharecapital_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
@@ -316,12 +316,12 @@ class FixedDeposits(models.Model):
     fixed_deposit_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     nominee_firstname = models.CharField(max_length=50)
     nominee_lastname = models.CharField(max_length=50)
-    nominee_gender = models.CharField(choices = GENDER_TYPES, max_length=10)
+    nominee_gender = models.CharField(choices=GENDER_TYPES, max_length=10)
     relationship_with_nominee = models.CharField(max_length=50)
     nominee_date_of_birth = models.DateField()
     nominee_occupation = models.CharField(max_length=50)
     nominee_photo = models.ImageField(upload_to=settings.PHOTO_PATH)
-    nominee_signature = models.ImageField(upload_to =settings.SIGNATURE_PATH)
+    nominee_signature = models.ImageField(upload_to=settings.SIGNATURE_PATH)
     fixed_deposit_interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
     maturity_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
 
@@ -339,12 +339,12 @@ class RecurringDeposits(models.Model):
     recurring_deposit_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     nominee_firstname = models.CharField(max_length=50)
     nominee_lastname = models.CharField(max_length=50)
-    nominee_gender = models.CharField(choices = GENDER_TYPES, max_length=10)
+    nominee_gender = models.CharField(choices=GENDER_TYPES, max_length=10)
     relationship_with_nominee = models.CharField(max_length=50)
     nominee_date_of_birth = models.DateField()
     nominee_occupation = models.CharField(max_length=50)
     nominee_photo = models.ImageField(upload_to=settings.PHOTO_PATH,)
-    nominee_signature = models.ImageField(upload_to =settings.SIGNATURE_PATH)
+    nominee_signature = models.ImageField(upload_to=settings.SIGNATURE_PATH)
     recurring_deposit_interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
     maturity_amount = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True)
 
@@ -359,7 +359,7 @@ class Payments(models.Model):
     client = models.ForeignKey(Client, null=True, blank=True)
     group = models.ForeignKey(Group, null=True, blank=True)
     staff = models.ForeignKey(User, null=True, blank=True)
-    payment_type = models.CharField(choices = PAYMENT_TYPES , max_length=25)
+    payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=25)
     amount = models.DecimalField(max_digits=19, decimal_places=6)
     interest = models.DecimalField(max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     total_amount = models.DecimalField(max_digits=19, decimal_places=6)
