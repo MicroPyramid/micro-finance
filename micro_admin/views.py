@@ -27,6 +27,9 @@ d = decimal.Decimal
 
 
 def index(request):
+    if request.user.is_authenticated():
+        user = User.objects.get(username=request.user)
+        return render(request, "index.html", {"user": user})
     data = {}
     data.update(csrf(request))
     return render_to_response("login.html", data)
