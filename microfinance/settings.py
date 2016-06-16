@@ -22,7 +22,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'micro_admin'
+    'micro_admin',
+    'compressor',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -69,6 +70,26 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (BASE_DIR + '/static',)
 
 MEDIA_ROOT = BASE_DIR
+
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+# Compress Settings
+COMPRESS_ROOT = BASE_DIR + '/static/'
+
+COMPRESS_ENABLED = True
+
+COMPRESS_OFFLINE_CONTEXT = {
+    'STATIC_URL': 'STATIC_URL',
+}
+
+COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter', 'compressor.filters.cssmin.CSSMinFilter']
+COMPRESS_JS_FILTERS = ['compressor.filters.jsmin.JSMinFilter']
+COMPRESS_REBUILD_TIMEOUT = 5400
 
 
 TEMPLATES = [
