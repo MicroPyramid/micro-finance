@@ -1,3 +1,5 @@
+{% load compress %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -15,9 +17,11 @@
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/start/jquery-ui.css" />
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <!-- your style sheet-->
-    <link rel="stylesheet" href="/static/css/mf.css" />
-    <link rel="stylesheet" href="/static/css/mf_res.css" />
-    <link rel="stylesheet" href="/static/css/mf_mob.css" />
+    {% compress css %}
+      <link type="text/css" rel="stylesheet" href="/static/css/mf.css" />
+      <link type="text/css" rel="stylesheet" href="/static/css/mf_res.css" />
+      <link type="text/css" rel="stylesheet" href="/static/css/mf_mob.css" />
+    {% endcompress %}
     <!--your style sheet-->
   </head>
   <body>
@@ -59,7 +63,7 @@
                     <span class="icon-bar"></span>
                     </button>
                     <span class="logo-span">
-                      <a class="navbar-brand logo_nav" href="#">
+                      <a class="navbar-brand logo_nav" href="/">
                         <h5>Micro Finance</h5>
                       </a>
                     </span>
@@ -163,6 +167,8 @@
       <!--content ends above-->
     </div>
     <!--wrapper ends above-->
-    <script src="/static/js/mf_script.js"></script>
+    {% compress js %}
+      <script src="/static/js/mf_script.js"></script>
+    {% endcompress %}
   </body>
 </html>
