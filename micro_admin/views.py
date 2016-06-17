@@ -4,10 +4,14 @@ from django.template.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
 from django.contrib.auth.models import Permission
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, LoanAccount, \
-                                Receipts, FixedDeposits, PAYMENT_TYPES, Payments, RecurringDeposits, USER_ROLES
-from micro_admin.forms import BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm, \
-                                ReceiptForm, FixedDepositForm, PaymentForm, ReccuringDepositForm
+from micro_admin.models import (
+    User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
+    LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
+    RecurringDeposits, USER_ROLES)
+from micro_admin.forms import (
+    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
+    SavingsAccountForm, LoanAccountForm, ReceiptForm, FixedDepositForm,
+    PaymentForm, ReccuringDepositForm)
 from django.contrib.auth.decorators import login_required
 import datetime
 import decimal
@@ -37,7 +41,8 @@ def index(request):
 
 def user_login(request):
     if request.method == "POST":
-        user = authenticate(username=request.POST.get("username"), password=request.POST.get("password"))
+        user = authenticate(username=request.POST.get("username"),
+                            password=request.POST.get("password"))
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
@@ -47,7 +52,10 @@ def user_login(request):
                 data = {"error": True, "message": "User is not active."}
                 return HttpResponse(json.dumps(data))
         else:
-            data = {"error": True, "message": "Username and Password were incorrect."}
+            data = {
+                "error": True,
+                "message": "Username and Password were incorrect."
+            }
             return HttpResponse(json.dumps(data))
     else:
         if request.user.is_authenticated():
@@ -83,7 +91,10 @@ def edit_branch(request, branch_id):
     if request.method == "GET":
         branch = Branch.objects.get(id=branch_id)
         if request.user.is_admin:
-            return render(request, "editbranchdetails.html", {"branch": branch, "branch_id": branch_id})
+            return render(
+                request, "editbranchdetails.html",
+                {"branch": branch, "branch_id": branch_id}
+            )
         else:
             return render(request, "branchprofile.html", {"branch": branch})
     else:
@@ -124,11 +135,16 @@ def create_client(request):
     if request.method == "GET":
         data = {}
         branch = Branch.objects.all()
-        return render(request, "createclient.html", {"data": data, "branch": branch})
+        return render(
+            request,
+            "createclient.html",
+            {"data": data, "branch": branch}
+        )
     else:
         form = ClientForm(request.POST)
         if form.is_valid():
-            created_by = User.objects.get(username=request.POST.get("created_by"))
+            created_by = User.objects.get(
+                username=request.POST.get("created_by"))
             client = form.save(commit=False)
             client.created_by = created_by
             if request.POST.get("email"):
@@ -158,7 +174,10 @@ def edit_client(request, client_id):
             for i in CLIENT_ROLES:
                 l.append(i[0])
             branch = Branch.objects.all()
-            return render(request, "editclient.html", {"client": client, "l": l, "branch": branch})
+            return render(
+                request, "editclient.html",
+                {"client": client, "l": l, "branch": branch}
+            )
         else:
             return HttpResponseRedirect('/viewclient/')
     else:
@@ -183,7 +202,10 @@ def update_clientprofile(request, client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
         if request.user.is_admin or request.user.branch == client.branch:
-            return render(request, "updateclientprofile.html", {"client": client})
+            return render(
+                request, "updateclientprofile.html",
+                {"client": client}
+            )
         else:
             return HttpResponseRedirect('/clientprofile/' + client_id + '/')
     else:
@@ -203,7 +225,12 @@ def view_client(request):
 @login_required
 def delete_client(request, client_id):
     client = Client.objects.get(id=client_id)
-    if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == client.branch):
+    if (
+        request.user.is_admin or (
+            request.user.has_perm("branch_manager") and
+            request.user.branch == client.branch
+        )
+    ):
         client.is_active = 0
         client.save()
     return HttpResponseRedirect('/viewclient/')
@@ -217,14 +244,21 @@ def create_user(request):
         userroles = []
         for i in USER_ROLES:
             userroles.append(i[0])
-        return render(request, "createuser.html", {"data": data, "branches": branches, "userroles": userroles})
+        return render(
+            request, "createuser.html",
+            {"data": data, "branches": branches, "userroles": userroles}
+        )
     else:
         user_form = UserForm(request.POST)
         if user_form.is_valid():
             user_name = request.POST.get("username")
             user_password = request.POST.get("password")
             if len(user_password) < 5:
-                data = {"error": True, "pwdmessage": "Password must be at least 5 characters long."}
+                data = {
+                    "error": True,
+                    "pwdmessage": "Password must be at least 5 " +
+                                  "characters long."
+                }
                 return HttpResponse(json.dumps(data))
             else:
                 email = request.POST.get("email")
@@ -249,8 +283,12 @@ def create_user(request):
                 if mobile1:
                     user.mobile = mobile1
                 if date_of_birth1:
-                    datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"), "%m/%d/%Y").strftime('%Y-%m-%d')
-                    dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+                    datestring_format = datetime.datetime.strptime(
+                        request.POST.get("date_of_birth"), "%m/%d/%Y"
+                    ).strftime('%Y-%m-%d')
+                    dateconvert = datetime.datetime.strptime(
+                        datestring_format, "%Y-%m-%d"
+                    )
                     user.date_of_birth = dateconvert
                 permission = Permission.objects.get(codename="branch_manager")
                 if request.POST.get("user_roles") == "BranchManager":
