@@ -35,10 +35,10 @@ urlpatterns = [
     url(r'^clientsavingsaccount/(?P<client_id>\d+)/$', client_savings_account, name='clientsavingsaccount'),
     url(r'^groupsavingsapplication/(?P<group_id>\d+)/$', group_savings_application, name='groupsavingsapplication'),
     url(r'^groupsavingsaccount/(?P<group_id>\d+)/$', group_savings_account, name='groupsavingsaccount'),
-    url(r'^approvesavings/(?P<savingsaccount_id>\d+)/$', approve_savings, name='approvesavings'),
-    url(r'^rejectsavings/(?P<savingsaccount_id>\d+)/$', reject_savings, name='rejectsavings'),
-    url(r'^closesavings/(?P<savingsaccount_id>\d+)/$', close_savings, name='closesavings'),
-    url(r'^withdrawsavings/(?P<savingsaccount_id>\d+)/$', withdraw_savings, name='withdrawsavings'),
+    # savings account status
+    url(r'^savings-account/status/(?P<savingsaccount_id>\d+)/$',
+        change_savings_account_status, name='savings_account_status'),
+
     url(r'^viewgroupsavingsdeposits/(?P<group_id>\d+)/$', view_groupsavings_deposits, name='viewgroupsavingsdeposits'),
     url(r'^viewgroupsavingswithdrawals/(?P<group_id>\d+)/$', view_groupsavings_withdrawals, name='viewgroupsavingswithdrawals'),
     url(r'^grouploanapplication/(?P<group_id>\d+)/$', group_loan_application, name='grouploanapplication'),
