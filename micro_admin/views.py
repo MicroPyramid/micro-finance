@@ -825,13 +825,26 @@ def group_loan_application(request, group_id):
             loan_account.created_by = User.objects.get(username=request.user)
             loan_account.group = group
 
-            interest_charged = d((d(loan_account.loan_amount) * (d(loan_account.annual_interest_rate) / 12 )) / 100)
+            interest_charged = d(
+                (
+                    d(loan_account.loan_amount) * (
+                        d(loan_account.annual_interest_rate) / 12)
+                ) / 100
+            )
 
-            loan_account.principle_repayment = d(int(loan_account.loan_repayment_every) * \
-                                                                (d(loan_account.loan_amount) / d(loan_account.loan_repayment_period)) \
-                                                                )
-            loan_account.interest_charged = d(int(loan_account.loan_repayment_every) * d(interest_charged))
-            loan_account.loan_repayment_amount = d(d(loan_account.principle_repayment) + d(loan_account.interest_charged))
+            loan_account.principle_repayment = d(
+                int(loan_account.loan_repayment_every) *
+                (
+                    d(loan_account.loan_amount) / d(
+                        loan_account.loan_repayment_period)
+                )
+            )
+            loan_account.interest_charged = d(
+                int(loan_account.loan_repayment_every) * d(interest_charged))
+            loan_account.loan_repayment_amount = d(
+                d(loan_account.principle_repayment) + d(
+                    loan_account.interest_charged)
+            )
             loan_account.total_loan_balance = d(d(loan_account.loan_amount))
             loan_account.save()
             data = {"error": False, "loanaccount_id": loan_account.id}
@@ -847,7 +860,9 @@ def client_loan_application(request, client_id):
         client = Client.objects.get(id=client_id)
         count = LoanAccount.objects.all().count()
         account_no = "%s%s%d" % ("L", client.branch.id, count + 1)
-        return render(request, "client_loan_application.html", {"client": client, "account_no": account_no})
+        return render(
+            request, "client_loan_application.html",
+            {"client": client, "account_no": account_no})
     else:
         form = LoanAccountForm(request.POST)
         if form.is_valid():
@@ -855,11 +870,24 @@ def client_loan_application(request, client_id):
             loan_account.status = "Applied"
             loan_account.created_by = User.objects.get(username=request.user)
             loan_account.client = Client.objects.get(id=client_id)
-            interest_charged = d((d(loan_account.loan_amount) * ( d(loan_account.annual_interest_rate) / 12 )) / 100)
-            loan_account.principle_repayment = d(int(loan_account.loan_repayment_every) * \
-                                                    (d(loan_account.loan_amount) / d(loan_account.loan_repayment_period)))
-            loan_account.interest_charged = d(int(loan_account.loan_repayment_every) * d(interest_charged))
-            loan_account.loan_repayment_amount = d(d(loan_account.principle_repayment) + d(loan_account.interest_charged))
+            interest_charged = d(
+                (
+                    d(loan_account.loan_amount) * (
+                        d(loan_account.annual_interest_rate) / 12)
+                ) / 100
+            )
+            loan_account.principle_repayment = d(
+                int(loan_account.loan_repayment_every) * (
+                    d(loan_account.loan_amount) / d(
+                        loan_account.loan_repayment_period)
+                )
+            )
+            loan_account.interest_charged = d(
+                int(loan_account.loan_repayment_every) * d(interest_charged))
+            loan_account.loan_repayment_amount = d(
+                d(loan_account.principle_repayment) + d(
+                    loan_account.interest_charged)
+            )
             loan_account.total_loan_balance = d(d(loan_account.loan_amount))
             loan_account.save()
             data = {"error": False, "loanaccount_id": loan_account.id}
@@ -872,13 +900,17 @@ def client_loan_application(request, client_id):
 @login_required
 def client_loan_account(request, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    return render(request, "client_loan_account.html", {"client": loanaccount.client, "loanaccount": loanaccount})
+    return render(
+        request, "client_loan_account.html",
+        {"client": loanaccount.client, "loanaccount": loanaccount})
 
 
 @login_required
 def group_loan_account(request, loanaccount_id):
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    return render(request, "group_loan_account.html", {"group": loan_account.group, "loan_account": loan_account})
+    return render(
+        request, "group_loan_account.html",
+        {"group": loan_account.group, "loan_account": loan_account})
 
 
 @login_required
@@ -890,7 +922,11 @@ def approve_loan(request, loanaccount_id):
                 branchid = loan_account.group.branch.id
             elif loan_account.client:
                 branchid = loan_account.client.branch.id
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch.id == branchid):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch.id == branchid)
+            ):
                 loan_account.status = "Approved"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
@@ -912,7 +948,11 @@ def reject_loan(request, loanaccount_id):
                 branchid = loan_account.group.branch.id
             elif loan_account.client:
                 branchid = loan_account.client.branch.id
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch.id == branchid):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch.id == branchid)
+            ):
                 loan_account.status = "Rejected"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
@@ -934,7 +974,11 @@ def close_loan(request, loanaccount_id):
                 branchid = loan_account.group.branch.id
             elif loan_account.client:
                 branchid = loan_account.client.branch.id
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch.id == branchid):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch.id == branchid)
+            ):
                 loan_account.status = "Closed"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
@@ -973,17 +1017,32 @@ def withdraw_loan(request, loanaccount_id):
 def view_grouploan_deposits(request, group_id, loanaccount_id):
     group = Group.objects.get(id=group_id)
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_list = Receipts.objects.filter(group=group, group_loan_account=loan_account).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
-    count = Receipts.objects.filter(group=group, group_loan_account=loan_account).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0).count()
-    return render(request, "listof_grouploan_deposits.html", {"loan_account": loan_account, "receipts_list": receipts_list, "group": group, "count": count})
+    receipts_list = Receipts.objects.filter(
+        group=group, group_loan_account=loan_account
+    ).exclude(
+        demand_loanprinciple_amount_atinstant=0,
+        demand_loaninterest_amount_atinstant=0
+    )
+    count = Receipts.objects.filter(
+        group=group, group_loan_account=loan_account
+    ).exclude(demand_loanprinciple_amount_atinstant=0,
+              demand_loaninterest_amount_atinstant=0).count()
+    return render(
+        request, "listof_grouploan_deposits.html",
+        {"loan_account": loan_account, "receipts_list": receipts_list,
+         "group": group, "count": count}
+    )
 
 
 @login_required
 def view_groupsavings_deposits(request, group_id):
     group = Group.objects.get(id=group_id)
     savings_account = SavingsAccount.objects.get(group=group)
-    receipts_list = Receipts.objects.filter(group=group).exclude(savingsdeposit_thrift_amount=0)
-    count = Receipts.objects.filter(group=group).exclude(savingsdeposit_thrift_amount=0).count()
+    receipts_list = Receipts.objects.filter(group=group).exclude(
+        savingsdeposit_thrift_amount=0)
+    count = Receipts.objects.filter(group=group).exclude(
+        savingsdeposit_thrift_amount=0
+    ).count()
     return render(
         request,
         "listof_groupsavings_deposits.html",
@@ -999,32 +1058,52 @@ def view_groupsavings_deposits(request, group_id):
 @login_required
 def view_groupsavings_withdrawals(request, group_id):
     group = Group.objects.get(id=group_id)
-    savings_withdrawals_list = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal")
-    count = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal").count()
-    return render(request, "listof_groupsavings_withdrawals.html", {"count": count, "savings_withdrawals_list": savings_withdrawals_list, "group": group})
+    savings_withdrawals_list = Payments.objects.filter(
+        group=group, payment_type="SavingsWithdrawal")
+    count = Payments.objects.filter(
+        group=group, payment_type="SavingsWithdrawal").count()
+    return render(request, "listof_groupsavings_withdrawals.html",
+                  {"count": count, "group": group,
+                   "savings_withdrawals_list": savings_withdrawals_list})
 
 
 @login_required
 def listofclient_loan_deposits(request, client_id, loanaccount_id):
     client = Client.objects.get(id=client_id)
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_lists = Receipts.objects.filter(client=client, member_loan_account=loanaccount).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
-    return render(request, "view_clientloan_deposits.html", {"loanaccount": loanaccount, "receipts_lists": receipts_lists})
+    receipts_lists = Receipts.objects.filter(
+        client=client, member_loan_account=loanaccount
+    ).exclude(
+        demand_loanprinciple_amount_atinstant=0,
+        demand_loaninterest_amount_atinstant=0
+    )
+    return render(
+        request, "view_clientloan_deposits.html",
+        {"loanaccount": loanaccount, "receipts_lists": receipts_lists})
 
 
 @login_required
 def listofclient_savings_deposits(request, client_id):
     savingsaccount = SavingsAccount.objects.get(client=client_id)
-    receipts_lists = Receipts.objects.filter(client=client_id).exclude(savingsdeposit_thrift_amount=0)
-    return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
+    receipts_lists = Receipts.objects.filter(
+        client=client_id).exclude(savingsdeposit_thrift_amount=0)
+    return render(
+        request, "listof_clientsavingsdeposits.html",
+        {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
 
 
 @login_required
 def listofclient_savings_withdrawals(request, client_id):
     client = Client.objects.get(id=client_id)
-    savings_withdrawals_list = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal")
-    count = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal").count()
-    return render(request, "listof_clientsavingswithdrawals.html", {"count": count, "savings_withdrawals_list": savings_withdrawals_list, "client": client})
+    savings_withdrawals_list = Payments.objects.filter(
+        client=client, payment_type="SavingsWithdrawal")
+    count = Payments.objects.filter(client=client,
+                                    payment_type="SavingsWithdrawal").count()
+    return render(
+        request, "listof_clientsavingswithdrawals.html",
+        {"count": count, "savings_withdrawals_list": savings_withdrawals_list,
+         "client": client}
+    )
 
 
 @login_required
@@ -1035,13 +1114,15 @@ def issue_loan(request, loanaccount_id):
         loan_account.loan_issued_by = request.user
         loan_account.save()
         loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect('/grouploanaccount/' + loanaccount_id + '/')
+        return HttpResponseRedirect(
+            '/grouploanaccount/' + loanaccount_id + '/')
     elif loan_account.client:
         loan_account.loan_issued_date = datetime.datetime.now()
         loan_account.loan_issued_by = request.user
         loan_account.save()
         loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect('/clientloanaccount/' + loanaccount_id + '/')
+        return HttpResponseRedirect(
+            '/clientloanaccount/' + loanaccount_id + '/')
 
 
 @login_required
@@ -1473,7 +1554,8 @@ def receipts_deposit(request):
 
 def receipts_list(request):
     receipt_list = Receipts.objects.all().order_by("-id")
-    return render(request, "listof_receipts.html", {"receipt_list": receipt_list})
+    return render(request, "listof_receipts.html",
+                  {"receipt_list": receipt_list})
 
 
 def ledger_account(request, client_id, loanaccount_id):
