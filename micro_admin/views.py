@@ -4,10 +4,14 @@ from django.template.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 import json
 from django.contrib.auth.models import Permission
-from micro_admin.models import User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount, LoanAccount, \
-                                Receipts, FixedDeposits, PAYMENT_TYPES, Payments, RecurringDeposits, USER_ROLES
-from micro_admin.forms import BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm, \
-                                ReceiptForm, FixedDepositForm, PaymentForm, ReccuringDepositForm
+from micro_admin.models import (
+    User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
+    LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
+    RecurringDeposits, USER_ROLES)
+from micro_admin.forms import (
+    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
+    SavingsAccountForm, LoanAccountForm, ReceiptForm, FixedDepositForm,
+    PaymentForm, ReccuringDepositForm)
 from django.contrib.auth.decorators import login_required
 import datetime
 import decimal
@@ -27,6 +31,9 @@ d = decimal.Decimal
 
 
 def index(request):
+    if request.user.is_authenticated():
+        user = User.objects.get(username=request.user)
+        return render(request, "index.html", {"user": user})
     data = {}
     data.update(csrf(request))
     return render_to_response("login.html", data)
@@ -34,7 +41,8 @@ def index(request):
 
 def user_login(request):
     if request.method == "POST":
-        user = authenticate(username=request.POST.get("username"), password=request.POST.get("password"))
+        user = authenticate(username=request.POST.get("username"),
+                            password=request.POST.get("password"))
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
@@ -44,7 +52,10 @@ def user_login(request):
                 data = {"error": True, "message": "User is not active."}
                 return HttpResponse(json.dumps(data))
         else:
-            data = {"error": True, "message": "Username and Password were incorrect."}
+            data = {
+                "error": True,
+                "message": "Username and Password were incorrect."
+            }
             return HttpResponse(json.dumps(data))
     else:
         if request.user.is_authenticated():
@@ -80,7 +91,10 @@ def edit_branch(request, branch_id):
     if request.method == "GET":
         branch = Branch.objects.get(id=branch_id)
         if request.user.is_admin:
-            return render(request, "editbranchdetails.html", {"branch": branch, "branch_id": branch_id})
+            return render(
+                request, "editbranchdetails.html",
+                {"branch": branch, "branch_id": branch_id}
+            )
         else:
             return render(request, "branchprofile.html", {"branch": branch})
     else:
@@ -121,11 +135,16 @@ def create_client(request):
     if request.method == "GET":
         data = {}
         branch = Branch.objects.all()
-        return render(request, "createclient.html", {"data": data, "branch": branch})
+        return render(
+            request,
+            "createclient.html",
+            {"data": data, "branch": branch}
+        )
     else:
         form = ClientForm(request.POST)
         if form.is_valid():
-            created_by = User.objects.get(username=request.POST.get("created_by"))
+            created_by = User.objects.get(
+                username=request.POST.get("created_by"))
             client = form.save(commit=False)
             client.created_by = created_by
             if request.POST.get("email"):
@@ -155,7 +174,10 @@ def edit_client(request, client_id):
             for i in CLIENT_ROLES:
                 l.append(i[0])
             branch = Branch.objects.all()
-            return render(request, "editclient.html", {"client": client, "l": l, "branch": branch})
+            return render(
+                request, "editclient.html",
+                {"client": client, "l": l, "branch": branch}
+            )
         else:
             return HttpResponseRedirect('/viewclient/')
     else:
@@ -180,7 +202,10 @@ def update_clientprofile(request, client_id):
     if request.method == "GET":
         client = Client.objects.get(id=client_id)
         if request.user.is_admin or request.user.branch == client.branch:
-            return render(request, "updateclientprofile.html", {"client": client})
+            return render(
+                request, "updateclientprofile.html",
+                {"client": client}
+            )
         else:
             return HttpResponseRedirect('/clientprofile/' + client_id + '/')
     else:
@@ -200,7 +225,12 @@ def view_client(request):
 @login_required
 def delete_client(request, client_id):
     client = Client.objects.get(id=client_id)
-    if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == client.branch):
+    if (
+        request.user.is_admin or (
+            request.user.has_perm("branch_manager") and
+            request.user.branch == client.branch
+        )
+    ):
         client.is_active = 0
         client.save()
     return HttpResponseRedirect('/viewclient/')
@@ -214,14 +244,21 @@ def create_user(request):
         userroles = []
         for i in USER_ROLES:
             userroles.append(i[0])
-        return render(request, "createuser.html", {"data": data, "branches": branches, "userroles": userroles})
+        return render(
+            request, "createuser.html",
+            {"data": data, "branches": branches, "userroles": userroles}
+        )
     else:
         user_form = UserForm(request.POST)
         if user_form.is_valid():
             user_name = request.POST.get("username")
             user_password = request.POST.get("password")
             if len(user_password) < 5:
-                data = {"error": True, "pwdmessage": "Password must be at least 5 characters long."}
+                data = {
+                    "error": True,
+                    "pwdmessage": "Password must be at least 5 " +
+                                  "characters long."
+                }
                 return HttpResponse(json.dumps(data))
             else:
                 email = request.POST.get("email")
@@ -246,8 +283,12 @@ def create_user(request):
                 if mobile1:
                     user.mobile = mobile1
                 if date_of_birth1:
-                    datestring_format = datetime.datetime.strptime(request.POST.get("date_of_birth"), "%m/%d/%Y").strftime('%Y-%m-%d')
-                    dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
+                    datestring_format = datetime.datetime.strptime(
+                        request.POST.get("date_of_birth"), "%m/%d/%Y"
+                    ).strftime('%Y-%m-%d')
+                    dateconvert = datetime.datetime.strptime(
+                        datestring_format, "%Y-%m-%d"
+                    )
                     user.date_of_birth = dateconvert
                 permission = Permission.objects.get(codename="branch_manager")
                 if request.POST.get("user_roles") == "BranchManager":
@@ -264,12 +305,21 @@ def create_user(request):
 def edit_user(request, user_id):
     if request.method == "GET":
         user = User.objects.get(id=user_id)
-        if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == user.branch) or request.user == user:
+        if (
+            request.user.is_admin or request.user == user or
+            (
+                request.user.has_perm("branch_manager") and
+                request.user.branch == user.branch
+            )
+        ):
             branch = Branch.objects.all()
             userroles = []
             for i in USER_ROLES:
                 userroles.append(i[0])
-            return render(request, "edituser.html", {"user": user, "branch": branch, "userroles": userroles})
+            return render(
+                request, "edituser.html",
+                {"user": user, "branch": branch, "userroles": userroles}
+            )
         else:
             return HttpResponseRedirect('/userslist/')
     else:
@@ -304,13 +354,18 @@ def user_profile(request, user_id):
 @login_required
 def users_list(request):
     list_of_users = User.objects.filter(is_admin=0)
-    return render(request, "listofusers.html", {"list_of_users": list_of_users})
+    return render(
+        request, "listofusers.html", {"list_of_users": list_of_users})
 
 
 @login_required
 def delete_user(request, user_id):
     user = User.objects.get(id=user_id)
-    if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == user.branch):
+    if (
+        request.user.is_admin or
+        (request.user.has_perm("branch_manager") and
+         request.user.branch == user.branch)
+    ):
         if request.user == user:
             pass
         else:
@@ -324,11 +379,14 @@ def create_group(request):
     if request.method == "GET":
         data = {}
         branches = Branch.objects.all()
-        return render(request, "creategroup.html", {"data": data, "branches": branches})
+        return render(
+            request, "creategroup.html", {"data": data, "branches": branches})
     else:
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
-            created_by = User.objects.get(username=request.POST.get("created_by"))
+            created_by = User.objects.get(
+                username=request.POST.get("created_by")
+            )
             group = group_form.save(commit=False)
             group.created_by = created_by
             group.save()
@@ -345,7 +403,9 @@ def group_profile(request, group_id):
     clients_list = group.clients.all()
     clients_count = group.clients.all().count()
     if GroupMeetings.objects.filter(group_id=group.id):
-        latest_group_meeting = GroupMeetings.objects.filter(group_id=group.id).order_by('-id')[0]
+        latest_group_meeting = GroupMeetings.objects.filter(
+            group_id=group.id
+        ).order_by('-id')[0]
         return render(
             request,
             "groupprofile.html",
@@ -357,7 +417,11 @@ def group_profile(request, group_id):
             }
         )
     else:
-        return render(request, "groupprofile.html", {"group": group, "clients_list": clients_list, "clients_count": clients_count})
+        return render(
+            request, "groupprofile.html",
+            {"group": group, "clients_list": clients_list,
+             "clients_count": clients_count}
+        )
 
 
 @login_required
@@ -366,7 +430,9 @@ def assign_staff_to_group(request, group_id):
         group = Group.objects.get(id=group_id)
         users_list = User.objects.filter(is_admin=0)
         if request.user.is_admin or request.user.branch == group.branch:
-            return render(request, "assignstaff.html", {"group": group, "users_list": users_list})
+            return render(
+                request, "assignstaff.html",
+                {"group": group, "users_list": users_list})
         else:
             return HttpResponseRedirect('/groupprofile/' + group_id + '/')
     else:
@@ -385,7 +451,9 @@ def addmembers_to_group(request, group_id):
         group = Group.objects.get(id=group_id)
         clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
         if request.user.is_admin or request.user.branch == group.branch:
-            return render(request, "addmember.html", {"group": group, "clients_list": clients_list})
+            return render(
+                request, "addmember.html",
+                {"group": group, "clients_list": clients_list})
         else:
             return HttpResponseRedirect('/groupprofile/' + group_id + '/')
     else:
@@ -411,7 +479,10 @@ def viewmembers_under_group(request, group_id):
     group = Group.objects.get(id=group_id)
     clients_list = group.clients.all()
     clients_count = group.clients.all().count()
-    return render(request, "viewmembers.html", {"group": group, "clients_list": clients_list, "clients_count": clients_count})
+    return render(
+        request, "viewmembers.html",
+        {"group": group, "clients_list": clients_list,
+         "clients_count": clients_count})
 
 
 @login_required
@@ -423,8 +494,14 @@ def groups_list(request):
 @login_required
 def delete_group(request, group_id):
     group = Group.objects.get(id=group_id)
-    if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == group.branch):
-        if LoanAccount.objects.filter(group=group, status="Approved").exclude(total_loan_balance=0).count():
+    if (
+        request.user.is_admin or
+        (request.user.has_perm("branch_manager") and
+         request.user.branch == group.branch)
+    ):
+        if LoanAccount.objects.filter(
+            group=group, status="Approved"
+        ).exclude(total_loan_balance=0).count():
             pass
         else:
             group.is_active = 0
@@ -435,7 +512,11 @@ def delete_group(request, group_id):
 @login_required
 def removemembers_from_group(request, group_id, client_id):
     group = Group.objects.get(id=group_id)
-    if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == group.branch):
+    if (
+        request.user.is_admin or
+        (request.user.has_perm("branch_manager") and
+         request.user.branch == group.branch)
+    ):
         client = Client.objects.get(id=client_id)
         group.clients.remove(client)
         group.save()
@@ -455,17 +536,23 @@ def add_group_meeting(request, group_id):
     if request.method == "GET":
         group = Group.objects.get(id=group_id)
         if GroupMeetings.objects.filter(group_id=group.id):
-            latest_group_meeting = GroupMeetings.objects.filter(group_id=group.id).order_by('-id')[0]
-            return render(request, "add_group_meeting.html", {"group": group, "latest_group_meeting": latest_group_meeting})
+            latest_group_meeting = GroupMeetings.objects.filter(
+                group_id=group.id).order_by('-id')[0]
+            return render(
+                request, "add_group_meeting.html",
+                {"group": group, "latest_group_meeting": latest_group_meeting})
         else:
             return render(request, "add_group_meeting.html", {"group": group})
     else:
         group = Group.objects.get(id=group_id)
-        datestring_format = datetime.datetime.strptime(request.POST.get("meeting_date"), '%m/%d/%Y').strftime('%Y-%m-%d')
+        datestring_format = datetime.datetime.strptime(
+            request.POST.get("meeting_date"), '%m/%d/%Y').strftime('%Y-%m-%d')
         dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
         meeting_date = dateconvert
         meeting_time = request.POST.get("meeting_time")
-        GroupMeetings.objects.create(meeting_date=meeting_date, meeting_time=meeting_time, group=group)
+        GroupMeetings.objects.create(meeting_date=meeting_date,
+                                     meeting_time=meeting_time,
+                                     group=group)
         return HttpResponseRedirect('/groupprofile/' + group_id + '/')
 
 
@@ -475,20 +562,23 @@ def client_savings_application(request, client_id):
         client = Client.objects.get(id=client_id)
         count = SavingsAccount.objects.filter(client=client).count()
         if count == 1:
-            return HttpResponseRedirect('/clientsavingsaccount/' + client_id + '/')
+            return HttpResponseRedirect(
+                '/clientsavingsaccount/' + client_id + '/')
         else:
             count = SavingsAccount.objects.all().count()
             account_no = "%s%s%d" % ("S", client.branch.id, count + 1)
-            return render(request, "client_savings_application.html", {"client": client, "account_no": account_no})
+            return render(
+                request, "client_savings_application.html",
+                {"client": client, "account_no": account_no})
     else:
         form = SavingsAccountForm(request.POST)
         if form.is_valid():
-            client_savingsaccount = form.save(commit=False)
-            client_savingsaccount.status = "Applied"
-            client_savingsaccount.created_by = User.objects.get(username=request.user)
-            client_savingsaccount.client = Client.objects.get(id=client_id)
-            client_savingsaccount.save()
-            data = {"error": False, "client_id": client_savingsaccount.client.id}
+            obj_sav_acc = form.save(commit=False)
+            obj_sav_acc.status = "Applied"
+            obj_sav_acc.created_by = User.objects.get(username=request.user)
+            obj_sav_acc.client = Client.objects.get(id=client_id)
+            obj_sav_acc.save()
+            data = {"error": False, "client_id": obj_sav_acc.client.id}
             return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": form.errors}
@@ -499,7 +589,9 @@ def client_savings_application(request, client_id):
 def client_savings_account(request, client_id):
     client = Client.objects.get(id=client_id)
     savingsaccount = SavingsAccount.objects.get(client=client)
-    return render(request, "client_savings_account.html", {"client": client, "savingsaccount": savingsaccount})
+    return render(
+        request, "client_savings_account.html",
+        {"client": client, "savingsaccount": savingsaccount})
 
 
 @login_required
@@ -508,20 +600,23 @@ def group_savings_application(request, group_id):
         group = Group.objects.get(id=group_id)
         count = SavingsAccount.objects.filter(group=group).count()
         if count == 1:
-            return HttpResponseRedirect('/groupsavingsaccount/' + group_id + '/')
+            return HttpResponseRedirect(
+                '/groupsavingsaccount/' + group_id + '/')
         else:
             count = SavingsAccount.objects.all().count()
             account_no = "%s%s%d" % ("S", group.branch.id, count + 1)
-            return render(request, "group_savings_application.html", {"group": group, "account_no": account_no})
+            return render(
+                request, "group_savings_application.html",
+                {"group": group, "account_no": account_no})
     else:
         group_savingsaccount_form = SavingsAccountForm(request.POST)
         if group_savingsaccount_form.is_valid():
-            group_savingsaccount = group_savingsaccount_form.save(commit=False)
-            group_savingsaccount.status = "Applied"
-            group_savingsaccount.created_by = User.objects.get(username=request.user)
-            group_savingsaccount.group = Group.objects.get(id=group_id)
-            group_savingsaccount.save()
-            data = {"error": False, "group_id": group_savingsaccount.group.id}
+            obj_sav_acc = group_savingsaccount_form.save(commit=False)
+            obj_sav_acc.status = "Applied"
+            obj_sav_acc.created_by = User.objects.get(username=request.user)
+            obj_sav_acc.group = Group.objects.get(id=group_id)
+            obj_sav_acc.save()
+            data = {"error": False, "group_id": obj_sav_acc.group.id}
             return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": group_savingsaccount_form.errors}
@@ -550,7 +645,9 @@ def group_savings_account(request, group_id):
     group_totals_dict["membershipfee_amount"] = membershipfee_amount
     group_totals_dict["bookfee_amount"] = bookfee_amount
     group_totals_dict["insurance_amount"] = insurance_amount
-    return render(request, "group_savings_account.html", {"group": group, "savings_account": savings_account, "dict": group_totals_dict})
+    return render(request, "group_savings_account.html",
+                  {"group": group, "savings_account": savings_account,
+                   "dict": group_totals_dict})
 
 
 @login_required
@@ -558,20 +655,38 @@ def approve_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
         if savings_account.group:
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.group.branch):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch == savings_account.group.branch)
+            ):
                 savings_account.status = "Approved"
                 savings_account.save()
                 data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to approve savings account.", "group_id": savings_account.group.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "approve savings account.",
+                    "group_id": savings_account.group.id
+                }
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.client.branch):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch == savings_account.client.branch)
+            ):
                 savings_account.status = "Approved"
                 savings_account.save()
                 data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to approve savings account.", "client_id": savings_account.client.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "approve savings account.",
+                    "client_id": savings_account.client.id
+                }
             return HttpResponse(json.dumps(data))
 
 
@@ -580,20 +695,37 @@ def reject_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
         if savings_account.group:
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.group.branch):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch == savings_account.group.branch)
+            ):
                 savings_account.status = "Rejected"
                 savings_account.save()
                 data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to reject savings account.", "group_id": savings_account.group.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "reject savings account.",
+                    "group_id": savings_account.group.id
+                }
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.client.branch):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch == savings_account.client.branch)
+            ):
                 savings_account.status = "Rejected"
                 savings_account.save()
                 data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to reject savings account.", "client_id": savings_account.client.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "reject savings account.",
+                    "client_id": savings_account.client.id}
             return HttpResponse(json.dumps(data))
 
 
@@ -602,20 +734,38 @@ def close_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
         if savings_account.group:
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.group.branch):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch == savings_account.group.branch)
+            ):
                 savings_account.status = "Closed"
                 savings_account.save()
                 data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to close savings account.", "group_id": savings_account.group.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "close savings account.",
+                    "group_id": savings_account.group.id
+                }
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch == savings_account.client.branch):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch == savings_account.client.branch)
+            ):
                 savings_account.status = "Closed"
                 savings_account.save()
                 data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to close savings account.", "client_id": savings_account.client.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "close savings account.",
+                    "client_id": savings_account.client.id
+                }
             return HttpResponse(json.dumps(data))
 
 
@@ -624,20 +774,36 @@ def withdraw_savings(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
         if savings_account.group:
-            if request.user.is_admin or request.user.branch == savings_account.group.branch:
+            if (
+                request.user.is_admin or
+                request.user.branch == savings_account.group.branch
+            ):
                 savings_account.status = "Withdrawn"
                 savings_account.save()
                 data = {"error": False, "group_id": savings_account.group.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to withdraw savings account.", "group_id": savings_account.group.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "withdraw savings account.",
+                    "group_id": savings_account.group.id
+                }
             return HttpResponse(json.dumps(data))
         elif savings_account.client:
-            if request.user.is_admin or request.user.branch == savings_account.client.branch:
+            if (
+                request.user.is_admin or
+                request.user.branch == savings_account.client.branch
+            ):
                 savings_account.status = "Withdrawn"
                 savings_account.save()
                 data = {"error": False, "client_id": savings_account.client.id}
             else:
-                data = {"error": True, "errmsg": "You don't have permission to withdraw savings account.", "client_id": savings_account.client.id}
+                data = {
+                    "error": True,
+                    "errmsg": "You don't have permission to " +
+                              "withdraw savings account.",
+                    "client_id": savings_account.client.id
+                }
             return HttpResponse(json.dumps(data))
 
 
@@ -647,7 +813,9 @@ def group_loan_application(request, group_id):
         group = Group.objects.get(id=group_id)
         count = LoanAccount.objects.all().count()
         account_no = "%s%s%d" % ("L", group.branch.id, count + 1)
-        return render(request, "group_loan_application.html", {"group": group, "account_no": account_no})
+        return render(
+            request, "group_loan_application.html",
+            {"group": group, "account_no": account_no})
     else:
         group_loanaccount_form = LoanAccountForm(request.POST)
         if group_loanaccount_form.is_valid():
@@ -657,13 +825,26 @@ def group_loan_application(request, group_id):
             loan_account.created_by = User.objects.get(username=request.user)
             loan_account.group = group
 
-            interest_charged = d((d(loan_account.loan_amount) * (d(loan_account.annual_interest_rate) / 12 )) / 100)
+            interest_charged = d(
+                (
+                    d(loan_account.loan_amount) * (
+                        d(loan_account.annual_interest_rate) / 12)
+                ) / 100
+            )
 
-            loan_account.principle_repayment = d(int(loan_account.loan_repayment_every) * \
-                                                                (d(loan_account.loan_amount) / d(loan_account.loan_repayment_period)) \
-                                                                )
-            loan_account.interest_charged = d(int(loan_account.loan_repayment_every) * d(interest_charged))
-            loan_account.loan_repayment_amount = d(d(loan_account.principle_repayment) + d(loan_account.interest_charged))
+            loan_account.principle_repayment = d(
+                int(loan_account.loan_repayment_every) *
+                (
+                    d(loan_account.loan_amount) / d(
+                        loan_account.loan_repayment_period)
+                )
+            )
+            loan_account.interest_charged = d(
+                int(loan_account.loan_repayment_every) * d(interest_charged))
+            loan_account.loan_repayment_amount = d(
+                d(loan_account.principle_repayment) + d(
+                    loan_account.interest_charged)
+            )
             loan_account.total_loan_balance = d(d(loan_account.loan_amount))
             loan_account.save()
             data = {"error": False, "loanaccount_id": loan_account.id}
@@ -679,7 +860,9 @@ def client_loan_application(request, client_id):
         client = Client.objects.get(id=client_id)
         count = LoanAccount.objects.all().count()
         account_no = "%s%s%d" % ("L", client.branch.id, count + 1)
-        return render(request, "client_loan_application.html", {"client": client, "account_no": account_no})
+        return render(
+            request, "client_loan_application.html",
+            {"client": client, "account_no": account_no})
     else:
         form = LoanAccountForm(request.POST)
         if form.is_valid():
@@ -687,11 +870,24 @@ def client_loan_application(request, client_id):
             loan_account.status = "Applied"
             loan_account.created_by = User.objects.get(username=request.user)
             loan_account.client = Client.objects.get(id=client_id)
-            interest_charged = d((d(loan_account.loan_amount) * ( d(loan_account.annual_interest_rate) / 12 )) / 100)
-            loan_account.principle_repayment = d(int(loan_account.loan_repayment_every) * \
-                                                    (d(loan_account.loan_amount) / d(loan_account.loan_repayment_period)))
-            loan_account.interest_charged = d(int(loan_account.loan_repayment_every) * d(interest_charged))
-            loan_account.loan_repayment_amount = d(d(loan_account.principle_repayment) + d(loan_account.interest_charged))
+            interest_charged = d(
+                (
+                    d(loan_account.loan_amount) * (
+                        d(loan_account.annual_interest_rate) / 12)
+                ) / 100
+            )
+            loan_account.principle_repayment = d(
+                int(loan_account.loan_repayment_every) * (
+                    d(loan_account.loan_amount) / d(
+                        loan_account.loan_repayment_period)
+                )
+            )
+            loan_account.interest_charged = d(
+                int(loan_account.loan_repayment_every) * d(interest_charged))
+            loan_account.loan_repayment_amount = d(
+                d(loan_account.principle_repayment) + d(
+                    loan_account.interest_charged)
+            )
             loan_account.total_loan_balance = d(d(loan_account.loan_amount))
             loan_account.save()
             data = {"error": False, "loanaccount_id": loan_account.id}
@@ -704,13 +900,17 @@ def client_loan_application(request, client_id):
 @login_required
 def client_loan_account(request, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    return render(request, "client_loan_account.html", {"client": loanaccount.client, "loanaccount": loanaccount})
+    return render(
+        request, "client_loan_account.html",
+        {"client": loanaccount.client, "loanaccount": loanaccount})
 
 
 @login_required
 def group_loan_account(request, loanaccount_id):
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    return render(request, "group_loan_account.html", {"group": loan_account.group, "loan_account": loan_account})
+    return render(
+        request, "group_loan_account.html",
+        {"group": loan_account.group, "loan_account": loan_account})
 
 
 @login_required
@@ -722,7 +922,11 @@ def approve_loan(request, loanaccount_id):
                 branchid = loan_account.group.branch.id
             elif loan_account.client:
                 branchid = loan_account.client.branch.id
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch.id == branchid):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch.id == branchid)
+            ):
                 loan_account.status = "Approved"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
@@ -744,7 +948,11 @@ def reject_loan(request, loanaccount_id):
                 branchid = loan_account.group.branch.id
             elif loan_account.client:
                 branchid = loan_account.client.branch.id
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch.id == branchid):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch.id == branchid)
+            ):
                 loan_account.status = "Rejected"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
@@ -766,7 +974,11 @@ def close_loan(request, loanaccount_id):
                 branchid = loan_account.group.branch.id
             elif loan_account.client:
                 branchid = loan_account.client.branch.id
-            if request.user.is_admin or (request.user.has_perm("branch_manager") and request.user.branch.id == branchid):
+            if (
+                request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch.id == branchid)
+            ):
                 loan_account.status = "Closed"
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
@@ -805,17 +1017,32 @@ def withdraw_loan(request, loanaccount_id):
 def view_grouploan_deposits(request, group_id, loanaccount_id):
     group = Group.objects.get(id=group_id)
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_list = Receipts.objects.filter(group=group, group_loan_account=loan_account).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
-    count = Receipts.objects.filter(group=group, group_loan_account=loan_account).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0).count()
-    return render(request, "listof_grouploan_deposits.html", {"loan_account": loan_account, "receipts_list": receipts_list, "group": group, "count": count})
+    receipts_list = Receipts.objects.filter(
+        group=group, group_loan_account=loan_account
+    ).exclude(
+        demand_loanprinciple_amount_atinstant=0,
+        demand_loaninterest_amount_atinstant=0
+    )
+    count = Receipts.objects.filter(
+        group=group, group_loan_account=loan_account
+    ).exclude(demand_loanprinciple_amount_atinstant=0,
+              demand_loaninterest_amount_atinstant=0).count()
+    return render(
+        request, "listof_grouploan_deposits.html",
+        {"loan_account": loan_account, "receipts_list": receipts_list,
+         "group": group, "count": count}
+    )
 
 
 @login_required
 def view_groupsavings_deposits(request, group_id):
     group = Group.objects.get(id=group_id)
     savings_account = SavingsAccount.objects.get(group=group)
-    receipts_list = Receipts.objects.filter(group=group).exclude(savingsdeposit_thrift_amount=0)
-    count = Receipts.objects.filter(group=group).exclude(savingsdeposit_thrift_amount=0).count()
+    receipts_list = Receipts.objects.filter(group=group).exclude(
+        savingsdeposit_thrift_amount=0)
+    count = Receipts.objects.filter(group=group).exclude(
+        savingsdeposit_thrift_amount=0
+    ).count()
     return render(
         request,
         "listof_groupsavings_deposits.html",
@@ -831,32 +1058,52 @@ def view_groupsavings_deposits(request, group_id):
 @login_required
 def view_groupsavings_withdrawals(request, group_id):
     group = Group.objects.get(id=group_id)
-    savings_withdrawals_list = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal")
-    count = Payments.objects.filter(group=group, payment_type="SavingsWithdrawal").count()
-    return render(request, "listof_groupsavings_withdrawals.html", {"count": count, "savings_withdrawals_list": savings_withdrawals_list, "group": group})
+    savings_withdrawals_list = Payments.objects.filter(
+        group=group, payment_type="SavingsWithdrawal")
+    count = Payments.objects.filter(
+        group=group, payment_type="SavingsWithdrawal").count()
+    return render(request, "listof_groupsavings_withdrawals.html",
+                  {"count": count, "group": group,
+                   "savings_withdrawals_list": savings_withdrawals_list})
 
 
 @login_required
 def listofclient_loan_deposits(request, client_id, loanaccount_id):
     client = Client.objects.get(id=client_id)
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_lists = Receipts.objects.filter(client=client, member_loan_account=loanaccount).exclude(demand_loanprinciple_amount_atinstant=0, demand_loaninterest_amount_atinstant=0)
-    return render(request, "view_clientloan_deposits.html", {"loanaccount": loanaccount, "receipts_lists": receipts_lists})
+    receipts_lists = Receipts.objects.filter(
+        client=client, member_loan_account=loanaccount
+    ).exclude(
+        demand_loanprinciple_amount_atinstant=0,
+        demand_loaninterest_amount_atinstant=0
+    )
+    return render(
+        request, "view_clientloan_deposits.html",
+        {"loanaccount": loanaccount, "receipts_lists": receipts_lists})
 
 
 @login_required
 def listofclient_savings_deposits(request, client_id):
     savingsaccount = SavingsAccount.objects.get(client=client_id)
-    receipts_lists = Receipts.objects.filter(client=client_id).exclude(savingsdeposit_thrift_amount=0)
-    return render(request, "listof_clientsavingsdeposits.html", {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
+    receipts_lists = Receipts.objects.filter(
+        client=client_id).exclude(savingsdeposit_thrift_amount=0)
+    return render(
+        request, "listof_clientsavingsdeposits.html",
+        {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
 
 
 @login_required
 def listofclient_savings_withdrawals(request, client_id):
     client = Client.objects.get(id=client_id)
-    savings_withdrawals_list = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal")
-    count = Payments.objects.filter(client=client, payment_type="SavingsWithdrawal").count()
-    return render(request, "listof_clientsavingswithdrawals.html", {"count": count, "savings_withdrawals_list": savings_withdrawals_list, "client": client})
+    savings_withdrawals_list = Payments.objects.filter(
+        client=client, payment_type="SavingsWithdrawal")
+    count = Payments.objects.filter(client=client,
+                                    payment_type="SavingsWithdrawal").count()
+    return render(
+        request, "listof_clientsavingswithdrawals.html",
+        {"count": count, "savings_withdrawals_list": savings_withdrawals_list,
+         "client": client}
+    )
 
 
 @login_required
@@ -867,13 +1114,15 @@ def issue_loan(request, loanaccount_id):
         loan_account.loan_issued_by = request.user
         loan_account.save()
         loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect('/grouploanaccount/' + loanaccount_id + '/')
+        return HttpResponseRedirect(
+            '/grouploanaccount/' + loanaccount_id + '/')
     elif loan_account.client:
         loan_account.loan_issued_date = datetime.datetime.now()
         loan_account.loan_issued_by = request.user
         loan_account.save()
         loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect('/clientloanaccount/' + loanaccount_id + '/')
+        return HttpResponseRedirect(
+            '/clientloanaccount/' + loanaccount_id + '/')
 
 
 @login_required
@@ -1305,7 +1554,8 @@ def receipts_deposit(request):
 
 def receipts_list(request):
     receipt_list = Receipts.objects.all().order_by("-id")
-    return render(request, "listof_receipts.html", {"receipt_list": receipt_list})
+    return render(request, "listof_receipts.html",
+                  {"receipt_list": receipt_list})
 
 
 def ledger_account(request, client_id, loanaccount_id):
