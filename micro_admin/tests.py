@@ -1,7 +1,7 @@
 from django.test import TestCase
 from micro_admin.forms import *
 from micro_admin.models import *
-from django.test import Client
+from django.test import Client as TestClient
 from tempfile import NamedTemporaryFile
 from micro_admin.templatetags import ledgertemplatetags
 
