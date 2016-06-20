@@ -13,22 +13,22 @@
       {% if savingsaccount.status == "Approved" %}
       <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
       {% else %}
-      <a href="{% url 'micro_admin:approvesavings' savingsaccount.id %}"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+      <a  class="change-account-status" data-href="{% url 'micro_admin:savings_account_status' savingsaccount.id %}?status=Approved"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
       {% endif %}
       {% if savingsaccount.status == "Withdrawn" %}
       <button title="Already Withrawn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button>
       {% else %}
-      <a href="{% url 'micro_admin:withdrawsavings' savingsaccount.id %}"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+      <a class="change-account-status" data-href="{% url 'micro_admin:savings_account_status' savingsaccount.id %}?status=Withdrawn"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
       {% endif %}
       {% if savingsaccount.status == "Rejected" %}
       <button title="Already Rejected"><i class="fa fa-times-circle-o padd"></i>Rejected</button>
       {% else %}
-      <a href="{% url 'micro_admin:rejectsavings' savingsaccount.id %}"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+      <a  class="change-account-status" data-href="{% url 'micro_admin:savings_account_status' savingsaccount.id %}?status=Rejected"><button id="reject-button" ><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
       {% endif %}
       {% if savingsaccount.status == "Closed" %}
       <button title = "Already Closed"><i class="fa fa-trash-o padd"></i>Closed</button>
       {% else %}
-      <a href="{% url 'micro_admin:closesavings' savingsaccount.id %}"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
+      <a class="change-account-status" data-href="{% url 'micro_admin:savings_account_status' savingsaccount.id %}?status=Closed"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
       {% endif %}
       <br clear="all" />
       {% endif %}
@@ -50,7 +50,7 @@
         {% if savingsaccount.status == "Withdrawn" %}
         <a title="Already Withrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
         {% else %}
-        <a href="{% url 'micro_admin:withdrawsavings' savingsaccount.id %}" id="withdraw-button" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
+        <a data-href="{% url 'micro_admin:savings_account_status' savingsaccount.id %}?status=Withdrawn" id="withdraw-button" class="view-tab-btn change-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
         {% endif %}
         {% endif %}
         </span>
@@ -123,61 +123,21 @@
 <!--wrapper ends above-->
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#approve-button').click(function(e) {
+    $('.change-account-status').click(function(e) {
       e.preventDefault();
-      $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
+      submit_url = $(this).attr("data-href")
+      $.post(submit_url, $('#clientsavingsaccountform').serialize(), function(data) {
         if (data.error) {
           alert(data.errmsg);
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+          url = "{% url 'micro_admin:clientsavingsaccount' 1 %}"
+          url.replace(1, data.client_id)
+          window.location = url
         }
         else {
-          alert("Member savings account Approved successfully");
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#withdraw-button').click(function(e) {
-      e.preventDefault();
-      $.post('/withdrawsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert(data.errmsg);
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-        else {
-          alert("Member savings account Withdrawn successfully");
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#reject-button').click(function(e) {
-      e.preventDefault();
-      $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert(data.errmsg);
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-        else {
-          alert("Member savings account Rejected successfully");
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#close-button').click(function(e) {
-      e.preventDefault();
-      $.post('/closesavings/'+$('#savingsaccount_id').val()+'/', $('#clientsavingsaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert(data.errmsg);
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
-        }
-        else {
-          alert("Member savings account Closed successfully");
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+          alert("Member savings account Status Changed successfully");
+          url = "{% url 'micro_admin:clientsavingsaccount' 1 %}"
+          url.replace(1, data.client_id)
+          window.location = url
         }
       }, "json");
     });

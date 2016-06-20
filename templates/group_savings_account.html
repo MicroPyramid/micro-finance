@@ -10,22 +10,22 @@
       {% if savings_account.status == "Withdrawn" %}
       <a title="Account has already been Withdrawn"><button><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a>
       {% else %}
-      <a href="#"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Withdrawn"><button id="withdraw-button" class="change-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
       {% endif %}
       {% if savings_account.status == "Approved" %}
       <a title="Account has already been Approved"><button><i class="fa fa-check-circle-o padd"></i>Approved</button></a>
       {% else %}
-      <a href="#"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Approved"><button id="approve-button" class="change-account-status"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
       {% endif %}
       {% if savings_account.status == "Rejected" %}
       <a title="Account has already been Rejected"><button><i class="fa fa-times-circle-o padd"></i>Rejected</button></a>
       {% else %}
-      <a href="#"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Rejected"><button id="reject-button" class="change-account-status"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
       {% endif %}
       {% if savings_account.status == "Closed" %}
       <a title="Account has already been Closed"><button><i class="fa fa-trash-o padd"></i>Closed</button></a>
       {% else %}
-      <a href="#"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
+      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Closed"><button id="close-button" class="change-account-status"><i class="fa fa-trash-o padd"></i>Close</button></a>
       {% endif %}
       <br clear="all" />
     </div>
@@ -114,55 +114,21 @@
 <!--content ends above-->
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#approve-button').click(function(e) {
+    $('.change-account-status').click(function(e) {
       e.preventDefault();
-      $.post('/approvesavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
+      submit_url = $(this).parent().attr("data-href")
+      $.post(submit_url, $('#groupsavingsaccountform').serialize(), function(data) {
         if (data.error) {
           alert(data.errmsg)
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
+          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}"
+          url.replace(1, data.group_id)
+          window.location = url
         }
         else {
-          alert("Group savings account has been Approved sucessfully")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-      }, "json");
-    });
-    $('#reject-button').click(function(e) {
-      e.preventDefault();
-      $.post('/rejectsavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert(data.errmsg)
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-        else {
-          alert("Group savings account has been Rejected sucessfully")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-      }, "json");
-    });
-    $('#close-button').click(function(e) {
-      e.preventDefault();
-      $.post('/closesavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert(data.errmsg)
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-        else {
-          alert("Group savings account has been Closed sucessfully")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-      }, "json");
-    });
-    $('#withdraw-button').click(function(e) {
-      e.preventDefault();
-      $.post('/withdrawsavings/'+$('#savingsaccount_id').val()+'/', $('#groupsavingsaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert(data.errmsg)
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
-        }
-        else {
-          alert("Group savings account has been Withdrawn sucessfully")
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
+          alert("Group savings account status Changed sucessfully")
+          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}"
+          url.replace(1, data.group_id)
+          window.location = url
         }
       }, "json");
     });

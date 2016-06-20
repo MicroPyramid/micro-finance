@@ -14,22 +14,22 @@
       {% if loanaccount.status == "Approved" %}
       <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
       {% else %}
-      <a href="{% url 'micro_admin:approveloan' loanaccount.id %}"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Approved"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
       {% endif %}
       {% if loanaccount.status == "Withdrawn" %}
       <button title="Already Withrawn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button>
       {% else %}
-      <a href="{% url 'micro_admin:withdrawloan' loanaccount.id %}"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Withdrawn"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
       {% endif %}
       {% if loanaccount.status == "Rejected" %}
       <button title="Already Rejected"><i class="fa fa-times-circle-o padd"></i>Rejected</button>
       {% else %}
-      <a href="{% url 'micro_admin:rejectloan' loanaccount.id %}"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Rejected"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
       {% endif %}
       {% if loanaccount.status == "Closed" %}
       <button title = "Already Closed"><i class="fa fa-trash-o padd"></i>Closed</button>
       {% else %}
-      <a href="{% url 'micro_admin:closeloan' loanaccount.id %}"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Closed"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
       {% endif %}
       <br clear="all" />
       {% endif %}
@@ -53,7 +53,7 @@
     {% if loanaccount.status == "Withdrawn" %}
     <a  title="Already Withrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
     {% else %}
-    <a href="{% url 'micro_admin:withdrawloan' loanaccount.id %}"id="withdraw-button" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
+    <a data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Withdrawn" id="withdraw-button" class="view-tab-btn change-loan-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
     {% endif %}
     {% endif %}
     </span>
@@ -149,61 +149,21 @@
 </div>
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#approve-button').click(function(e) {
+    $('.change-loan-account-status').click(function(e) {
       e.preventDefault();
-      $.post('/approveloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
+      submit_url = $(this).attr("data-href")
+      $.post(submit_url, $('#loanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("You don't have permission to approve Loan account.")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
+          alert("You don't have permission to change Loan account status.")
+          url = "{% url 'micro_admin:clientloanaccount' 1 %}"
+          url.replace(1, data.loanaccount_id)
+          window.location = url
         }
         else {
-          alert("Member Loan Approved successfully")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#withdraw-button').click(function(e) {
-      e.preventDefault();
-      $.post('/withdrawloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert("You don't have permission to withdraw Loan account.")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
-        }
-        else {
-          alert("Member Loan Withdrawn successfully")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#reject-button').click(function(e) {
-      e.preventDefault();
-      $.post('/rejectloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert("You don't have permission to reject Loan account.")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
-        }
-        else {
-          alert("Member Loan Rejected successfully")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
-        }
-      }, "json");
-    });
-  });
-  $(document).ready(function() {
-    $('#close-button').click(function(e) {
-      e.preventDefault();
-      $.post('/closeloan/'+$('#loanaccount_id').val()+'/', $('#loanaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert("You don't have permission to close Loan account.")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
-        }
-        else {
-          alert("Member Loan Closed successfully")
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
+          alert("Changed Member Loan status successfully")
+          url = "{% url 'micro_admin:clientloanaccount' 1 %}"
+          url.replace(1, data.loanaccount_id)
+          window.location = url
         }
       }, "json");
     });

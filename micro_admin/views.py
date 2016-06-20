@@ -651,7 +651,7 @@ def group_savings_account(request, group_id):
 
 
 @login_required
-def approve_savings(request, savingsaccount_id):
+def change_savings_account_status(request, savingsaccount_id):
     if request.method == "POST":
         savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
         if savings_account.group:
@@ -660,14 +660,14 @@ def approve_savings(request, savingsaccount_id):
                 (request.user.has_perm("branch_manager") and
                  request.user.branch == savings_account.group.branch)
             ):
-                savings_account.status = "Approved"
+                savings_account.status = request.GET.get("status")
                 savings_account.save()
                 data = {"error": False, "group_id": savings_account.group.id}
             else:
                 data = {
                     "error": True,
                     "errmsg": "You don't have permission to " +
-                              "approve savings account.",
+                              request.GET.get("status") + " savings account.",
                     "group_id": savings_account.group.id
                 }
             return HttpResponse(json.dumps(data))
@@ -677,131 +677,14 @@ def approve_savings(request, savingsaccount_id):
                 (request.user.has_perm("branch_manager") and
                  request.user.branch == savings_account.client.branch)
             ):
-                savings_account.status = "Approved"
+                savings_account.status = request.GET.get("status")
                 savings_account.save()
                 data = {"error": False, "client_id": savings_account.client.id}
             else:
                 data = {
                     "error": True,
                     "errmsg": "You don't have permission to " +
-                              "approve savings account.",
-                    "client_id": savings_account.client.id
-                }
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def reject_savings(request, savingsaccount_id):
-    if request.method == "POST":
-        savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
-        if savings_account.group:
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.group.branch)
-            ):
-                savings_account.status = "Rejected"
-                savings_account.save()
-                data = {"error": False, "group_id": savings_account.group.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              "reject savings account.",
-                    "group_id": savings_account.group.id
-                }
-            return HttpResponse(json.dumps(data))
-        elif savings_account.client:
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.client.branch)
-            ):
-                savings_account.status = "Rejected"
-                savings_account.save()
-                data = {"error": False, "client_id": savings_account.client.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              "reject savings account.",
-                    "client_id": savings_account.client.id}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def close_savings(request, savingsaccount_id):
-    if request.method == "POST":
-        savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
-        if savings_account.group:
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.group.branch)
-            ):
-                savings_account.status = "Closed"
-                savings_account.save()
-                data = {"error": False, "group_id": savings_account.group.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              "close savings account.",
-                    "group_id": savings_account.group.id
-                }
-            return HttpResponse(json.dumps(data))
-        elif savings_account.client:
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.client.branch)
-            ):
-                savings_account.status = "Closed"
-                savings_account.save()
-                data = {"error": False, "client_id": savings_account.client.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              "close savings account.",
-                    "client_id": savings_account.client.id
-                }
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def withdraw_savings(request, savingsaccount_id):
-    if request.method == "POST":
-        savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
-        if savings_account.group:
-            if (
-                request.user.is_admin or
-                request.user.branch == savings_account.group.branch
-            ):
-                savings_account.status = "Withdrawn"
-                savings_account.save()
-                data = {"error": False, "group_id": savings_account.group.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              "withdraw savings account.",
-                    "group_id": savings_account.group.id
-                }
-            return HttpResponse(json.dumps(data))
-        elif savings_account.client:
-            if (
-                request.user.is_admin or
-                request.user.branch == savings_account.client.branch
-            ):
-                savings_account.status = "Withdrawn"
-                savings_account.save()
-                data = {"error": False, "client_id": savings_account.client.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              "withdraw savings account.",
+                              request.GET.get("status") + " savings account.",
                     "client_id": savings_account.client.id
                 }
             return HttpResponse(json.dumps(data))
@@ -914,7 +797,7 @@ def group_loan_account(request, loanaccount_id):
 
 
 @login_required
-def approve_loan(request, loanaccount_id):
+def change_loan_account_status(request, loanaccount_id):
     if request.method == "POST":
         try:
             loan_account = LoanAccount.objects.get(id=loanaccount_id)
@@ -927,81 +810,7 @@ def approve_loan(request, loanaccount_id):
                 (request.user.has_perm("branch_manager") and
                  request.user.branch.id == branchid)
             ):
-                loan_account.status = "Approved"
-                loan_account.approved_date = datetime.datetime.now()
-                loan_account.save()
-                data = {"error": False, "loanaccount_id": loan_account.id}
-            else:
-                data = {"error": True, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        except LoanAccount.DoesNotExist:
-            data = {"error": True}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def reject_loan(request, loanaccount_id):
-    if request.method == "POST":
-        try:
-            loan_account = LoanAccount.objects.get(id=loanaccount_id)
-            if loan_account.group:
-                branchid = loan_account.group.branch.id
-            elif loan_account.client:
-                branchid = loan_account.client.branch.id
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch.id == branchid)
-            ):
-                loan_account.status = "Rejected"
-                loan_account.approved_date = datetime.datetime.now()
-                loan_account.save()
-                data = {"error": False, "loanaccount_id": loan_account.id}
-            else:
-                data = {"error": True, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        except LoanAccount.DoesNotExist:
-            data = {"error": True}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def close_loan(request, loanaccount_id):
-    if request.method == "POST":
-        try:
-            loan_account = LoanAccount.objects.get(id=loanaccount_id)
-            if loan_account.group:
-                branchid = loan_account.group.branch.id
-            elif loan_account.client:
-                branchid = loan_account.client.branch.id
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch.id == branchid)
-            ):
-                loan_account.status = "Closed"
-                loan_account.approved_date = datetime.datetime.now()
-                loan_account.save()
-                data = {"error": False, "loanaccount_id": loan_account.id}
-            else:
-                data = {"error": True, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        except LoanAccount.DoesNotExist:
-            data = {"error": True}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def withdraw_loan(request, loanaccount_id):
-    if request.method == "POST":
-        try:
-            loan_account = LoanAccount.objects.get(id=loanaccount_id)
-            if loan_account.group:
-                branchid = loan_account.group.branch.id
-            elif loan_account.client:
-                branchid = loan_account.client.branch.id
-            if request.user.is_admin or request.user.branch.id == branchid:
-                loan_account.status = "Withdrawn"
+                loan_account.status = request.GET.get("status")
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
                 data = {"error": False, "loanaccount_id": loan_account.id}
