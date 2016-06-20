@@ -11,22 +11,22 @@
     {% if loan_account.status == "Withdrawn" %}
     <a title="Account has already been Withdrawn"><button><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a>
     {% else %}
-    <a href="#"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+    <a class='change-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loan_account.id %}?status=Withdrawn"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
     {% endif %}
     {% if loan_account.status == "Approved" %}
     <a title="Account has already been Approved"><button><i class="fa fa-check-circle-o padd"></i>Approved</button></a>
     {% else %}
-    <a href="#"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+    <a class='change-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loan_account.id %}?status=Approved"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
     {% endif %}
     {% if loan_account.status == "Rejected" %}
     <a title="Account has already been Rejected"><button><i class="fa fa-times-circle-o padd"></i>Rejected</button></a>
     {% else %}
-    <a href="#"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+    <a class='change-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loan_account.id %}?status=Rejected"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
     {% endif %}
     {% if loan_account.status == "Closed" %}
     <a title="Account has already been Closed"><button><i class="fa fa-trash-o padd"></i>Closed</button></a>
     {% else %}
-    <a href="#"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
+    <a class='change-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loan_account.id %}?status=Closed"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
     {% endif %}
     <br clear="all" />
   </div>
@@ -42,7 +42,7 @@
       {% if loan_account.status == "Withdrawn" %}
       <a title="Account has already been Withdrawn" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
       {% else %}
-      <a href="#" class="view-tab-btn ed-btn" id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
+      <a data-href="{% url 'micro_admin:change_loan_account_status' loan_account.id %}?status=Withdrawn" class="view-tab-btn ed-btn change-account-status" id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
       {% endif %}
     {% endif %}
   </span>
@@ -129,54 +129,16 @@
 <!--content ends above-->
 <script type="text/javascript">
   $(document).ready(function() {
-    $('#approve-button').click(function(e) {
+    $('.change-account-status').click(function(e) {
       e.preventDefault();
-      $.post('/approveloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
+      submit_url = $(this).attr("data-href")
+      $.post(submit_url, $('#grouploanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("You don't have permission to approve Loan account.")
+          alert("You don't have permission to change Loan account status.")
           window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
         else {
-          alert("Group Loan account has been Approved sucessfully")
-          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
-        }
-      }, "json");
-    });
-    $('#reject-button').click(function(e) {
-      e.preventDefault();
-      $.post('/rejectloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert("You don't have permission to reject Loan account.")
-          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
-        }
-        else {
-          alert("Group Loan account has been Rejected sucessfully")
-          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
-        }
-      }, "json");
-    });
-    $('#close-button').click(function(e) {
-      e.preventDefault();
-      $.post('/closeloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert("You don't have permission to close Loan account.")
-          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
-        }
-        else {
-          alert("Group Loan account has been Closed sucessfully")
-          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
-        }
-      }, "json");
-    });
-    $('#withdraw-button').click(function(e) {
-      e.preventDefault();
-      $.post('/withdrawloan/'+$('#loanaccount_id').val()+'/', $('#grouploanaccountform').serialize(), function(data) {
-        if (data.error) {
-          alert("You don't have permission to withdraw Loan account.")
-          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
-        }
-        else {
-          alert("Group Loan account has been Withdrawn sucessfully")
+          alert("Group Loan account status changed sucessfully")
           window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
         }
       }, "json");
