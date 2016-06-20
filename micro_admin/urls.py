@@ -45,10 +45,10 @@ urlpatterns = [
     url(r'^grouploanaccount/(?P<loanaccount_id>\d+)/$', group_loan_account, name='grouploanaccount'),
     url(r'^clientloanapplication/(?P<client_id>\d+)/$', client_loan_application, name='clientloanapplication'),
     url(r'^clientloanaccount/(?P<loanaccount_id>\d+)/$', client_loan_account, name='clientloanaccount'),
-    url(r'^approveloan/(?P<loanaccount_id>\d+)/$', approve_loan, name='approveloan'),
-    url(r'^rejectloan/(?P<loanaccount_id>\d+)/$', reject_loan, name='rejectloan'),
-    url(r'^closeloan/(?P<loanaccount_id>\d+)/$', close_loan, name='closeloan'),
-    url(r'^withdrawloan/(?P<loanaccount_id>\d+)/$', withdraw_loan, name='withdrawloan'),
+    # Loan account status
+    url(r'^loan-account/status/(?P<loanaccount_id>\d+)/$',
+        change_loan_account_status, name='change_loan_account_status'),
+
     url(r'^listofclientloandeposits/(?P<client_id>\d+)/(?P<loanaccount_id>\d+)/$', listofclient_loan_deposits, name='listofclientloandeposits'),
     url(r'^listofclientsavingsdeposits/(?P<client_id>\d+)/$', listofclient_savings_deposits, name='listofclientsavingsdeposits'),
     url(r'^listofclientsavingswithdrawals/(?P<client_id>\d+)/$', listofclient_savings_withdrawals, name='listofclientsavingswithdrawals'),

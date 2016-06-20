@@ -797,7 +797,7 @@ def group_loan_account(request, loanaccount_id):
 
 
 @login_required
-def approve_loan(request, loanaccount_id):
+def change_loan_account_status(request, loanaccount_id):
     if request.method == "POST":
         try:
             loan_account = LoanAccount.objects.get(id=loanaccount_id)
@@ -810,81 +810,7 @@ def approve_loan(request, loanaccount_id):
                 (request.user.has_perm("branch_manager") and
                  request.user.branch.id == branchid)
             ):
-                loan_account.status = "Approved"
-                loan_account.approved_date = datetime.datetime.now()
-                loan_account.save()
-                data = {"error": False, "loanaccount_id": loan_account.id}
-            else:
-                data = {"error": True, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        except LoanAccount.DoesNotExist:
-            data = {"error": True}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def reject_loan(request, loanaccount_id):
-    if request.method == "POST":
-        try:
-            loan_account = LoanAccount.objects.get(id=loanaccount_id)
-            if loan_account.group:
-                branchid = loan_account.group.branch.id
-            elif loan_account.client:
-                branchid = loan_account.client.branch.id
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch.id == branchid)
-            ):
-                loan_account.status = "Rejected"
-                loan_account.approved_date = datetime.datetime.now()
-                loan_account.save()
-                data = {"error": False, "loanaccount_id": loan_account.id}
-            else:
-                data = {"error": True, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        except LoanAccount.DoesNotExist:
-            data = {"error": True}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def close_loan(request, loanaccount_id):
-    if request.method == "POST":
-        try:
-            loan_account = LoanAccount.objects.get(id=loanaccount_id)
-            if loan_account.group:
-                branchid = loan_account.group.branch.id
-            elif loan_account.client:
-                branchid = loan_account.client.branch.id
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch.id == branchid)
-            ):
-                loan_account.status = "Closed"
-                loan_account.approved_date = datetime.datetime.now()
-                loan_account.save()
-                data = {"error": False, "loanaccount_id": loan_account.id}
-            else:
-                data = {"error": True, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        except LoanAccount.DoesNotExist:
-            data = {"error": True}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def withdraw_loan(request, loanaccount_id):
-    if request.method == "POST":
-        try:
-            loan_account = LoanAccount.objects.get(id=loanaccount_id)
-            if loan_account.group:
-                branchid = loan_account.group.branch.id
-            elif loan_account.client:
-                branchid = loan_account.client.branch.id
-            if request.user.is_admin or request.user.branch.id == branchid:
-                loan_account.status = "Withdrawn"
+                loan_account.status = request.GET.get("status")
                 loan_account.approved_date = datetime.datetime.now()
                 loan_account.save()
                 data = {"error": False, "loanaccount_id": loan_account.id}
