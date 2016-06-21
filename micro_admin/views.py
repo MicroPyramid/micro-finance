@@ -1,4 +1,4 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
@@ -32,8 +32,7 @@ d = decimal.Decimal
 
 def index(request):
     if request.user.is_authenticated():
-        user = User.objects.get(username=request.user)
-        return render(request, "index.html", {"user": user})
+        return render(request, "index.html", {"user": request.user})
     data = {}
     data.update(csrf(request))
     return render_to_response("login.html", data)
@@ -59,8 +58,7 @@ def user_login(request):
             return HttpResponse(json.dumps(data))
     else:
         if request.user.is_authenticated():
-            user = User.objects.get(username=request.user)
-            return render(request, "index.html", {"user": user})
+            return render(request, "index.html", {"user": request.user})
 
 
 def user_logout(request):
@@ -73,8 +71,7 @@ def user_logout(request):
 @login_required
 def create_branch(request):
     if request.method == "GET":
-        data = {}
-        return render(request, "createbranch.html", {"data": data})
+        return render(request, "createbranch.html")
     else:
         form = BranchForm(request.POST)
         if form.is_valid():
@@ -88,30 +85,28 @@ def create_branch(request):
 
 @login_required
 def edit_branch(request, branch_id):
+    branch = get_object_or_404(Branch, id=branch_id)
+    if not request.user.is_admin:
+        return render(request, "branchprofile.html", {"branch": branch})
+
     if request.method == "GET":
-        branch = Branch.objects.get(id=branch_id)
-        if request.user.is_admin:
-            return render(
-                request, "editbranchdetails.html",
-                {"branch": branch, "branch_id": branch_id}
-            )
-        else:
-            return render(request, "branchprofile.html", {"branch": branch})
+        return render(
+            request, "editbranchdetails.html",
+            {"branch": branch, "branch_id": branch_id}
+        )
     else:
-        branch = Branch.objects.get(id=branch_id)
         form = BranchForm(request.POST, instance=branch)
         if form.is_valid():
             branch = form.save()
             data = {"error": False, "branch_id": branch.id}
-            return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": form.errors}
-            return HttpResponse(json.dumps(data))
+        return HttpResponse(json.dumps(data))
 
 
 @login_required
 def branch_profile(request, branch_id):
-    branch = Branch.objects.get(id=branch_id)
+    branch = get_object_or_404(Branch, id=branch_id)
     return render(request, "branchprofile.html", {"branch": branch})
 
 
@@ -124,22 +119,18 @@ def view_branch(request):
 @login_required
 def delete_branch(request, branch_id):
     if request.user.is_admin:
-        branch = Branch.objects.get(id=branch_id)
-        branch.is_active = 0
-        branch.save()
+        branch = get_object_or_404(Branch, id=branch_id)
+        if branch.is_active:
+            branch.is_active = False
+            branch.save()
     return HttpResponseRedirect('/viewbranch/')
 
 
 @login_required
 def create_client(request):
     if request.method == "GET":
-        data = {}
         branch = Branch.objects.all()
-        return render(
-            request,
-            "createclient.html",
-            {"data": data, "branch": branch}
-        )
+        return render(request, "createclient.html", {"branch": branch})
     else:
         form = ClientForm(request.POST)
         if form.is_valid():
