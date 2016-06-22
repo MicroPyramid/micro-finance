@@ -229,19 +229,15 @@ def delete_client(request, client_id):
 @login_required
 def create_user(request):
     if request.method == "GET":
-        data = {}
         branches = Branch.objects.all()
-        userroles = []
-        for i in USER_ROLES:
-            userroles.append(i[0])
+        userroles = [role[0] for role in USER_ROLES]
         return render(
             request, "createuser.html",
-            {"data": data, "branches": branches, "userroles": userroles}
+            {"branches": branches, "userroles": userroles}
         )
     else:
         user_form = UserForm(request.POST)
         if user_form.is_valid():
-            user_name = request.POST.get("username")
             user_password = request.POST.get("password")
             if len(user_password) < 5:
                 data = {
@@ -249,14 +245,13 @@ def create_user(request):
                     "pwdmessage": "Password must be at least 5 " +
                                   "characters long."
                 }
-                return HttpResponse(json.dumps(data))
             else:
-                email = request.POST.get("email")
+                branch = get_object_or_404(
+                    Branch, id=request.POST.get('branch'))
                 user = User.objects.create_user(
-                    username=user_name,
-                    email=email,
-                    password=user_password,
-                    branch=Branch.objects.get(id=request.POST.get('branch'))
+                    username=request.POST.get("username"),
+                    email=request.POST.get("email"),
+                    password=user_password, branch=branch
                 )
                 user.first_name = request.POST.get("first_name")
                 user.last_name = request.POST.get("last_name")
@@ -268,52 +263,45 @@ def create_user(request):
                 user.city = request.POST.get("city")
                 user.area = request.POST.get("area")
                 user.pincode = request.POST.get("pincode")
-                date_of_birth1 = request.POST.get("date_of_birth")
-                mobile1 = request.POST.get("mobile")
-                if mobile1:
-                    user.mobile = mobile1
-                if date_of_birth1:
+                if request.POST.get("mobile"):
+                    user.mobile = request.POST.get("mobile")
+                if request.POST.get("date_of_birth"):
                     datestring_format = datetime.datetime.strptime(
                         request.POST.get("date_of_birth"), "%m/%d/%Y"
                     ).strftime('%Y-%m-%d')
-                    dateconvert = datetime.datetime.strptime(
+                    user.date_of_birth = datetime.datetime.strptime(
                         datestring_format, "%Y-%m-%d"
                     )
-                    user.date_of_birth = dateconvert
-                permission = Permission.objects.get(codename="branch_manager")
                 if request.POST.get("user_roles") == "BranchManager":
-                    user.user_permissions.add(permission)
+                    user.user_permissions.add(
+                        Permission.objects.get(codename="branch_manager"))
                 user.save()
                 data = {"error": False, "user_id": user.id}
-                return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": user_form.errors}
-            return HttpResponse(json.dumps(data))
+        return HttpResponse(json.dumps(data))
 
 
 @login_required
 def edit_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if not (
+        request.user.is_admin or request.user == user or
+        (
+            request.user.has_perm("branch_manager") and
+            request.user.branch == user.branch
+        )
+    ):
+        return HttpResponseRedirect('/userslist/')
+
     if request.method == "GET":
-        user = User.objects.get(id=user_id)
-        if (
-            request.user.is_admin or request.user == user or
-            (
-                request.user.has_perm("branch_manager") and
-                request.user.branch == user.branch
-            )
-        ):
-            branch = Branch.objects.all()
-            userroles = []
-            for i in USER_ROLES:
-                userroles.append(i[0])
-            return render(
-                request, "edituser.html",
-                {"user": user, "branch": branch, "userroles": userroles}
-            )
-        else:
-            return HttpResponseRedirect('/userslist/')
+        branch = Branch.objects.all()
+        userroles = [role[0] for role in USER_ROLES]
+        return render(
+            request, "edituser.html",
+            {"user": user, "branch": branch, "userroles": userroles}
+        )
     else:
-        user = User.objects.get(id=user_id)
         data = request.POST.copy()
         data['password'] = user.password
         user_form = UserForm(data, instance=user)
@@ -337,7 +325,7 @@ def edit_user(request, user_id):
 
 @login_required
 def user_profile(request, user_id):
-    selecteduser = User.objects.get(id=user_id)
+    selecteduser = get_object_or_404(User, id=user_id)
     return render(request, "userprofile.html", {"selecteduser": selecteduser})
 
 
@@ -350,16 +338,16 @@ def users_list(request):
 
 @login_required
 def delete_user(request, user_id):
-    user = User.objects.get(id=user_id)
+    user = get_object_or_404(User, id=user_id)
     if (
         request.user.is_admin or
         (request.user.has_perm("branch_manager") and
          request.user.branch == user.branch)
     ):
-        if request.user == user:
+        if request.user == user or not user.is_active:
             pass
         else:
-            user.is_active = 0
+            user.is_active = False
             user.save()
     return HttpResponseRedirect('/userslist/')
 
