@@ -2,10 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import(
-    BaseUserManager,
-    AbstractBaseUser,
-    Permission
-)
+    BaseUserManager, AbstractBaseUser, Permission)
 
 
 GENDER_TYPES = (
@@ -90,10 +87,12 @@ class Branch(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, branch=None, password=None):
 
+    def create_user(self, username, email, branch=None, password=None):
         if not username:
             raise ValueError('Users must have an username')
+
+        # Save the user
         user = self.model(username=username)
         user.set_password(password)
         user.email = email
@@ -103,7 +102,6 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, password, branch=None):
-
         user = self.create_user(username, email="", password=password)
         user.is_admin = True
         user.is_active = True
@@ -130,9 +128,8 @@ class User(AbstractBaseUser):
     area = models.CharField(max_length=150, null=True)
     mobile = models.CharField(max_length=10, default='0', null=True)
     pincode = models.CharField(default='', max_length=10, null=True)
-    user_permissions = models.ManyToManyField(Permission,
-                                              related_name='user_permissions',
-                                              blank=True)
+    user_permissions = models.ManyToManyField(
+        Permission, related_name='user_permissions', blank=True)
 
     objects = UserManager()
 
@@ -187,21 +184,16 @@ class Client(models.Model):
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
     status = models.CharField(max_length=50, default="UnAssigned", null=True)
-    sharecapital_amount = models.DecimalField(max_digits=19,
-                                              decimal_places=6,
-                                              default=0)
-    entrancefee_amount = models.DecimalField(max_digits=19,
-                                             decimal_places=6,
-                                             default=0)
-    membershipfee_amount = models.DecimalField(max_digits=19,
-                                               decimal_places=6,
-                                               default=0)
-    bookfee_amount = models.DecimalField(max_digits=19,
-                                         decimal_places=6,
-                                         default=0)
-    insurance_amount = models.DecimalField(max_digits=19,
-                                           decimal_places=6,
-                                           default=0)
+    sharecapital_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    entrancefee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    membershipfee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    bookfee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    insurance_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
 
     def __unicode__(self):
         return self.first_name + ' ' + self.last_name
@@ -250,23 +242,18 @@ class SavingsAccount(models.Model):
     status = models.CharField(choices=ACCOUNT_STATUS, max_length=20)
     opening_date = models.DateField()
     min_required_balance = models.DecimalField(max_digits=5, decimal_places=2)
-    savings_balance = models.DecimalField(max_digits=19,
-                                          decimal_places=6,
-                                          default=0)
+    savings_balance = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
     annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
-    total_deposits = models.DecimalField(max_digits=19,
-                                         decimal_places=6,
-                                         default=0)
-    total_withdrawals = models.DecimalField(max_digits=19,
-                                            decimal_places=6,
-                                            default=0)
-    fixeddeposit_amount = models.DecimalField(max_digits=19,
-                                              decimal_places=6,
-                                              default=0)
+    total_deposits = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    total_withdrawals = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    fixeddeposit_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
     fixeddepositperiod = models.IntegerField(null=True, blank=True)
-    recurringdeposit_amount = models.DecimalField(max_digits=19,
-                                                  decimal_places=6,
-                                                  default=0)
+    recurringdeposit_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
     recurringdepositperiod = models.IntegerField(null=True, blank=True)
 
     def __unicode__(self):
@@ -283,43 +270,32 @@ class LoanAccount(models.Model):
     opening_date = models.DateField(auto_now_add=True, blank=True)
     approved_date = models.DateField(null=True, blank=True)
     loan_issued_date = models.DateField(null=True, blank=True)
-    loan_issued_by = models.ForeignKey(User,
-                                       null=True,
-                                       blank=True,
-                                       related_name="loan_issued_by")
+    loan_issued_by = models.ForeignKey(
+        User, null=True, blank=True, related_name="loan_issued_by")
     closed_date = models.DateField(null=True, blank=True)
     loan_amount = models.DecimalField(max_digits=19, decimal_places=6)
     loan_repayment_period = models.IntegerField()
     loan_repayment_every = models.IntegerField()
-    loan_repayment_amount = models.DecimalField(max_digits=19,
-                                                decimal_places=6,
-                                                null=True,
-                                                blank=True)
+    loan_repayment_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
     total_loan_amount_repaid = models.DecimalField(max_digits=19,
                                                    decimal_places=6,
                                                    default=0)
     loanpurpose_description = models.TextField()
     annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
-    interest_charged = models.DecimalField(max_digits=19,
-                                           decimal_places=6,
-                                           default=0)
-    total_interest_repaid = models.DecimalField(max_digits=19,
-                                                decimal_places=6,
-                                                default=0)
-    total_loan_paid = models.DecimalField(max_digits=19,
-                                          decimal_places=6,
-                                          default=0)
-    total_loan_balance = models.DecimalField(max_digits=19,
-                                             decimal_places=6,
-                                             default=0)
-    loanprocessingfee_amount = models.DecimalField(max_digits=19,
-                                                   decimal_places=6,
-                                                   default=0)
+    interest_charged = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    total_interest_repaid = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    total_loan_paid = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    total_loan_balance = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    loanprocessingfee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
     no_of_repayments_completed = models.IntegerField(default=0)
-    principle_repayment = models.DecimalField(max_digits=19,
-                                              decimal_places=6,
-                                              null=True,
-                                              blank=True)
+    principle_repayment = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
 
     def __unicode__(self):
         return self.account_no
@@ -336,85 +312,37 @@ class Receipts(models.Model):
                                            null=True,
                                            blank=True,
                                            related_name="group_loan_account")
-    sharecapital_amount = models.DecimalField(max_digits=19,
-                                              decimal_places=6,
-                                              null=True,
-                                              blank=True,
-                                              default=0)
-    entrancefee_amount = models.DecimalField(max_digits=19,
-                                             decimal_places=6,
-                                             null=True,
-                                             blank=True,
-                                             default=0)
-    membershipfee_amount = models.DecimalField(max_digits=19,
-                                               decimal_places=6,
-                                               null=True,
-                                               blank=True,
-                                               default=0)
-    bookfee_amount = models.DecimalField(max_digits=19,
-                                         decimal_places=6,
-                                         null=True,
-                                         blank=True,
-                                         default=0)
-    loanprocessingfee_amount = models.DecimalField(max_digits=19,
-                                                   decimal_places=6,
-                                                   null=True,
-                                                   blank=True,
-                                                   default=0)
-    savingsdeposit_thrift_amount = models.DecimalField(max_digits=19,
-                                                       decimal_places=6,
-                                                       null=True,
-                                                       blank=True,
-                                                       default=0)
-    fixeddeposit_amount = models.DecimalField(max_digits=19,
-                                              decimal_places=6,
-                                              null=True,
-                                              blank=True,
-                                              default=0)
-    recurringdeposit_amount = models.DecimalField(max_digits=19,
-                                                  decimal_places=6,
-                                                  null=True,
-                                                  blank=True,
-                                                  default=0)
-    loanprinciple_amount = models.DecimalField(max_digits=19,
-                                               decimal_places=6,
-                                               null=True,
-                                               blank=True,
-                                               default=0)
-    loaninterest_amount = models.DecimalField(max_digits=19,
-                                              decimal_places=6,
-                                              null=True,
-                                              blank=True,
-                                              default=0)
-    insurance_amount = models.DecimalField(max_digits=19,
-                                           decimal_places=6,
-                                           null=True,
-                                           blank=True,
-                                           default=0)
+    sharecapital_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    entrancefee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    membershipfee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    bookfee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    loanprocessingfee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    savingsdeposit_thrift_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    fixeddeposit_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    recurringdeposit_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    loanprinciple_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    loaninterest_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    insurance_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     staff = models.ForeignKey(User)
-    savings_balance_atinstant = models.DecimalField(max_digits=19,
-                                                    decimal_places=6,
-                                                    null=True,
-                                                    blank=True)
+    savings_balance_atinstant = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
     demand_loanprinciple_amount_atinstant = models.DecimalField(
-        max_digits=19,
-        decimal_places=6,
-        null=True,
-        blank=True,
-        default=0
-    )
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     demand_loaninterest_amount_atinstant = models.DecimalField(
-        max_digits=19,
-        decimal_places=6,
-        null=True,
-        blank=True,
-        default=0
-    )
-    principle_loan_balance_atinstant = models.DecimalField(max_digits=19,
-                                                           decimal_places=6,
-                                                           null=True,
-                                                           blank=True,
-                                                           default=0)
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
+    principle_loan_balance_atinstant = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
 
     def __unicode__(self):
         return self.receipt_number
@@ -437,14 +365,10 @@ class FixedDeposits(models.Model):
     nominee_occupation = models.CharField(max_length=50)
     nominee_photo = models.ImageField(upload_to=settings.PHOTO_PATH)
     nominee_signature = models.ImageField(upload_to=settings.SIGNATURE_PATH)
-    fixed_deposit_interest = models.DecimalField(max_digits=19,
-                                                 decimal_places=6,
-                                                 null=True,
-                                                 blank=True)
-    maturity_amount = models.DecimalField(max_digits=19,
-                                          decimal_places=6,
-                                          null=True,
-                                          blank=True)
+    fixed_deposit_interest = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
+    maturity_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
 
     def __unicode__(self):
         return self.fixed_deposit_number
@@ -468,14 +392,10 @@ class RecurringDeposits(models.Model):
     nominee_occupation = models.CharField(max_length=50)
     nominee_photo = models.ImageField(upload_to=settings.PHOTO_PATH,)
     nominee_signature = models.ImageField(upload_to=settings.SIGNATURE_PATH)
-    recurring_deposit_interest = models.DecimalField(max_digits=19,
-                                                     decimal_places=6,
-                                                     null=True,
-                                                     blank=True)
-    maturity_amount = models.DecimalField(max_digits=19,
-                                          decimal_places=6,
-                                          null=True,
-                                          blank=True)
+    recurring_deposit_interest = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
+    maturity_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
 
     def __unicode__(self):
         return self.reccuring_deposit_number
@@ -490,11 +410,8 @@ class Payments(models.Model):
     staff = models.ForeignKey(User, null=True, blank=True)
     payment_type = models.CharField(choices=PAYMENT_TYPES, max_length=25)
     amount = models.DecimalField(max_digits=19, decimal_places=6)
-    interest = models.DecimalField(max_digits=19,
-                                   decimal_places=6,
-                                   null=True,
-                                   blank=True,
-                                   default=0)
+    interest = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True, default=0)
     total_amount = models.DecimalField(max_digits=19, decimal_places=6)
     totalamount_in_words = models.CharField(max_length=200)
 
