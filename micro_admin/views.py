@@ -129,50 +129,48 @@ def delete_branch(request, branch_id):
 @login_required
 def create_client(request):
     if request.method == "GET":
-        branch = Branch.objects.all()
-        return render(request, "createclient.html", {"branch": branch})
+        branches = Branch.objects.all()
+        client_roles = [role[0] for role in CLIENT_ROLES]
+        return render(request, "createclient.html",
+                      {"branches": branches, "client_roles": client_roles})
     else:
         form = ClientForm(request.POST)
         if form.is_valid():
-            created_by = User.objects.get(
-                username=request.POST.get("created_by"))
             client = form.save(commit=False)
-            client.created_by = created_by
+            client.created_by = get_object_or_404(
+                User, username=request.POST.get("created_by"))
             if request.POST.get("email"):
                 client.email = request.POST.get("email")
             if request.POST.get("blood_group"):
                 client.blood_group = request.POST.get("blood_group")
             client.save()
             data = {"error": False, "client_id": client.id}
-            return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": form.errors}
-            return HttpResponse(json.dumps(data))
+        return HttpResponse(json.dumps(data))
 
 
 @login_required
 def client_profile(request, client_id):
-    client = Client.objects.get(id=client_id)
+    client = get_object_or_404(Client, id=client_id)
     return render(request, "clientprofile.html", {"client": client})
 
 
 @login_required
 def edit_client(request, client_id):
+    client = get_object_or_404(Client, id=client_id)
+    if not (request.user.is_admin or request.user.branch == client.branch):
+        return HttpResponseRedirect('/viewclient/')
+
     if request.method == "GET":
-        client = Client.objects.get(id=client_id)
-        if request.user.is_admin or request.user.branch == client.branch:
-            l = []
-            for i in CLIENT_ROLES:
-                l.append(i[0])
-            branch = Branch.objects.all()
-            return render(
-                request, "editclient.html",
-                {"client": client, "l": l, "branch": branch}
-            )
-        else:
-            return HttpResponseRedirect('/viewclient/')
+        client_roles = [role[0] for role in CLIENT_ROLES]
+        branches = Branch.objects.all()
+        return render(
+            request, "editclient.html",
+            {"client": client, "client_roles": client_roles,
+             "branches": branches}
+        )
     else:
-        client = Client.objects.get(id=client_id)
         form = ClientForm(request.POST, instance=client)
         if form.is_valid():
             client = form.save(commit=False)
@@ -182,28 +180,28 @@ def edit_client(request, client_id):
                 client.blood_group = request.POST.get("blood_group")
             client.save()
             data = {"error": False, "client_id": client.id}
-            return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": form.errors}
-            return HttpResponse(json.dumps(data))
+        return HttpResponse(json.dumps(data))
 
 
 @login_required
 def update_clientprofile(request, client_id):
+    client = get_object_or_404(Client, id=client_id)
+    if not (request.user.is_admin or request.user.branch == client.branch):
+        return HttpResponseRedirect('/clientprofile/' + client_id + '/')
+
     if request.method == "GET":
-        client = Client.objects.get(id=client_id)
-        if request.user.is_admin or request.user.branch == client.branch:
-            return render(
-                request, "updateclientprofile.html",
-                {"client": client}
-            )
-        else:
-            return HttpResponseRedirect('/clientprofile/' + client_id + '/')
+        return render(
+            request, "updateclientprofile.html", {"client": client})
     else:
-        client = Client.objects.get(id=client_id)
-        client.photo = request.FILES.get("photo")
-        client.signature = request.FILES.get("signature")
-        client.save()
+        if (
+            request.FILES and request.FILES.get("photo") and
+            request.FILES.get("signature")
+        ):
+            client.photo = request.FILES.get("photo")
+            client.signature = request.FILES.get("signature")
+            client.save()
         return HttpResponseRedirect('/clientprofile/' + client_id + '/')
 
 
@@ -215,15 +213,16 @@ def view_client(request):
 
 @login_required
 def delete_client(request, client_id):
-    client = Client.objects.get(id=client_id)
+    client = get_object_or_404(Client, id=client_id)
     if (
         request.user.is_admin or (
             request.user.has_perm("branch_manager") and
             request.user.branch == client.branch
         )
     ):
-        client.is_active = 0
-        client.save()
+        if client.is_active:
+            client.is_active = False
+            client.save()
     return HttpResponseRedirect('/viewclient/')
 
 
