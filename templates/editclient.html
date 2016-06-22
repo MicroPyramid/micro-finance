@@ -40,11 +40,12 @@
             <label for="inputEmail3" class="col-sm-4 control-label">Branch</label>
             <div class="col-sm-8">
               <select class="text-box wid-form select-box-pad" name="branch" id="branch" readonly>
-                {% for entry in branch %}
-                  {% ifequal entry.id client.branch.id %}
-                    <option value="{{ entry.id }}" selected="selected">{{ entry.name }}</option>
+                <option>Select Branch</option>
+                {% for branch in branches %}
+                  {% ifequal branch.id client.branch.id %}
+                    <option value="{{ branch.id }}" selected="selected">{{ branch.name }}</option>
                   {% else %}
-                    <option value="{{ entry.id }}">{{ entry.name }}</option>
+                    <option value="{{ branch.id }}">{{ branch.name }}</option>
                   {% endifequal %}
                 {% endfor %}
               </select>
@@ -55,12 +56,12 @@
             <div class="col-sm-8">
               <select class="text-box wid-form select-box-pad" name="client_role" id="client_role">
                 <option>Select Client Role</option>
-                {% for l in l %}
-                {% ifequal l client.client_role %}
-                <option value="{{ l }}" selected="selected">{{ l }}</option>
-                {% else %}
-                <option value="{{ l }}">{{ l }}</option>
-                {% endifequal %}
+                {% for role in client_roles %}
+                  {% ifequal role client.client_role %}
+                    <option value="{{ role }}" selected="selected">{{ role }}</option>
+                  {% else %}
+                    <option value="{{ role }}">{{ role }}</option>
+                  {% endifequal %}
                 {% endfor %}
               </select>
             </div>
