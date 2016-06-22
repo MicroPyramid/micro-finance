@@ -468,7 +468,7 @@ class Admin_Views_test(TestCase):
             'gender': 'M', 'branch': self.branch.id,
             'user_roles': 'BranchManager',
             'username': 'jagadeesh', 'password': 'jag123'})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
         response = self.client.post(
             '/editclient/' + str(self.member1.id) + '/',
