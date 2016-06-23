@@ -18,6 +18,14 @@ class UserForm(forms.ModelForm):
         fields = ["email", "first_name", "gender", "branch", "user_roles",
                   "username", "password"]
 
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
+        self.fields['gender'].widget.attrs\
+            .update({
+                'placeholder': 'Gender',
+                'class': 'text-box wid-form select-box-pad'
+            })
+
 
 class GroupForm(forms.ModelForm):
 
