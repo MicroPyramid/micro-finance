@@ -293,55 +293,55 @@ class Admin_Views_test(TestCase):
 
         response = self.client.get('/createbranch/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'createbranch.html')
+        self.assertTemplateUsed(response, 'branch/create.html')
 
         response = self.client.get('/createclient/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'createclient.html')
+        self.assertTemplateUsed(response, 'client/create.html')
 
         response = self.client.get('/createuser/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'createuser.html')
+        self.assertTemplateUsed(response, 'user/create.html')
 
         response = self.client.get('/creategroup/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'creategroup.html')
+        self.assertTemplateUsed(response, 'group/create.html')
 
         response = self.client.get(
             '/editbranch/' + str(self.branch.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'editbranchdetails.html')
+        self.assertTemplateUsed(response, 'branch/edit.html')
 
         response = self.client.get(
             '/edituser/' + str(self.user.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'edituser.html')
+        self.assertTemplateUsed(response, 'user/edit.html')
 
         response = self.client.get(
             '/branchprofile/' + str(self.branch.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'branchprofile.html')
+        self.assertTemplateUsed(response, 'branch/view.html')
 
         response = self.client.get(
             '/userprofile/' + str(self.user.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'userprofile.html')
+        self.assertTemplateUsed(response, 'user/profile.html')
 
         response = self.client.get('/userslist/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'listofusers.html')
+        self.assertTemplateUsed(response, 'user/list.html')
 
         response = self.client.get('/viewbranch/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'viewbranch.html')
+        self.assertTemplateUsed(response, 'branch/list.html')
 
         response = self.client.get('/groupslist/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'listofgroups.html')
+        self.assertTemplateUsed(response, 'group/list.html')
 
         response = self.client.get('/viewclient/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'viewclient.html')
+        self.assertTemplateUsed(response, 'client/list.html')
 
         response = self.client.get(
             '/deletebranch/' + str(self.branch2.id) + '/')
@@ -517,7 +517,7 @@ class Admin_Views_test(TestCase):
         response = self.client.get(
             '/clientprofile/' + str(self.member1.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed('clientprofile.html')
+        self.assertTemplateUsed('client/update-profile.html')
 
         response = self.client.get(
             '/groupprofile/' + str(self.group1.id) + '/')

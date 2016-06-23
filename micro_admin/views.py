@@ -24,7 +24,7 @@ import xlwt
 # import cStringIO as StringIO
 from django.template import Context
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.core.urlresolvers import reverse
 from weasyprint import HTML
 
 d = decimal.Decimal
@@ -71,7 +71,7 @@ def user_logout(request):
 @login_required
 def create_branch(request):
     if request.method == "GET":
-        return render(request, "createbranch.html")
+        return render(request, "branch/create.html")
     else:
         form = BranchForm(request.POST)
         if form.is_valid():
@@ -87,11 +87,11 @@ def create_branch(request):
 def edit_branch(request, branch_id):
     branch = get_object_or_404(Branch, id=branch_id)
     if not request.user.is_admin:
-        return render(request, "branchprofile.html", {"branch": branch})
+        return render(request, "branch/view.html", {"branch": branch})
 
     if request.method == "GET":
         return render(
-            request, "editbranchdetails.html",
+            request, "branch/edit.html",
             {"branch": branch, "branch_id": branch_id}
         )
     else:
@@ -107,13 +107,13 @@ def edit_branch(request, branch_id):
 @login_required
 def branch_profile(request, branch_id):
     branch = get_object_or_404(Branch, id=branch_id)
-    return render(request, "branchprofile.html", {"branch": branch})
+    return render(request, "branch/view.html", {"branch": branch})
 
 
 @login_required
 def view_branch(request):
     branch_list = Branch.objects.all()
-    return render(request, "viewbranch.html", {"branch_list": branch_list})
+    return render(request, "branch/list.html", {"branch_list": branch_list})
 
 
 @login_required
@@ -123,7 +123,7 @@ def delete_branch(request, branch_id):
         if branch.is_active:
             branch.is_active = False
             branch.save()
-    return HttpResponseRedirect('/viewbranch/')
+    return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
 
 
 @login_required
@@ -131,7 +131,7 @@ def create_client(request):
     if request.method == "GET":
         branches = Branch.objects.all()
         client_roles = [role[0] for role in CLIENT_ROLES]
-        return render(request, "createclient.html",
+        return render(request, "client/create.html",
                       {"branches": branches, "client_roles": client_roles})
     else:
         form = ClientForm(request.POST)
@@ -160,13 +160,13 @@ def client_profile(request, client_id):
 def edit_client(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     if not (request.user.is_admin or request.user.branch == client.branch):
-        return HttpResponseRedirect('/viewclient/')
+        return HttpResponseRedirect(reverse('micro_admin:viewclient'))
 
     if request.method == "GET":
         client_roles = [role[0] for role in CLIENT_ROLES]
         branches = Branch.objects.all()
         return render(
-            request, "editclient.html",
+            request, "client/edit.html",
             {"client": client, "client_roles": client_roles,
              "branches": branches}
         )
@@ -189,11 +189,13 @@ def edit_client(request, client_id):
 def update_clientprofile(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     if not (request.user.is_admin or request.user.branch == client.branch):
-        return HttpResponseRedirect('/clientprofile/' + client_id + '/')
+        return HttpResponseRedirect(
+            reverse('micro_admin:clientprofile', kwargs={
+                    'client_id': client_id}))
 
     if request.method == "GET":
         return render(
-            request, "updateclientprofile.html", {"client": client})
+            request, "client/update-profile.html", {"client": client})
     else:
         if (
             request.FILES and request.FILES.get("photo") and
@@ -202,13 +204,15 @@ def update_clientprofile(request, client_id):
             client.photo = request.FILES.get("photo")
             client.signature = request.FILES.get("signature")
             client.save()
-        return HttpResponseRedirect('/clientprofile/' + client_id + '/')
+        return HttpResponseRedirect(
+            reverse('micro_admin:clientprofile', kwargs={
+                    'client_id': client_id}))
 
 
 @login_required
 def view_client(request):
     client_list = Client.objects.all()
-    return render(request, "viewclient.html", {"client_list": client_list})
+    return render(request, "client/list.html", {"client_list": client_list})
 
 
 @login_required
@@ -223,7 +227,7 @@ def delete_client(request, client_id):
         if client.is_active:
             client.is_active = False
             client.save()
-    return HttpResponseRedirect('/viewclient/')
+    return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
 
 @login_required
@@ -232,7 +236,7 @@ def create_user(request):
         branches = Branch.objects.all()
         userroles = [role[0] for role in USER_ROLES]
         return render(
-            request, "createuser.html",
+            request, "user/create.html",
             {"branches": branches, "userroles": userroles}
         )
     else:
@@ -292,13 +296,13 @@ def edit_user(request, user_id):
             request.user.branch == user.branch
         )
     ):
-        return HttpResponseRedirect('/userslist/')
+        return HttpResponseRedirect(reverse('micro_admin:userslist'))
 
     if request.method == "GET":
         branch = Branch.objects.all()
         userroles = [role[0] for role in USER_ROLES]
         return render(
-            request, "edituser.html",
+            request, "user/edit.html",
             {"user": user, "branch": branch, "userroles": userroles}
         )
     else:
@@ -326,14 +330,14 @@ def edit_user(request, user_id):
 @login_required
 def user_profile(request, user_id):
     selecteduser = get_object_or_404(User, id=user_id)
-    return render(request, "userprofile.html", {"selecteduser": selecteduser})
+    return render(request, "user/profile.html", {"selecteduser": selecteduser})
 
 
 @login_required
 def users_list(request):
     list_of_users = User.objects.filter(is_admin=0)
     return render(
-        request, "listofusers.html", {"list_of_users": list_of_users})
+        request, "user/list.html", {"list_of_users": list_of_users})
 
 
 @login_required
@@ -349,7 +353,7 @@ def delete_user(request, user_id):
         else:
             user.is_active = False
             user.save()
-    return HttpResponseRedirect('/userslist/')
+    return HttpResponseRedirect(reverse('micro_admin:userslist'))
 
 
 @login_required
@@ -357,7 +361,7 @@ def create_group(request):
     if request.method == "GET":
         branches = Branch.objects.all()
         return render(
-            request, "creategroup.html", {"branches": branches})
+            request, "group/create.html", {"branches": branches})
     else:
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
@@ -379,7 +383,7 @@ def group_profile(request, group_id):
     group_mettings = GroupMeetings.objects.filter(
         group_id=group.id).order_by('-id')
     return render(
-        request, "groupprofile.html", {
+        request, "group/profile.html", {
             "group": group,
             "clients_list": clients_list,
             "clients_count": len(clients_list),
@@ -393,11 +397,12 @@ def group_profile(request, group_id):
 def assign_staff_to_group(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     if not(request.user.is_admin or request.user.branch == group.branch):
-        return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+        return HttpResponseRedirect(
+            reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
 
     if request.method == "GET":
         return render(
-            request, "assignstaff.html", {
+            request, "group/assign_staff.html", {
                 "group": group,
                 "users_list": User.objects.filter(is_admin=0)
             })
@@ -417,12 +422,13 @@ def assign_staff_to_group(request, group_id):
 def addmembers_to_group(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     if not(request.user.is_admin or request.user.branch == group.branch):
-        return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+        return HttpResponseRedirect(
+            reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
 
     if request.method == "GET":
         clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
         return render(
-            request, "addmember.html",
+            request, "group/add_member.html",
             {"group": group, "clients_list": clients_list})
     else:
         addmember_form = AddMemberForm(request.POST)
@@ -450,7 +456,7 @@ def viewmembers_under_group(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     clients_list = group.clients.all()
     return render(
-        request, "viewmembers.html",
+        request, "group/view-members.html",
         {
             "group": group, "clients_list": clients_list,
             "clients_count": len(clients_list)
@@ -462,7 +468,7 @@ def viewmembers_under_group(request, group_id):
 def groups_list(request):
     groups_list = Group.objects.all() \
         .select_related("staff", "branch").prefetch_related("clients")
-    return render(request, "listofgroups.html", {"groups_list": groups_list})
+    return render(request, "group/list.html", {"groups_list": groups_list})
 
 
 @login_required
@@ -484,7 +490,7 @@ def delete_group(request, group_id):
         else:
             group.is_active = 0
             group.save()
-    return HttpResponseRedirect('/groupslist/')
+    return HttpResponseRedirect(reverse('micro_admin:groupslist'))
 
 
 @login_required
@@ -500,7 +506,8 @@ def removemembers_from_group(request, group_id, client_id):
         group.save()
         client.status = "UnAssigned"
         client.save()
-    return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+    return HttpResponseRedirect(
+        reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
 
 
 @login_required
@@ -516,7 +523,7 @@ def add_group_meeting(request, group_id):
         group_meetings = GroupMeetings.objects.filter(
             group_id=group.id).order_by('-id')
         return render(
-            request, "add_group_meeting.html",
+            request, "group/add_group_meeting.html",
             {
                 "group": group,
                 "latest_group_meeting":
@@ -532,7 +539,8 @@ def add_group_meeting(request, group_id):
         GroupMeetings.objects.create(meeting_date=meeting_date,
                                      meeting_time=meeting_time,
                                      group=group)
-        return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+        return HttpResponseRedirect(
+            reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
 
 
 @login_required
