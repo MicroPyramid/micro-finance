@@ -161,8 +161,7 @@
         }
         else {
           alert("Changed Member Loan status successfully")
-          url = "{% url 'micro_admin:clientloanaccount' 1 %}"
-          url.replace(1, data.loanaccount_id)
+          url = "{% url 'micro_admin:clientloanaccount' 1 %}".replace(1, data.loanaccount_id)
           window.location = url
         }
       }, "json");

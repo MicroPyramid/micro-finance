@@ -167,7 +167,8 @@
         if(data.error == false)
         {
           alert("FD Application Submitted sucessfully.");
-          window.location = '/clientfixeddepositsprofile/'+data.fixed_deposit_id+'/';
+          url = "{% url 'micro_admin:clientfixeddepositsprofile' 1 %}".replace(1, data.fixed_deposit_id)
+          window.location = url;
         }
         else
         {

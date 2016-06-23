@@ -96,7 +96,8 @@
         }
         else {
           alert("Member Loan Application submitted sucessfully");
-          window.location = '/clientloanaccount/'+data.loanaccount_id+'/';
+          url = "{% url 'micro_admin:clientloanaccount' 1 %}".replace(1, data.loanaccount_id)
+          window.location = url;
         }
       }, "json");
     });

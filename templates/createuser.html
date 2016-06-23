@@ -155,7 +155,7 @@
         $('#mobile').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
         return;
       }
-      $.post('/createuser/', $('#createuserform').serialize(), function(data) {
+      $.post('.', $('#createuserform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
           if (data.pwdmessage) {
@@ -166,7 +166,8 @@
           });
         }
         else {
-          window.location = '/userprofile/'+data.user_id+'/';
+          url = "{% url 'micro_admin:userprofile' 1 %}".replace(1, data.user_id)
+          window.location = url;
         }
       }, "json");
     });

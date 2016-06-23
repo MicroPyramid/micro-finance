@@ -67,7 +67,8 @@
           });
         }
         else {
-          window.location = '/groupsavingsaccount/'+data.group_id+'/';
+          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}".replace(1, data.group_id)
+          window.location = url;
         }
       }, "json");
     });

@@ -227,7 +227,7 @@
 <!--wrapper ends above-->
 <script type="text/javascript">
   function memberloanaccount() {
-    $.post('/getmemberloanaccounts/', $('#createreceiptform').serialize(), function(data) {
+    $.post('{% url "micro_admin:getmemberloanaccounts" %}', $('#createreceiptform').serialize(), function(data) {
 
       var memberloanaccountselect = document.getElementById("memberloanaccountselect");
       var grouploanaccountselect = document.getElementById("grouploanaccountselect");
@@ -272,7 +272,7 @@
 </script>
 <script type="text/javascript">
   $('#memberloanaccountselect').change(function() {
-    $.post('/getloandemands/', $('#createreceiptform').serialize(), function(data) {
+    $.post('{% url "micro_admin:getloandemands" %}', $('#createreceiptform').serialize(), function(data) {
 
       document.getElementById('demand_loanprinciple').value = '';
       document.getElementById('demand_loaninterest').value = '';
@@ -303,7 +303,7 @@
   $(document).ready(function() {
     $('#createreceiptform').submit(function(e) {
       e.preventDefault();
-      $.post('/receiptsdeposit/', $('#createreceiptform').serialize(), function(data) {
+      $.post('{% url "micro_admin:receiptsdeposit" %}', $('#createreceiptform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
           if (data.message1) {
@@ -357,7 +357,7 @@
         }
         else {
           alert("Receipt added sucessfully");
-          window.location = '/receiptslist/';
+          window.location = '{% url "micro_admin:receiptslist" %}';
         }
       }, "json");
     });

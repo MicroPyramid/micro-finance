@@ -91,9 +91,10 @@
         $('#phone_number').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
         return;
       }
-      $.post('/editbranch/'+$('#branch_id').val()+'/', $('#editbranchform').serialize(), function(data) {
+      $.post('.', $('#editbranchform').serialize(), function(data) {
         if (data.error == false) {
-          window.location = '/branchprofile/'+data.branch_id+'/';
+          url = "{% url 'micro_admin:branchprofile' 1 %}".replace(1, data.branch_id)
+          window.location = url;
         }
         else
         {
