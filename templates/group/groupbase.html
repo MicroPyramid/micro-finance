@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block stage %}
+<div class="ver-nav-wrap">
+  <div class="nav-2" id="nav-conteiner">
+    <ul>
+      <li><a href="{% url 'micro_admin:groupprofile' group.id %}"><i class="fa fa-users padd"></i>Group Profile</a></li>
+      <li>
+        <a href="#" class="mem"><i class="fa fa-users padd"></i>Members<span><i class="fa fa-caret-down"></i></span></a>
+        <ul class="mem-drop">
+          <li><a href="{% url 'micro_admin:addmember' group.id %}"><i class="fa fa-plus padd"></i>Add New Member</a></li>
+          <li><a href="{% url 'micro_admin:viewmembers' group.id %}"><i class="fa fa-eye padd"></i>View Members</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#" class="acc"><i class="fa fa-database padd"></i>Accounts<span><i class="fa fa-caret-down"></i></span></a>
+        <ul class="acc-drop">
+          {% if group.savingsaccount_set.count %}
+          <li><a href="{% url 'micro_admin:groupsavingsaccount' group.id %}"><i class="fa fa-money padd"></i>View Savings</a></li>
+          {% else %}
+          <li><a href="{% url 'micro_admin:groupsavingsapplication' group.id %}"><i class="fa fa-plus padd"></i>Savings Application</a></li>
+          {% endif %}
+          <li><a href="{% url 'micro_admin:grouploanapplication' group.id %}"><i class="fa fa-plus padd"></i>New Loan Application</a>
+          </li>
+          <li><a href="{% url 'micro_admin:grouploanaccountslist' group.id %}"><i class="fa fa-money padd"></i>View Loans</a></li>
+        </ul>
+      </li>
+      <li>
+        {% if group.staff %}
+        <a href="{% url 'micro_admin:assignstaff' group.id %}"><i class="fa fa-user padd"></i>Re-Assign Staff</a>
+        {% else %}
+        <a href="{% url 'micro_admin:assignstaff' group.id %}"><i class="fa fa-user padd"></i>Assign Staff</a>
+        {% endif %}
+      </li>
+    </ul>
+  </div>
+  <button class="toggle-btn margin-lft" id="togg-btn"><img src="/static/images/1414856121_equal-16.png" style="color:#fff;" /></button>
+</div>
+{% block basebreadcrumb %}
+{% endblock %}
+<div class="row marl bread-row">
+  <div class="breadcrumbcontainer">
+    <ol class="breadcrumb">
+      <span>You are Here:</span> &nbsp;&nbsp;
+      <li><a href="{% url 'micro_admin:login' %}">Home</a></li>
+      <li><a href="{% url 'micro_admin:branchprofile' group.branch.id %}">{{ group.branch.name|capfirst }} Branch</a></li>
+      <li><a href="{% url 'micro_admin:groupprofile' group.id %}">{{ group.name|capfirst }} Group</a></li>
+      {% block groupbreadcrumb %}
+      {% endblock %}
+    </ol>
+  </div>
+</div>
+{% block groupstage %}
+{% endblock %}
+{% endblock %}
