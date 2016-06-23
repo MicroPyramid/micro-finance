@@ -135,9 +135,8 @@
         }
         else {
           alert("Member savings account Status Changed successfully");
-          url = "{% url 'micro_admin:clientsavingsaccount' 1 %}"
-          url.replace(1, data.client_id)
-          window.location = url
+          url = "{% url 'micro_admin:clientsavingsaccount' 1 %}".replace(1, data.client_id)
+          window.location = url;
         }
       }, "json");
     });

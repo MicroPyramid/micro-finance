@@ -167,7 +167,8 @@
         if(data.error == false)
         {
           alert("RD Application Submitted sucessfully.");
-          window.location = '/clientrecurringdepositsprofile/'+data.recurring_deposit_id+'/';
+          url = "{% url 'micro_admin:clientrecurringdepositsprofile' 1 %}".replace(1, data.recurring_deposit_id);
+          window.location = url;
         }
         else
         {

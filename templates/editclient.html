@@ -180,9 +180,10 @@
         $('#mobile').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
         return;
       }
-      $.post('/editclient/'+$('#client_id').val()+'/', $('#editclientform').serialize(), function(data) {
+      $.post('.', $('#editclientform').serialize(), function(data) {
         if (data.error == false) {
-          window.location = '/clientprofile/'+data.client_id+'/';
+          url = "{% url 'micro_admin:clientprofile' 1 %}".replace(1, data.client_id)
+          window.location = url;
         }
         else{
           $("span.error").remove();
