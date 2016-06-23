@@ -156,7 +156,8 @@
       }
       $.post('/edituser/'+$('#user_id').val()+'/', $('#edituserform').serialize(), function(data) {
         if (data.error == false) {
-          window.location = '/userprofile/'+data.user_id+'/';
+          url = "{% url 'micro_admin:userprofile' 1 %}".replace(1, data.user_id)
+          window.location = url;
         }
         else{
           $("span.error").remove();

@@ -120,14 +120,12 @@
       $.post(submit_url, $('#groupsavingsaccountform').serialize(), function(data) {
         if (data.error) {
           alert(data.errmsg)
-          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}"
-          url.replace(1, data.group_id)
+          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}".replace(1, data.group_id)
           window.location = url
         }
         else {
           alert("Group savings account status Changed sucessfully")
-          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}"
-          url.replace(1, data.group_id)
+          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}".replace(1, data.group_id)
           window.location = url
         }
       }, "json");

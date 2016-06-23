@@ -55,7 +55,7 @@
   $(document).ready(function() {
     $('#assignstaffform').submit(function(e) {
       e.preventDefault();
-      $.post('/assignstaff/'+$('#group_id').val()+'/', $('#assignstaffform').serialize(), function(data) {
+      $.post('.', $('#assignstaffform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
           if (data.message.staff) {
@@ -63,7 +63,9 @@
           }
         }
         else {
-          window.location = '/groupprofile/'+data.group_id+'/';
+          url = "{% url 'micro_admin:groupprofile' 1 %}"
+          url.replace(1, data.group_id)
+          window.location = url;
         }
       }, "json");
     });

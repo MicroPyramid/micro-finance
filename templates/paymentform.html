@@ -162,7 +162,7 @@
         }
         else {
           alert("Payment has been done sucessfully.");
-          window.location = '/paymentslist/';
+          window.location = "{% url 'micro_admin:paymentslist' %}";
         }
       }, "json");
     });

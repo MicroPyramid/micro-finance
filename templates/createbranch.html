@@ -87,7 +87,7 @@
         $('#phone_number').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
         return;
       }
-      $.post('/createbranch/', $('#createbranchform').serialize(), function (data) {
+      $.post('.', $('#createbranchform').serialize(), function (data) {
         if (data.error) {
           $("span.error").remove();
           $.each(data.message, function( key, value ) {
@@ -96,7 +96,8 @@
         }
         else {
           alert("Branch created successfully.");
-          window.location = '/branchprofile/'+data.branch_id+'/';
+          url = "{% url 'micro_admin:branchprofile' 1 %}".replace(1, data.branch_id)
+          window.location = url;
         }
       }, "json");
     });

@@ -180,7 +180,7 @@
         $('#mobile').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
         return;
       }
-      $.post('/createclient/', $('#createclientform').serialize(), function (data) {
+      $.post('.', $('#createclientform').serialize(), function (data) {
         if (data.error) {
           $("span.error").remove();
           $.each(data.message, function( key, value ) {
@@ -189,7 +189,8 @@
         }
         else {
           alert("Member created sucessfully.");
-          window.location = '/clientprofile/'+data.client_id+'/';
+          url = "{% url 'micro_admin:clientprofile' 1 %}".replace(1, data.client_id)
+          window.location = url;
         }
       }, "json");
     });

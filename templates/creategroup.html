@@ -63,7 +63,7 @@
   $(document).ready(function() {
     $('#creategroupform').submit(function(e) {
       e.preventDefault();
-      $.post('/creategroup/', $('#creategroupform').serialize(), function(data) {
+      $.post('.', $('#creategroupform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
           if (data.message.branch) {
@@ -78,7 +78,8 @@
         }
         else {
           alert("Group created sucessfully.");
-          window.location = '/groupprofile/'+data.group_id+'/';
+          url = "{% url 'micro_admin:groupprofile' 1 %}".replace(1, data.group_id)
+          window.location = url;
         }
       }, "json");
     });

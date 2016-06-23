@@ -69,7 +69,8 @@
           });
         }
         else {
-          window.location = '/clientsavingsaccount/'+data.client_id+'/';
+          url = "{% url 'micro_admin:clientsavingsaccount' 1 %}".replace(1, data.client_id)
+          window.location = url;
         }
       }, "json");
     });

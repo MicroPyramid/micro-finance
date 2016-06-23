@@ -89,7 +89,8 @@
         }
         else {
           alert("Group Loan Application submitted sucessfully");
-          window.location = '/grouploanaccount/'+data.loanaccount_id+'/';
+          url = "{% url 'micro_admin:grouploanaccount' 1 %}".replace(1, data.loanaccount_id)
+          window.location = url;
         }
       }, "json");
     });
