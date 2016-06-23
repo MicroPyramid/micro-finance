@@ -12,7 +12,7 @@
     </h3>
   </div>
   {% if latest_group_meeting %}
-  <div class="panel-body1">
+  <div class="panel-body">
     <form class="form-horizontal" role="form">
       <div class="box-form">
         <div class="form-group grp-view">
@@ -28,6 +28,7 @@
       </div>
     </form>
   </div>
+  <div class="clearfix"></div>
   {% endif %}
   <div class="panel-body">
     <!--panel body starts above-->
@@ -38,13 +39,13 @@
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-4 control-label" style="text-align:right;">Meeting Date</label>
           <div class="col-sm-6">
-            <input type="text" class="wid-form" name="meeting_date" id="datepicker" />
+            <input type="text" class="wid-form" name="meeting_date" id="datepicker" required="True" />
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-4 control-label" style="text-align:right;">Meeting Time</label>
           <div class="col-sm-6">
-            <input type="text" class="wid-form" id="timepicker" name="meeting_time" />
+            <input type="text" class="wid-form" id="timepicker" name="meeting_time" required="True" />
           </div>
         </div>
         <!--div 1 of fomr ends above-->
