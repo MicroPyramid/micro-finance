@@ -355,131 +355,131 @@ def delete_user(request, user_id):
 @login_required
 def create_group(request):
     if request.method == "GET":
-        data = {}
         branches = Branch.objects.all()
         return render(
-            request, "creategroup.html", {"data": data, "branches": branches})
+            request, "creategroup.html", {"branches": branches})
     else:
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
-            created_by = User.objects.get(
-                username=request.POST.get("created_by")
-            )
+            created_by = get_object_or_404(
+                User, username=request.POST.get("created_by"))
             group = group_form.save(commit=False)
             group.created_by = created_by
             group.save()
             data = {"error": False, "group_id": group.id}
-            return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": group_form.errors}
-            return HttpResponse(json.dumps(data))
+        return HttpResponse(json.dumps(data))
 
 
 @login_required
 def group_profile(request, group_id):
-    group = Group.objects.get(id=group_id)
+    group = get_object_or_404(Group, id=group_id)
     clients_list = group.clients.all()
-    clients_count = group.clients.all().count()
-    if GroupMeetings.objects.filter(group_id=group.id):
-        latest_group_meeting = GroupMeetings.objects.filter(
-            group_id=group.id
-        ).order_by('-id')[0]
-        return render(
-            request,
-            "groupprofile.html",
-            {
-                "group": group,
-                "clients_list": clients_list,
-                "clients_count": clients_count,
-                "latest_group_meeting": latest_group_meeting
-            }
-        )
-    else:
-        return render(
-            request, "groupprofile.html",
-            {"group": group, "clients_list": clients_list,
-             "clients_count": clients_count}
-        )
+    group_mettings = GroupMeetings.objects.filter(
+        group_id=group.id).order_by('-id')
+    return render(
+        request, "groupprofile.html", {
+            "group": group,
+            "clients_list": clients_list,
+            "clients_count": len(clients_list),
+            "latest_group_meeting":
+                group_mettings.first() if group_mettings else None
+        }
+    )
 
 
 @login_required
 def assign_staff_to_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    if not(request.user.is_admin or request.user.branch == group.branch):
+        return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+
     if request.method == "GET":
-        group = Group.objects.get(id=group_id)
-        users_list = User.objects.filter(is_admin=0)
-        if request.user.is_admin or request.user.branch == group.branch:
-            return render(
-                request, "assignstaff.html",
-                {"group": group, "users_list": users_list})
-        else:
-            return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+        return render(
+            request, "assignstaff.html", {
+                "group": group,
+                "users_list": User.objects.filter(is_admin=0)
+            })
     else:
-        staff_id = request.POST.get("staff")
-        user = User.objects.get(id=staff_id)
-        group = Group.objects.get(id=group_id)
-        group.staff = user
-        group.save()
-        data = {"error": False, "group_id": group.id}
+        if request.POST.get("staff"):
+            group.staff = get_object_or_404(
+                User, id=request.POST.get("staff"))
+            group.save()
+            data = {"error": False, "group_id": group.id}
+        else:
+            data = {"error": True,
+                    "message": {"staff": "This field is required"}}
         return HttpResponse(json.dumps(data))
 
 
 @login_required
 def addmembers_to_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    if not(request.user.is_admin or request.user.branch == group.branch):
+        return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+
     if request.method == "GET":
-        group = Group.objects.get(id=group_id)
         clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
-        if request.user.is_admin or request.user.branch == group.branch:
-            return render(
-                request, "addmember.html",
-                {"group": group, "clients_list": clients_list})
-        else:
-            return HttpResponseRedirect('/groupprofile/' + group_id + '/')
+        return render(
+            request, "addmember.html",
+            {"group": group, "clients_list": clients_list})
     else:
         addmember_form = AddMemberForm(request.POST)
         if addmember_form.is_valid():
-            group = Group.objects.get(id=group_id)
-            clients = request.POST.getlist("clients")
-            for client in clients:
-                client = Client.objects.get(id=client)
-                group.clients.add(client)
-                group.save()
-                client.status = "Assigned"
-                client.save()
+            client_ids = request.POST.getlist("clients")
+            for client_id in client_ids:
+                try:
+                    client = Client.objects.get(
+                        id=client_id, status="UnAssigned", is_active=1)
+                except Client.DoesNotExist:
+                    continue
+                else:
+                    group.clients.add(client)
+                    group.save()
+                    client.status = "Assigned"
+                    client.save()
             data = {"error": False, "group_id": group.id}
-            return HttpResponse(json.dumps(data))
         else:
             data = {"error": True, "message": addmember_form.errors}
-            return HttpResponse(json.dumps(data))
+        return HttpResponse(json.dumps(data))
 
 
 @login_required
 def viewmembers_under_group(request, group_id):
-    group = Group.objects.get(id=group_id)
+    group = get_object_or_404(Group, id=group_id)
     clients_list = group.clients.all()
-    clients_count = group.clients.all().count()
     return render(
         request, "viewmembers.html",
-        {"group": group, "clients_list": clients_list,
-         "clients_count": clients_count})
+        {
+            "group": group, "clients_list": clients_list,
+            "clients_count": len(clients_list)
+        }
+    )
 
 
 @login_required
 def groups_list(request):
-    groups_list = Group.objects.all()
+    groups_list = Group.objects.all() \
+        .select_related("staff", "branch").prefetch_related("clients")
     return render(request, "listofgroups.html", {"groups_list": groups_list})
 
 
 @login_required
 def delete_group(request, group_id):
-    group = Group.objects.get(id=group_id)
+    group = get_object_or_404(Group, id=group_id)
     if (
         request.user.is_admin or
         (request.user.has_perm("branch_manager") and
          request.user.branch == group.branch)
     ):
-        if LoanAccount.objects.filter(
-            group=group, status="Approved"
-        ).exclude(total_loan_balance=0).count():
+        if (
+            LoanAccount.objects.filter(
+                group=group, status="Approved"
+            ).exclude(
+                total_loan_balance=0
+            ).count() or not group.is_active
+        ):
             pass
         else:
             group.is_active = 0
@@ -489,13 +489,13 @@ def delete_group(request, group_id):
 
 @login_required
 def removemembers_from_group(request, group_id, client_id):
-    group = Group.objects.get(id=group_id)
+    group = get_object_or_404(Group, id=group_id)
     if (
         request.user.is_admin or
         (request.user.has_perm("branch_manager") and
          request.user.branch == group.branch)
     ):
-        client = Client.objects.get(id=client_id)
+        client = get_object_or_404(Client, id=client_id)
         group.clients.remove(client)
         group.save()
         client.status = "UnAssigned"
@@ -505,28 +505,29 @@ def removemembers_from_group(request, group_id, client_id):
 
 @login_required
 def group_meetings(request, group_id):
-    group = Group.objects.get(id=group_id)
-    return HttpResponse("List of Group #%s of Meetings" % group.id)
+    group = get_object_or_404(Group, id=group_id)
+    return HttpResponse("List of Group #%s Meetings" % group.id)
 
 
 @login_required
 def add_group_meeting(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
     if request.method == "GET":
-        group = Group.objects.get(id=group_id)
-        if GroupMeetings.objects.filter(group_id=group.id):
-            latest_group_meeting = GroupMeetings.objects.filter(
-                group_id=group.id).order_by('-id')[0]
-            return render(
-                request, "add_group_meeting.html",
-                {"group": group, "latest_group_meeting": latest_group_meeting})
-        else:
-            return render(request, "add_group_meeting.html", {"group": group})
+        group_meetings = GroupMeetings.objects.filter(
+            group_id=group.id).order_by('-id')
+        return render(
+            request, "add_group_meeting.html",
+            {
+                "group": group,
+                "latest_group_meeting":
+                    group_meetings.first() if group_meetings else None
+            }
+        )
     else:
-        group = Group.objects.get(id=group_id)
         datestring_format = datetime.datetime.strptime(
             request.POST.get("meeting_date"), '%m/%d/%Y').strftime('%Y-%m-%d')
-        dateconvert = datetime.datetime.strptime(datestring_format, "%Y-%m-%d")
-        meeting_date = dateconvert
+        meeting_date = datetime.datetime.strptime(
+            datestring_format, "%Y-%m-%d")
         meeting_time = request.POST.get("meeting_time")
         GroupMeetings.objects.create(meeting_date=meeting_date,
                                      meeting_time=meeting_time,

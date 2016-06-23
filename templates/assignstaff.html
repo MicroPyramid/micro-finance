@@ -18,11 +18,10 @@
       <!--div 1 0f form-->
       <div class="box-form-as">
         <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-offset-2 col-sm-2 control-label">Branch</label>
+          <label for="inputEmail3" class="col-sm-offset-2 col-sm-2 control-label">Staff</label>
           <div class="col-sm-6">
-            <input type="hidden"  id="group_id" value="{{group.id}}" style="dispaly:none;">
-            <select class="text-box wid-form" name="staff" required="True">
-              <option>Select Staff</option>
+            <select class="text-box wid-form form-control" name="staff">
+              <option value="">Select Staff</option>
               {% for user in users_list %}
                 {% if group.staff %}
                   {% ifequal user.id group.staff.id %}
@@ -35,9 +34,9 @@
                 {% endif %}
               {% endfor%}
             </select>
-            <p id="stafferror"></p>
+            <span id="stafferror"></span>
           </div>
-          <div><input type="hidden"  id="group_id" value="{{group.id}}" style="dispaly:none;"></div>
+          <div><input type="hidden" id="group_id" value="{{group.id}}"></div>
         </div>
         <!--div 1 of fomr ends above-->
         <div class="btns-row" style="margin-top: -10px;">
