@@ -1,5 +1,8 @@
 from decimal import Decimal
+
 from django import forms
+from django.forms.utils import ErrorList
+
 from micro_admin.models import(
     Client,
     Receipts,
@@ -11,7 +14,7 @@ from micro_admin.models import(
 
 class ReceiptForm(forms.ModelForm):
 
-    date = forms.DateField(input_formats=["%m/%d/%Y"])
+    date = forms.DateField(input_formats=["%m/%d/%Y"], required=True)
     name = forms.CharField(max_length=100, required=True)
     account_number = forms.CharField(max_length=100, required=True)
     savingsdeposit_thrift_amount = forms.DecimalField(required=False)
@@ -46,15 +49,16 @@ class ReceiptForm(forms.ModelForm):
         self.loan_account = None
         self.group_savings_account = None
         self.group_loan_account = None
-
+        errors = self._errors.setdefault("message1", ErrorList())
         self.client = Client.objects.filter(
             first_name__iexact=self.data.get("name"),
             account_number=self.data.get("account_number")
         ).last()
         if not self.client:
-            raise forms.ValidationError(
+            errors.append(
                 "No Client exists with this First Name and Account number."
             )
+            raise forms.ValidationError(errors)
         # client loan a/c
         loan_account_no = self.data.get("loan_account_no")
         if loan_account_no:
@@ -63,12 +67,13 @@ class ReceiptForm(forms.ModelForm):
                 account_no=loan_account_no
             ).last()
             if not self.loan_account:
-                raise forms.ValidationError(
+                errors.append(
                     """
                     Loan does not exists with this
                     Loan Account Number for this Member.
                     """
                 )
+                raise forms.ValidationError(errors)
         # client group
         self.client_group = self.client.group_set.first()
         group_name = self.data.get("group_name")
@@ -79,17 +84,19 @@ class ReceiptForm(forms.ModelForm):
                 account_number=group_account_number
             ).last()
             if not self.group:
-                    raise forms.ValidationError(
+                    errors.append(
                         """
                         No Group exists with given name and account number.
                         """
                     )
+                    raise forms.ValidationError(errors)
         if group_name or group_account_number:
-            raise forms.ValidationError(
+            errors.append(
                 """
                 Please enter both Group Name and Account Number.
                 """
             )
+            raise forms.ValidationError(errors)
         # client group a/c
         group_loan_account_no = self.data.get("group_loan_account_no")
         if group_loan_account_no:
@@ -98,29 +105,32 @@ class ReceiptForm(forms.ModelForm):
                 account_no=group_loan_account_no
             ).last()
             if not self.group_loan_account:
-                raise forms.ValidationError(
+                errors.append(
                     """
                     Loan does not exists with this Loan Account Number for this Group.
                     """
                 )
+            raise forms.ValidationError(errors)
         # cannot pay both loans at once
         if self.group_loan_account and self.loan_account:
-            raise forms.ValidationError(
+            errors.append(
                 """
                 Unable pay personal loan and group loan at once.
                 """
             )
+            raise forms.ValidationError(errors)
         # check personal savings a/c
         if self.data.get("savingsdeposit_thrift_amount") or self.data.get("recurringdeposit_amount"):
             self.savings_account = SavingsAccount.objects.filter(
                 client=self.client
             ).last()
             if not self.savings_account:
-                raise forms.ValidationError(
+                errors.append(
                     """
                     Member does not have savings account
                     """
                 )
+                raise forms.ValidationError(errors)
         # check group savings a/c
         if self.data.get("savingsdeposit_thrift_amount"):
             self.group_savings_account = SavingsAccount.objects.filter(
@@ -133,38 +143,114 @@ class ReceiptForm(forms.ModelForm):
                 if self.loan_account.status == "Approved" and \
                    self.group_loan_account.status == "Approved":
                     if not self.group_loan_account.loan_issued_date:
-                        raise forms.ValidationError(
+                        errors.append(
                             """
                             Loan Payment has not yet done.
                             """
                         )
+                        raise forms.ValidationError(errors)
                     else:
                         if not (Decimal(self.loan_account.total_loan_balance) or
                                 Decimal(self.loan_account.interest_charged) or
                                 Decimal(self.loan_account.loan_repayment_amount) or
                                 Decimal(self.loan_account.principle_repayment)):
-                            raise forms.ValidationError(
+                            errors.append(
                                 """
                                 Loan has been cleared sucessfully.
                                 """
                             )
+                            raise forms.ValidationError(errors)
                         else:
                             if not (Decimal(self.data.get("loanprinciple_amount")) <=
                                     Decimal(self.loan_account.total_loan_balance)):
-                                raise forms.ValidationError(
+                                errors.append(
                                     """
                                     Amount is greater than loan balance.
                                     """
                                 )
+                                raise forms.ValidationError(errors)
                             else:
                                 if Decimal(self.data.get("loaninterest_amount")) >\
                                    Decimal(self.loan_account.interest_charged):
-                                    raise forms.ValidationError(
+                                    errors.append(
                                         """
                                         Entered interest amount is greater than interest charged.
                                         """
                                     )
+                                    raise forms.ValidationError(errors)
+                                elif(Decimal(self.data.get("loaninterest_amount")) >
+                                        Decimal(self.loan_account.loan_amount) or
+                                        Decimal(self.data.get("loanprinciple_amount")) >
+                                        Decimal(self.loan_account.loan_amount)):
+                                    errors.append(
+                                        """
+                                        Amount is greater than issued loan amount. Transaction can't be done.
+                                        """
+                                    )
+                                    raise forms.ValidationError(errors)
+                                else:
+                                    self.loan_account.total_loan_amount_repaid += Decimal(self.data.get("loanprinciple_amount"))
+                                    self.loan_account.total_interest_repaid += Decimal(self.data.get("loaninterest_amount"))
+                                    self.loan_account.total_loan_paid = Decimal(self.loan_account.total_loan_amount_repaid) + \
+                                        Decimal(self.loan_account.total_interest_repaid)
+                                    self.loan_account.total_loan_balance -= Decimal(self.data.get("loanprinciple_amount"))
+                                    self.loan_account.no_of_repayments_completed += self.loan_account.loan_repayment_every
 
+                                    self.group_loan_account.total_loan_amount_repaid += Decimal(self.data.get("loanprinciple_amount"))
+                                    self.group_loan_account.total_interest_repaid += Decimal(self.data.get("loaninterest_amount"))
+                                    self.group_loan_account.total_loan_paid = Decimal(self.group_loan_account.total_loan_amount_repaid) +\
+                                        Decimal(self.group_loan_account.total_interest_repaid)
+                                    self.group_loan_account.total_loan_balance -= Decimal(self.data.get("loanprinciple_amount"))
+
+                                    if Decimal(self.loan_account.total_loan_amount_repaid) == Decimal(self.loan_account.loan_amount) and\
+                                       Decimal(self.loan_account.total_loan_balance) == 0:
+                                        if Decimal(self.data.get("loanprinciple_amount")) > \
+                                           Decimal(self.loan_account.principle_repayment):
+                                            errors.append(
+                                                """
+                                                Amount is greater than issued loan amount. Transaction can't be done.
+                                                """
+                                            )
+                                            raise forms.ValidationError(errors)
                 elif self.loan_account.status == "Applied":
-                    pass
+                    errors.append(
+                        """
+                        Member Loan / Group Loan is under pending for approval.
+                        """
+                    )
+                    raise forms.ValidationError(errors)
+                elif self.loan_account.status == "Rejected":
+                    errors.append(
+                        """
+                        Member Loan has been Rejected.
+                        """
+                    )
+                    raise forms.ValidationError(errors)
+                elif self.loan_account.status == "Closed":
+                    errors.append(
+                        """
+                        Member Loan has been Closed.
+                        """
+                    )
+                    raise forms.ValidationError(errors)
+                elif self.group_loan_account.status == "Applied":
+                    errors.append(
+                        """
+                        Group Loan is under pending for approval.
+                        """
+                    )
+                    raise forms.ValidationError(errors)
+                elif self.group_loan_account.status == "Rejected":
+                    raise forms.ValidationError(
+                        """
+                        Group Loan has been Rejected.
+                        """
+                    )
+                elif self.group_loan_account.status == "Closed":
+                    errors.append(
+                        """
+                        Group Loan has been Closed.
+                        """
+                    )
+                    raise forms.ValidationError(errors)
         return self.data

@@ -18,7 +18,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Date<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" value="{% now 'm/d/Y' %}" required="True">
+              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" value="{% now 'm/d/Y' %}" >
             </div>
           </div>
           <div class="form-group">
@@ -26,7 +26,7 @@
             <label for="inputEmail3" class="col-sm-4 control-label">Branch Name<span>*</span></label>
             <div class="col-sm-8">
               <select class="text-box wid-form select-box-pad" name="branch">
-                <option>Select Branch</option>
+                <option value="">Select Branch</option>
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.name }}</option>
                 {% endfor %}
@@ -37,7 +37,7 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Receipt Number<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="receipt_number" required="True">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="receipt_number" >
               <p id="receiptnumbererror"></p>
             </div>
           </div>
@@ -47,14 +47,14 @@
           <div class="form-group" >
             <label for="inputEmail3" class="col-sm-4 control-label">Member First Name<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="name" id="membername" required="True">
+              <input type="text" class="text-box wid-form"  name="name" id="membername" >
               <p id="clientnameerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="member_a/c_no" name="account_number" required="True" onchange="memberloanaccount()">
+              <input type="text" class="text-box wid-form" id="member_a/c_no" name="account_number"  onchange="memberloanaccount()">
               <p id="accountnumbererror"></p>
             </div>
           </div>
