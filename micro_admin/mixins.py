@@ -2,15 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from micro_admin.models import User
-
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-
-
-class LoginRequiredMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class UserPermissionRequiredMixin(LoginRequiredMixin):

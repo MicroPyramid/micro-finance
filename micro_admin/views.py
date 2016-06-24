@@ -27,10 +27,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from weasyprint import HTML
 
-from django.views.generic.edit import CreateView, UpdateView, View
-from django.views.generic import ListView, DetailView
+from django.views.generic.edit import CreateView, UpdateView, \
+    View
+from django.views.generic import ListView, DetailView, \
+    FormView, RedirectView
 from django.http import JsonResponse
 from micro_admin.mixins import UserPermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 d = decimal.Decimal
 
@@ -66,11 +69,42 @@ def user_login(request):
             return render(request, "index.html", {"user": request.user})
 
 
-def user_logout(request):
-    if not request.user.is_authenticated():
-        return HttpResponse("")
-    logout(request)
-    return HttpResponseRedirect("/")
+class LoginView(View):
+    def post(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active and user.is_staff:
+                login(request, user)
+                data = {"error": False, "message": "Loggedin Successfully"}
+                return HttpResponse(json.dumps(data))
+            else:
+                data = {"error": True, "message": "User is not active."}
+                return HttpResponse(json.dumps(data))
+        else:
+            data = {
+                "error": True,
+                "message": "Username and Password were incorrect."
+            }
+            return HttpResponse(json.dumps(data))
+
+        return render(request, "index.html")
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return render(request, 'index.html', {'user': request.user})
+        else:
+            return HttpResponseRedirect('/')
+
+
+class LogoutView(RedirectView):
+    url = '/'
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super(LogoutView, self).get(request, *args, **kwargs)
 
 
 # --------------------------------------------------- #
@@ -273,6 +307,7 @@ class UpdateUserView(UpdateView):
     slug_field = 'user_id'
     model = User
     form_class = UserForm
+    context_object_name = 'selecteduser'
     template_name = "user/edit.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -302,7 +337,9 @@ class UpdateUserView(UpdateView):
 
 
 # @login_required
-class UserProfileView(DetailView):
+class UserProfileView(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
     slug_field = 'user_id'
     model = User
     context_object_name = 'selecteduser'

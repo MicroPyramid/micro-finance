@@ -4,7 +4,10 @@ from micro_admin.views import *
 urlpatterns = [
 
     url(r'^$', index, name='microadmin_index'),
-    url(r'^login/$', user_login, name='login'),
+    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^logout/$',
+        LogoutView.as_view(),
+        name="logout"),
     # ------------------------------------------- #
     # Branch model urls
     url(r'^branch/create/$',
@@ -143,7 +146,6 @@ urlpatterns = [
     url(r'^viewparticularclientrecurringdeposits/(?P<client_id>\d+)/$',
         view_particular_client_recurring_deposits,
         name="viewparticularclientrecurringdeposits"),
-    url(r'^logout/$', user_logout, name="logout"),
     url(r'^clientledgercsvdownload/(?P<client_id>\d+)/$',
         clientledger_csvdownload, name="clientledgercsvdownload"),
     url(r'^clientledgerexceldownload/(?P<client_id>\d+)/$',

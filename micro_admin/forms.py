@@ -11,17 +11,43 @@ class BranchForm(forms.ModelForm):
         fields = ["name", "opening_date", "country", "state", "district",
                   "city", "area", "phone_number", "pincode"]
 
+    def clean_pincode(self):
+        pincode = self.cleaned_data.get('pincode')
+        if pincode:
+            try:
+                if int(pincode):
+                    if not len(pincode) == 6:
+                        raise forms.ValidationError(
+                            'Please enter a valid 6 digit pincode')
+                        return pincode
+            except ValueError:
+                raise forms.ValidationError(
+                    'Please enter a valid pincode')
+        return pincode
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        try:
+            if int(phone_number):
+                if not phone_number or not(8 <= len(phone_number) <= 10):
+                    raise forms.ValidationError(
+                        'Please enter a valid 10 digit phone number')
+                return phone_number
+        except ValueError:
+            raise forms.ValidationError('Please enter a valid phone number')
+
 
 class UserForm(forms.ModelForm):
 
     date_of_birth = forms.DateField(
         required=False,
         input_formats=['%m/%d/%Y'])
+    password = forms.CharField(max_length=100)
 
     class Meta:
         model = User
         fields = ["email", "first_name", 'last_name', "gender", "branch",
-                  "user_roles", "username", "password", 'country', 'state',
+                  "user_roles", "username", 'country', 'state',
                   'district', 'city', 'area', 'mobile', 'pincode']
 
     def __init__(self, *args, **kwargs):
@@ -31,6 +57,8 @@ class UserForm(forms.ModelForm):
                 'placeholder': 'Gender',
                 'class': 'text-box wid-form select-box-pad'
             })
+        if self.instance:
+            print 'update'
         not_required_fields = ['country', 'state', 'district',
                                'city', 'area', 'mobile',
                                'pincode', 'last_name']
@@ -39,21 +67,41 @@ class UserForm(forms.ModelForm):
 
     def clean_password(self):
         password = self.cleaned_data.get('password')
-        if len(password) < 5:
-            raise forms.ValidationError(
-                'Password must be at least 5 characters long!')
+        if password:
+            if len(password) < 5:
+                raise forms.ValidationError(
+                    'Password must be at least 5 characters long!')
         return password
+
+    def clean_pincode(self):
+        pincode = self.cleaned_data.get('pincode')
+        if pincode:
+            try:
+                if int(pincode):
+                    if not len(pincode) == 6:
+                        raise forms.ValidationError(
+                            'Please enter a valid 6 digit pincode')
+            except ValueError:
+                raise forms.ValidationError(
+                    'Please enter a valid pincode')
+        return pincode
 
     def clean_mobile(self):
         phone_number = self.cleaned_data.get('mobile')
-        if not phone_number or not(8 <= len(phone_number) <= 10):
+        try:
+            if int(phone_number):
+                if not phone_number or not(8 <= len(phone_number) <= 10):
+                    raise forms.ValidationError(
+                        'Please enter a valid 10 digit phone number')
+                return phone_number
+        except ValueError:
             raise forms.ValidationError('Please enter a valid phone number')
-        return phone_number
 
     def save(self, commit=True, *args, **kwargs):
         instance = super(UserForm, self).save(commit=False, *args, **kwargs)
-        if commit:
+        if not instance.id:
             instance.set_password(self.cleaned_data.get('password'))
+        if commit:
             instance.save()
         return instance
 
@@ -84,9 +132,27 @@ class ClientForm(forms.ModelForm):
 
     def clean_mobile(self):
         phone_number = self.cleaned_data.get('mobile')
-        if not phone_number or not(8 <= len(phone_number) <= 10):
+        try:
+            if int(phone_number):
+                if not phone_number or not(8 <= len(phone_number) <= 10):
+                    raise forms.ValidationError(
+                        'Please enter a valid 10 digit phone number')
+                return phone_number
+        except ValueError:
             raise forms.ValidationError('Please enter a valid phone number')
-        return phone_number
+
+    def clean_pincode(self):
+        pincode = self.cleaned_data.get('pincode')
+        if pincode:
+            try:
+                if int(pincode):
+                    if not len(pincode) == 6:
+                        raise forms.ValidationError(
+                            'Please enter a valid 6 digit pincode')
+            except ValueError:
+                raise forms.ValidationError(
+                    'Please enter a valid pincode')
+        return pincode
 
     def save(self, commit=True, *args, **kwargs):
         instance = super(ClientForm, self).save(commit=False, *args, **kwargs)
