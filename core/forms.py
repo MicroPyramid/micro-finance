@@ -6,6 +6,7 @@ from django.forms.utils import ErrorList
 from micro_admin.models import(
     Client,
     Receipts,
+    Payments,
     LoanAccount,
     Group,
     SavingsAccount,
@@ -50,14 +51,20 @@ class ReceiptForm(forms.ModelForm):
         self.group_savings_account = None
         self.group_loan_account = None
         errors = self._errors.setdefault("message1", ErrorList())
-        self.client = Client.objects.filter(
-            first_name__iexact=self.data.get("name"),
-            account_number=self.data.get("account_number")
-        ).last()
-        if not self.client:
-            errors.append(
-                "No Client exists with this First Name and Account number."
-            )
+        name = self.data.get("name")
+        account_number = self.data.get("account_number")
+        if name and account_number:
+            self.client = Client.objects.filter(
+                first_name__iexact=name,
+                account_number=account_number
+            ).last()
+            if not self.client:
+                errors.append(
+                    "No Client exists with this First Name and Account number."
+                )
+                raise forms.ValidationError(errors)
+        else:
+            errors.append("Please provide both First Name and Account number.")
             raise forms.ValidationError(errors)
         # client loan a/c
         loan_account_no = self.data.get("loan_account_no")
@@ -81,12 +88,13 @@ class ReceiptForm(forms.ModelForm):
         if group_name and group_account_number:
             self.group = Group.objects.filter(
                 name__iexact=group_name,
+                clients=self.client,
                 account_number=group_account_number
             ).last()
             if not self.group:
                     errors.append(
                         """
-                        No Group exists with given name and account number.
+                        No Group exists with given client, name and account number.
                         """
                     )
                     raise forms.ValidationError(errors)
@@ -253,4 +261,41 @@ class ReceiptForm(forms.ModelForm):
                         """
                     )
                     raise forms.ValidationError(errors)
+        return self.data
+
+
+class PaymentForm(forms.ModelForm):
+
+    date = forms.DateField(input_formats=["%m/%d/%Y"], required=True)
+
+    # group
+    group_name = forms.CharField(max_length=100, required=False)
+    group_account_number = forms.CharField(max_length=100, required=False)
+    # member
+    client_name = forms.CharField(max_length=100, required=False)
+    client_account_number = forms.CharField(max_length=100, required=False)
+    staff_username = forms.CharField(max_length=100, required=False)
+    group_loan_account_no = forms.CharField(max_length=100, required=False)
+    interest = forms.DecimalField(required=False)
+
+    class Meta:
+        model = Payments
+        fields = ["date",
+                  "branch",
+                  "voucher_number",
+                  "payment_type",
+                  "amount",
+                  "interest",
+                  "total_amount",
+                  "totalamount_in_words"]
+
+    def clean(self):
+        errors = self._errors.setdefault("message1", ErrorList())
+        if not (self.data.get("amount") != 0 and self.data.get("total_amount") != 0):
+            errors.append(
+                """
+                Voucher can't be generated with amount/total amount zero
+                """
+            )
+            raise forms.ValidationError(errors)
         return self.data

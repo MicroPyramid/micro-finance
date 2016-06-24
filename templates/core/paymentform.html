@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Accounting</li>
+<li><a href="{% url 'micro_admin:paymentslist' %}">Payments</a></li>
+<li>Add Pay Slip</li>
+{% endblock %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel payslip-panel">
+    <div class="panel-heading">Add Pay Slip</div>
+    <div class="panel-body pb-pad">
+      <form id="paymentform" class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Date<span>*</span></label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="date" id="date-picker-cc" >
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Branch Name<span>*</span></label>
+          <div class="col-sm-8">
+            <select class="text-box wid-form" name="branch">
+              <option>Select Branch</option>
+              {% for branch in branches %}
+              <option value="{{ branch.id }}">{{ branch.name }}</option>
+              {% endfor %}
+            </select>
+            <p id="branchnameerror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Voucher Number<span>*</span></label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" id="inputEmail3" name="voucher_number" >
+            <p id="vouchernumbererror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Voucher Type<span>*</span></label>
+          <div class="col-sm-8">
+            <select class="text-box wid-form" name="payment_type" >
+              <option>Select Voucher Type</option>
+              {% for voucher_type in voucher_types %}
+              <option value="{{ voucher_type }}">{{ voucher_type }}</option>
+              {% endfor%}
+            </select>
+            <p id="vouchertypeerror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Group Name</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form"  name="group_name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Group A/C. No.</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form"  name="group_account_number">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Member Name</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form"  name="client_name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form"  name="client_account_number">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-4 control-label">Staff Username</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="staff_username">
+            <p id="stafferror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Group Loan A/C. No.</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" name="group_loan_account_no">
+            <p id="groupaccountnumbererror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Amount<span>*</span></label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" id="inputEmail3" name="amount" >
+            <p id="amounterror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Interest</label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" id="inputEmail3" name="interest">
+            <p id="interesterror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Total Amount<span>*</span></label>
+          <div class="col-sm-8">
+            <input type="text" class="text-box wid-form" id="inputEmail3" name="total_amount" >
+            <p id="totalamounterror"></p>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-4 control-label">Total Amount in Words<span>*</span></label>
+          <div class="col-sm-8">
+            <textarea name="totalamount_in_words" rows="3" class="txt-area-wid" ></textarea>
+            <p id="totalamountinwordserror"></p>
+          </div>
+        </div>
+        <br clear="all" style="margin-top: -10px;">
+        <p style="text-align:center;" id="message1error"></p>
+        <div class="form-group btns">
+          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#paymentform').submit(function(e) {
+      e.preventDefault();
+      $.post('', $('#paymentform').serialize(), function(data) {
+        if (data.error) {
+          $("span.error").remove();
+          $.each(data.message, function(field, error){
+            html = "<span class='error' style='height:11px;color:red;'>" + error + "</span>"
+            $('[name='+field+']').after(html)
+          })
+        }
+        else {
+          alert("Payment has been done sucessfully.");
+          window.location = "{% url 'micro_admin:paymentslist' %}";
+        }
+      }, "json");
+    });
+    $('.cancel-btn').click(function(e){
+      $("span.error").remove();
+    });
+  });
+</script>
+{% endblock %}

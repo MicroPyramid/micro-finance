@@ -1,11 +1,15 @@
-import json
-from django.shortcuts import HttpResponse
+from django.http import JsonResponse
 from django.views.generic.edit import CreateView
 from .mixins import LoginRequiredMixin
-from .forms import ReceiptForm
+from .forms import (
+    ReceiptForm,
+    PaymentForm,
+)
 from micro_admin.models import(
     Branch,
     Receipts,
+    PAYMENT_TYPES,
+    Payments,
 )
 # Create your views here.
 
@@ -25,7 +29,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
     def form_invalid(self, form):
         data = {"error": True,
                 "message": form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def form_valid(self, form):
         self.client = form.client
@@ -317,8 +321,27 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
             if form.group_savings_account:
                 self.group_savings_account.save()
 
-        return HttpResponse(json.dumps({"error": False}))
+        return JsonResponse({"error": False})
 
-    def post(self, request, *args, **kwargs):
-        self.object = None
-        return super(Receipts_Deposit, self).post(request, *args, **kwargs)
+
+class PaySlip(LoginRequiredMixin, CreateView):
+    template_name = "core/paymentform.html"
+    model = Payments
+    form_class = PaymentForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(PaySlip, self).get_context_data(*args, **kwargs)
+
+        if self.request.method == "GET":
+            context["branches"] = Branch.objects.all()
+            context["voucher_types"] = [voucher_type[0] for voucher_type in PAYMENT_TYPES]
+        return context
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "message": form.errors}
+        return JsonResponse(data)
+
+    def form_valid(self, form):
+
+        return JsonResponse({"error": False})
