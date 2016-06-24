@@ -157,7 +157,7 @@
         $('#mobile').after("<span class='error' style='height:11px;color:red;'> * " + error + "</span>");
         return;
       }
-      $.post('/edituser/'+$('#user_id').val()+'/', $('#edituserform').serialize(), function(data) {
+      $.post('/user/edit/'+$('#user_id').val()+'/', $('#edituserform').serialize(), function(data) {
         if (data.error == false) {
           url = "{% url 'micro_admin:userprofile' 1 %}".replace(1, data.user_id)
           window.location = url;
