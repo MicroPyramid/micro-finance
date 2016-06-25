@@ -573,12 +573,13 @@ def client_savings_application(request, client_id):
         count = SavingsAccount.objects.filter(client=client).count()
         if count == 1:
             return HttpResponseRedirect(
-                '/clientsavingsaccount/' + client_id + '/')
+                reverse("micro_admin:clientsavingsaccount", kwargs={
+                    'client_id': client_id}))
         else:
             count = SavingsAccount.objects.all().count()
             account_no = "%s%s%d" % ("S", client.branch.id, count + 1)
             return render(
-                request, "client_savings_application.html",
+                request, "client/savings/application.html",
                 {"client": client, "account_no": account_no})
     else:
         form = SavingsAccountForm(request.POST)
@@ -600,7 +601,7 @@ def client_savings_account(request, client_id):
     client = Client.objects.get(id=client_id)
     savingsaccount = SavingsAccount.objects.get(client=client)
     return render(
-        request, "client_savings_account.html",
+        request, "client/savings/account.html",
         {"client": client, "savingsaccount": savingsaccount})
 
 
@@ -610,8 +611,9 @@ def group_savings_application(request, group_id):
         group = Group.objects.get(id=group_id)
         count = SavingsAccount.objects.filter(group=group).count()
         if count == 1:
-            return HttpResponseRedirect(
-                '/groupsavingsaccount/' + group_id + '/')
+            return HttpResponseRedirect(reverse(
+                "micro_admin:groupsavingsaccount",
+                kwargs={'group_id': group_id}))
         else:
             count = SavingsAccount.objects.all().count()
             account_no = "%s%s%d" % ("S", group.branch.id, count + 1)
@@ -907,7 +909,7 @@ def listofclient_savings_deposits(request, client_id):
     receipts_lists = Receipts.objects.filter(
         client=client_id).exclude(savingsdeposit_thrift_amount=0)
     return render(
-        request, "listof_clientsavingsdeposits.html",
+        request, "client/savings/list_of_savings_deposits.html",
         {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
 
 
@@ -919,7 +921,7 @@ def listofclient_savings_withdrawals(request, client_id):
     count = Payments.objects.filter(client=client,
                                     payment_type="SavingsWithdrawal").count()
     return render(
-        request, "listof_clientsavingswithdrawals.html",
+        request, "client/savings/list_of_savings_withdrawals.html",
         {"count": count, "savings_withdrawals_list": savings_withdrawals_list,
          "client": client}
     )
@@ -933,15 +935,17 @@ def issue_loan(request, loanaccount_id):
         loan_account.loan_issued_by = request.user
         loan_account.save()
         loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect(
-            '/grouploanaccount/' + loanaccount_id + '/')
+        return HttpResponseRedirect(reverse(
+            "micro_admin:grouploanaccount",
+            kwargs={"loanaccount_id": loanaccount_id}))
     elif loan_account.client:
         loan_account.loan_issued_date = datetime.datetime.now()
         loan_account.loan_issued_by = request.user
         loan_account.save()
         loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect(
-            '/clientloanaccount/' + loanaccount_id + '/')
+        return HttpResponseRedirect(reverse(
+            "micro_admin:clientloanaccount",
+            kwargs={'loanaccount_id': loanaccount_id}))
 
 
 @login_required
