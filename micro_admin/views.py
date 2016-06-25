@@ -594,7 +594,7 @@ def group_savings_application(request, group_id):
             count = SavingsAccount.objects.all().count()
             account_no = "%s%s%d" % ("S", group.branch.id, count + 1)
             return render(
-                request, "group_savings_application.html",
+                request, "group/savings/application.html",
                 {"group": group, "account_no": account_no})
     else:
         group_savingsaccount_form = SavingsAccountForm(request.POST)
@@ -633,7 +633,7 @@ def group_savings_account(request, group_id):
     group_totals_dict["membershipfee_amount"] = membershipfee_amount
     group_totals_dict["bookfee_amount"] = bookfee_amount
     group_totals_dict["insurance_amount"] = insurance_amount
-    return render(request, "group_savings_account.html",
+    return render(request, "group/savings/account.html",
                   {"group": group, "savings_account": savings_account,
                    "dict": group_totals_dict})
 
@@ -685,7 +685,7 @@ def group_loan_application(request, group_id):
         count = LoanAccount.objects.all().count()
         account_no = "%s%s%d" % ("L", group.branch.id, count + 1)
         return render(
-            request, "group_loan_application.html",
+            request, "group/loan/application.html",
             {"group": group, "account_no": account_no})
     else:
         group_loanaccount_form = LoanAccountForm(request.POST)
@@ -732,7 +732,7 @@ def client_loan_application(request, client_id):
         count = LoanAccount.objects.all().count()
         account_no = "%s%s%d" % ("L", client.branch.id, count + 1)
         return render(
-            request, "client_loan_application.html",
+            request, "client/loan/application.html",
             {"client": client, "account_no": account_no})
     else:
         form = LoanAccountForm(request.POST)
@@ -772,7 +772,7 @@ def client_loan_application(request, client_id):
 def client_loan_account(request, loanaccount_id):
     loanaccount = LoanAccount.objects.get(id=loanaccount_id)
     return render(
-        request, "client_loan_account.html",
+        request, "client/loan/account.html",
         {"client": loanaccount.client, "loanaccount": loanaccount})
 
 
@@ -780,7 +780,7 @@ def client_loan_account(request, loanaccount_id):
 def group_loan_account(request, loanaccount_id):
     loan_account = LoanAccount.objects.get(id=loanaccount_id)
     return render(
-        request, "group_loan_account.html",
+        request, "group/loan/account.html",
         {"group": loan_account.group, "loan_account": loan_account})
 
 
@@ -825,7 +825,7 @@ def view_grouploan_deposits(request, group_id, loanaccount_id):
     ).exclude(demand_loanprinciple_amount_atinstant=0,
               demand_loaninterest_amount_atinstant=0).count()
     return render(
-        request, "listof_grouploan_deposits.html",
+        request, "group/loan/list_of_loan_deposits.html",
         {"loan_account": loan_account, "receipts_list": receipts_list,
          "group": group, "count": count}
     )
@@ -842,7 +842,7 @@ def view_groupsavings_deposits(request, group_id):
     ).count()
     return render(
         request,
-        "listof_groupsavings_deposits.html",
+        "group/savings/list_of_savings_deposits.html",
         {
             "savings_account": savings_account,
             "receipts_list": receipts_list,
@@ -859,7 +859,7 @@ def view_groupsavings_withdrawals(request, group_id):
         group=group, payment_type="SavingsWithdrawal")
     count = Payments.objects.filter(
         group=group, payment_type="SavingsWithdrawal").count()
-    return render(request, "listof_groupsavings_withdrawals.html",
+    return render(request, "group/savings/list_of_savings_withdrawals.html",
                   {"count": count, "group": group,
                    "savings_withdrawals_list": savings_withdrawals_list})
 
@@ -875,7 +875,7 @@ def listofclient_loan_deposits(request, client_id, loanaccount_id):
         demand_loaninterest_amount_atinstant=0
     )
     return render(
-        request, "view_clientloan_deposits.html",
+        request, "client/loan/view_loan_deposits.html",
         {"loanaccount": loanaccount, "receipts_lists": receipts_lists})
 
 
@@ -1367,7 +1367,7 @@ def ledger_account(request, client_id, loanaccount_id):
         demand_loaninterest_amount_atinstant=0
     )
     return render(
-        request, "client_ledger_account.html",
+        request, "client/loan/client_ledger_account.html",
         {"loanaccount": loanaccount, "receipts_list": receipts_list,
          "client": client}
     )
@@ -1443,7 +1443,7 @@ def fixed_deposits(request):
         data = {}
         data.update(csrf(request))
         return render(
-            request, "fixed_deposit_application.html", {"data": data})
+            request, "client/fixed-deposits/fixed_deposit_application.html", {"data": data})
     else:
         try:
             client = Client.objects.get(
@@ -1493,7 +1493,7 @@ def fixed_deposits(request):
 def client_fixed_deposits_profile(request, fixed_deposit_id):
     fixed_deposit = FixedDeposits.objects.get(id=fixed_deposit_id)
     return render(
-        request, "client_fixed_deposits_profile.html",
+        request, "client/fixed-deposits/fixed_deposits_profile.html",
         {"fixed_deposit": fixed_deposit}
     )
 
@@ -1502,7 +1502,7 @@ def client_fixed_deposits_profile(request, fixed_deposit_id):
 def view_client_fixed_deposits(request):
     fixed_deposit_list = FixedDeposits.objects.all().order_by("-id")
     return render(
-        request, "view_client_fixed_deposits.html",
+        request, "client/fixed-deposits/view_fixed_deposits.html",
         {"fixed_deposit_list": fixed_deposit_list}
     )
 
@@ -1513,7 +1513,7 @@ def view_particular_client_fixed_deposits(request, client_id):
     fixed_deposit_list = FixedDeposits.objects.filter(
         client=client_id).order_by("-id")
     return render(
-        request, "view_client_fixed_deposits.html",
+        request, "client/fixed-deposits/view_fixed_deposits.html",
         {"fixed_deposit_list": fixed_deposit_list, "client": client}
     )
 
@@ -1522,7 +1522,7 @@ def view_particular_client_fixed_deposits(request, client_id):
 def client_recurring_deposits_profile(request, recurring_deposit_id):
     recurring_deposit = RecurringDeposits.objects.get(id=recurring_deposit_id)
     return render(
-        request, "client_recurring_deposits_profile.html",
+        request, "client/recurring-deposits/recurring_deposit_profile.html",
         {"recurring_deposit": recurring_deposit}
     )
 
@@ -1531,7 +1531,7 @@ def client_recurring_deposits_profile(request, recurring_deposit_id):
 def view_client_recurring_deposits(request):
     recurring_deposit_list = RecurringDeposits.objects.all().order_by("-id")
     return render(
-        request, "view_client_recurring_deposits.html",
+        request, "client/recurring-deposits/view_recurring_deposits.html",
         {"recurring_deposit_list": recurring_deposit_list}
     )
 
@@ -1542,7 +1542,7 @@ def view_particular_client_recurring_deposits(request, client_id):
     recurring_deposit_list = RecurringDeposits.objects.filter(
         client=client_id).order_by("-id")
     return render(
-        request, "view_client_recurring_deposits.html",
+        request, "client/recurring-deposits/view_recurring_deposits.html",
         {"recurring_deposit_list": recurring_deposit_list, "client": client}
     )
 
@@ -2090,7 +2090,7 @@ def view_day_book(request):
 @login_required
 def recurring_deposits(request):
     if request.method == "GET":
-        return render(request, "recurring_deposit_application.html")
+        return render(request, "client/recurring-deposits/application.html")
     else:
         try:
             client = Client.objects.get(
@@ -2429,7 +2429,7 @@ def view_group_loanslist(request, group_id):
     loan_accounts_count = LoanAccount.objects.filter(group=group).count()
     return render(
         request,
-        "listof_grouploan_accounts.html",
+        "group/loan/list_of_loan_accounts.html",
         {
             "group": group,
             "loan_accounts_list": loan_accounts_list,
@@ -2445,7 +2445,7 @@ def view_client_loanslist(request, client_id):
     loan_accounts_count = LoanAccount.objects.filter(client=client).count()
     return render(
         request,
-        "listof_clientloan_accounts.html",
+        "client/loan/list_of_loan_accounts.html",
         {
             "client": client,
             "loan_accounts_list": loan_accounts_list,
