@@ -948,8 +948,9 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/listofclientsavingswithdrawals/' +
                                    str(self.member1.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response,
-                                "listof_clientsavingswithdrawals.html")
+        self.assertTemplateUsed(
+            response,
+            "client/savings/list_of_savings_withdrawals.html")
 
     def test_issue_loan_client(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
