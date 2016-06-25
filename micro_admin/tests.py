@@ -366,7 +366,9 @@ class Admin_Views_test(TestCase):
 
         response = self.client.get('/recurringdeposits/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'recurring_deposit_application.html')
+        self.assertTemplateUsed(
+            response,
+            'client/recurring-deposits/application.html')
 
         # with open('static/images/test.png', 'r') as signature:
         #     with open('static/images/test.png', 'r') as photo:
@@ -879,7 +881,7 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/groupsavingsaccount/' +
                                    str(self.group1.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "group_savings_account.html")
+        self.assertTemplateUsed(response, "group/savings/account.html")
 
     def test_group_loan_application(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
@@ -887,7 +889,7 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/grouploanapplication/' +
                                    str(self.group1.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "group_loan_application.html")
+        self.assertTemplateUsed(response, "group/loan/application.html")
 
     def test_group_loan_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
@@ -925,7 +927,7 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/clientloanapplication/' +
                                    str(self.member1.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "client_loan_application.html")
+        self.assertTemplateUsed(response, "client/loan/application.html")
 
     def test_client_loan_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
@@ -1000,7 +1002,7 @@ class Admin_Views_test(TestCase):
                                    str(self.member1.id) +
                                    '/' + str(self.clientloan.id) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "client_ledger_account.html")
+        self.assertTemplateUsed(response, "client/loan/client_ledger_account.html")
 
     def test_general_ledger(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
