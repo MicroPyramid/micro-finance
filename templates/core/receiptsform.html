@@ -18,7 +18,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Date<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" value="{% now 'm/d/Y' %}" >
+              <input type="text" class="text-box wid-form" id="date-picker-cc" name="date" value="{% now 'Y-m-d' %}" >
             </div>
           </div>
           <div class="form-group">
@@ -309,51 +309,11 @@
           if (data.message.message1) {
             $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" + data.message.message1 + "</span>");
           }
-          if (data.message.receipt_number) {
-            $("#receiptnumbererror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.receipt_number + "</span>");
-          }
-          if (data.message.branch) {
-            $("#branchnameerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.branch + "</span>");
-          }
-          if (data.message.name) {
-            $("#clientnameerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.name + "</span>");
-          }
-          if (data.message.account_number) {
-            $("#accountnumbererror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.account_number + "</span>");
-          }
-          if (data.message.sharecapital_amount) {
-            $("#sharecapitalamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.sharecapital_amount + "</span>");
-          }
-          if (data.message.entrancefee_amount) {
-            $("#entrancefeeamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.entrancefee_amount + "</span>");
-          }
-          if (data.message.membershipfee_amount) {
-            $("#membershipfeeamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.membershipfee_amount + "</span>");
-          }
-          if (data.message.bookfee_amount) {
-            $("#bookfeeamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.bookfee_amount + "</span>");
-          }
-          if (data.message.loanprocessingfee_amount) {
-            $("#loanprocessingfeeamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loanprocessingfee_amount+ "</span>");
-          }
-          if (data.message.savingsdeposit_thrift_amount) {
-            $("#savingsdepositthriftamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.savingsdeposit_thrift_amount + "</span>");
-          }
-          if (data.message.fixeddeposit_amount) {
-            $("#fixeddepositamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.fixeddeposit_amount + "</span>");
-          }
-          if (data.message.recurringdeposit_amount) {
-            $("#recurringdepositamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.recurringdeposit_amount + "</span>");
-          }
-          if (data.message.loanprinciple_amount) {
-            $("#loanpricipleerror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loanprinciple_amount + "</span>");
-          }
-          if (data.message.loaninterest_amount) {
-            $("#loaninteresterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.loaninterest_amount + "</span>");
-          }
-          if (data.message.insurance_amount) {
-            $("#insuranceamounterror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.insurance_amount + "</span>");
-          }
+          $.each(data.message, function(field, error){
+            html = "<span class='error' style='height:11px;color:red;'>" + error + "</span>"
+            $('[name='+field+']').after(html)
+          })
+
         }
         else {
           alert("Receipt added sucessfully");
