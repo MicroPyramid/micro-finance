@@ -46,27 +46,27 @@ def index(request):
     return render_to_response("login.html", data)
 
 
-def user_login(request):
-    if request.method == "POST":
-        user = authenticate(username=request.POST.get("username"),
-                            password=request.POST.get("password"))
-        if user is not None:
-            if user.is_active and user.is_staff:
-                login(request, user)
-                data = {"error": False, "message": "Loggedin Successfully"}
-                return HttpResponse(json.dumps(data))
-            else:
-                data = {"error": True, "message": "User is not active."}
-                return HttpResponse(json.dumps(data))
-        else:
-            data = {
-                "error": True,
-                "message": "Username and Password were incorrect."
-            }
-            return HttpResponse(json.dumps(data))
-    else:
-        if request.user.is_authenticated():
-            return render(request, "index.html", {"user": request.user})
+# def user_login(request):
+#     if request.method == "POST":
+#         user = authenticate(username=request.POST.get("username"),
+#                             password=request.POST.get("password"))
+#         if user is not None:
+#             if user.is_active and user.is_staff:
+#                 login(request, user)
+#                 data = {"error": False, "message": "Loggedin Successfully"}
+#                 return HttpResponse(json.dumps(data))
+#             else:
+#                 data = {"error": True, "message": "User is not active."}
+#                 return HttpResponse(json.dumps(data))
+#         else:
+#             data = {
+#                 "error": True,
+#                 "message": "Username and Password were incorrect."
+#             }
+#             return HttpResponse(json.dumps(data))
+#     else:
+#         if request.user.is_authenticated():
+#             return render(request, "index.html", {"user": request.user})
 
 
 class LoginView(View):
@@ -93,10 +93,11 @@ class LoginView(View):
         return render(request, "index.html")
 
     def get(self, request):
-        if request.user.is_authenticated:
+        if request.user.is_authenticated():
             return render(request, 'index.html', {'user': request.user})
-        else:
-            return HttpResponseRedirect('/')
+        data = {}
+        data.update(csrf(request))
+        return render_to_response("login.html", data)
 
 
 class LogoutView(RedirectView):
@@ -148,7 +149,7 @@ class BranchProfileView(DetailView):
     template_name = "branch/view.html"
 
     def get_object(self):
-        return get_object_or_404(Branch, id=int(self.kwargs.get('branch_id')))
+        return get_object_or_404(Branch, id=self.kwargs.get('branch_id'))
 
 
 # @login_required
