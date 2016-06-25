@@ -46,29 +46,6 @@ def index(request):
     return render_to_response("login.html", data)
 
 
-# def user_login(request):
-#     if request.method == "POST":
-#         user = authenticate(username=request.POST.get("username"),
-#                             password=request.POST.get("password"))
-#         if user is not None:
-#             if user.is_active and user.is_staff:
-#                 login(request, user)
-#                 data = {"error": False, "message": "Loggedin Successfully"}
-#                 return HttpResponse(json.dumps(data))
-#             else:
-#                 data = {"error": True, "message": "User is not active."}
-#                 return HttpResponse(json.dumps(data))
-#         else:
-#             data = {
-#                 "error": True,
-#                 "message": "Username and Password were incorrect."
-#             }
-#             return HttpResponse(json.dumps(data))
-#     else:
-#         if request.user.is_authenticated():
-#             return render(request, "index.html", {"user": request.user})
-
-
 class LoginView(View):
     def post(self, request):
         username = request.POST.get("username")
@@ -82,13 +59,13 @@ class LoginView(View):
                 return HttpResponse(json.dumps(data))
             else:
                 data = {"error": True, "message": "User is not active."}
-                return HttpResponse(json.dumps(data))
+                return JsonResponse(data)
         else:
             data = {
                 "error": True,
                 "message": "Username and Password were incorrect."
             }
-            return HttpResponse(json.dumps(data))
+            return JsonResponse(data)
 
         return render(request, "index.html")
 
@@ -110,24 +87,26 @@ class LogoutView(RedirectView):
 
 # --------------------------------------------------- #
 # Branch Model class Based View #
-# @login_required
-class CreateBranchView(CreateView):
+class CreateBranchView(LoginRequiredMixin, CreateView):
+    login_url = '/'
+    redirect_field_name = 'next'
     form_class = BranchForm
     template_name = "branch/create.html"
 
     def form_valid(self, form):
         branch = form.save()
         data = {"error": False, "branch_id": branch.id}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def form_invalid(self, form):
         data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
 
-# @login_required
-class UpdateBranchView(UpdateView):
-    slug_field = 'branch_id'
+class UpdateBranchView(LoginRequiredMixin, UpdateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
     model = Branch
     form_class = BranchForm
     template_name = "branch/edit.html"
@@ -142,28 +121,28 @@ class UpdateBranchView(UpdateView):
         return JsonResponse(data)
 
 
-# @login_required
-class BranchProfileView(DetailView):
+class BranchProfileView(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
     model = Branch
-    slug_field = 'branch_id'
+    pk = 'pk'
     template_name = "branch/view.html"
 
-    def get_object(self):
-        return get_object_or_404(Branch, id=self.kwargs.get('branch_id'))
 
-
-# @login_required
-class BranchListView(ListView):
+class BranchListView(LoginRequiredMixin, ListView):
+    login_url = '/'
+    redirect_field_name = 'next'
     model = Branch
     template_name = "branch/list.html"
 
 
-# @login_required
-class BranchInactiveView(View):
+class BranchInactiveView(LoginRequiredMixin, View):
+    login_url = '/'
+    redirect_field_name = 'next'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_admin:
-            branch = get_object_or_404(Branch, id=kwargs.get('branch_id'))
+            branch = get_object_or_404(Branch, id=kwargs.get('pk'))
             if branch.is_active:
                 branch.is_active = False
                 branch.save()
@@ -173,8 +152,9 @@ class BranchInactiveView(View):
 
 # --------------------------------------------------- #
 # Clinet model views
-# @login_required
-class CreateClientView(CreateView):
+class CreateClientView(LoginRequiredMixin, CreateView):
+    login_url = '/'
+    redirect_field_name = 'next'
     form_class = ClientForm
     template_name = "client/create.html"
 
@@ -189,32 +169,28 @@ class CreateClientView(CreateView):
         client.created_by = self.request.user
         client.save()
         data = {"error": False, "client_id": client.id}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def form_invalid(self, form):
         data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
 
-# @login_required
-class ClienProfileView(DetailView):
-    slug_field = 'client_id'
+class ClienProfileView(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
     model = Client
     template_name = "clientprofile.html"
 
-    def get_object(self):
-        return get_object_or_404(Client, id=int(self.kwargs.get('client_id')))
 
-
-# @login_required
-class UpdateClientView(UpdateView):
-    slug_field = 'client_id'
+class UpdateClientView(LoginRequiredMixin, UpdateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
     model = Client
     form_class = ClientForm
     template_name = "client/edit.html"
-
-    def get_object(self):
-        return get_object_or_404(Client, id=int(self.kwargs.get('client_id')))
 
     def get_context_data(self, **kwargs):
         context = super(UpdateClientView, self).get_context_data(**kwargs)
@@ -227,11 +203,11 @@ class UpdateClientView(UpdateView):
         #     return HttpResponseRedirect(reverse('micro_admin:viewclient'))
         client = form.save()
         data = {"error": False, "client_id": client.id}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def form_invalid(self, form):
         data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
 
 @login_required
@@ -258,13 +234,16 @@ def update_clientprofile(request, client_id):
                     'client_id': client_id}))
 
 
-class ClientsListView(ListView):
+class ClientsListView(LoginRequiredMixin, ListView):
+    login_url = '/'
+    redirect_field_name = 'next'
     model = Client
     template_name = "client/list.html"
 
 
-# @login_required
-class ClientInactiveView(View):
+class ClientInactiveView(LoginRequiredMixin, View):
+    login_url = '/'
+    redirect_field_name = 'next'
 
     def get(self, request, *args, **kwargs):
         client = get_object_or_404(Client, id=kwargs.get('client_id'))
@@ -282,8 +261,9 @@ class ClientInactiveView(View):
 
 # ------------------------------------------- #
 # User Model views
-# @login_required
-class CreateUserView(CreateView):
+class CreateUserView(LoginRequiredMixin, CreateView):
+    login_url = '/'
+    redirect_field_name = 'next'
     form_class = UserForm
     template_name = "user/create.html"
 
@@ -296,23 +276,24 @@ class CreateUserView(CreateView):
     def form_valid(self, form):
         user = form.save()
         data = {"error": False, "user_id": user.id}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def form_invalid(self, form):
         data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
 
-# @login_required
-class UpdateUserView(UpdateView):
-    slug_field = 'user_id'
+class UpdateUserView(LoginRequiredMixin, UpdateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
     model = User
     form_class = UserForm
     context_object_name = 'selecteduser'
     template_name = "user/edit.html"
 
     def dispatch(self, request, *args, **kwargs):
-        user = get_object_or_404(User, id=int(self.kwargs.get('user_id')))
+        user = get_object_or_404(User, id=self.kwargs.get('pk'))
         data = request.POST.copy()
         data['password'] = user.password
         request.POST = data
@@ -324,34 +305,28 @@ class UpdateUserView(UpdateView):
         context['userroles'] = dict(USER_ROLES).keys()
         return context
 
-    def get_object(self):
-        return get_object_or_404(User, id=int(self.kwargs.get('user_id')))
-
     def form_valid(self, form):
         user = form.save()
         data = {"error": False, "user_id": user.id}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def form_invalid(self, form):
         data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
 
-# @login_required
 class UserProfileView(LoginRequiredMixin, DetailView):
     login_url = '/'
     redirect_field_name = 'next'
-    slug_field = 'user_id'
+    pk = 'pk'
     model = User
     context_object_name = 'selecteduser'
     template_name = "user/profile.html"
 
-    def get_object(self):
-        return get_object_or_404(User, id=int(self.kwargs.get('user_id')))
 
-
-# @login_required
-class UsersListView(ListView):
+class UsersListView(LoginRequiredMixin, ListView):
+    login_url = '/'
+    redirect_field_name = 'next'
     model = User
     template_name = "user/list.html"
     context_object_name = 'list_of_users'
@@ -360,11 +335,12 @@ class UsersListView(ListView):
         return User.objects.filter(is_admin=0)
 
 
-# @login_required
-class UserInactiveView(View):
+class UserInactiveView(LoginRequiredMixin, View):
+    login_url = '/'
+    redirect_field_name = 'next'
 
     def get(self, request, *args, **kwargs):
-        user = get_object_or_404(User, id=int(kwargs.get('user_id')))
+        user = get_object_or_404(User, id=kwargs.get('pk'))
         if (
             request.user.is_admin or
             (request.user.has_perm("branch_manager") and

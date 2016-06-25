@@ -57,8 +57,6 @@ class UserForm(forms.ModelForm):
                 'placeholder': 'Gender',
                 'class': 'text-box wid-form select-box-pad'
             })
-        if self.instance:
-            print 'update'
         not_required_fields = ['country', 'state', 'district',
                                'city', 'area', 'mobile',
                                'pincode', 'last_name']
@@ -100,6 +98,7 @@ class UserForm(forms.ModelForm):
     def save(self, commit=True, *args, **kwargs):
         instance = super(UserForm, self).save(commit=False, *args, **kwargs)
         if not instance.id:
+            instance.pincode = self.cleaned_data.get('pincode')
             instance.set_password(self.cleaned_data.get('password'))
         if commit:
             instance.save()
