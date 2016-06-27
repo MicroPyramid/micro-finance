@@ -83,7 +83,7 @@
       $.post('.', $('#createbranchform').serialize(), function (data) {
         if (data.error) {
           $("span.error").remove();
-          $.each(data.message, function( key, value ) {
+          $.each(data.errors, function( key, value ) {
             if (key == 'opening_date'){
               $('#datepicker').after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
             }else{

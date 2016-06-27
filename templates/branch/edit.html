@@ -84,13 +84,6 @@
     $('#editbranchform').submit(function(e) {
       e.preventDefault();
       $("span.error").remove();
-      phone_number = $("#phone_number").val();
-      if(!phone_number || !(phone_number.length >= 8 && phone_number.length <=10))
-      {
-        error = "Please give a valid phone number.";
-        $('#phone_number').after("<span class='error' style='height:11px;color:red;'> * " + error + "</span>");
-        return;
-      }
       $.post('.', $('#editbranchform').serialize(), function(data) {
         if (data.error == false) {
           url = "{% url 'micro_admin:branchprofile' 1 %}".replace(1, data.branch_id)
@@ -99,8 +92,8 @@
         else
         {
           $("span.error").remove();
-          if (data.message) {
-            $.each(data.message, function( key, value ) {
+          if (data.errors) {
+            $.each(data.errors, function( key, value ) {
               $('#'+key).after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
             });
           }
