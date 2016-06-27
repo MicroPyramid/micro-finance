@@ -24,31 +24,31 @@
           <label for="inputEmail3" class="col-sm-5 control-label">Account Number</label>
           <div class="col-sm-7">
             <input type="hidden"  id="client_id" value="{{client.id}}" style="dispaly:none;">
-            <input type="text" class="text-box wid-form" name="account_no" value="{{account_no}}" id="account_no" required="True">
+            <input type="text" class="text-box wid-form" name="account_no" value="{{account_no}}" id="account_no">
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Created By</label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="created_by" value="{{ user.username }}" id="created_by" required="True">
+            <input type="text" class="text-box wid-form" name="created_by" value="{{ user.username }}" id="created_by">
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Amount<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_amount" id="loan_amount" required="True">
+            <input type="text" class="text-box wid-form" name="loan_amount" id="loan_amount">
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Period (in months)<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_repayment_period" id="loan_repayment_period" required="True">
+            <input type="text" class="text-box wid-form" name="loan_repayment_period" id="loan_repayment_period">
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Every (in months)<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_repayment_every" id="loan_repayment_every" required="True">
+            <input type="text" class="text-box wid-form" name="loan_repayment_every" id="loan_repayment_every">
           </div>
         </div>
         <div class="form-group">
@@ -64,13 +64,13 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate (%)<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="annual_interest_rate" id="annual_interest_rate" required="True">
+            <input type="text" class="text-box wid-form" name="annual_interest_rate" id="annual_interest_rate">
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
           <div class="col-sm-7">
-            <textarea rows="3" class="txt-area-wid" name="loanpurpose_description" id="loanpurpose_description" required="True"></textarea>
+            <textarea rows="3" class="txt-area-wid" name="loanpurpose_description" id="loanpurpose_description"></textarea>
           </div>
         </div>
         <div class="form-group btns">
@@ -87,7 +87,7 @@
   $(document).ready(function() {
     $('#clientloanapplicationform').submit(function(e) {
       e.preventDefault();
-      $.post('/clientloanapplication/'+$('#client_id').val()+'/', $('#clientloanapplicationform').serialize(), function(data) {
+      $.post('.', $('#clientloanapplicationform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
           $.each(data.message, function( key, value ) {
