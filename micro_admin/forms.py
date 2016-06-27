@@ -16,10 +16,10 @@ class BranchForm(forms.ModelForm):
         if pincode:
             try:
                 if int(pincode):
-                    if not len(pincode) == 6:
+                    check_pin = str(pincode)
+                    if not len(check_pin) == 6:
                         raise forms.ValidationError(
                             'Please enter a valid 6 digit pincode')
-                        return pincode
             except ValueError:
                 raise forms.ValidationError(
                     'Please enter a valid pincode')
@@ -29,7 +29,8 @@ class BranchForm(forms.ModelForm):
         phone_number = self.cleaned_data.get('phone_number')
         try:
             if int(phone_number):
-                if not phone_number or not(8 <= len(phone_number) <= 10):
+                check_phone = str(phone_number)
+                if not phone_number or not(len(check_phone) == 10):
                     raise forms.ValidationError(
                         'Please enter a valid 10 digit phone number')
                 return phone_number
@@ -76,7 +77,8 @@ class UserForm(forms.ModelForm):
         if pincode:
             try:
                 if int(pincode):
-                    if not len(pincode) == 6:
+                    check_pin = str(pincode)
+                    if not len(check_pin) == 6:
                         raise forms.ValidationError(
                             'Please enter a valid 6 digit pincode')
             except ValueError:
@@ -88,7 +90,8 @@ class UserForm(forms.ModelForm):
         phone_number = self.cleaned_data.get('mobile')
         try:
             if int(phone_number):
-                if not phone_number or not(8 <= len(phone_number) <= 10):
+                check_phone = str(phone_number)
+                if not phone_number or not(len(check_phone) == 10):
                     raise forms.ValidationError(
                         'Please enter a valid 10 digit phone number')
                 return phone_number
@@ -133,7 +136,8 @@ class ClientForm(forms.ModelForm):
         phone_number = self.cleaned_data.get('mobile')
         try:
             if int(phone_number):
-                if not phone_number or not(8 <= len(phone_number) <= 10):
+                check_phone = str(phone_number)
+                if not phone_number or not(len(check_phone) == 10):
                     raise forms.ValidationError(
                         'Please enter a valid 10 digit phone number')
                 return phone_number
@@ -145,7 +149,8 @@ class ClientForm(forms.ModelForm):
         if pincode:
             try:
                 if int(pincode):
-                    if not len(pincode) == 6:
+                    check_pin = str(pincode)
+                    if not len(check_pin) == 6:
                         raise forms.ValidationError(
                             'Please enter a valid 6 digit pincode')
             except ValueError:

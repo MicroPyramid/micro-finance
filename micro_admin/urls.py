@@ -59,6 +59,8 @@ urlpatterns = [
     url(r'^client/delete/(?P<pk>\d+)/$',
         ClientInactiveView.as_view(),
         name='deleteclient'),
+    url(r'^client/profile/update/(?P<client_id>\d+)/$',
+        update_clientprofile, name='updateclientprofile'),
     # ------------------------------------------- #
     url(r'^creategroup/$', create_group, name='creategroup'),
     url(r'^groupprofile/(?P<group_id>\d+)/$',
@@ -73,8 +75,6 @@ urlpatterns = [
         viewmembers_under_group, name='viewmembers'),
     url(r'^removemember/(?P<group_id>\d+)/(?P<client_id>\d+)/$',
         removemembers_from_group, name='removemember'),
-    url(r'^updateclientprofile/(?P<client_id>\d+)/$',
-        update_clientprofile, name='updateclientprofile'),
     url(r'^groupmeetings/(?P<group_id>\d+)/$',
         group_meetings, name='groupmeetings'),
     url(r'^addgroupmeeting/(?P<group_id>\d+)/$',

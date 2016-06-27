@@ -80,13 +80,6 @@
     $('#createbranchform').submit(function (e) {
       e.preventDefault();
       $("span.error").remove();
-      phone_number = $("#phone_number").val();
-      if(!phone_number || !(phone_number.length >= 8 && phone_number.length <=10))
-      {
-        error = " * Please give a valid phone number.";
-        $('#phone_number').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
-        return;
-      }
       $.post('.', $('#createbranchform').serialize(), function (data) {
         if (data.error) {
           $("span.error").remove();

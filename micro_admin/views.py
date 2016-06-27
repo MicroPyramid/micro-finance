@@ -181,7 +181,7 @@ class ClienProfileView(LoginRequiredMixin, DetailView):
     redirect_field_name = 'next'
     pk = 'pk'
     model = Client
-    template_name = "clientprofile.html"
+    template_name = "client/profile.html"
 
 
 class UpdateClientView(LoginRequiredMixin, UpdateView):
