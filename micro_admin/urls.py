@@ -68,10 +68,12 @@ urlpatterns = [
         name='groupprofile'),
     url(r'^groupslist/$', groups_list, name='groupslist'),
     url(r'^deletegroup/(?P<group_id>\d+)/$', delete_group, name='deletegroup'),
-    url(r'^assignstaff/(?P<group_id>\d+)/$',
-        assign_staff_to_group, name='assignstaff'),
-    url(r'^addmember/(?P<group_id>\d+)/$',
-        addmembers_to_group, name='addmember'),
+    url(r'^group/(?P<group_id>\d+)/assign-staff/$',
+        GroupAssignStaffView.as_view(), name='assignstaff'),
+
+    # Group Members (add, remove, view)
+    url(r'^group/(?P<group_id>\d+)/members/add/$',
+        GroupAddMembersView.as_view(), name='addmember'),
     url(r'^viewmembers/(?P<group_id>\d+)/$',
         viewmembers_under_group, name='viewmembers'),
     url(r'^removemember/(?P<group_id>\d+)/(?P<client_id>\d+)/$',

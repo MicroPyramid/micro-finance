@@ -17,4 +17,23 @@ class UserPermissionRequiredMixin(LoginRequiredMixin):
             )
         ):
             return HttpResponseRedirect(reverse('micro_admin:userslist'))
-        return super(UserPermissionRequiredMixin, self).dispatch(request, *args, **kwargs)
+        return super(UserPermissionRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
+
+
+class BranchAccessRequiredMixin(object):
+
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(self, 'object'):
+            self.object = self.get_object()
+
+        # Checking the permissions
+        if not(
+            request.user.is_admin or
+            request.user.branch == self.object.branch
+        ):
+            # TODO: Add "PermissionDenied" message
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+        return super(BranchAccessRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
