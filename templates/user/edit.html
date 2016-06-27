@@ -150,13 +150,6 @@
     $('#edituserform').submit(function(e) {
       e.preventDefault();
       $("span.error").remove();
-      phone_number = $("#mobile").val();
-      if(!phone_number || !(phone_number.length >= 8 && phone_number.length <=10))
-      {
-        error = "Please give a valid phone number.";
-        $('#mobile').after("<span class='error' style='height:11px;color:red;'> * " + error + "</span>");
-        return;
-      }
       $.post('/user/edit/'+$('#user_id').val()+'/', $('#edituserform').serialize(), function(data) {
         if (data.error == false) {
           url = "{% url 'micro_admin:userprofile' 1 %}".replace(1, data.user_id)
@@ -164,7 +157,7 @@
         }
         else{
           $("span.error").remove();
-          $.each(data.message, function( key, value ) {
+          $.each(data.errors, function( key, value ) {
             $('#'+key).after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
           });
         }

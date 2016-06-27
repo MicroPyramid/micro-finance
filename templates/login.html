@@ -50,7 +50,7 @@
         $.post('/login/', $('#loginform').serialize(), function(data) {
           if (data.error){
             $("p.error").remove();
-            $("#error").prepend("<p class='error'>"+data.message+"</p>");
+            $("#error").prepend("<p class='error'>"+data.errors+"</p>");
           }
           else{
             window.location = '/login/' ;
