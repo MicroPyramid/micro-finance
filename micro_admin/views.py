@@ -32,7 +32,8 @@ from django.views.generic.edit import CreateView, UpdateView, \
 from django.views.generic import ListView, DetailView, \
     FormView, RedirectView
 from django.http import JsonResponse
-from micro_admin.mixins import UserPermissionRequiredMixin
+from micro_admin.mixins import (
+    UserPermissionRequiredMixin, BranchAccessRequiredMixin)
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 d = decimal.Decimal
@@ -355,57 +356,59 @@ class UserInactiveView(LoginRequiredMixin, View):
 # ------------------------------------------------- #
 
 
-@login_required
-def create_group(request):
-    if request.method == "GET":
-        branches = Branch.objects.all()
-        return render(
-            request, "group/create.html", {"branches": branches})
-    else:
-        group_form = GroupForm(request.POST)
-        if group_form.is_valid():
-            created_by = get_object_or_404(
-                User, username=request.POST.get("created_by"))
-            group = group_form.save(commit=False)
-            group.created_by = created_by
-            group.save()
-            data = {"error": False, "group_id": group.id}
-        else:
-            data = {"error": True, "message": group_form.errors}
-        return HttpResponse(json.dumps(data))
+class CreateGroupView(LoginRequiredMixin, CreateView):
+    model = Group
+    form_class = GroupForm
+    template_name = "group/create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateGroupView, self).get_context_data(**kwargs)
+        context['branches'] = Branch.objects.all()
+        return context
+
+    def form_valid(self, form):
+        group = form.save(commit=False)
+        group.created_by = self.request.user
+        group.save()
+        return JsonResponse({"error": False, "group_id": group.id})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
-@login_required
-def group_profile(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    clients_list = group.clients.all()
-    group_mettings = GroupMeetings.objects.filter(
-        group_id=group.id).order_by('-id')
-    return render(
-        request, "group/profile.html", {
-            "group": group,
-            "clients_list": clients_list,
-            "clients_count": len(clients_list),
-            "latest_group_meeting":
-                group_mettings.first() if group_mettings else None
-        }
-    )
+class GroupProfileView(LoginRequiredMixin, DetailView):
+    pk_url_kwarg = 'group_id'
+    model = Group
+    context_object_name = 'group'
+    template_name = "group/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupProfileView, self).get_context_data(**kwargs)
+        clients_list = self.object.clients.all()
+        group_mettings = GroupMeetings.objects.filter(
+            group_id=self.object.id).order_by('-id')
+
+        context["clients_list"] = clients_list
+        context["clients_count"] = len(clients_list)
+        context["latest_group_meeting"] = \
+            group_mettings.first() if group_mettings else None
+        return context
 
 
-@login_required
-def assign_staff_to_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    if not(request.user.is_admin or request.user.branch == group.branch):
-        return HttpResponseRedirect(
-            reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
+class GroupAssignStaffView(LoginRequiredMixin,
+                           BranchAccessRequiredMixin, DetailView):
+    model = Group
+    pk_url_kwarg = 'group_id'
+    context_object_name = 'group'
+    template_name = "group/assign_staff.html"
 
-    if request.method == "GET":
-        return render(
-            request, "group/assign_staff.html", {
-                "group": group,
-                "users_list": User.objects.filter(is_admin=0)
-            })
-    else:
+    def get_context_data(self, **kwargs):
+        context = super(GroupAssignStaffView, self).get_context_data(**kwargs)
+        context["users_list"] = User.objects.filter(is_admin=0)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        group = self.get_object()
         if request.POST.get("staff"):
             group.staff = get_object_or_404(
                 User, id=request.POST.get("staff"))
@@ -414,40 +417,41 @@ def assign_staff_to_group(request, group_id):
         else:
             data = {"error": True,
                     "message": {"staff": "This field is required"}}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
 
-@login_required
-def addmembers_to_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    if not(request.user.is_admin or request.user.branch == group.branch):
-        return HttpResponseRedirect(
-            reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
+class GroupAddMembersView(LoginRequiredMixin,
+                          BranchAccessRequiredMixin, UpdateView):
+    model = Group
+    pk_url_kwarg = 'group_id'
+    context_object_name = 'group'
+    form_class = AddMemberForm
+    template_name = "group/add_member.html"
 
-    if request.method == "GET":
-        clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
-        return render(
-            request, "group/add_member.html",
-            {"group": group, "clients_list": clients_list})
-    else:
-        addmember_form = AddMemberForm(request.POST)
-        if addmember_form.is_valid():
-            client_ids = request.POST.getlist("clients")
-            for client_id in client_ids:
-                try:
-                    client = Client.objects.get(
-                        id=client_id, status="UnAssigned", is_active=1)
-                except Client.DoesNotExist:
-                    continue
-                else:
-                    group.clients.add(client)
-                    group.save()
-                    client.status = "Assigned"
-                    client.save()
-            data = {"error": False, "group_id": group.id}
-        else:
-            data = {"error": True, "message": addmember_form.errors}
-        return HttpResponse(json.dumps(data))
+    def get_context_data(self, **kwargs):
+        context = super(GroupAddMembersView, self).get_context_data(**kwargs)
+        context["clients_list"] = Client.objects.filter(
+            status="UnAssigned", is_active=1)
+        return context
+
+    def form_valid(self, form):
+        group = self.object
+        client_ids = self.request.POST.getlist("clients")
+        for client_id in client_ids:
+            try:
+                client = Client.objects.get(
+                    id=client_id, status="UnAssigned", is_active=1)
+            except Client.DoesNotExist:
+                continue
+            else:
+                group.clients.add(client)
+                group.save()
+                client.status = "Assigned"
+                client.save()
+        return JsonResponse({"error": False, "group_id": group.id})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "message": form.errors})
 
 
 @login_required

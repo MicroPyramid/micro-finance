@@ -307,7 +307,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user/create.html')
 
-        response = self.client.get('/creategroup/')
+        response = self.client.get(reverse('micro_admin:creategroup'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/create.html')
 
@@ -455,7 +455,7 @@ class Admin_Views_test(TestCase):
             'password': 'jag123'})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/creategroup/', {
+        response = self.client.post(reverse('micro_admin:creategroup'), {
             "name": 'Star', "account_number": 123456,
             "created_by": self.staff.username,
             "activation_date": '10/10/2014', "branch": self.branch.id})
@@ -527,7 +527,10 @@ class Admin_Views_test(TestCase):
         self.assertTemplateUsed('client/update-profile.html')
 
         response = self.client.get(
-            '/groupprofile/' + str(self.group1.id) + '/')
+            reverse(
+                'micro_admin:groupprofile',
+                kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/users/list/')
@@ -543,15 +546,22 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/assignstaff/' + str(self.group1.id) + '/')
+            reverse('micro_admin:assignstaff',
+                    kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(
-            '/assignstaff/' + str(self.group1.id) + '/',
-            {'staff': str(self.staff.id)})
+            reverse('micro_admin:assignstaff',
+                    kwargs={'group_id': self.group1.id}),
+            {'staff': str(self.staff.id)}
+        )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/addmember/' + str(self.group1.id) + '/')
+        response = self.client.get(
+            reverse('micro_admin:addmember',
+                    kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/viewmembers/' + str(self.group1.id) + '/')
@@ -791,8 +801,11 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/removemember/' + str(self.group1.id) +
                                    '/' + str(self.member1.id) + '/')
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/groupprofile/' + str(self.group1.id) +
-                             "/", status_code=302, target_status_code=200)
+        self.assertRedirects(
+            response,
+            reverse('micro_admin:groupprofile',
+                    kwargs={'group_id': self.group1.id}),
+            status_code=302, target_status_code=200)
 
     # def test_create_client_invalid_post_data(self):
     #     user_login = self.client.login(username='jagadeesh', password='jag123')
@@ -802,7 +815,7 @@ class Admin_Views_test(TestCase):
     def test_create_group_invalid_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/creategroup/', {
+        response = self.client.post(reverse('micro_admin:creategroup'), {
             "name": '', "account_number": '', "activation_date": '',
             "branch": self.branch.id})
         self.assertEqual(response.status_code, 200)
@@ -810,15 +823,21 @@ class Admin_Views_test(TestCase):
     def test_addmembers_to_group_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/addmember/' + str(self.group1.id) + '/',
-                                    {"clients": [self.member1.id]})
+        response = self.client.post(
+            reverse('micro_admin:addmember',
+                    kwargs={'group_id': self.group1.id}),
+            {"clients": [self.member1.id]}
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_addmembers_to_group_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/addmember/' + str(self.group1.id) + '/',
-                                    {"clients": ""})
+        response = self.client.post(
+            reverse('micro_admin:addmember',
+                    kwargs={'group_id': self.group1.id}),
+            {"clients": ""}
+        )
         self.assertEqual(response.status_code, 200)
 
     # def test_group_delete(self):
@@ -835,8 +854,11 @@ class Admin_Views_test(TestCase):
                                           "meeting_time": "10-10-10",
                                           "group": self.group1.id})
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/groupprofile/' + str(self.group1.id) +
-                             "/", status_code=302, target_status_code=200)
+        self.assertRedirects(
+            response,
+            reverse('micro_admin:groupprofile',
+                    kwargs={'group_id': self.group1.id}),
+            status_code=302, target_status_code=200)
 
     def test_client_savings_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
