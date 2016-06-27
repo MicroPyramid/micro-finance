@@ -487,8 +487,9 @@ class Admin_Views_test(TestCase):
              "area": 'rfc', "mobile": 944454651165, "pincode": 502286})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            '/grouploanapplication/' + str(self.group1.id) + '/',
+        response = self.client.post(reverse(
+            "micro_admin:grouploanapplication",
+            kwargs={"group_id": self.group1.id}),
             {"account_no": 123, "interest_type": 'Flat',
              "created_by": self.staff.username, "loan_amount": 1000,
              "loan_repayment_period": 10, "loan_repayment_every": 10,
@@ -629,8 +630,9 @@ class Admin_Views_test(TestCase):
             '/viewgroupsavingswithdrawals/' + str(self.group2.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            '/grouploanapplication/' + str(self.group2.id) + '/',
+        response = self.client.post(reverse(
+            "micro_admin:grouploanapplication",
+            kwargs={"group_id": self.group2.id}),
             {"account_no": 1239, "interest_type": 'Flat', "loan_amount": 1000,
              "loan_repayment_period": 10, "loan_repayment_every": 10,
              "annual_interest_rate": 3,
@@ -912,39 +914,43 @@ class Admin_Views_test(TestCase):
     def test_group_loan_application(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/grouploanapplication/' +
-                                   str(self.group1.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:grouploanapplication",
+            kwargs={"group_id": self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "group/loan/application.html")
 
     def test_group_loan_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/grouploanapplication/' +
-                                    str(self.group1.id) + '/',
-                                    {"account_no": 12,
-                                     'created_by': self.staff.id,
-                                     "loan_amount": 10000,
-                                     "interest_type": 'Flat',
-                                     "loan_repayment_period": 123,
-                                     "loan_repayment_every": 12,
-                                     "annual_interest_rate": 12,
-                                     "loanpurpose_description": 'Hospitality'})
+        response = self.client.post(reverse(
+            "micro_admin:grouploanapplication",
+            kwargs={"group_id": self.group1.id}),
+            {"account_no": 12,
+             'created_by': self.staff.id,
+             "loan_amount": 10000,
+             "interest_type": 'Flat',
+             "loan_repayment_period": 123,
+             "loan_repayment_every": 12,
+             "annual_interest_rate": 12,
+             "loanpurpose_description": 'Hospitality'})
         self.assertEqual(response.status_code, 200)
 
     def test_group_loan_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/grouploanapplication/' +
-                                    str(self.group1.id) + '/',
-                                    {"account_no": '',
-                                     'created_by': self.staff.id,
-                                     "loan_amount": '',
-                                     "interest_type": '',
-                                     "loan_repayment_period": '',
-                                     "loan_repayment_every": '',
-                                     "annual_interest_rate": '',
-                                     "loanpurpose_description": ''})
+        response = self.client.post(reverse(
+            "micro_admin:grouploanapplication",
+            kwargs={"group_id": self.group1.id}),
+            {"account_no": '',
+             'created_by': self.staff.id,
+             "loan_amount": '',
+             "interest_type": '',
+             "loan_repayment_period": '',
+             "loan_repayment_every": '',
+             "annual_interest_rate": '',
+             "loanpurpose_description": ''})
         self.assertEqual(response.status_code, 200)
 
     def test_client_loan_application(self):
