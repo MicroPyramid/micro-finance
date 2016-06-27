@@ -27,6 +27,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from weasyprint import HTML
 
+from django.views.generic.edit import CreateView, UpdateView, \
+    View
+from django.views.generic import ListView, DetailView, \
+    FormView, RedirectView
+from django.http import JsonResponse
+from micro_admin.mixins import UserPermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 d = decimal.Decimal
 
 
@@ -38,10 +46,12 @@ def index(request):
     return render_to_response("login.html", data)
 
 
-def user_login(request):
-    if request.method == "POST":
-        user = authenticate(username=request.POST.get("username"),
-                            password=request.POST.get("password"))
+class LoginView(View):
+    def post(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(username=username, password=password)
+
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
@@ -49,140 +59,155 @@ def user_login(request):
                 return HttpResponse(json.dumps(data))
             else:
                 data = {"error": True, "message": "User is not active."}
-                return HttpResponse(json.dumps(data))
+                return JsonResponse(data)
         else:
             data = {
                 "error": True,
                 "message": "Username and Password were incorrect."
             }
-            return HttpResponse(json.dumps(data))
-    else:
+            return JsonResponse(data)
+
+        return render(request, "index.html")
+
+    def get(self, request):
         if request.user.is_authenticated():
-            return render(request, "index.html", {"user": request.user})
+            return render(request, 'index.html', {'user': request.user})
+        data = {}
+        data.update(csrf(request))
+        return render_to_response("login.html", data)
 
 
-def user_logout(request):
-    if not request.user.is_authenticated():
-        return HttpResponse("")
-    logout(request)
-    return HttpResponseRedirect("/")
+class LogoutView(RedirectView):
+    url = '/'
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super(LogoutView, self).get(request, *args, **kwargs)
 
 
-@login_required
-def create_branch(request):
-    if request.method == "GET":
-        return render(request, "branch/create.html")
-    else:
-        form = BranchForm(request.POST)
-        if form.is_valid():
-            branch = form.save()
-            data = {"error": False, "branch_id": branch.id}
-            return HttpResponse(json.dumps(data))
-        else:
-            data = {"error": True, "message": form.errors}
-            return HttpResponse(json.dumps(data))
+# --------------------------------------------------- #
+# Branch Model class Based View #
+class CreateBranchView(LoginRequiredMixin, CreateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    form_class = BranchForm
+    template_name = "branch/create.html"
+
+    def form_valid(self, form):
+        branch = form.save()
+        data = {"error": False, "branch_id": branch.id}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True, "message": form.errors}
+        return JsonResponse(data)
 
 
-@login_required
-def edit_branch(request, branch_id):
-    branch = get_object_or_404(Branch, id=branch_id)
-    if not request.user.is_admin:
-        return render(request, "branch/view.html", {"branch": branch})
+class UpdateBranchView(LoginRequiredMixin, UpdateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
+    model = Branch
+    form_class = BranchForm
+    template_name = "branch/edit.html"
 
-    if request.method == "GET":
-        return render(
-            request, "branch/edit.html",
-            {"branch": branch, "branch_id": branch_id}
-        )
-    else:
-        form = BranchForm(request.POST, instance=branch)
-        if form.is_valid():
-            branch = form.save()
-            data = {"error": False, "branch_id": branch.id}
-        else:
-            data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+    def form_valid(self, form):
+        branch = form.save()
+        data = {"error": False, "branch_id": branch.id}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True, "message": form.errors}
+        return JsonResponse(data)
 
 
-@login_required
-def branch_profile(request, branch_id):
-    branch = get_object_or_404(Branch, id=branch_id)
-    return render(request, "branch/view.html", {"branch": branch})
+class BranchProfileView(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    model = Branch
+    pk = 'pk'
+    template_name = "branch/view.html"
 
 
-@login_required
-def view_branch(request):
-    branch_list = Branch.objects.all()
-    return render(request, "branch/list.html", {"branch_list": branch_list})
+class BranchListView(LoginRequiredMixin, ListView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    model = Branch
+    template_name = "branch/list.html"
 
 
-@login_required
-def delete_branch(request, branch_id):
-    if request.user.is_admin:
-        branch = get_object_or_404(Branch, id=branch_id)
-        if branch.is_active:
-            branch.is_active = False
-            branch.save()
-    return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
+class BranchInactiveView(LoginRequiredMixin, View):
+    login_url = '/'
+    redirect_field_name = 'next'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_admin:
+            branch = get_object_or_404(Branch, id=kwargs.get('pk'))
+            if branch.is_active:
+                branch.is_active = False
+                branch.save()
+        return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
+# --------------------------------------------------- #
 
 
-@login_required
-def create_client(request):
-    if request.method == "GET":
-        branches = Branch.objects.all()
-        client_roles = [role[0] for role in CLIENT_ROLES]
-        return render(request, "client/create.html",
-                      {"branches": branches, "client_roles": client_roles})
-    else:
-        form = ClientForm(request.POST)
-        if form.is_valid():
-            client = form.save(commit=False)
-            client.created_by = get_object_or_404(
-                User, username=request.POST.get("created_by"))
-            if request.POST.get("email"):
-                client.email = request.POST.get("email")
-            if request.POST.get("blood_group"):
-                client.blood_group = request.POST.get("blood_group")
-            client.save()
-            data = {"error": False, "client_id": client.id}
-        else:
-            data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+# --------------------------------------------------- #
+# Clinet model views
+class CreateClientView(LoginRequiredMixin, CreateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    form_class = ClientForm
+    template_name = "client/create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateClientView, self).get_context_data(**kwargs)
+        context['branches'] = Branch.objects.all()
+        context['client_roles'] = dict(CLIENT_ROLES).keys()
+        return context
+
+    def form_valid(self, form):
+        client = form.save(commit=False)
+        client.created_by = self.request.user
+        client.save()
+        data = {"error": False, "client_id": client.id}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True, "message": form.errors}
+        return JsonResponse(data)
 
 
-@login_required
-def client_profile(request, client_id):
-    client = get_object_or_404(Client, id=client_id)
-    return render(request, "client/profile.html", {"client": client})
+class ClienProfileView(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
+    model = Client
+    template_name = "client/profile.html"
 
 
-@login_required
-def edit_client(request, client_id):
-    client = get_object_or_404(Client, id=client_id)
-    if not (request.user.is_admin or request.user.branch == client.branch):
-        return HttpResponseRedirect(reverse('micro_admin:viewclient'))
+class UpdateClientView(LoginRequiredMixin, UpdateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
+    model = Client
+    form_class = ClientForm
+    template_name = "client/edit.html"
 
-    if request.method == "GET":
-        client_roles = [role[0] for role in CLIENT_ROLES]
-        branches = Branch.objects.all()
-        return render(
-            request, "client/edit.html",
-            {"client": client, "client_roles": client_roles,
-             "branches": branches}
-        )
-    else:
-        form = ClientForm(request.POST, instance=client)
-        if form.is_valid():
-            client = form.save(commit=False)
-            if request.POST.get("email"):
-                client.email = request.POST.get("email")
-            if request.POST.get("blood_group"):
-                client.blood_group = request.POST.get("blood_group")
-            client.save()
-            data = {"error": False, "client_id": client.id}
-        else:
-            data = {"error": True, "message": form.errors}
-        return HttpResponse(json.dumps(data))
+    def get_context_data(self, **kwargs):
+        context = super(UpdateClientView, self).get_context_data(**kwargs)
+        context['branches'] = Branch.objects.all()
+        context['client_roles'] = dict(CLIENT_ROLES).keys()
+        return context
+
+    def form_valid(self, form):
+        # if not (request.user.is_admin or request.user.branch == client.branch):
+        #     return HttpResponseRedirect(reverse('micro_admin:viewclient'))
+        client = form.save()
+        data = {"error": False, "client_id": client.id}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True, "message": form.errors}
+        return JsonResponse(data)
 
 
 @login_required
@@ -209,151 +234,125 @@ def update_clientprofile(request, client_id):
                     'client_id': client_id}))
 
 
-@login_required
-def view_client(request):
-    client_list = Client.objects.all()
-    return render(request, "client/list.html", {"client_list": client_list})
+class ClientsListView(LoginRequiredMixin, ListView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    model = Client
+    template_name = "client/list.html"
 
 
-@login_required
-def delete_client(request, client_id):
-    client = get_object_or_404(Client, id=client_id)
-    if (
-        request.user.is_admin or (
-            request.user.has_perm("branch_manager") and
-            request.user.branch == client.branch
-        )
-    ):
-        if client.is_active:
-            client.is_active = False
-            client.save()
-    return HttpResponseRedirect(reverse("micro_admin:viewclient"))
+class ClientInactiveView(LoginRequiredMixin, View):
+    login_url = '/'
+    redirect_field_name = 'next'
+
+    def get(self, request, *args, **kwargs):
+        client = get_object_or_404(Client, id=kwargs.get('client_id'))
+        if (
+            request.user.is_admin or (
+                request.user.has_perm("branch_manager") and
+                request.user.branch == client.branch
+            )
+        ):
+            if client.is_active:
+                client.is_active = False
+                client.save()
+        return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
 
-@login_required
-def create_user(request):
-    if request.method == "GET":
-        branches = Branch.objects.all()
-        userroles = [role[0] for role in USER_ROLES]
-        return render(
-            request, "user/create.html",
-            {"branches": branches, "userroles": userroles}
-        )
-    else:
-        user_form = UserForm(request.POST)
-        if user_form.is_valid():
-            user_password = request.POST.get("password")
-            if len(user_password) < 5:
-                data = {
-                    "error": True,
-                    "pwdmessage": "Password must be at least 5 " +
-                                  "characters long."
-                }
-            else:
-                branch = get_object_or_404(
-                    Branch, id=request.POST.get('branch'))
-                user = User.objects.create_user(
-                    username=request.POST.get("username"),
-                    email=request.POST.get("email"),
-                    password=user_password, branch=branch
-                )
-                user.first_name = request.POST.get("first_name")
-                user.last_name = request.POST.get("last_name")
-                user.gender = request.POST.get("gender")
-                user.user_roles = request.POST.get("user_roles")
-                user.country = request.POST.get("country")
-                user.state = request.POST.get("state")
-                user.district = request.POST.get("district")
-                user.city = request.POST.get("city")
-                user.area = request.POST.get("area")
-                user.pincode = request.POST.get("pincode")
-                if request.POST.get("mobile"):
-                    user.mobile = request.POST.get("mobile")
-                if request.POST.get("date_of_birth"):
-                    datestring_format = datetime.datetime.strptime(
-                        request.POST.get("date_of_birth"), "%m/%d/%Y"
-                    ).strftime('%Y-%m-%d')
-                    user.date_of_birth = datetime.datetime.strptime(
-                        datestring_format, "%Y-%m-%d"
-                    )
-                if request.POST.get("user_roles") == "BranchManager":
-                    user.user_permissions.add(
-                        Permission.objects.get(codename="branch_manager"))
-                user.save()
-                data = {"error": False, "user_id": user.id}
-        else:
-            data = {"error": True, "message": user_form.errors}
-        return HttpResponse(json.dumps(data))
+# ------------------------------------------- #
+# User Model views
+class CreateUserView(LoginRequiredMixin, CreateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    form_class = UserForm
+    template_name = "user/create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateUserView, self).get_context_data(**kwargs)
+        context['branches'] = Branch.objects.all()
+        context['userroles'] = dict(USER_ROLES).keys()
+        return context
+
+    def form_valid(self, form):
+        user = form.save()
+        data = {"error": False, "user_id": user.id}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True, "message": form.errors}
+        return JsonResponse(data)
 
 
-@login_required
-def edit_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    if not (
-        request.user.is_admin or request.user == user or
-        (
-            request.user.has_perm("branch_manager") and
-            request.user.branch == user.branch
-        )
-    ):
-        return HttpResponseRedirect(reverse('micro_admin:userslist'))
+class UpdateUserView(LoginRequiredMixin, UpdateView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
+    model = User
+    form_class = UserForm
+    context_object_name = 'selecteduser'
+    template_name = "user/edit.html"
 
-    if request.method == "GET":
-        branch = Branch.objects.all()
-        userroles = [role[0] for role in USER_ROLES]
-        return render(
-            request, "user/edit.html",
-            {"user": user, "branch": branch, "userroles": userroles}
-        )
-    else:
+    def dispatch(self, request, *args, **kwargs):
+        user = get_object_or_404(User, id=self.kwargs.get('pk'))
         data = request.POST.copy()
         data['password'] = user.password
-        user_form = UserForm(data, instance=user)
-        if user_form.is_valid():
-            user = user_form.save(commit=False)
-            user.last_name = request.POST.get("last_name")
-            user.country = request.POST.get("country")
-            user.state = request.POST.get("state")
-            user.district = request.POST.get("district")
-            user.city = request.POST.get("city")
-            user.area = request.POST.get("area")
-            user.pincode = request.POST.get("pincode")
-            if request.POST.get("mobile"):
-                user.mobile = request.POST.get("mobile")
-            user.save()
-            data = {"error": False, "user_id": user.id}
-        else:
-            data = {"error": True, "message": user_form.errors}
-        return HttpResponse(json.dumps(data))
+        request.POST = data
+        return super(UpdateUserView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateUserView, self).get_context_data(**kwargs)
+        context['branch'] = Branch.objects.all()
+        context['userroles'] = dict(USER_ROLES).keys()
+        return context
+
+    def form_valid(self, form):
+        user = form.save()
+        data = {"error": False, "user_id": user.id}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True, "message": form.errors}
+        return JsonResponse(data)
 
 
-@login_required
-def user_profile(request, user_id):
-    selecteduser = get_object_or_404(User, id=user_id)
-    return render(request, "user/profile.html", {"selecteduser": selecteduser})
+class UserProfileView(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    pk = 'pk'
+    model = User
+    context_object_name = 'selecteduser'
+    template_name = "user/profile.html"
 
 
-@login_required
-def users_list(request):
-    list_of_users = User.objects.filter(is_admin=0)
-    return render(
-        request, "user/list.html", {"list_of_users": list_of_users})
+class UsersListView(LoginRequiredMixin, ListView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    model = User
+    template_name = "user/list.html"
+    context_object_name = 'list_of_users'
+
+    def get_queryset(self):
+        return User.objects.filter(is_admin=0)
 
 
-@login_required
-def delete_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    if (
-        request.user.is_admin or
-        (request.user.has_perm("branch_manager") and
-         request.user.branch == user.branch)
-    ):
-        if request.user == user or not user.is_active:
-            pass
-        else:
-            user.is_active = False
-            user.save()
-    return HttpResponseRedirect(reverse('micro_admin:userslist'))
+class UserInactiveView(LoginRequiredMixin, View):
+    login_url = '/'
+    redirect_field_name = 'next'
+
+    def get(self, request, *args, **kwargs):
+        user = get_object_or_404(User, id=kwargs.get('pk'))
+        if (
+            request.user.is_admin or
+            (request.user.has_perm("branch_manager") and
+             request.user.branch == user.branch)
+        ):
+            if request.user == user or not user.is_active:
+                pass
+            else:
+                user.is_active = False
+                user.save()
+        return HttpResponseRedirect(reverse('micro_admin:userslist'))
+# ------------------------------------------------- #
 
 
 @login_required

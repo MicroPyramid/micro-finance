@@ -31,8 +31,10 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Gender</label>
             <div class="col-sm-8 mar-top-rad">
-              <select class="text-box wid-form select-box-pad" name="gender" readonly>
-                <option value="{{ client.gender }}" selected="selected">{{ client.gender }}</option>
+              <select class="text-box wid-form select-box-pad" id='gender' name="gender" readonly>
+                <option value="">----------</option>
+                <option value="M" {% if client.gender == 'M' %}selected='selected'{% endif %} >Male</option>
+                <option value="F" {% if client.gender == 'F' %}selected='selected'{% endif %}>Female</option>
               </select>
             </div>
           </div>
@@ -69,8 +71,8 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Joined Date</label>
             <div class="col-sm-8">
-            <input type="hidden" class="text-box wid-form" id="datepicker-dob" name="date_of_birth" required="True" value="{{ client.date_of_birth|date:"Y-m-d" }}">
-              <input type="text" class="text-box wid-form" id="date-picker-cc" name="joined_date" required="True" value="{{ client.joined_date|date:"Y-m-d" }}">
+            <input type="hidden" class="text-box wid-form" id="datepicker-dob" name="date_of_birth" value="{{ client.date_of_birth|date:"Y-m-d" }}">
+            <input type="text" class="text-box wid-form" id="date-picker-cc" name="joined_date" value="{{ client.joined_date|date:"Y-m-d" }}">
             </div>
           </div>
           <div class="form-group">
@@ -176,7 +178,7 @@
       phone_number = $("#mobile").val();
       if(!phone_number || !(phone_number.length >= 8 && phone_number.length <=10))
       {
-        error = "Please give a valid phone number.";
+        error = " * Please give a valid phone number.";
         $('#mobile').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
         return;
       }
@@ -188,7 +190,11 @@
         else{
           $("span.error").remove();
           $.each(data.message, function( key, value ) {
-            $('#'+key).after("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
+            if (key == 'joined_date'){
+              $('#date-picker-cc').after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
+            }else{
+              $('#'+key).after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
+            }
           });
         }
       }, "json");
