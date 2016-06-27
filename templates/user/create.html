@@ -147,17 +147,10 @@
     $('#createuserform').submit(function(e) {
       e.preventDefault();
       $("span.error").remove();
-      phone_number = $("#mobile").val();
-      // if(!phone_number || !(phone_number.length >= 8 && phone_number.length <=10))
-      // {
-      //   error = " * Please give a valid phone number.";
-      //   $('#mobile').after("<span class='error' style='height:11px;color:red;'>" + error + "</span>");
-      //   return;
-      // }
       $.post('.', $('#createuserform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
-          $.each(data.message, function( key, value ) {
+          $.each(data.errors, function( key, value ) {
             if (key == 'date_of_birth'){
               $('#datepicker-dob').after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
             }else{

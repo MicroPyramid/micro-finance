@@ -56,15 +56,15 @@ class LoginView(View):
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
-                data = {"error": False, "message": "Loggedin Successfully"}
+                data = {"error": False, "errors": "Loggedin Successfully"}
                 return HttpResponse(json.dumps(data))
             else:
-                data = {"error": True, "message": "User is not active."}
+                data = {"error": True, "errors": "User is not active."}
                 return JsonResponse(data)
         else:
             data = {
                 "error": True,
-                "message": "Username and Password were incorrect."
+                "errors": "Username and Password were incorrect."
             }
             return JsonResponse(data)
 
@@ -100,7 +100,7 @@ class CreateBranchView(LoginRequiredMixin, CreateView):
         return JsonResponse(data)
 
     def form_invalid(self, form):
-        data = {"error": True, "message": form.errors}
+        data = {"error": True, "errors": form.errors}
         return JsonResponse(data)
 
 
@@ -118,7 +118,7 @@ class UpdateBranchView(LoginRequiredMixin, UpdateView):
         return JsonResponse(data)
 
     def form_invalid(self, form):
-        data = {"error": True, "message": form.errors}
+        data = {"error": True, "errors": form.errors}
         return JsonResponse(data)
 
 
@@ -173,7 +173,7 @@ class CreateClientView(LoginRequiredMixin, CreateView):
         return JsonResponse(data)
 
     def form_invalid(self, form):
-        data = {"error": True, "message": form.errors}
+        data = {"error": True, "errors": form.errors}
         return JsonResponse(data)
 
 
@@ -207,7 +207,7 @@ class UpdateClientView(LoginRequiredMixin, UpdateView):
         return JsonResponse(data)
 
     def form_invalid(self, form):
-        data = {"error": True, "message": form.errors}
+        data = {"error": True, "errors": form.errors}
         return JsonResponse(data)
 
 
@@ -280,7 +280,7 @@ class CreateUserView(LoginRequiredMixin, CreateView):
         return JsonResponse(data)
 
     def form_invalid(self, form):
-        data = {"error": True, "message": form.errors}
+        data = {"error": True, "errors": form.errors}
         return JsonResponse(data)
 
 
@@ -312,7 +312,7 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
         return JsonResponse(data)
 
     def form_invalid(self, form):
-        data = {"error": True, "message": form.errors}
+        data = {"error": True, "errors": form.errors}
         return JsonResponse(data)
 
 
