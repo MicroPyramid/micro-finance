@@ -2,19 +2,69 @@ from django.http import JsonResponse
 from django.views.generic import(
     View,
     CreateView,
+    FormView,
 )
 from .mixins import LoginRequiredMixin
 from .forms import (
     ReceiptForm,
     PaymentForm,
+    ClientLoanAccountsForm,
+    GetLoanDemandsForm,
 )
 from micro_admin.models import(
     Branch,
     Receipts,
     PAYMENT_TYPES,
     Payments,
+    LoanAccount,
 )
 # Create your views here.
+
+
+class ClientLoanAccountsView(LoginRequiredMixin, FormView):
+
+    form_class = ClientLoanAccountsForm
+
+    def form_valid(self, form):
+        if form.client:
+            loan_accounts = LoanAccount.objects.filter(
+                client=form.client,
+                total_loan_balance__gt=0
+            ).values_list("account_no", "loan_amount")
+            groups = form.client.group_set.all()
+            group_accounts = LoanAccount.objects.filter(
+                group__in=groups
+            ).values_list("account_no", "loan_amount")
+        else:
+            loan_accounts = []
+            group_accounts = []
+        data = {"error": False,
+                "loan_accounts": list(loan_accounts),
+                "group_accounts": list(group_accounts)}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)
+
+
+class GetLoanDemandsView(LoginRequiredMixin, FormView):
+
+    form_class = GetLoanDemandsForm
+
+    def form_valid(self, form):
+        data = {
+            "error": False,
+            "demand_loanprinciple": form.loan_account.principle_repayment,
+            "demand_loaninterest": form.loan_account.interest_charged
+        }
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)
 
 
 class Receipts_Deposit(LoginRequiredMixin, CreateView):
@@ -37,25 +87,27 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.client = form.client
         self.client_group = form.client_group
-        if form.data.get("sharecapital_amount"):
+        self.var_demand_loanprinciple_amount_atinstant = 0
+        self.var_demand_loaninterest_amount_atinstant = 0
+        if form.cleaned_data.get("sharecapital_amount"):
             self.client.sharecapital_amount += \
-                (form.data.get("sharecapital_amount", 0))
-        if form.data.get("entrancefee_amount"):
+                (form.cleaned_data.get("sharecapital_amount", 0))
+        if form.cleaned_data.get("entrancefee_amount"):
             self.client.entrancefee_amount += \
-                (form.data.get("entrancefee_amount", 0))
-        if form.data.get("membershipfee_amount"):
+                (form.cleaned_data.get("entrancefee_amount", 0))
+        if form.cleaned_data.get("membershipfee_amount"):
             self.client.membershipfee_amount += \
-                (form.data.get("membershipfee_amount", 0))
-        if form.data.get("bookfee_amount"):
-            self.client.bookfee_amount += (form.data.get("bookfee_amount", 0))
+                (form.cleaned_data.get("membershipfee_amount", 0))
+        if form.cleaned_data.get("bookfee_amount"):
+            self.client.bookfee_amount += (form.cleaned_data.get("bookfee_amount", 0))
         # loan processing fee amount
         if form.loan_account:
             # personal
             self.loan_account = form.loan_account
-            if form.data.get("loan_account_no"):
-                if form.data.get("loanprocessingfee_amount"):
+            if form.cleaned_data.get("loan_account_no"):
+                if form.cleaned_data.get("loanprocessingfee_amount"):
                     self.loan_account.loanprocessingfee_amount += \
-                        (form.data.get("loanprocessingfee_amount", 0))
+                        (form.cleaned_data.get("loanprocessingfee_amount", 0))
             if self.loan_account.status == "Approved":
                 if (self.loan_account.total_loan_balance)\
                    or (self.loan_account.interest_charged)\
@@ -65,79 +117,76 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                         (self.loan_account.principle_repayment)
                     self.var_demand_loaninterest_amount_atinstant = \
                         (self.loan_account.interest_charged)
-                else:
-                    self.var_demand_loanprinciple_amount_atinstant = 0
-                    self.var_demand_loaninterest_amount_atinstant = 0
         if form.group_loan_account:
             # group
-            if form.data.get("group_loan_account_no"):
-                self.group_loan_account = form.group_loan_account
-                if form.data.get("loanprocessingfee_amount"):
+            self.group_loan_account = form.group_loan_account
+            if form.cleaned_data.get("group_loan_account_no"):
+                if form.cleaned_data.get("loanprocessingfee_amount"):
                     self.group_loan_account.loanprocessingfee_amount += \
-                        (form.data.get("loanprocessingfee_amount"))
+                        (form.cleaned_data.get("loanprocessingfee_amount"))
         # savings deposit thrift amount
         if form.savings_account:
             self.savings_account = form.savings_account
-            if form.data.get("savingsdeposit_thrift_amount"):
+            if form.cleaned_data.get("savingsdeposit_thrift_amount"):
                 # personal
                 self.savings_account.savings_balance += \
-                    (form.data.get("savingsdeposit_thrift_amount"))
+                    (form.cleaned_data.get("savingsdeposit_thrift_amount"))
                 self.savings_account.total_deposits += \
-                    (form.data.get("savingsdeposit_thrift_amount"))
+                    (form.cleaned_data.get("savingsdeposit_thrift_amount"))
 
-            if form.data.get("recurringdeposit_amount"):
+            if form.cleaned_data.get("recurringdeposit_amount"):
                 self.savings_account.recurringdeposit_amount += \
-                    (form.data.get("recurringdeposit_amount"))
+                    (form.cleaned_data.get("recurringdeposit_amount"))
         if form.group_savings_account:
             # group
             self.group_savings_account = form.group_savings_account
-            if form.data.get("savingsdeposit_thrift_amount"):
+            if form.cleaned_data.get("savingsdeposit_thrift_amount"):
                 self.group_savings_account.savings_balance += \
-                    (form.data.get("savingsdeposit_thrift_amount"))
+                    (form.cleaned_data.get("savingsdeposit_thrift_amount"))
                 self.group_savings_account.total_deposits += \
-                    (form.data.get("savingsdeposit_thrift_amount"))
+                    (form.cleaned_data.get("savingsdeposit_thrift_amount"))
 
-        if form.data.get("insurance_amount"):
-            self.client.insurance_amount += (form.data.get("insurance_amount", 0))
+        if form.cleaned_data.get("insurance_amount"):
+            self.client.insurance_amount += (form.cleaned_data.get("insurance_amount", 0))
 
-        if form.data.get("loanprinciple_amount") \
-           or (form.data.get("loaninterest_amount")) != 0:
-            if form.loan_account or form.group_loan_account:
+        if form.cleaned_data.get("loanprinciple_amount") \
+           or (form.cleaned_data.get("loaninterest_amount")) != 0:
+            if form.loan_account:
                 # now
                 if not ((self.loan_account.total_loan_amount_repaid) ==
                         (self.loan_account.loan_amount) and
                         (self.loan_account.total_loan_balance) == 0):
-                    if (form.data.get("loaninterest_amount")) == \
+                    if (form.cleaned_data.get("loaninterest_amount")) == \
                        (self.loan_account.interest_charged):
-                        if (form.data.get("loanprinciple_amount")) ==\
+                        if (form.cleaned_data.get("loanprinciple_amount")) ==\
                            (self.loan_account.principle_repayment):
                             self.loan_account.loan_repayment_amount = 0
                             self.loan_account.principle_repayment = 0
                             self.loan_account.interest_charged = 0
-                        elif (form.data.get("loanprinciple_amount")) <\
+                        elif (form.cleaned_data.get("loanprinciple_amount")) <\
                                 (self.loan_account.principle_repayment):
                             balance_principle = (self.loan_account.principle_repayment) -\
-                                (form.data.get("loanprinciple_amount"))
+                                (form.cleaned_data.get("loanprinciple_amount"))
                             self.loan_account.principle_repayment = balance_principle
                             self.loan_account.loan_repayment_amount = balance_principle
                             self.loan_account.interest_charged = 0
                     else:
-                        if form.data.get("loaninterest_amount"):
-                            if form.data.get("loaninterest_amount") < self.loan_account.interest_charged:
-                                if form.data.get("loanprinciple_amount") == self.loan_account.principle_repayment:
+                        if form.cleaned_data.get("loaninterest_amount"):
+                            if form.cleaned_data.get("loaninterest_amount") < self.loan_account.interest_charged:
+                                if form.cleaned_data.get("loanprinciple_amount") == self.loan_account.principle_repayment:
                                     balance_interest = self.loan_account.interest_charged -\
-                                        form.data.get("loaninterest_amount")
+                                        form.cleaned_data.get("loaninterest_amount")
                                     self.loan_account.interest_charged = balance_interest
                                     self.loan_account.loan_repayment_amount = balance_interest
                                     self.loan_account.principle_repayment = 0
-                                if form.data.get("loanprinciple_amount"):
-                                    if form.data.get("loanprinciple_amount") < \
+                                if form.cleaned_data.get("loanprinciple_amount"):
+                                    if form.cleaned_data.get("loanprinciple_amount") < \
                                             self.loan_account.principle_repayment:
                                         balance_principle = self.loan_account.principle_repayment -\
-                                            form.data.get("loanprinciple_amount")
+                                            form.cleaned_data.get("loanprinciple_amount")
                                         self.loan_account.principle_repayment = balance_principle
                                         balance_interest = self.loan_account.interest_charged -\
-                                            form.data.get("loaninterest_amount")
+                                            form.cleaned_data.get("loaninterest_amount")
                                         self.loan_account.interest_charged = balance_interest
                                         self.loan_account.loan_repayment_amount = balance_principle +\
                                             balance_interest
@@ -146,7 +195,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                         self.loan_account.loan_amount and self.loan_account.total_loan_balance:
                     if int(self.loan_account.no_of_repayments_completed) >=\
                             int(self.loan_account.loan_repayment_period):
-                        if form.data.get("loaninterest_amount") ==\
+                        if form.cleaned_data.get("loaninterest_amount") ==\
                                 self.loan_account.interest_charged:
                             if self.loan_account.interest_type == "Flat":
                                 self.loan_account.interest_charged = (
@@ -156,9 +205,9 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                 self.loan_account.interest_charged = (
                                     ((self.loan_account.total_loan_balance * (
                                         self.loan_account.annual_interest_rate / 12)) / 100))
-                        elif form.data.get("loaninterest_amount") < self.loan_account.interest_charged:
+                        elif form.cleaned_data.get("loaninterest_amount") < self.loan_account.interest_charged:
                             balance_interest = self.loan_account.interest_charged -\
-                                form.data.get("loaninterest_amount")
+                                form.cleaned_data.get("loaninterest_amount")
                             if self.loan_account.interest_type == "Flat":
                                 interest_charged = (
                                     ((self.loan_account.loan_amount * (
@@ -168,18 +217,18 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                     (self.loan_account.annual_interest_rate) / 12)) / 100))
                             self.loan_account.interest_charged = (balance_interest + interest_charged)
 
-                        if form.data.get("loanprinciple_amount") == \
+                        if form.cleaned_data.get("loanprinciple_amount") == \
                                 self.loan_account.principle_repayment:
                             self.loan_account.principle_repayment = \
                                 self.loan_account.total_loan_balance
                             self.loan_account.loan_repayment_amount = \
                                 ((self.loan_account.total_loan_balance) +
                                     (self.loan_account.interest_charged))
-                        elif form.data.get("loanprinciple_amount") <\
+                        elif form.cleaned_data.get("loanprinciple_amount") <\
                                 (self.loan_account.principle_repayment):
                             balance_principle = (((self.loan_account.loan_repayment_amount) -
                                                   (self.loan_account.interest_charged)) -
-                                                 (form.data.get("loanprinciple_amount")))
+                                                 (form.cleaned_data.get("loanprinciple_amount")))
                             self.loan_account.principle_repayment =\
                                 ((self.loan_account.total_loan_balance) + (balance_principle))
                             self.loan_account.loan_repayment_amount = (
@@ -198,33 +247,33 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                     int(self.loan_account.loan_repayment_every) * (
                                         ((self.loan_account.loan_amount) *
                                             ((self.loan_account.annual_interest_rate) / 12)) / 100))
-                            elif (form.data.get("loaninterest_amount")) <\
+                            elif (form.cleaned_data.get("loaninterest_amount")) <\
                                     (self.loan_account.interest_charged):
                                 balance_interest = \
                                     (self.loan_account.interest_charged) -\
-                                    (form.data.get("loaninterest_amount"))
+                                    (form.cleaned_data.get("loaninterest_amount"))
                                 interest_charged = (
                                     int(self.loan_account.loan_repayment_every) * (
                                         ((self.loan_account.loan_amount) * (
                                             (self.loan_account.annual_interest_rate) / 12)) / 100))
                                 self.loan_account.interest_charged = (balance_interest + interest_charged)
                         elif self.loan_account.interest_type == "Declining":
-                            if (form.data.get("loaninterest_amount")) ==\
+                            if (form.cleaned_data.get("loaninterest_amount")) ==\
                                     (self.loan_account.interest_charged):
                                 self.loan_account.interest_charged = (
                                     int(self.loan_account.loan_repayment_every) * (
                                         ((self.loan_account.total_loan_balance) * (
                                             (self.loan_account.annual_interest_rate) / 12)) / 100))
-                            elif (form.data.get("loaninterest_amount")) <\
+                            elif (form.cleaned_data.get("loaninterest_amount")) <\
                                     (self.loan_account.interest_charged):
                                 balance_interest = (self.loan_account.interest_charged) -\
-                                    (form.data.get("loaninterest_amount"))
+                                    (form.cleaned_data.get("loaninterest_amount"))
                                 interest_charged = (int(self.loan_account.loan_repayment_every) *
                                                     (((self.loan_account.total_loan_balance) * (
                                                         (self.loan_account.annual_interest_rate) / 12)) / 100))
                                 self.loan_account.interest_charged = (balance_interest + interest_charged)
 
-                        if (form.data.get("loanprinciple_amount")) == (
+                        if (form.cleaned_data.get("loanprinciple_amount")) == (
                                 (int(self.loan_account.loan_repayment_every) * (
                                     principle_repayable))):
                             if (self.loan_account.total_loan_balance) <\
@@ -243,11 +292,11 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                 self.loan_account.loan_repayment_amount = (
                                     (self.loan_account.principle_repayment) +
                                     (self.loan_account.interest_charged))
-                        elif (form.data.get("loanprinciple_amount")) <\
+                        elif (form.cleaned_data.get("loanprinciple_amount")) <\
                                 ((int(self.loan_account.loan_repayment_every) * (principle_repayable))):
                             balance_principle = (
                                 ((int(self.loan_account.loan_repayment_every) *
-                                    (principle_repayable))) - (form.data.get("loanprinciple_amount")))
+                                    (principle_repayable))) - (form.cleaned_data.get("loanprinciple_amount")))
                             if (self.loan_account.total_loan_balance) <\
                                     ((int(self.loan_account.loan_repayment_every) *
                                         (principle_repayable))):
@@ -263,20 +312,20 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                         (principle_repayable)) +
                                     (self.loan_account.interest_charged) + (balance_principle))
 
-        if form.data.get("sharecapital_amount") or\
-                form.data.get("entrancefee_amount") or\
-                form.data.get("membershipfee_amount") or\
-                form.data.get("bookfee_amount") or\
-                form.data.get("loanprocessingfee_amount") or\
-                form.data.get("savingsdeposit_thrift_amount") or\
-                form.data.get("fixeddeposit_amount") or\
-                form.data.get("recurringdeposit_amount") or\
-                form.data.get("loanprinciple_amount") or\
-                form.data.get("insurance_amount") or\
-                form.data.get("loaninterest_amount") != 0:
-            receipt_number = form.data.get("receipt_number")
+        if form.cleaned_data.get("sharecapital_amount") or\
+                form.cleaned_data.get("entrancefee_amount") or\
+                form.cleaned_data.get("membershipfee_amount") or\
+                form.cleaned_data.get("bookfee_amount") or\
+                form.cleaned_data.get("loanprocessingfee_amount") or\
+                form.cleaned_data.get("savingsdeposit_thrift_amount") or\
+                form.cleaned_data.get("fixeddeposit_amount") or\
+                form.cleaned_data.get("recurringdeposit_amount") or\
+                form.cleaned_data.get("loanprinciple_amount") or\
+                form.cleaned_data.get("insurance_amount") or\
+                form.cleaned_data.get("loaninterest_amount") != 0:
+            receipt_number = form.cleaned_data.get("receipt_number")
             branch = Branch.objects.get(id=form.data.get("branch"))
-            date = form.data.get("date")
+            date = form.cleaned_data.get("date")
             receipt = Receipts.objects.create(
                 date=date,
                 branch=branch,
@@ -285,35 +334,41 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                 group=self.client_group,
                 staff=self.request.user
             )
-            if form.data.get("sharecapital_amount"):
-                receipt.sharecapital_amount = form.data.get("sharecapital_amount")
-            if form.data.get("entrancefee_amount"):
-                receipt.entrancefee_amount = form.data.get("entrancefee_amount")
-            if form.data.get("membershipfee_amount"):
-                receipt.membershipfee_amount = form.data.get("membershipfee_amount")
-            if form.data.get("bookfee_amount"):
-                receipt.bookfee_amount = form.data.get("bookfee_amount")
-            if form.data.get("loanprocessingfee_amount"):
-                receipt.loanprocessingfee_amount = form.data.get("loanprocessingfee_amount")
-                receipt.member_loan_account = self.loan_account
-                receipt.group_loan_account = self.group_loan_account
-            if form.data.get("savingsdeposit_thrift_amount"):
-                receipt.savingsdeposit_thrift_amount = form.data.get("savingsdeposit_thrift_amount")
+            if form.cleaned_data.get("sharecapital_amount"):
+                receipt.sharecapital_amount = form.cleaned_data.get("sharecapital_amount")
+            if form.cleaned_data.get("entrancefee_amount"):
+                receipt.entrancefee_amount = form.cleaned_data.get("entrancefee_amount")
+            if form.cleaned_data.get("membershipfee_amount"):
+                receipt.membershipfee_amount = form.cleaned_data.get("membershipfee_amount")
+            if form.cleaned_data.get("bookfee_amount"):
+                receipt.bookfee_amount = form.cleaned_data.get("bookfee_amount")
+            if form.cleaned_data.get("loanprocessingfee_amount"):
+                receipt.loanprocessingfee_amount = form.cleaned_data.get("loanprocessingfee_amount")
+                if form.loan_account:
+                    receipt.member_loan_account = self.loan_account
+                if form.group_loan_account:
+                    receipt.group_loan_account = self.group_loan_account
+            if form.cleaned_data.get("savingsdeposit_thrift_amount"):
+                receipt.savingsdeposit_thrift_amount = form.cleaned_data.get("savingsdeposit_thrift_amount")
                 receipt.savings_balance_atinstant = self.savings_account.savings_balance
-            if form.data.get("fixeddeposit_amount"):
-                receipt.fixeddeposit_amount = form.data.get("fixeddeposit_amount")
-            if form.data.get("recurringdeposit_amount"):
-                receipt.recurringdeposit_amount = form.data.get("recurringdeposit_amount")
-            if form.data.get("insurance_amount"):
-                receipt.insurance_amount = form.data.get("insurance_amount")
-            if form.data.get("loanprinciple_amount"):
-                receipt.loanprinciple_amount = form.data.get("loanprinciple_amount")
-                receipt.member_loan_account = self.loan_account
-                receipt.group_loan_account = self.group_loan_account
-            if form.data.get("loaninterest_amount") != 0:
-                receipt.loaninterest_amount = form.data.get("loaninterest_amount")
-                receipt.member_loan_account = self.loan_account
-                receipt.group_loan_account = self.group_loan_account
+            if form.cleaned_data.get("fixeddeposit_amount"):
+                receipt.fixeddeposit_amount = form.cleaned_data.get("fixeddeposit_amount")
+            if form.cleaned_data.get("recurringdeposit_amount"):
+                receipt.recurringdeposit_amount = form.cleaned_data.get("recurringdeposit_amount")
+            if form.cleaned_data.get("insurance_amount"):
+                receipt.insurance_amount = form.cleaned_data.get("insurance_amount")
+            if form.cleaned_data.get("loanprinciple_amount"):
+                receipt.loanprinciple_amount = form.cleaned_data.get("loanprinciple_amount")
+                if form.loan_account:
+                    receipt.member_loan_account = self.loan_account
+                if form.group_loan_account:
+                    receipt.group_loan_account = self.group_loan_account
+            if form.cleaned_data.get("loaninterest_amount") != 0:
+                receipt.loaninterest_amount = form.cleaned_data.get("loaninterest_amount")
+                if form.loan_account:
+                    receipt.member_loan_account = self.loan_account
+                if form.group_loan_account:
+                    receipt.group_loan_account = self.group_loan_account
             if form.loan_account:
                 receipt.demand_loanprinciple_amount_atinstant = self.var_demand_loanprinciple_amount_atinstant
                 receipt.demand_loaninterest_amount_atinstant = self.var_demand_loaninterest_amount_atinstant

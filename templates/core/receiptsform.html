@@ -170,7 +170,7 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Loan Interest Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="loaninterest_amount" value="0">
+              <input type="text" class="text-box wid-form"  name="loaninterest_amount" value="">
               <p id="loaninteresterror"></p>
             </div>
           </div>
@@ -227,71 +227,98 @@
 <!--wrapper ends above-->
 <script type="text/javascript">
   function memberloanaccount() {
-    $.post('/getmemberloanaccounts/', $('#createreceiptform').serialize(), function(data) {
-
+    $.post('/finance/getmemberloanaccounts/', $('#createreceiptform').serialize(), function(data) {
       var memberloanaccountselect = document.getElementById("memberloanaccountselect");
       var grouploanaccountselect = document.getElementById("grouploanaccountselect");
-
-      document.getElementById("group_name").value = '';
-      document.getElementById("group_account_number").value = '';
       memberloanaccountselect.innerHTML = '<option value="">Select Member Loan A/C. No.</option>';
       grouploanaccountselect.innerHTML = '<option value="">Select Group Loan A/C. No.</option>';
-
+      $("span.error").remove();
       if (data.error) {
-        $("span.error").remove();
-        if (data.message1) {
-          $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" +
-            data.message1 + "</span>");
+        if (data.errors.message1) {
+          $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" + data.errors.message1 + "</span>");
         }
-      } else {
-
-        $("span.error").remove();
-
-        if (data.groupname) {
-          document.getElementById("group_name").value = data.groupname
+        $.each(data.errors, function(field, error){
+            html = "<span class='error' style='height:11px;color:red;'>" + error + "</span>"
+            $('[name='+field+']').after(html)
+          })
+      }
+      else {
+        if(data.loan_accounts){
+          options = "<option value=\"\">Select Member Loan A/C. No.</option>"
+          $.each(data.loan_accounts, function( index, value ) {
+            option  = "<option value=\"" + value[0] + "\">A/C: " +
+                        value[0] + " Amount: " + value[1] +
+                      "</option>"
+            options = options + option
+          });
+          $("#memberloanaccountselect").html(options)
         }
-
-        if (data.groupaccountnumber) {
-          document.getElementById("group_account_number").value = data.groupaccountnumber
+        else{
+          option = "<option value=\"\">No Accounts Found</option>"
+          $("#memberloanaccountselect").html(option)
         }
-
-        if (data.list) {
-          for (i = 0; i < (data.list).length; i++) {
-            memberloanaccountselect.innerHTML += '<option value="' + data.list[i].loan_account_number + '">' + 'Loan A/C. No. : ' + data.list[i].loan_account_number + ' -  Loan Amount : ' + data.list[i].loan_amount + '</option>';
-          }
+        if(data.group_accounts){
+          options = "<option value=\"\">Select Group Loan A/C. No.</option>"
+          $.each(data.group_accounts, function( index, value ) {
+            option  = "<option value=\"" + value[0] + "\">A/C: " +
+                        value[0] + " Amount: " + value[1] +
+                      "</option>"
+            options = options + option
+          });
+          $("#grouploanaccountselect").html(options)
         }
-
-        if (data.grouploanlist) {
-          for (i = 0; i < (data.grouploanlist).length; i++) {
-            grouploanaccountselect.innerHTML += '<option value="' + data.grouploanlist[i].loan_account_number + '">' + 'Loan A/C. No. : ' + data.grouploanlist[i].loan_account_number + ' -  Loan Amount : ' + data.grouploanlist[i].loan_amount + '</option>';
-          }
+        else{
+          option = "<option value=\"\">No Accounts Found</option>"
+          $("#grouploanaccountselect").html(option)
         }
       }
     }, "json");
   }
+
+  $("[name=name], [name=loaninterest_amount], [name=loanprinciple_amount], [name=loanprocessingfee_amount]").change(
+    function(){
+      interest = $("[name=loaninterest_amount]").val()
+      principle = $("[name=loanprinciple_amount]").val()
+      processingfee = $("[name=loanprocessingfee_amount]").val()
+      if (interest || principle || processingfee){
+        memberloanaccount()
+      }
+    }
+  )
 </script>
 <script type="text/javascript">
-  $('#memberloanaccountselect').change(function() {
-    $.post('/getloandemands/', $('#createreceiptform').serialize(), function(data) {
+  $('#memberloanaccountselect, #grouploanaccountselect').change(function() {
+    if ($(this).attr("id") == "grouploanaccountselect"){
+      $("#memberloanaccountselect").val("")
+    }
+    else if ($(this).attr("id") == "memberloanaccountselect"){
+      $("#grouploanaccountselect").val("")  
+    }
+    if(!$(this).val()){
+      return false;
+    }
+    $.post('/finance/getloandemands/', $('#createreceiptform').serialize(), function(data) {
 
       document.getElementById('demand_loanprinciple').value = '';
       document.getElementById('demand_loaninterest').value = '';
-
+      $("span.error").remove();
       if (data.error) {
-        $("span.error").remove();
-        if (data.message1) {
-          $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" +
-            data.message1 + "</span>");
+        if (data.errors.message1) {
+          $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" + data.errors.message1 + "</span>");
         }
+        $.each(data.errors, function(field, error){
+            html = "<span class='error' style='height:11px;color:red;'>" + error + "</span>"
+            $('[name='+field+']').after(html)
+          })
       } else {
-        $("span.error").remove();
-
         if (data.demand_loanprinciple) {
           document.getElementById('demand_loanprinciple').value = data.demand_loanprinciple;
+          $("#demand_loanprinciple").attr("readonly", true)
         }
 
         if (data.demand_loaninterest) {
           document.getElementById('demand_loaninterest').value = data.demand_loaninterest;
+          $("#demand_loaninterest").attr("readonly", true)
         }
 
       }
