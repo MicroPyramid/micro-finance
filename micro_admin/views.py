@@ -678,51 +678,58 @@ def change_savings_account_status(request, savingsaccount_id):
             return HttpResponse(json.dumps(data))
 
 
-@login_required
-def group_loan_application(request, group_id):
-    if request.method == "GET":
-        group = Group.objects.get(id=group_id)
+class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
+    model = LoanAccount
+    form_class = LoanAccountForm
+    template_name = "group/loan/application.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.group = get_object_or_404(Group, id=self.kwargs.get('group_id'))
+        return super(
+            GroupLoanApplicationView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            GroupLoanApplicationView, self).get_context_data(**kwargs)
         count = LoanAccount.objects.all().count()
-        account_no = "%s%s%d" % ("L", group.branch.id, count + 1)
-        return render(
-            request, "group/loan/application.html",
-            {"group": group, "account_no": account_no})
-    else:
-        group_loanaccount_form = LoanAccountForm(request.POST)
-        if group_loanaccount_form.is_valid():
-            group = Group.objects.get(id=group_id)
-            loan_account = group_loanaccount_form.save(commit=False)
-            loan_account.status = "Applied"
-            loan_account.created_by = User.objects.get(username=request.user)
-            loan_account.group = group
+        account_no = "%s%s%d" % ("L", self.group.branch.id, count + 1)
+        context["account_no"] = account_no
+        context["group"] = self.group
+        return context
 
-            interest_charged = d(
-                (
-                    d(loan_account.loan_amount) * (
-                        d(loan_account.annual_interest_rate) / 12)
-                ) / 100
-            )
+    def form_valid(self, form):
+        loan_account = form.save(commit=False)
+        loan_account.status = "Applied"
+        loan_account.created_by = User.objects.get(username=self.request.user)
+        loan_account.group = self.group
 
-            loan_account.principle_repayment = d(
-                int(loan_account.loan_repayment_every) *
-                (
-                    d(loan_account.loan_amount) / d(
-                        loan_account.loan_repayment_period)
-                )
+        interest_charged = d(
+            (
+                d(loan_account.loan_amount) * (
+                    d(loan_account.annual_interest_rate) / 12)
+            ) / 100
+        )
+
+        loan_account.principle_repayment = d(
+            int(loan_account.loan_repayment_every) *
+            (
+                d(loan_account.loan_amount) / d(
+                    loan_account.loan_repayment_period)
             )
-            loan_account.interest_charged = d(
-                int(loan_account.loan_repayment_every) * d(interest_charged))
-            loan_account.loan_repayment_amount = d(
-                d(loan_account.principle_repayment) + d(
-                    loan_account.interest_charged)
-            )
-            loan_account.total_loan_balance = d(d(loan_account.loan_amount))
-            loan_account.save()
-            data = {"error": False, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        else:
-            data = {"error": True, "message": group_loanaccount_form.errors}
-            return HttpResponse(json.dumps(data))
+        )
+        loan_account.interest_charged = d(
+            int(loan_account.loan_repayment_every) * d(interest_charged))
+        loan_account.loan_repayment_amount = d(
+            d(loan_account.principle_repayment) + d(
+                loan_account.interest_charged)
+        )
+        loan_account.total_loan_balance = d(d(loan_account.loan_amount))
+        loan_account.save()
+        return JsonResponse({"error": False,
+                             "loanaccount_id": loan_account.id})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "message": form.errors})
 
 
 @login_required
