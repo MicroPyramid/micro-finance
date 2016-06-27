@@ -3,6 +3,7 @@ from micro_admin.forms import *
 from micro_admin.models import *
 from tempfile import NamedTemporaryFile
 from micro_admin.templatetags import ledgertemplatetags
+from django.core.urlresolvers import reverse
 
 
 class Modelform_test(TestCase):
@@ -306,7 +307,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user/create.html')
 
-        response = self.client.get('/creategroup/')
+        response = self.client.get(reverse('micro_admin:creategroup'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/create.html')
 
@@ -454,7 +455,7 @@ class Admin_Views_test(TestCase):
             'password': 'jag123'})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/creategroup/', {
+        response = self.client.post(reverse('micro_admin:creategroup'), {
             "name": 'Star', "account_number": 123456,
             "created_by": self.staff.username,
             "activation_date": '10/10/2014', "branch": self.branch.id})
@@ -525,7 +526,10 @@ class Admin_Views_test(TestCase):
         self.assertTemplateUsed('client/update-profile.html')
 
         response = self.client.get(
-            '/groupprofile/' + str(self.group1.id) + '/')
+            reverse(
+                'micro_admin:groupprofile',
+                kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/users/list/')
@@ -788,8 +792,11 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/removemember/' + str(self.group1.id) +
                                    '/' + str(self.member1.id) + '/')
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/groupprofile/' + str(self.group1.id) +
-                             "/", status_code=302, target_status_code=200)
+        self.assertRedirects(
+            response,
+            reverse('micro_admin:groupprofile',
+                    kwargs={'group_id': self.group1.id}),
+            status_code=302, target_status_code=200)
 
     # def test_create_client_invalid_post_data(self):
     #     user_login = self.client.login(username='jagadeesh', password='jag123')
@@ -799,7 +806,7 @@ class Admin_Views_test(TestCase):
     def test_create_group_invalid_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/creategroup/', {
+        response = self.client.post(reverse('micro_admin:creategroup'), {
             "name": '', "account_number": '', "activation_date": '',
             "branch": self.branch.id})
         self.assertEqual(response.status_code, 200)
@@ -832,8 +839,11 @@ class Admin_Views_test(TestCase):
                                           "meeting_time": "10-10-10",
                                           "group": self.group1.id})
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/groupprofile/' + str(self.group1.id) +
-                             "/", status_code=302, target_status_code=200)
+        self.assertRedirects(
+            response,
+            reverse('micro_admin:groupprofile',
+                    kwargs={'group_id': self.group1.id}),
+            status_code=302, target_status_code=200)
 
     def test_client_savings_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')

@@ -355,41 +355,43 @@ class UserInactiveView(LoginRequiredMixin, View):
 # ------------------------------------------------- #
 
 
-@login_required
-def create_group(request):
-    if request.method == "GET":
-        branches = Branch.objects.all()
-        return render(
-            request, "group/create.html", {"branches": branches})
-    else:
-        group_form = GroupForm(request.POST)
-        if group_form.is_valid():
-            created_by = get_object_or_404(
-                User, username=request.POST.get("created_by"))
-            group = group_form.save(commit=False)
-            group.created_by = created_by
-            group.save()
-            data = {"error": False, "group_id": group.id}
-        else:
-            data = {"error": True, "message": group_form.errors}
-        return HttpResponse(json.dumps(data))
+class CreateGroupView(LoginRequiredMixin, CreateView):
+    model = Group
+    form_class = GroupForm
+    template_name = "group/create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateGroupView, self).get_context_data(**kwargs)
+        context['branches'] = Branch.objects.all()
+        return context
+
+    def form_valid(self, form):
+        group = form.save(commit=False)
+        group.created_by = self.request.user
+        group.save()
+        return JsonResponse({"error": False, "group_id": group.id})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
-@login_required
-def group_profile(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    clients_list = group.clients.all()
-    group_mettings = GroupMeetings.objects.filter(
-        group_id=group.id).order_by('-id')
-    return render(
-        request, "group/profile.html", {
-            "group": group,
-            "clients_list": clients_list,
-            "clients_count": len(clients_list),
-            "latest_group_meeting":
-                group_mettings.first() if group_mettings else None
-        }
-    )
+class GroupProfileView(LoginRequiredMixin, DetailView):
+    pk_url_kwarg = 'group_id'
+    model = Group
+    context_object_name = 'group'
+    template_name = "group/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupProfileView, self).get_context_data(**kwargs)
+        clients_list = self.object.clients.all()
+        group_mettings = GroupMeetings.objects.filter(
+            group_id=self.object.id).order_by('-id')
+
+        context["clients_list"] = clients_list
+        context["clients_count"] = len(clients_list)
+        context["latest_group_meeting"] = \
+            group_mettings.first() if group_mettings else None
+        return context
 
 
 @login_required
