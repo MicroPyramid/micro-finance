@@ -32,15 +32,20 @@ class ClientLoanAccountsView(LoginRequiredMixin, FormView):
                 total_loan_balance__gt=0
             ).values_list("account_no", "loan_amount")
             groups = form.client.group_set.all()
+            default_group = groups.first()
             group_accounts = LoanAccount.objects.filter(
                 group__in=groups
             ).values_list("account_no", "loan_amount")
         else:
             loan_accounts = []
             group_accounts = []
+            default_group = None
+        group = {"group_name": default_group.name if default_group else "",
+                 "group_account_number": default_group.account_number if default_group else ""}
         data = {"error": False,
                 "loan_accounts": list(loan_accounts),
-                "group_accounts": list(group_accounts)}
+                "group_accounts": list(group_accounts),
+                "group": group if default_group else False}
         return JsonResponse(data)
 
     def form_invalid(self, form):
@@ -56,8 +61,8 @@ class GetLoanDemandsView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         data = {
             "error": False,
-            "demand_loanprinciple": form.loan_account.principle_repayment,
-            "demand_loaninterest": form.loan_account.interest_charged
+            "demand_loanprinciple": form.loan_account.principle_repayment or 0,
+            "demand_loaninterest": form.loan_account.interest_charged or 0
         }
         return JsonResponse(data)
 

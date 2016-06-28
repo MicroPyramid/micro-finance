@@ -37,7 +37,7 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Receipt Number<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="receipt_number" >
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="receipt_number" value="">
               <p id="receiptnumbererror"></p>
             </div>
           </div>
@@ -47,14 +47,14 @@
           <div class="form-group" >
             <label for="inputEmail3" class="col-sm-4 control-label">Member First Name<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="name" id="membername" >
+              <input type="text" class="text-box wid-form"  name="name" id="membername" value="">
               <p id="clientnameerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="member_a/c_no" name="account_number"  onchange="memberloanaccount()">
+              <input type="text" class="text-box wid-form" id="member_a/c_no" name="account_number"  onchange="memberloanaccount()" value="">
               <p id="accountnumbererror"></p>
             </div>
           </div>
@@ -64,7 +64,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="savingsdeposit_thrift_amount">
+              <input type="text" class="text-box wid-form" name="savingsdeposit_thrift_amount" value="">
               <p id="savingsdepositthriftamounterror"></p>
             </div>
           </div>
@@ -74,7 +74,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="fixeddeposit_amount">
+              <input type="text" class="text-box wid-form"  name="fixeddeposit_amount" value="">
               <p id="fixeddepositamounterror"></p>
             </div>
           </div>
@@ -84,7 +84,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="recurringdeposit_amount">
+              <input type="text" class="text-box wid-form"  name="recurringdeposit_amount" value="">
               <p id="recurringdepositamounterror"></p>
             </div>
           </div>
@@ -94,7 +94,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="insurance_amount">
+              <input type="text" class="text-box wid-form"  name="insurance_amount" value="">
               <p id="insuranceamounterror"></p>
             </div>
           </div>
@@ -109,14 +109,14 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Group Name</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="group_name" name="group_name">
+              <input type="text" class="text-box wid-form" id="group_name" name="group_name" value="">
               <p id="groupnameerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Group A/C. No.</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="group_account_number" name="group_account_number">
+              <input type="text" class="text-box wid-form" id="group_account_number" name="group_account_number" value="">
               <p id="groupaccountnumbererror"></p>
             </div>
           </div>
@@ -127,7 +127,7 @@
             <label for="inputEmail3" class="col-sm-4 control-label">Member Loan A/C. No.</label>
             <div class="col-sm-8">
               <select id="memberloanaccountselect" class="text-box wid-form select-box-pad" name="loan_account_no">
-                <option>Select Member Loan A/C. No.</option>
+                <option value="">Select Member Loan A/C. No.</option>
               </select>
               <p id="loanaccountnoerror"></p>
             </div>
@@ -144,26 +144,26 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Loan Processing Fees</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="loanprocessingfee_amount">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="loanprocessingfee_amount" value="">
               <p id="loanprocessingfeeamounterror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Demand Loan Principal</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="demand_loanprinciple" name="demand_loanprinciple">
+              <input type="text" class="text-box wid-form" id="demand_loanprinciple" name="demand_loanprinciple" value="">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Demand Loan Interest</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="demand_loaninterest" name="demand_loaninterest">
+              <input type="text" class="text-box wid-form" id="demand_loaninterest" name="demand_loaninterest" value="">
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Loan Principal Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="loanprinciple_amount">
+              <input type="text" class="text-box wid-form"  name="loanprinciple_amount" value="">
               <p id="loanpricipleerror"></p>
             </div>
           </div>
@@ -180,28 +180,28 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Share Capital</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="sharecapital_amount">
+              <input type="text" class="text-box wid-form"  name="sharecapital_amount" value="">
               <p id="sharecapitalamounterror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Book Fees</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="bookfee_amount">
+              <input type="text" class="text-box wid-form" name="bookfee_amount" value="">
               <p id="bookfeeamounterror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Entrance Fees</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="entrancefee_amount" id="inputEmail3">
+              <input type="text" class="text-box wid-form" name="entrancefee_amount" id="inputEmail3" value="">
               <p id="entrancefeeamounterror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Membership Fees</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="membershipfee_amount">
+              <input type="text" class="text-box wid-form" id="inputEmail3" name="membershipfee_amount" value="">
               <p id="membershipfeeamounterror"></p>
             </div>
           </div>
@@ -271,19 +271,18 @@
           option = "<option value=\"\">No Accounts Found</option>"
           $("#grouploanaccountselect").html(option)
         }
+        if(data.group){
+          $("#group_name").val(data.group.group_name)
+          $("#group_account_number").val(data.group.group_account_number)
+        }
       }
     }, "json");
   }
 
-  $("[name=name], [name=loaninterest_amount], [name=loanprinciple_amount], [name=loanprocessingfee_amount]").change(
+  $("[name=name]").change(
     function(){
-      interest = $("[name=loaninterest_amount]").val()
-      principle = $("[name=loanprinciple_amount]").val()
-      processingfee = $("[name=loanprocessingfee_amount]").val()
-      if (interest || principle || processingfee){
         memberloanaccount()
       }
-    }
   )
 </script>
 <script type="text/javascript">
@@ -311,12 +310,12 @@
             $('[name='+field+']').after(html)
           })
       } else {
-        if (data.demand_loanprinciple) {
+        if (data.demand_loanprinciple >= 0) {
           document.getElementById('demand_loanprinciple').value = data.demand_loanprinciple;
           $("#demand_loanprinciple").attr("readonly", true)
         }
 
-        if (data.demand_loaninterest) {
+        if (data.demand_loaninterest >= 0) {
           document.getElementById('demand_loaninterest').value = data.demand_loaninterest;
           $("#demand_loaninterest").attr("readonly", true)
         }
@@ -330,6 +329,7 @@
   $(document).ready(function() {
     $('#createreceiptform').submit(function(e) {
       e.preventDefault();
+      console.log($('#createreceiptform').serialize())
       $.post('', $('#createreceiptform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
