@@ -154,7 +154,7 @@
       submit_url = $(this).attr("data-href")
       $.post(submit_url, $('#loanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert("You don't have permission to change Loan account status.")
+          alert(data.error_message)
           url = "{% url 'micro_admin:clientloanaccount' 1 %}"
           url.replace(1, data.loanaccount_id)
           window.location = url
