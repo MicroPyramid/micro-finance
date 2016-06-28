@@ -102,8 +102,8 @@ urlpatterns = [
         GroupLoanApplicationView.as_view(), name='grouploanapplication'),
     url(r'^grouploanaccount/(?P<loanaccount_id>\d+)/$',
         group_loan_account, name='grouploanaccount'),
-    url(r'^clientloanapplication/(?P<client_id>\d+)/$',
-        client_loan_application, name='clientloanapplication'),
+    url(r'^client/loan/application/(?P<client_id>\d+)/$',
+        ClientLoanApplicationView.as_view(), name='clientloanapplication'),
     url(r'^clientloanaccount/(?P<loanaccount_id>\d+)/$',
         client_loan_account, name='clientloanaccount'),
     # Loan account status

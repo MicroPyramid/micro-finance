@@ -508,8 +508,9 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/daybookpdfdownload/2014-10-10/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            '/clientloanapplication/' + str(self.member1.id) + '/',
+        response = self.client.post(reverse(
+            'micro_admin:clientloanapplication',
+            kwargs={'client_id': self.member1.id}),
             {"account_no": 12, "created_by": self.staff.username,
              "loan_amount": 10000, "interest_type": 'Flat',
              "loan_repayment_period": 123, "loan_repayment_every": 12,
@@ -956,24 +957,26 @@ class Admin_Views_test(TestCase):
     def test_client_loan_application(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/clientloanapplication/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse(
+            'micro_admin:clientloanapplication',
+            kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "client/loan/application.html")
 
     def test_client_loan_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/clientloanapplication/' +
-                                    str(self.member1.id) + '/',
-                                    {"account_no": '',
-                                     'created_by': self.staff.id,
-                                     "loan_amount": '',
-                                     "interest_type": '',
-                                     "loan_repayment_period": '',
-                                     "loan_repayment_every": '',
-                                     "annual_interest_rate": '',
-                                     "loanpurpose_description": ''})
+        response = self.client.post(reverse(
+            'micro_admin:clientloanapplication',
+            kwargs={'client_id': self.member1.id}),
+            {"account_no": '',
+             'created_by': self.staff.id,
+             "loan_amount": '',
+             "interest_type": '',
+             "loan_repayment_period": '',
+             "loan_repayment_every": '',
+             "annual_interest_rate": '',
+             "loanpurpose_description": ''})
         self.assertEqual(response.status_code, 200)
 
     def test_listofclient_savings_withdrawals(self):
