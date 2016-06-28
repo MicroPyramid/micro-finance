@@ -31,7 +31,8 @@ $(document).ready(function(e) {
   $(function() {
     $("#date-picker-cc").datepicker({
       showOtherMonths: true,
-      selectOtherMonths: true
+      selectOtherMonths: true,
+      dateFormat: 'yy-m-dd',
     });
   });
   $(function() {
