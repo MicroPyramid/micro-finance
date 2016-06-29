@@ -190,8 +190,7 @@
         }
         else {
           alert("Member created sucessfully.");
-          url = "{% url 'micro_admin:clientprofile' 1 %}".replace(1, data.client_id)
-          window.location = url;
+          window.location = data.success_url;
         }
       }, "json");
     });

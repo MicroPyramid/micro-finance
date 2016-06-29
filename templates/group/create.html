@@ -73,8 +73,7 @@
         }
         else {
           alert("Group created sucessfully.");
-          url = "{% url 'micro_admin:groupprofile' 1 %}".replace(1, data.group_id)
-          window.location = url;
+          window.location = data.success_url;
         }
       }, "json");
     });

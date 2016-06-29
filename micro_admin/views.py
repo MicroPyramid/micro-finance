@@ -11,9 +11,19 @@ from micro_admin.models import (
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
     RecurringDeposits, USER_ROLES)
 from micro_admin.forms import (
-    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
-    SavingsAccountForm, LoanAccountForm, ReceiptForm, FixedDepositForm,
-    PaymentForm, ReccuringDepositForm)
+    BranchForm,
+    UserForm,
+    GroupForm,
+    ClientForm,
+    AddMemberForm,
+    SavingsAccountForm,
+    LoanAccountForm,
+    ReceiptForm,
+    FixedDepositForm,
+    PaymentForm,
+    ReccuringDepositForm,
+    ChangePasswordForm,
+)
 from django.contrib.auth.decorators import login_required
 import datetime
 import decimal
@@ -75,9 +85,7 @@ class LoginView(View):
     def get(self, request):
         if request.user.is_authenticated():
             return render(request, 'index.html', {'user': request.user})
-        data = {}
-        data.update(csrf(request))
-        return render_to_response("login.html", data)
+        return render_to_response("login.html")
 
 
 class LogoutView(RedirectView):
@@ -98,11 +106,15 @@ class CreateBranchView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         branch = form.save()
-        data = {"error": False, "branch_id": branch.id}
+        url = reverse('micro_admin:branchprofile',
+                      kwargs={"pk": branch.id})
+        data = {"error": False,
+                "success_url": url}
         return JsonResponse(data)
 
     def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
+        data = {"error": True,
+                "errors": form.errors}
         return JsonResponse(data)
 
 
@@ -116,7 +128,10 @@ class UpdateBranchView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         branch = form.save()
-        data = {"error": False, "branch_id": branch.id}
+        url = reverse('micro_admin:branchprofile',
+                      kwargs={"pk": branch.id})
+        data = {"error": False,
+                "success_url": url}
         return JsonResponse(data)
 
     def form_invalid(self, form):
@@ -171,7 +186,12 @@ class CreateClientView(LoginRequiredMixin, CreateView):
         client = form.save(commit=False)
         client.created_by = self.request.user
         client.save()
-        data = {"error": False, "client_id": client.id}
+        url = reverse(
+            'micro_admin:clientprofile',
+            kwargs={"pk": client.id}
+        )
+        data = {"error": False,
+                "success_url": url}
         return JsonResponse(data)
 
     def form_invalid(self, form):
@@ -205,7 +225,12 @@ class UpdateClientView(LoginRequiredMixin, UpdateView):
         # if not (request.user.is_admin or request.user.branch == client.branch):
         #     return HttpResponseRedirect(reverse('micro_admin:viewclient'))
         client = form.save()
-        data = {"error": False, "client_id": client.id}
+        url = reverse(
+            'micro_admin:clientprofile',
+            kwargs={"pk": client.id}
+        )
+        data = {"error": False,
+                "success_url": url}
         return JsonResponse(data)
 
     def form_invalid(self, form):
@@ -278,7 +303,12 @@ class CreateUserView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         user = form.save()
-        data = {"error": False, "user_id": user.id}
+        url = reverse(
+            'micro_admin:userprofile',
+            kwargs={"pk": user.id}
+        )
+        data = {"error": False,
+                "success_url": url}
         return JsonResponse(data)
 
     def form_invalid(self, form):
@@ -310,7 +340,12 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         user = form.save()
-        data = {"error": False, "user_id": user.id}
+        url = reverse(
+            'micro_admin:userprofile',
+            kwargs={"pk": user.id}
+        )
+        data = {"error": False,
+                "success_url": url}
         return JsonResponse(data)
 
     def form_invalid(self, form):
@@ -372,7 +407,14 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
         group = form.save(commit=False)
         group.created_by = self.request.user
         group.save()
-        return JsonResponse({"error": False, "group_id": group.id})
+        url = reverse(
+            'micro_admin:groupprofile',
+            kwargs={"group_id": group.id}
+        )
+        return JsonResponse({
+            "error": False,
+            "success_url": url
+        })
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "errors": form.errors})
@@ -398,7 +440,8 @@ class GroupProfileView(LoginRequiredMixin, DetailView):
 
 
 class GroupAssignStaffView(LoginRequiredMixin,
-                           BranchAccessRequiredMixin, DetailView):
+                           BranchAccessRequiredMixin,
+                           DetailView):
     model = Group
     pk_url_kwarg = 'group_id'
     context_object_name = 'group'
@@ -415,7 +458,12 @@ class GroupAssignStaffView(LoginRequiredMixin,
             group.staff = get_object_or_404(
                 User, id=request.POST.get("staff"))
             group.save()
-            data = {"error": False, "group_id": group.id}
+            url = reverse(
+                'micro_admin:groupprofile',
+                kwargs={"group_id": group.id}
+            )
+            data = {"error": False,
+                    "success_url": url}
         else:
             data = {"error": True,
                     "message": {"staff": "This field is required"}}
@@ -450,7 +498,13 @@ class GroupAddMembersView(LoginRequiredMixin,
                 group.save()
                 client.status = "Assigned"
                 client.save()
-        return JsonResponse({"error": False, "group_id": group.id})
+        url = reverse(
+            'micro_admin:groupprofile',
+            kwargs={"group_id": group.id}
+        )
+        data = {"error": False,
+                "success_url": url}
+        return JsonResponse(data)
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "message": form.errors})
@@ -812,32 +866,6 @@ class GroupLoanAccount(LoginRequiredMixin, DetailView):
         return context
 
 
-@login_required
-def change_loan_account_status(request, loanaccount_id):
-    if request.method == "POST":
-        try:
-            loan_account = LoanAccount.objects.get(id=loanaccount_id)
-            if loan_account.group:
-                branchid = loan_account.group.branch.id
-            elif loan_account.client:
-                branchid = loan_account.client.branch.id
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch.id == branchid)
-            ):
-                loan_account.status = request.GET.get("status")
-                loan_account.approved_date = datetime.datetime.now()
-                loan_account.save()
-                data = {"error": False, "loanaccount_id": loan_account.id}
-            else:
-                data = {"error": True, "loanaccount_id": loan_account.id}
-            return HttpResponse(json.dumps(data))
-        except LoanAccount.DoesNotExist:
-            data = {"error": True}
-            return HttpResponse(json.dumps(data))
-
-
 class ChangeLoanAccountStatus(LoginRequiredMixin, BaseDetailView):
 
     model = LoanAccount
@@ -851,6 +879,10 @@ class ChangeLoanAccountStatus(LoginRequiredMixin, BaseDetailView):
             branch_id = self.object.client.branch.id
         else:
             branch_id = None
+        url = reverse(
+            'micro_admin:clientloanaccount',
+            kwargs={"pk": self.object.id}
+        )
         if branch_id:
             if (request.user.is_admin or
                 (request.user.has_perm("branch_manager") and
@@ -861,14 +893,14 @@ class ChangeLoanAccountStatus(LoginRequiredMixin, BaseDetailView):
                     self.object.approved_date = datetime.datetime.now()
                     self.object.save()
                     data = {"error": False,
-                            "loanaccount_id": self.object.id}
+                            "success_url": url}
                 else:
                     data = {"error": True,
-                            "loanaccount_id": self.object.id,
+                            "success_url": url,
                             "error_message": "Status is not in available choices"}
         else:
             data = {"error": True,
-                    "loanaccount_id": self.object.id,
+                    "success_url": url,
                     "error_message": "Branch Id not Found"}
         return JsonResponse(data)
 
@@ -1464,7 +1496,7 @@ class ReceiptsList(LoginRequiredMixin, ListView):
     template_name = "listof_receipts.html"
 
 
-class LedgerAccount(ListView):
+class LedgerAccount(LoginRequiredMixin, ListView):
 
     model = Receipts
     context_object_name = "receipts_list"
@@ -1567,114 +1599,99 @@ class GeneralLedger(LoginRequiredMixin, ListView):
         return general_ledger_function(self.request)
 
 
-@login_required
-def fixed_deposits(request):
-    if request.method == "GET":
-        data = {}
-        data.update(csrf(request))
-        return render(
-            request, "client/fixed-deposits/fixed_deposit_application.html", {"data": data})
-    else:
-        try:
-            client = Client.objects.get(
-                first_name__iexact=request.POST.get("client_name"),
-                account_number=request.POST.get("client_account_no"))
-            form = FixedDepositForm(request.POST, request.FILES)
-            if form.is_valid():
-                fixed_deposit = form.save(commit=False)
-                fixed_deposit.status = "Opened"
-                fixed_deposit.client = client
-                interest_charged = d(
-                    (
-                        (
-                            d(fixed_deposit.fixed_deposit_amount) *
-                            (d(fixed_deposit.fixed_deposit_interest_rate) / 12)
-                        ) / 100
-                    )
-                )
-                fixed_deposit_interest_charged = d(
-                    d(interest_charged) * d(fixed_deposit.fixed_deposit_period)
-                )
-                fixed_deposit.maturity_amount = d(
-                    d(fixed_deposit.fixed_deposit_amount) + d(
-                        fixed_deposit_interest_charged)
-                )
-                fixed_deposit.fixed_deposit_interest = d(
-                    d(fixed_deposit.maturity_amount) - d(
-                        fixed_deposit.fixed_deposit_amount)
-                )
-                fixed_deposit.save()
-                data = {"error": False, "fixed_deposit_id": fixed_deposit.id}
-                return HttpResponse(json.dumps(data))
-            else:
-                data = {"error": True, "message": form.errors}
-                return HttpResponse(json.dumps(data))
+class FixedDepositsView(LoginRequiredMixin, CreateView):
 
-        except Client.DoesNotExist:
-            data = {
-                "error": True,
-                "messagememerr": "No Member exist with this " +
-                                 "First Name and Account Number."
-            }
-            return HttpResponse(json.dumps(data))
+    form_class = FixedDepositForm
+    template_name = "client/fixed-deposits/fixed_deposit_application.html"
+
+    def form_valid(self, form):
+        fixed_deposit = form.save(commit=False)
+        fixed_deposit.status = "Opened"
+        fixed_deposit.client = form.client
+        interest_charged = (fixed_deposit.fixed_deposit_amount * (
+                            fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
+        fixed_deposit_interest_charged = interest_charged * d(
+            fixed_deposit.fixed_deposit_period)
+        fixed_deposit.maturity_amount = (fixed_deposit.fixed_deposit_amount +
+                                         fixed_deposit_interest_charged)
+        fixed_deposit.fixed_deposit_interest = (
+            fixed_deposit.maturity_amount - fixed_deposit.fixed_deposit_amount
+        )
+        fixed_deposit.save()
+        url = reverse('micro_admin:clientfixeddepositsprofile',
+                      kwargs={"fixed_deposit_id": fixed_deposit.id})
+        data = {"error": False, "success_url": url}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "message": form.errors}
+        return JsonResponse(data)
 
 
-@login_required
-def client_fixed_deposits_profile(request, fixed_deposit_id):
-    fixed_deposit = FixedDeposits.objects.get(id=fixed_deposit_id)
-    return render(
-        request, "client/fixed-deposits/fixed_deposits_profile.html",
-        {"fixed_deposit": fixed_deposit}
-    )
+class ClientFixedDepositsProfile(LoginRequiredMixin, DetailView):
+    model = FixedDeposits
+    pk_url_kwarg = "fixed_deposit_id"
+    context_object_name = "fixed_deposit"
+    template_name = "client/fixed-deposits/fixed_deposits_profile.html"
 
 
-@login_required
-def view_client_fixed_deposits(request):
-    fixed_deposit_list = FixedDeposits.objects.all().order_by("-id")
-    return render(
-        request, "client/fixed-deposits/view_fixed_deposits.html",
-        {"fixed_deposit_list": fixed_deposit_list}
-    )
+class ViewClientFixedDeposits(LoginRequiredMixin, ListView):
+
+    model = FixedDeposits
+    template_name = "client/fixed-deposits/view_fixed_deposits.html"
+    context_object_name = "fixed_deposit_list"
 
 
-@login_required
-def view_particular_client_fixed_deposits(request, client_id):
-    client = Client.objects.get(id=client_id)
-    fixed_deposit_list = FixedDeposits.objects.filter(
-        client=client_id).order_by("-id")
-    return render(
-        request, "client/fixed-deposits/view_fixed_deposits.html",
-        {"fixed_deposit_list": fixed_deposit_list, "client": client}
-    )
+class ViewParticularClientFixedDeposits(LoginRequiredMixin, ListView):
+
+    context_object_name = "fixed_deposit_list"
+    template_name = "client/fixed-deposits/view_fixed_deposits.html"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        queryset = FixedDeposits.objects.filter(
+            client=self.client
+        ).order_by("-id")
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewParticularClientFixedDeposits, self).get_context_data(**kwargs)
+        context["client"] = self.client
+        return context
 
 
-@login_required
-def client_recurring_deposits_profile(request, recurring_deposit_id):
-    recurring_deposit = RecurringDeposits.objects.get(id=recurring_deposit_id)
-    return render(
-        request, "client/recurring-deposits/recurring_deposit_profile.html",
-        {"recurring_deposit": recurring_deposit}
-    )
+class ClientRecurringDepositsProfile(LoginRequiredMixin, DetailView):
+
+    model = RecurringDeposits
+    pk_url_kwarg = "recurring_deposit_id"
+    context_object_name = "recurring_deposit"
+    template_name = "client/recurring-deposits/recurring_deposit_profile.html"
 
 
-@login_required
-def view_client_recurring_deposits(request):
-    recurring_deposit_list = RecurringDeposits.objects.all().order_by("-id")
-    return render(
-        request, "client/recurring-deposits/view_recurring_deposits.html",
-        {"recurring_deposit_list": recurring_deposit_list}
-    )
+class ViewClientRecurringDeposits(LoginRequiredMixin, ListView):
+
+    queryset = RecurringDeposits.objects.all().order_by("-id")
+    template_name = "client/recurring-deposits/view_recurring_deposits.html"
+    context_object_name = "recurring_deposit_list"
 
 
-@login_required
-def view_particular_client_recurring_deposits(request, client_id):
-    client = Client.objects.get(id=client_id)
-    recurring_deposit_list = RecurringDeposits.objects.filter(
-        client=client_id).order_by("-id")
-    return render(
-        request, "client/recurring-deposits/view_recurring_deposits.html",
-        {"recurring_deposit_list": recurring_deposit_list, "client": client}
-    )
+class ViewParticularClientRecurringDeposits(LoginRequiredMixin, ListView):
+
+    template_name = "client/recurring-deposits/view_recurring_deposits.html"
+    context_object_name = "recurring_deposit_list"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        queryset = RecurringDeposits.objects.filter(
+            client=self.client
+        ).order_by("-id")
+        return queryset
+
+    def get_context_data(self):
+        context = super(ViewParticularClientRecurringDeposits, self).get_context_data()
+        context["client"] = self.client
+        return context
 
 
 def get_receipts_list(receipts_list, receipt, value):
@@ -1768,19 +1785,29 @@ def day_book_function(request, date):
                 share_capital_receipts_list = get_receipts_list(
                     share_capital_receipts_list, receipt,
                     receipt.sharecapital_amount)
-
-                thrift_deposit_sum += d(receipt.savingsdeposit_thrift_amount)
-                loanprinciple_amount_sum += d(receipt.loanprinciple_amount)
-                loaninterest_amount_sum += d(receipt.loaninterest_amount)
-                entrancefee_amount_sum += d(receipt.entrancefee_amount)
-                membershipfee_amount_sum += d(receipt.membershipfee_amount)
-                bookfee_amount_sum += d(receipt.bookfee_amount)
-                loanprocessingfee_amount_sum += d(
-                    receipt.loanprocessingfee_amount)
-                insurance_amount_sum += d(receipt.insurance_amount)
-                fixed_deposit_sum += d(receipt.fixeddeposit_amount)
-                recurring_deposit_sum += d(receipt.recurringdeposit_amount)
-                share_capital_amount_sum += d(receipt.sharecapital_amount)
+                if receipt.savingsdeposit_thrift_amount:
+                    thrift_deposit_sum += d(receipt.savingsdeposit_thrift_amount)
+                if receipt.loanprinciple_amount:
+                    loanprinciple_amount_sum += d(receipt.loanprinciple_amount)
+                if receipt.loaninterest_amount:
+                    loaninterest_amount_sum += d(receipt.loaninterest_amount)
+                if receipt.entrancefee_amount:
+                    entrancefee_amount_sum += d(receipt.entrancefee_amount)
+                if receipt.membershipfee_amount:
+                    membershipfee_amount_sum += d(receipt.membershipfee_amount)
+                if receipt.bookfee_amount:
+                    bookfee_amount_sum += d(receipt.bookfee_amount)
+                if receipt.loanprocessingfee_amount:
+                    loanprocessingfee_amount_sum += d(
+                        receipt.loanprocessingfee_amount)
+                if receipt.insurance_amount:
+                    insurance_amount_sum += d(receipt.insurance_amount)
+                if receipt.fixeddeposit_amount:
+                    fixed_deposit_sum += d(receipt.fixeddeposit_amount)
+                if receipt.recurringdeposit_amount:
+                    recurring_deposit_sum += d(receipt.recurringdeposit_amount)
+                if receipt.sharecapital_amount:
+                    share_capital_amount_sum += d(receipt.sharecapital_amount)
 
             group = Group.objects.get(id=group_id)
             share_capital_amount_sum_dict = {}
@@ -2217,41 +2244,32 @@ def view_day_book(request):
         })
 
 
-@login_required
-def recurring_deposits(request):
-    if request.method == "GET":
-        return render(request, "client/recurring-deposits/application.html")
-    else:
-        try:
-            client = Client.objects.get(
-                first_name__iexact=request.POST.get("client_name"),
-                account_number=request.POST.get("client_account_no"))
-            form = ReccuringDepositForm(request.POST, request.FILES)
-            if form.is_valid():
-                recurring_deposit = form.save(commit=False)
-                recurring_deposit.status = "Opened"
-                recurring_deposit.client = client
-                recurring_deposit.save()
-                data = {
-                    "error": False,
-                    "recurring_deposit_id": recurring_deposit.id}
-                return HttpResponse(json.dumps(data))
-            else:
-                data = {"error": True, "message": form.errors}
-                return HttpResponse(json.dumps(data))
-        except Client.DoesNotExist:
-            data = {
-                "error": True,
-                "messagememerr": "No Member exist with this " +
-                                 "Name and Account Number."}
-            return HttpResponse(json.dumps(data))
+class RecurringDepositsView(LoginRequiredMixin, CreateView):
+
+    form_class = ReccuringDepositForm
+    template_name = "client/recurring-deposits/application.html"
+
+    def form_valid(self, form):
+        recurring_deposit = form.save(commit=False)
+        recurring_deposit.status = "Opened"
+        recurring_deposit.client = form.client
+        recurring_deposit.save()
+        url = reverse('micro_admin:clientrecurringdepositsprofile',
+                      kwargs={"recurring_deposit_id": recurring_deposit.id})
+        data = {"error": False, "success_url": url}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "message": form.errors}
+        return JsonResponse(data)
 
 
-@login_required
-def payments_list(request):
-    payments_list = Payments.objects.all().order_by("-id")
-    return render(request, "list_of_payments.html",
-                  {"payments_list": payments_list})
+class PaymentsList(LoginRequiredMixin, ListView):
+
+    queryset = Payments.objects.all().order_by("-id")
+    context_object_name = "payments_list"
+    template_name = "list_of_payments.html"
 
 
 @login_required
@@ -2552,332 +2570,347 @@ def pay_slip(request):
             return HttpResponse(json.dumps(data))
 
 
-@login_required
-def view_group_loanslist(request, group_id):
-    group = Group.objects.get(id=group_id)
-    loan_accounts_list = LoanAccount.objects.filter(group=group)
-    loan_accounts_count = LoanAccount.objects.filter(group=group).count()
-    return render(
-        request,
-        "group/loan/list_of_loan_accounts.html",
-        {
-            "group": group,
-            "loan_accounts_list": loan_accounts_list,
-            "loan_accounts_count": loan_accounts_count
-        }
-    )
+class ViewGroupLoansList(LoginRequiredMixin, ListView):
+
+    template_name = "group/loan/list_of_loan_accounts.html"
+    context_object_name = "loan_accounts_list"
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        queryset = LoanAccount.objects.filter(group=self.group)
+        return queryset
+
+    def get_context_data(self):
+        context = super(ViewGroupLoansList, self).get_context_data()
+        context["group"] = self.group
+        return context
 
 
-@login_required
-def view_client_loanslist(request, client_id):
-    client = Client.objects.get(id=client_id)
-    loan_accounts_list = LoanAccount.objects.filter(client=client)
-    loan_accounts_count = LoanAccount.objects.filter(client=client).count()
-    return render(
-        request,
-        "client/loan/list_of_loan_accounts.html",
-        {
-            "client": client,
-            "loan_accounts_list": loan_accounts_list,
-            "loan_accounts_count": loan_accounts_count
-        })
+class ViewClientLoansList(LoginRequiredMixin, ListView):
+
+    template_name = "client/loan/list_of_loan_accounts.html"
+    context_object_name = "loan_accounts_list"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        queryset = LoanAccount.objects.filter(client=self.client)
+        return queryset
+
+    def get_context_data(self):
+        context = super(ViewClientLoansList, self).get_context_data()
+        context["client"] = self.client
+        return context
 
 
-@login_required
-def clientledger_csvdownload(request, client_id):
-    client = Client.objects.get(id=client_id)
-    receipts_list = Receipts.objects.filter(client=client_id).exclude(
-        demand_loanprinciple_amount_atinstant=0,
-        demand_loaninterest_amount_atinstant=0)
-    try:
-        response = HttpResponse(content_type='application/x-download')
-        response['Content-Disposition'] = 'attachment; filename=' + \
-            client.first_name + client.last_name + "_ledger.csv"
-        writer = csv.writer(response, csv.excel)
-        response.write(u'\ufeff'.encode('utf8'))
-        group = client.group_set.get()
-        writer.writerow([
-            smart_str(client.id),
-            smart_str(client.first_name),
-            smart_str(group.name),
-        ])
-        writer.writerow([
-            smart_str(u"Date"),
-            smart_str(u"Recepit No"),
-            smart_str(u"Demand Principal"),
-            smart_str(u"Demand Interest"),
-            smart_str(u"Demand Peenal Interest"),
-            smart_str(u"Collecton Principal"),
-            smart_str(u"Collecton Interest"),
-            smart_str(u"Collecton Peenal Interest"),
-            smart_str(u"Balance Principal"),
-            smart_str(u"Balance Interest"),
-            smart_str(u"Balance Peenal Interest"),
-            smart_str(u"Loan Outstanding"),
-        ])
-        for receipt in receipts_list:
-            var1 = d(receipt.demand_loanprinciple_amount_atinstant)
-            var2 = d(receipt.loanprinciple_amount)
-            if var1 > var2:
-                balance_principle = d(d(var1) - d(var2))
-            else:
-                balance_principle = 0
+class ClientLedgerCSVDownload(LoginRequiredMixin, View):
 
-            var4 = d(receipt.demand_loaninterest_amount_atinstant)
-            var5 = d(receipt.loaninterest_amount)
-            if var4 > var5:
-                balance_interest = d(d(var4) - d(var5))
-            else:
-                balance_interest = 0
-            writer.writerow([
-                smart_str(receipt.date),
-                smart_str(receipt.receipt_number),
-                smart_str(receipt.demand_loanprinciple_amount_atinstant),
-                smart_str(receipt.demand_loaninterest_amount_atinstant),
-                smart_str("0"),
-                smart_str(receipt.loanprinciple_amount),
-                smart_str(receipt.loaninterest_amount),
-                smart_str("0"),
-                smart_str(balance_principle),
-                smart_str(balance_interest),
-                smart_str("0"),
-                smart_str(receipt.principle_loan_balance_atinstant),
-            ])
-        return response
-    except Exception as err:
-        errmsg = "%s" % (err)
-        return HttpResponse(errmsg)
-
-
-@login_required
-def clientledger_exceldownload(request, client_id):
-    client = Client.objects.get(id=client_id)
-    receipts_list = Receipts.objects.filter(client=client_id).exclude(
-        demand_loanprinciple_amount_atinstant=0,
-        demand_loaninterest_amount_atinstant=0)
-    try:
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = 'attachment; filename=' + \
-            client.first_name + client.last_name + "_ledger.xls"
-        wb = xlwt.Workbook(encoding='utf-8')
-        ws = wb.add_sheet("Ledger")
-
-        row_num = 0
-
-        columns = [
-            (u"Date", 1000),
-            (u"Receipt Number", 1000),
-            (u"Demand Principal", 2000),
-            (u"Demand Interest", 2000),
-            (u"Demand Peenal Interest", 2000),
-            (u"Collection Principal", 2000),
-            (u"Collection Interest", 2000),
-            (u"Collection Peenal Interest", 2000),
-            (u"Balance Principal", 2000),
-            (u"Balance Interest", 2000),
-            (u"Balance Peenal Interest", 2000),
-            (u"Loan Outstanding", 2000),
-        ]
-
-        font_style = xlwt.XFStyle()
-        font_style.font.bold = True
-
-        for col_num in xrange(len(columns)):
-            ws.write(row_num, col_num, columns[col_num][0], font_style)
-            ws.col(col_num).width = columns[col_num][1]
-
-        font_style = xlwt.XFStyle()
-        font_style.alignment.wrap = 1
-
-        for receipt in receipts_list:
-            row_num += 1
-
-            var1 = d(receipt.demand_loanprinciple_amount_atinstant)
-            var2 = d(receipt.loanprinciple_amount)
-            if var1 > var2:
-                balance_principle = d(d(var1) - d(var2))
-            else:
-                balance_principle = 0
-
-            var4 = d(receipt.demand_loaninterest_amount_atinstant)
-            var5 = d(receipt.loaninterest_amount)
-            if var4 > var5:
-                balance_interest = d(d(var4) - d(var5))
-            else:
-                balance_interest = 0
-
-            row = [
-                str(receipt.date),
-                receipt.receipt_number,
-                receipt.demand_loanprinciple_amount_atinstant,
-                receipt.demand_loaninterest_amount_atinstant,
-                0,
-                receipt.loanprinciple_amount,
-                receipt.loaninterest_amount,
-                0,
-                balance_principle,
-                balance_interest,
-                0,
-                receipt.principle_loan_balance_atinstant,
-            ]
-            for col_num in xrange(len(row)):
-                ws.write(row_num, col_num, row[col_num], font_style)
-
-        wb.save(response)
-        return response
-    except Exception as err:
-        errmsg = "%s" % (err)
-        return HttpResponse(errmsg)
-
-
-@login_required
-def clientledger_pdfdownload(request, client_id):
-    client = Client.objects.get(id=client_id)
-    receipts_list = Receipts.objects.filter(client=client_id).exclude(
-        demand_loanprinciple_amount_atinstant=0,
-        demand_loaninterest_amount_atinstant=0)
-    try:
-        # template = get_template("pdfledger.html")
-        context = Context({
-            'pagesize': 'A4', "receipts_list": receipts_list,
-            "client": client, "mediaroot": settings.MEDIA_ROOT})
-        return render(request, 'pdfledger.html', context)
-        # html = template.render(context)
-        # result = StringIO.StringIO()
-        # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
-        # if not pdf.err:
-        #     return HttpResponse(result.getvalue(),
-        #                         content_type='application/pdf')
-        # else:
-        #     return HttpResponse('We had some errors')
-    except Exception as err:
-        errmsg = "%s" % (err)
-        return HttpResponse(errmsg)
-
-
-@login_required
-def general_ledger_pdfdownload(request):
-    general_ledger_list = general_ledger_function(request)
-    try:
-        # template = get_template("pdfgeneral_ledger.html")
-        context = Context(
-            {'pagesize': 'A4', "list": general_ledger_list,
-             "mediaroot": settings.MEDIA_ROOT})
-        return render(request, 'pdfgeneral_ledger.html', context)
-        # html = template.render(context)
-        # result = StringIO.StringIO()
-        # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
-        # if not pdf.err:
-        #     return HttpResponse(result.getvalue(),
-        #                         content_type='application/pdf')
-        # else:
-        #     return HttpResponse('We had some errors')
-    except Exception as err:
-        errmsg = "%s" % (err)
-        return HttpResponse(errmsg)
-
-
-@login_required
-def daybook_pdfdownload(request, date):
-    receipts_list, total_payments, travellingallowance_list, \
-        loans_list, paymentofsalary_list, printingcharges_list, \
-        stationarycharges_list, othercharges_list, savingswithdrawal_list,\
-        recurringwithdrawal_list, fixedwithdrawal_list, total, \
-        dict_payments, total_dict, selected_date, grouped_receipts_list, \
-        thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
-        loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
-        membershipfee_amount_sum_list, bookfee_amount_sum_list, \
-        loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
-        fixed_deposit_sum_list, recurring_deposit_sum_list, \
-        share_capital_amount_sum_list = day_book_function(request, date)
-
-    try:
-        # template = get_template("pdf_daybook.html")
-        context = Context(
-            {"receipts_list": receipts_list, "total_payments": total_payments,
-             "loans_list": loans_list, "selected_date": selected_date,
-             "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
-             "dict_payments": dict_payments, "dict": total_dict,
-             "travellingallowance_list": travellingallowance_list,
-             "paymentofsalary_list": paymentofsalary_list,
-             "printingcharges_list": printingcharges_list,
-             "stationarycharges_list": stationarycharges_list,
-             "othercharges_list": othercharges_list,
-             "savingswithdrawal_list": savingswithdrawal_list,
-             "recurringwithdrawal_list": recurringwithdrawal_list,
-             "grouped_receipts_list": grouped_receipts_list,
-             "thrift_deposit_sum_list": thrift_deposit_sum_list,
-             "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list,
-             "loaninterest_amount_sum_list": loaninterest_amount_sum_list,
-             "entrancefee_amount_sum_list": entrancefee_amount_sum_list,
-             "membershipfee_amount_sum_list": membershipfee_amount_sum_list,
-             "bookfee_amount_sum_list": bookfee_amount_sum_list,
-             "insurance_amount_sum_list": insurance_amount_sum_list,
-             "share_capital_amount_sum_list": share_capital_amount_sum_list,
-             "recurring_deposit_sum_list": recurring_deposit_sum_list,
-             "fixed_deposit_sum_list": fixed_deposit_sum_list,
-             "loanprocessingfee_amount_sum_list":
-                loanprocessingfee_amount_sum_list
-             }
+    def get(self, request, *args, **kwargs):
+        client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        receipts_list = Receipts.objects.filter(
+            client=client
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
         )
-        return render(request, 'pdf_daybook.html', context)
-        # html = template.render(context)
-        # result = StringIO.StringIO()
-        # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
-        # if not pdf.err:
-        #     return HttpResponse(result.getvalue(),
-        #                         content_type='application/pdf')
-        # else:
-        #     return HttpResponse('We had some errors')
-    except Exception as err:
-        errmsg = "%s" % (err)
-        return HttpResponse(errmsg)
+        try:
+            response = HttpResponse(content_type='application/x-download')
+            response['Content-Disposition'] = 'attachment; filename=' + \
+                client.first_name + client.last_name + "_ledger.csv"
+            writer = csv.writer(response, csv.excel)
+            response.write(u'\ufeff'.encode('utf8'))
+            group = client.group_set.get()
+            writer.writerow([
+                smart_str(client.id),
+                smart_str(client.first_name),
+                smart_str(group.name),
+            ])
+            writer.writerow([
+                smart_str(u"Date"),
+                smart_str(u"Recepit No"),
+                smart_str(u"Demand Principal"),
+                smart_str(u"Demand Interest"),
+                smart_str(u"Demand Peenal Interest"),
+                smart_str(u"Collecton Principal"),
+                smart_str(u"Collecton Interest"),
+                smart_str(u"Collecton Peenal Interest"),
+                smart_str(u"Balance Principal"),
+                smart_str(u"Balance Interest"),
+                smart_str(u"Balance Peenal Interest"),
+                smart_str(u"Loan Outstanding"),
+            ])
+            for receipt in receipts_list:
+                if receipt.demand_loanprinciple_amount_atinstant:
+                    var1 = d(receipt.demand_loanprinciple_amount_atinstant)
+                else:
+                    var1 = 0
+                if receipt.loanprinciple_amount:
+                    var2 = d(receipt.loanprinciple_amount)
+                else:
+                    var2 = 0
+                if var1 > var2:
+                    balance_principle = d(d(var1) - d(var2))
+                else:
+                    balance_principle = 0
+                if receipt.demand_loaninterest_amount_atinstant:
+                    var4 = d(receipt.demand_loaninterest_amount_atinstant)
+                else:
+                    var4 = 0
+                if receipt.loaninterest_amount:
+                    var5 = d(receipt.loaninterest_amount)
+                else:
+                    var5 = 0
+                if var4 > var5:
+                    balance_interest = d(d(var4) - d(var5))
+                else:
+                    balance_interest = 0
+                writer.writerow([
+                    smart_str(receipt.date),
+                    smart_str(receipt.receipt_number),
+                    smart_str(receipt.demand_loanprinciple_amount_atinstant),
+                    smart_str(receipt.demand_loaninterest_amount_atinstant),
+                    smart_str("0"),
+                    smart_str(receipt.loanprinciple_amount),
+                    smart_str(receipt.loaninterest_amount),
+                    smart_str("0"),
+                    smart_str(balance_principle),
+                    smart_str(balance_interest),
+                    smart_str("0"),
+                    smart_str(receipt.principle_loan_balance_atinstant),
+                ])
+            return response
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
 
 
-@login_required
-def user_change_password(request, user_id):
-    if request.method == "GET":
-        user = User.objects.get(id=user_id)
-        return render(request, "user_change_password.html", {"user": user})
-    elif request.method == "POST":
-        user = User.objects.get(id=user_id)
-        user = authenticate(username=user.username,
-                            password=request.POST.get("current_password"))
-        if user is not None:
-            new_password = request.POST.get("new_password")
-            new_pwd_length = len(new_password)
-            if new_pwd_length < 1:
-                data = {
-                    "error": True, "newpwderror": "Password cannot be blank."
-                }
-                return HttpResponse(json.dumps(data))
-            elif new_pwd_length < 5:
-                data = {
-                    "error": True,
-                    "newpwderror": "Your password must be at " +
-                                   "least 5 characters long."
-                }
-                return HttpResponse(json.dumps(data))
-            else:
-                confirm_new_password = request.POST.get("confirm_new_password")
-                if new_password != confirm_new_password:
-                    data = {
-                        "error": True,
-                        "matchpwdserror": "Password and Confirm " +
-                                          "Password don't match."
-                    }
-                    return HttpResponse(json.dumps(data))
-                elif new_password == confirm_new_password:
-                    user.set_password(new_password)
-                    user.save()
-                    data = {"error": False}
-                    return HttpResponse(json.dumps(data))
-        else:
-            data = {
-                "error": True,
-                "currentpwderror": "Entered Current Password is incorrect."}
-            return HttpResponse(json.dumps(data))
+class ClientLedgerExcelDownload(LoginRequiredMixin, View):
 
+    def get(self, request, **kwargs):
+        client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        receipts_list = Receipts.objects.filter(
+            client=client
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        try:
+            response = HttpResponse(content_type='application/ms-excel')
+            response['Content-Disposition'] = 'attachment; filename=' + \
+                client.first_name + client.last_name + "_ledger.xls"
+            wb = xlwt.Workbook(encoding='utf-8')
+            ws = wb.add_sheet("Ledger")
+
+            row_num = 0
+
+            columns = [
+                (u"Date", 1000),
+                (u"Receipt Number", 1000),
+                (u"Demand Principal", 2000),
+                (u"Demand Interest", 2000),
+                (u"Demand Peenal Interest", 2000),
+                (u"Collection Principal", 2000),
+                (u"Collection Interest", 2000),
+                (u"Collection Peenal Interest", 2000),
+                (u"Balance Principal", 2000),
+                (u"Balance Interest", 2000),
+                (u"Balance Peenal Interest", 2000),
+                (u"Loan Outstanding", 2000),
+            ]
+
+            font_style = xlwt.XFStyle()
+            font_style.font.bold = True
+
+            for col_num in xrange(len(columns)):
+                ws.write(row_num, col_num, columns[col_num][0], font_style)
+                ws.col(col_num).width = columns[col_num][1]
+
+            font_style = xlwt.XFStyle()
+            font_style.alignment.wrap = 1
+
+            for receipt in receipts_list:
+                row_num += 1
+                if receipt.demand_loanprinciple_amount_atinstant:
+                    var1 = d(receipt.demand_loanprinciple_amount_atinstant)
+                else:
+                    var1 = 0
+                if receipt.loanprinciple_amount:
+                    var2 = d(receipt.loanprinciple_amount)
+                else:
+                    var2 = 0
+                if var1 > var2:
+                    balance_principle = d(d(var1) - d(var2))
+                else:
+                    balance_principle = 0
+                if receipt.demand_loaninterest_amount_atinstant:
+                    var4 = d(receipt.demand_loaninterest_amount_atinstant)
+                else:
+                    var4 = 0
+                if receipt.loaninterest_amount:
+                    var5 = d(receipt.loaninterest_amount)
+                else:
+                    var5 = 0
+                if var4 > var5:
+                    balance_interest = d(d(var4) - d(var5))
+                else:
+                    balance_interest = 0
+
+                row = [
+                    str(receipt.date),
+                    receipt.receipt_number,
+                    receipt.demand_loanprinciple_amount_atinstant,
+                    receipt.demand_loaninterest_amount_atinstant,
+                    0,
+                    receipt.loanprinciple_amount,
+                    receipt.loaninterest_amount,
+                    0,
+                    balance_principle,
+                    balance_interest,
+                    0,
+                    receipt.principle_loan_balance_atinstant,
+                ]
+                for col_num in xrange(len(row)):
+                    ws.write(row_num, col_num, row[col_num], font_style)
+
+            wb.save(response)
+            return response
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
+
+
+class ClientLedgerPDFDownload(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        receipts_list = Receipts.objects.filter(
+            client=client
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        try:
+            # template = get_template("pdfledger.html")
+            context = Context({
+                'pagesize': 'A4', "receipts_list": receipts_list,
+                "client": client, "mediaroot": settings.MEDIA_ROOT})
+            return render(request, 'pdfledger.html', context)
+            # html = template.render(context)
+            # result = StringIO.StringIO()
+            # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+            # if not pdf.err:
+            #     return HttpResponse(result.getvalue(),
+            #                         content_type='application/pdf')
+            # else:
+            #     return HttpResponse('We had some errors')
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
+
+
+class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        general_ledger_list = general_ledger_function(request)
+        try:
+            # template = get_template("pdfgeneral_ledger.html")
+            context = Context(
+                {'pagesize': 'A4', "list": general_ledger_list,
+                 "mediaroot": settings.MEDIA_ROOT})
+            return render(request, 'pdfgeneral_ledger.html', context)
+            # html = template.render(context)
+            # result = StringIO.StringIO()
+            # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+            # if not pdf.err:
+            #     return HttpResponse(result.getvalue(),
+            #                         content_type='application/pdf')
+            # else:
+            #     return HttpResponse('We had some errors')
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
+
+
+class DayBookPdfDownload(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        date = kwargs.get("date")
+        receipts_list, total_payments, travellingallowance_list, \
+            loans_list, paymentofsalary_list, printingcharges_list, \
+            stationarycharges_list, othercharges_list, savingswithdrawal_list,\
+            recurringwithdrawal_list, fixedwithdrawal_list, total, \
+            dict_payments, total_dict, selected_date, grouped_receipts_list, \
+            thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
+            loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
+            membershipfee_amount_sum_list, bookfee_amount_sum_list, \
+            loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
+            fixed_deposit_sum_list, recurring_deposit_sum_list, \
+            share_capital_amount_sum_list = day_book_function(request, date)
+
+        try:
+            # template = get_template("pdf_daybook.html")
+            context = Context(
+                {"receipts_list": receipts_list, "total_payments": total_payments,
+                 "loans_list": loans_list, "selected_date": selected_date,
+                 "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
+                 "dict_payments": dict_payments, "dict": total_dict,
+                 "travellingallowance_list": travellingallowance_list,
+                 "paymentofsalary_list": paymentofsalary_list,
+                 "printingcharges_list": printingcharges_list,
+                 "stationarycharges_list": stationarycharges_list,
+                 "othercharges_list": othercharges_list,
+                 "savingswithdrawal_list": savingswithdrawal_list,
+                 "recurringwithdrawal_list": recurringwithdrawal_list,
+                 "grouped_receipts_list": grouped_receipts_list,
+                 "thrift_deposit_sum_list": thrift_deposit_sum_list,
+                 "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list,
+                 "loaninterest_amount_sum_list": loaninterest_amount_sum_list,
+                 "entrancefee_amount_sum_list": entrancefee_amount_sum_list,
+                 "membershipfee_amount_sum_list": membershipfee_amount_sum_list,
+                 "bookfee_amount_sum_list": bookfee_amount_sum_list,
+                 "insurance_amount_sum_list": insurance_amount_sum_list,
+                 "share_capital_amount_sum_list": share_capital_amount_sum_list,
+                 "recurring_deposit_sum_list": recurring_deposit_sum_list,
+                 "fixed_deposit_sum_list": fixed_deposit_sum_list,
+                 "loanprocessingfee_amount_sum_list":
+                    loanprocessingfee_amount_sum_list
+                 }
+            )
+            return render(request, 'pdf_daybook.html', context)
+            # html = template.render(context)
+            # result = StringIO.StringIO()
+            # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+            # if not pdf.err:
+            #     return HttpResponse(result.getvalue(),
+            #                         content_type='application/pdf')
+            # else:
+            #     return HttpResponse('We had some errors')
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
+
+
+class UserChangePassword(LoginRequiredMixin, FormView):
+
+    form_class = ChangePasswordForm
+    template_name = "user_change_password.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(UserChangePassword, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
+    def form_valid(self, form):
+        user = self.request.user
+        user.set_password(form.cleaned_data.get("new_password"))
+        user.save()
+        data = {"error": False,
+                "message": "You have changed your password!"}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)
 
 @login_required
 def getmember_loanaccounts(request):

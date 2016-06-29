@@ -1,6 +1,16 @@
 from django import forms
-from micro_admin.models import Branch, User, Group, Client, SavingsAccount,\
-    LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits
+from micro_admin.models import(
+    Branch,
+    User,
+    Group,
+    Client,
+    SavingsAccount,
+    LoanAccount,
+    FixedDeposits,
+    Receipts,
+    Payments,
+    RecurringDeposits,
+)
 
 
 class BranchForm(forms.ModelForm):
@@ -216,6 +226,9 @@ class PaymentForm(forms.ModelForm):
 
 class FixedDepositForm(forms.ModelForm):
 
+    client_name = forms.CharField(max_length=50, required=True)
+    client_account_no = forms.CharField(max_length=50, required=True)
+
     class Meta:
         model = FixedDeposits
         fields = ["nominee_firstname", "nominee_lastname",
@@ -226,8 +239,20 @@ class FixedDepositForm(forms.ModelForm):
                   "nominee_signature", "nominee_gender",
                   "nominee_date_of_birth"]
 
+    def clean_client_account_no(self):
+        self.client = Client.objects.filter(
+            first_name__iexact=self.cleaned_data.get("client_name"),
+            account_number=self.cleaned_data.get("client_account_no")
+        ).first()
+        if not self.client:
+            raise forms.ValidationError("No Member exist with this First Name and Account Number.")
+        return self.cleaned_data.get("client_account_no")
+
 
 class ReccuringDepositForm(forms.ModelForm):
+
+    client_name = forms.CharField(max_length=50, required=True)
+    client_account_no = forms.CharField(max_length=50, required=True)
 
     class Meta:
         model = RecurringDeposits
@@ -239,3 +264,42 @@ class ReccuringDepositForm(forms.ModelForm):
                   "relationship_with_nominee",
                   "nominee_photo", "nominee_signature",
                   "nominee_date_of_birth"]
+
+    def clean_client_account_no(self):
+        self.client = Client.objects.filter(
+            first_name__iexact=self.cleaned_data.get("client_name"),
+            account_number=self.cleaned_data.get("client_account_no")
+        ).first()
+        if not self.client:
+            raise forms.ValidationError("No Member exist with this First Name and Account Number.")
+        return self.cleaned_data.get("client_account_no")
+
+
+class ChangePasswordForm(forms.Form):
+
+    current_password = forms.CharField(max_length=50, required=True)
+    new_password = forms.CharField(max_length=50, required=True)
+    confirm_new_password = forms.CharField(max_length=50, required=True)
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super(ChangePasswordForm, self).__init__(*args, **kwargs)
+
+    def clean_current_password(self):
+        current = self.cleaned_data.get("current_password")
+        if not self.user.check_password(current):
+            raise forms.ValidationError("Current Password is Invalid")
+        return current
+
+    def clean_new_password(self):
+        password = self.cleaned_data.get("new_password")
+        if len(password) < 5:
+            raise forms.ValidationError("Password must be at least 5 characters")
+        return password
+
+    def clean_confirm_new_password(self):
+        password = self.cleaned_data.get("new_password")
+        confirm = self.cleaned_data.get("confirm_new_password")
+        if password != confirm:
+            raise forms.ValidationError("Passwords does not match")
+        return confirm
