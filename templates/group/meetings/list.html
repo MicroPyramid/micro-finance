@@ -1,0 +1,54 @@
+{% extends 'group/groupbase.html' %}
+
+{% block groupbreadcrumb %}
+  <li>Meetings</li>
+{% endblock %}
+
+{% block groupstage %}
+<div class="home-div-gp">
+  <div class="panel panel-default panel-hdg">
+    <div class="panel-heading  min-ht-res-60">
+      <h3 class="panel-title">
+        {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>
+        {% endif %}
+        {{ group.name|capfirst }} - Meetings List
+        <span class="">
+          <a href="{% url 'micro_admin:addgroupmeeting' group.id %}" class="view-tab-btn"><i class="fa fa-plus padd"></i>Add Meeting</a>
+        </span>
+      </h3>
+    </div>
+    <div class="panel-body">
+      <!--panel body starts above-->
+      <form class="form-horizontal" role="form">
+      <div class="hg-table">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if group_meetings %}
+                {% for meeting in group_meetings %}
+                  <tr>
+                    <td>{{ meeting.meeting_date }}</td>
+                    <td>{{ meeting.meeting_time }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="2">No Meetings found.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!--panel body ends below crct-->
+  </div>
+</div>
+<!--content ends above-->
+{% endblock %}

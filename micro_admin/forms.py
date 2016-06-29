@@ -10,6 +10,7 @@ from micro_admin.models import(
     Receipts,
     Payments,
     RecurringDeposits,
+    GroupMeetings,
 )
 
 
@@ -303,3 +304,10 @@ class ChangePasswordForm(forms.Form):
         if password != confirm:
             raise forms.ValidationError("Passwords does not match")
         return confirm
+
+
+class GroupMeetingsForm(forms.ModelForm):
+
+    class Meta:
+        model = GroupMeetings
+        fields = ["meeting_date", "meeting_time"]
