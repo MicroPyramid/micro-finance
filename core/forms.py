@@ -36,22 +36,19 @@ class ClientLoanAccountsForm(forms.Form):
 
     def clean(self):
         self.client = None
-        if self.cleaned_data.get("loanprocessingfee_amount") or\
-            self.cleaned_data.get("loanprinciple_amount") or\
-                self.cleaned_data.get("loaninterest_amount"):
-            if not(self.cleaned_data.get("name") and
-                    self.cleaned_data.get("account_number")):
-                errors = self._errors.setdefault("message1", ErrorList())
-                errors.append("Please provide both  member first name, account number")
-                raise forms.ValidationError(errors)
-            self.client = Client.objects.filter(
-                first_name__iexact=self.cleaned_data.get("name"),
-                account_number=self.cleaned_data.get("account_number")
-            ).last()
-            if not self.client:
-                errors = self._errors.setdefault("message1", ErrorList())
-                errors.append("No Client exists with this First Name and Account number.")
-                raise forms.ValidationError(errors)
+        if not(self.cleaned_data.get("name") and
+                self.cleaned_data.get("account_number")):
+            errors = self._errors.setdefault("message1", ErrorList())
+            errors.append("Please provide both  member first name, account number")
+            raise forms.ValidationError(errors)
+        self.client = Client.objects.filter(
+            first_name__iexact=self.cleaned_data.get("name"),
+            account_number=self.cleaned_data.get("account_number")
+        ).last()
+        if not self.client:
+            errors = self._errors.setdefault("message1", ErrorList())
+            errors.append("No Client exists with this First Name and Account number.")
+            raise forms.ValidationError(errors)
         return self.cleaned_data
 
 
@@ -203,7 +200,7 @@ class ReceiptForm(forms.ModelForm):
                     )
                     raise forms.ValidationError(errors)
                 else:
-                    if not ((self.cleaned_data.get("loanprinciple_amount")) <=
+                    if not ((self.cleaned_data.get("loanprinciple_amount", 0)) <=
                             (loan_account.total_loan_balance)):
                         errors = self._errors.setdefault("message1", ErrorList())
                         errors.append(
@@ -211,16 +208,16 @@ class ReceiptForm(forms.ModelForm):
                         )
                         raise forms.ValidationError(errors)
                     else:
-                        if (self.cleaned_data.get("loaninterest_amount")) >\
+                        if (self.cleaned_data.get("loaninterest_amount", 0)) >\
                            (loan_account.interest_charged):
                             errors = self._errors.setdefault("message1", ErrorList())
                             errors.append(
                                 "Entered interest amount is greater than interest charged."
                             )
                             raise forms.ValidationError(errors)
-                        elif((self.cleaned_data.get("loaninterest_amount")) >
+                        elif((self.cleaned_data.get("loaninterest_amount", 0)) >
                                 (loan_account.loan_amount) or
-                                (self.cleaned_data.get("loanprinciple_amount")) >
+                                (self.cleaned_data.get("loanprinciple_amount", 0)) >
                                 (loan_account.loan_amount)):
                             errors = self._errors.setdefault("message1", ErrorList())
                             errors.append(
@@ -229,18 +226,21 @@ class ReceiptForm(forms.ModelForm):
                             )
                             raise forms.ValidationError(errors)
                         else:
-                            loan_account.total_loan_amount_repaid += (self.cleaned_data.get("loanprinciple_amount"))
-                            loan_account.total_interest_repaid += (self.cleaned_data.get("loaninterest_amount"))
+                            if self.cleaned_data.get("loanprinciple_amount", 0):
+                                loan_account.total_loan_amount_repaid += (self.cleaned_data.get("loanprinciple_amount", 0))
+                            if self.cleaned_data.get("loaninterest_amount", 0):
+                                loan_account.total_interest_repaid += (self.cleaned_data.get("loaninterest_amount", 0))
                             loan_account.total_loan_paid = (
                                 loan_account.total_loan_amount_repaid +
                                 loan_account.total_interest_repaid)
-                            loan_account.total_loan_balance -= (self.cleaned_data.get("loanprinciple_amount"))
+                            if self.cleaned_data.get("loanprinciple_amount", 0):
+                                loan_account.total_loan_balance -= (self.cleaned_data.get("loanprinciple_amount", 0))
                             if not loan_account.group:
                                 loan_account.no_of_repayments_completed += loan_account.loan_repayment_every
                             if ((loan_account.total_loan_amount_repaid ==
                                     loan_account.loan_amount) and
                                     loan_account.total_loan_balance == 0):
-                                        if (self.cleaned_data.get("loanprinciple_amount")) > \
+                                        if (self.cleaned_data.get("loanprinciple_amount", 0)) > \
                                            (loan_account.principle_repayment):
                                             errors = self._errors.setdefault("message1", ErrorList())
                                             errors.append(

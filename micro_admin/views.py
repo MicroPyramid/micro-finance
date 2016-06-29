@@ -2,6 +2,8 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
+from django.views.generic.detail import BaseDetailView
+from django.views.generic.base import RedirectView
 import json
 from django.contrib.auth.models import Permission
 from micro_admin.models import (
@@ -788,20 +790,26 @@ class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
         return JsonResponse({"error": True, "message": form.errors})
 
 
-@login_required
-def client_loan_account(request, loanaccount_id):
-    loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    return render(
-        request, "client/loan/account.html",
-        {"client": loanaccount.client, "loanaccount": loanaccount})
+class ClientLoanAccount(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    model = LoanAccount
+    pk = 'pk'
+    template_name = "client/loan/account.html"
 
 
-@login_required
-def group_loan_account(request, loanaccount_id):
-    loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    return render(
-        request, "group/loan/account.html",
-        {"group": loan_account.group, "loan_account": loan_account})
+class GroupLoanAccount(LoginRequiredMixin, DetailView):
+    login_url = '/'
+    redirect_field_name = 'next'
+    model = LoanAccount
+    context_object_name = "loan_account"
+    pk = 'pk'
+    template_name = "group/loan/account.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupLoanAccount, self).get_context_data(**kwargs)
+        context['group'] = self.object.group
+        return context
 
 
 @login_required
@@ -830,118 +838,196 @@ def change_loan_account_status(request, loanaccount_id):
             return HttpResponse(json.dumps(data))
 
 
-@login_required
-def view_grouploan_deposits(request, group_id, loanaccount_id):
-    group = Group.objects.get(id=group_id)
-    loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_list = Receipts.objects.filter(
-        group=group, group_loan_account=loan_account
-    ).exclude(
-        demand_loanprinciple_amount_atinstant=0,
-        demand_loaninterest_amount_atinstant=0
-    )
-    count = Receipts.objects.filter(
-        group=group, group_loan_account=loan_account
-    ).exclude(demand_loanprinciple_amount_atinstant=0,
-              demand_loaninterest_amount_atinstant=0).count()
-    return render(
-        request, "group/loan/list_of_loan_deposits.html",
-        {"loan_account": loan_account, "receipts_list": receipts_list,
-         "group": group, "count": count}
-    )
+class ChangeLoanAccountStatus(LoginRequiredMixin, BaseDetailView):
+
+    model = LoanAccount
+    pk = "pk"
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.group:
+            branch_id = self.object.group.branch.id
+        elif self.object.client:
+            branch_id = self.object.client.branch.id
+        else:
+            branch_id = None
+        if branch_id:
+            if (request.user.is_admin or
+                (request.user.has_perm("branch_manager") and
+                 request.user.branch.id == branch_id)):
+                status = request.GET.get("status")
+                if status in ['Closed', 'Withdrawn', 'Rejected', 'Approved']:
+                    self.object.status = request.GET.get("status")
+                    self.object.approved_date = datetime.datetime.now()
+                    self.object.save()
+                    data = {"error": False,
+                            "loanaccount_id": self.object.id}
+                else:
+                    data = {"error": True,
+                            "loanaccount_id": self.object.id,
+                            "error_message": "Status is not in available choices"}
+        else:
+            data = {"error": True,
+                    "loanaccount_id": self.object.id,
+                    "error_message": "Branch Id not Found"}
+        return JsonResponse(data)
 
 
-@login_required
-def view_groupsavings_deposits(request, group_id):
-    group = Group.objects.get(id=group_id)
-    savings_account = SavingsAccount.objects.get(group=group)
-    receipts_list = Receipts.objects.filter(group=group).exclude(
-        savingsdeposit_thrift_amount=0)
-    count = Receipts.objects.filter(group=group).exclude(
-        savingsdeposit_thrift_amount=0
-    ).count()
-    return render(
-        request,
-        "group/savings/list_of_savings_deposits.html",
-        {
-            "savings_account": savings_account,
-            "receipts_list": receipts_list,
-            "group": group,
-            "count": count
-        }
-    )
+class ViewGroupLoanDiposits(LoginRequiredMixin, ListView):
+
+    model = Receipts
+    context_object_name = "receipts_list"
+    template_name = "group/loan/list_of_loan_deposits.html"
+
+    def get_queryset(self):
+        self.loan_account = get_object_or_404(LoanAccount, id=self.kwargs.get('loanaccount_id'))
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        queryset = self.model.objects.filter(
+            group=self.group,
+            group_loan_account=self.loan_account
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewGroupLoanDiposits, self).get_context_data(**kwargs)
+        context["loan_account"] = self.loan_account
+        context["group"] = self.group
+        return context
 
 
-@login_required
-def view_groupsavings_withdrawals(request, group_id):
-    group = Group.objects.get(id=group_id)
-    savings_withdrawals_list = Payments.objects.filter(
-        group=group, payment_type="SavingsWithdrawal")
-    count = Payments.objects.filter(
-        group=group, payment_type="SavingsWithdrawal").count()
-    return render(request, "group/savings/list_of_savings_withdrawals.html",
-                  {"count": count, "group": group,
-                   "savings_withdrawals_list": savings_withdrawals_list})
+class ViewGroupSavingsDeposits(LoginRequiredMixin, ListView):
+
+    model = Receipts
+    context_object_name = "receipts_list"
+    template_name = "group/savings/list_of_savings_deposits.html"
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        self.savings_account = get_object_or_404(SavingsAccount, group=self.group)
+        queryset = self.model.objects.filter(
+            group=self.group
+        ).exclude(
+            savingsdeposit_thrift_amount=0
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewGroupSavingsDeposits, self).get_context_data(**kwargs)
+        context["savings_account"] = self.savings_account
+        context["group"] = self.group
+        return context
 
 
-@login_required
-def listofclient_loan_deposits(request, client_id, loanaccount_id):
-    client = Client.objects.get(id=client_id)
-    loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_lists = Receipts.objects.filter(
-        client=client, member_loan_account=loanaccount
-    ).exclude(
-        demand_loanprinciple_amount_atinstant=0,
-        demand_loaninterest_amount_atinstant=0
-    )
-    return render(
-        request, "client/loan/view_loan_deposits.html",
-        {"loanaccount": loanaccount, "receipts_lists": receipts_lists})
+class ViewGroupSavingsWithdrawals(LoginRequiredMixin, ListView):
+
+    model = Payments
+    context_object_name = "savings_withdrawals_list"
+    template_name = "group/savings/list_of_savings_withdrawals.html"
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        queryset = self.model.objects.filter(
+            group=self.group,
+            payment_type="SavingsWithdrawal"
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewGroupSavingsWithdrawals, self).get_context_data(**kwargs)
+        context["group"] = self.group
+        return context
 
 
-@login_required
-def listofclient_savings_deposits(request, client_id):
-    savingsaccount = SavingsAccount.objects.get(client=client_id)
-    receipts_lists = Receipts.objects.filter(
-        client=client_id).exclude(savingsdeposit_thrift_amount=0)
-    return render(
-        request, "client/savings/list_of_savings_deposits.html",
-        {"savingsaccount": savingsaccount, "receipts_lists": receipts_lists})
+class ListOfClientLoanDeposits(LoginRequiredMixin, ListView):
+
+    model = Receipts
+    context_object_name = "receipts_lists"
+    template_name = "client/loan/view_loan_deposits.html"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        self.loanaccount = get_object_or_404(LoanAccount, id=self.kwargs.get('loanaccount_id'))
+        queryset = self.model.objects.filter(
+            client=self.client,
+            member_loan_account=self.loanaccount
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ListOfClientLoanDeposits, self).get_context_data(**kwargs)
+        context["loanaccount"] = self.loanaccount
+        return context
 
 
-@login_required
-def listofclient_savings_withdrawals(request, client_id):
-    client = Client.objects.get(id=client_id)
-    savings_withdrawals_list = Payments.objects.filter(
-        client=client, payment_type="SavingsWithdrawal")
-    count = Payments.objects.filter(client=client,
-                                    payment_type="SavingsWithdrawal").count()
-    return render(
-        request, "client/savings/list_of_savings_withdrawals.html",
-        {"count": count, "savings_withdrawals_list": savings_withdrawals_list,
-         "client": client}
-    )
+class ListOfClientSavingsDeposits(LoginRequiredMixin, ListView):
+
+    model = Receipts
+    context_object_name = "receipts_lists"
+    template_name = "client/savings/list_of_savings_deposits.html"
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            client=self.kwargs.get('client_id')
+        ).exclude(savingsdeposit_thrift_amount=0)
+        return queryset
+
+    def get_context_data(self):
+        context = super(ListOfClientSavingsDeposits, self).get_context_data()
+        context["savingsaccount"] = get_object_or_404(
+            SavingsAccount, client=self.kwargs.get("client_id")
+        )
+        return context
 
 
-@login_required
-def issue_loan(request, loanaccount_id):
-    loan_account = LoanAccount.objects.get(id=loanaccount_id)
-    if loan_account.group:
-        loan_account.loan_issued_date = datetime.datetime.now()
-        loan_account.loan_issued_by = request.user
-        loan_account.save()
-        loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect(reverse(
-            "micro_admin:grouploanaccount",
-            kwargs={"loanaccount_id": loanaccount_id}))
-    elif loan_account.client:
-        loan_account.loan_issued_date = datetime.datetime.now()
-        loan_account.loan_issued_by = request.user
-        loan_account.save()
-        loanaccount_id = str(loan_account.id)
-        return HttpResponseRedirect(reverse(
-            "micro_admin:clientloanaccount",
-            kwargs={'loanaccount_id': loanaccount_id}))
+class ListOfClientSavingsWithdrawals(LoginRequiredMixin, ListView):
+
+    model = Payments
+    context_object_name = "savings_withdrawals_list"
+    template_name = "client/savings/list_of_savings_withdrawals.html"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        queryset = self.model.objects.filter(
+            client=self.client,
+            payment_type="SavingsWithdrawal"
+        )
+        return queryset
+
+    def get_context_data(self):
+        context = super(ListOfClientSavingsWithdrawals, self).get_context_data()
+        context['client'] = self.client
+        return context
+
+
+class IssueLoan(LoginRequiredMixin, RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        loan_account = get_object_or_404(LoanAccount, id=kwargs.get("loanaccount_id"))
+        if loan_account.group:
+            loan_account.loan_issued_date = datetime.datetime.now()
+            loan_account.loan_issued_by = self.request.user
+            loan_account.save()
+            url = reverse(
+                "micro_admin:grouploanaccount",
+                kwargs={"pk": loan_account.id}
+            )
+        elif loan_account.client:
+            loan_account.loan_issued_date = datetime.datetime.now()
+            loan_account.loan_issued_by = self.request.user
+            loan_account.save()
+            url = reverse(
+                "micro_admin:clientloanaccount",
+                kwargs={'pk': loan_account.id}
+            )
+        else:
+            url = "/"
+        return url
 
 
 @login_required
@@ -1371,26 +1457,36 @@ def receipts_deposit(request):
             return HttpResponse(json.dumps(data))
 
 
-def receipts_list(request):
-    receipt_list = Receipts.objects.all().order_by("-id")
-    return render(request, "listof_receipts.html",
-                  {"receipt_list": receipt_list})
+class ReceiptsList(LoginRequiredMixin, ListView):
+
+    context_object_name = "receipt_list"
+    queryset = Receipts.objects.all().order_by("-id")
+    template_name = "listof_receipts.html"
 
 
-def ledger_account(request, client_id, loanaccount_id):
-    client = Client.objects.get(id=client_id)
-    loanaccount = LoanAccount.objects.get(id=loanaccount_id)
-    receipts_list = Receipts.objects.filter(
-        client=client_id, member_loan_account=loanaccount
-    ).exclude(
-        demand_loanprinciple_amount_atinstant=0,
-        demand_loaninterest_amount_atinstant=0
-    )
-    return render(
-        request, "client/loan/client_ledger_account.html",
-        {"loanaccount": loanaccount, "receipts_list": receipts_list,
-         "client": client}
-    )
+class LedgerAccount(ListView):
+
+    model = Receipts
+    context_object_name = "receipts_list"
+    template_name = "client/loan/client_ledger_account.html"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        self.loanaccount = get_object_or_404(LoanAccount, id=self.kwargs.get("loanaccount_id"))
+        queryset = self.model.objects.filter(
+            client_id=self.client,
+            member_loan_account=self.loanaccount
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        return queryset
+
+    def get_context_data(self):
+        context = super(LedgerAccount, self).get_context_data()
+        context['client'] = self.client
+        context['loanaccount'] = self.loanaccount
+        return context
 
 
 def general_ledger_function(request):
@@ -1418,18 +1514,29 @@ def general_ledger_function(request):
         data = {}
         data["date"] = objreceipt.date
         for receipt in receipts_list:
-            sum_sharecapital_amount += d(receipt.sharecapital_amount)
-            sum_entrancefee_amount += d(receipt.entrancefee_amount)
-            sum_membershipfee_amount += d(receipt.membershipfee_amount)
-            sum_bookfee_amount += d(receipt.bookfee_amount)
-            sum_loanprocessingfee_amount += d(receipt.loanprocessingfee_amount)
-            sum_savingsdeposit_thrift_amount += d(
-                receipt.savingsdeposit_thrift_amount)
-            sum_fixeddeposit_amount += d(receipt.fixeddeposit_amount)
-            sum_recurringdeposit_amount += d(receipt.recurringdeposit_amount)
-            sum_loanprinciple_amount += d(receipt.loanprinciple_amount)
-            sum_loaninterest_amount += d(receipt.loaninterest_amount)
-            sum_insurance_amount += d(receipt.insurance_amount)
+            if receipt.sharecapital_amount:
+                sum_sharecapital_amount += d(receipt.sharecapital_amount)
+            if receipt.entrancefee_amount:
+                sum_entrancefee_amount += d(receipt.entrancefee_amount)
+            if receipt.membershipfee_amount:
+                sum_membershipfee_amount += d(receipt.membershipfee_amount)
+            if receipt.bookfee_amount:
+                sum_bookfee_amount += d(receipt.bookfee_amount)
+            if receipt.loanprocessingfee_amount:
+                sum_loanprocessingfee_amount += d(receipt.loanprocessingfee_amount)
+            if receipt.savingsdeposit_thrift_amount:
+                sum_savingsdeposit_thrift_amount += d(
+                    receipt.savingsdeposit_thrift_amount)
+            if receipt.fixeddeposit_amount:
+                sum_fixeddeposit_amount += d(receipt.fixeddeposit_amount)
+            if receipt.recurringdeposit_amount:
+                sum_recurringdeposit_amount += d(receipt.recurringdeposit_amount)
+            if receipt.loanprinciple_amount:
+                sum_loanprinciple_amount += d(receipt.loanprinciple_amount)
+            if receipt.loaninterest_amount:
+                sum_loaninterest_amount += d(receipt.loaninterest_amount)
+            if receipt.insurance_amount:
+                sum_insurance_amount += d(receipt.insurance_amount)
 
         data["sum_sharecapital_amount"] = d(sum_sharecapital_amount)
         data["sum_entrancefee_amount"] = d(sum_entrancefee_amount)
@@ -1451,10 +1558,13 @@ def general_ledger_function(request):
     return general_ledger_list
 
 
-@login_required
-def general_ledger(request):
-    general_ledger_list = general_ledger_function(request)
-    return render(request, "generalledger.html", {"list": general_ledger_list})
+class GeneralLedger(LoginRequiredMixin, ListView):
+
+    context_object_name = "list"
+    template_name = "generalledger.html"
+
+    def get_queryset(self):
+        return general_ledger_function(self.request)
 
 
 @login_required

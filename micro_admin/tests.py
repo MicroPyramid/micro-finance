@@ -648,16 +648,16 @@ class Admin_Views_test(TestCase):
             '/clientloanaccount/' + str(self.clientloan.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
+        response = self.client.get(
             '/listofclientloandeposits/' + str(self.member1.id) + '/' +
             str(self.clientloan.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
+        response = self.client.get(
             '/listofclientsavingsdeposits/' + str(self.member2.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
+        response = self.client.get(
             '/viewgrouploandeposits/' + str(self.group1.id) + '/' +
             str(self.grouploan.id) + '/')
         self.assertEqual(response.status_code, 200)
@@ -666,10 +666,10 @@ class Admin_Views_test(TestCase):
             '/issueloan/' + str(self.clientloan.id) + '/')
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.post('/receiptslist/')
+        response = self.client.get('/receiptslist/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/ledgeraccount/' + str(self.member1.id) +
+        response = self.client.get('/ledgeraccount/' + str(self.member1.id) +
                                     '/' + str(self.clientloan.id) + '/')
         self.assertEqual(response.status_code, 200)
 
