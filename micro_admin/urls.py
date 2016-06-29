@@ -82,12 +82,12 @@ urlpatterns = [
     url(r'^group/(?P<group_id>\d+)/member/(?P<client_id>\d+)/remove/$',
         GroupRemoveMembersView.as_view(), name='removemember'),
 
-    # url(r'^removemember/(?P<group_id>\d+)/(?P<client_id>\d+)/$',
-    #     removemembers_from_group, name='removemember'),
-    url(r'^groupmeetings/(?P<group_id>\d+)/$',
-        group_meetings, name='groupmeetings'),
+    # Group Meeting (list, add)
+    url(r'^group/(?P<group_id>\d+)/meetings/list/$',
+        GroupMeetingsListView.as_view(), name='groupmeetings'),
     url(r'^addgroupmeeting/(?P<group_id>\d+)/$',
         add_group_meeting, name='addgroupmeeting'),
+
     url(r'^clientsavingsapplication/(?P<client_id>\d+)/$',
         client_savings_application, name='clientsavingsapplication'),
     url(r'^clientsavingsaccount/(?P<client_id>\d+)/$',

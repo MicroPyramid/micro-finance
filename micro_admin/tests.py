@@ -572,7 +572,9 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/groupmeetings/' + str(self.group1.id) + '/')
+            reverse('micro_admin:groupmeetings',
+                    kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(

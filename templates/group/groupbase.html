@@ -31,6 +31,9 @@
         <a href="{% url 'micro_admin:assignstaff' group.id %}"><i class="fa fa-user padd"></i>Assign Staff</a>
         {% endif %}
       </li>
+      <li>
+        <a href="{% url 'micro_admin:groupmeetings' group.id %}"><i class="fa fa-user padd"></i>Meetings</a>
+      </li>
     </ul>
   </div>
   <button class="toggle-btn margin-lft" id="togg-btn"><img src="/static/images/1414856121_equal-16.png" style="color:#fff;" /></button>

@@ -532,10 +532,26 @@ class GroupRemoveMembersView(LoginRequiredMixin,
         )
 
 
-@login_required
-def group_meetings(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    return HttpResponse("List of Group #%s Meetings" % group.id)
+class GroupMeetingsListView(LoginRequiredMixin, ListView):
+    model = GroupMeetings
+    template_name = "group/meetings/list.html"
+    context_object_name = 'group_meetings'
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        query_set = super(GroupMeetingsListView, self).get_queryset()
+        return query_set.filter(group=self.group).order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupMeetingsListView, self).get_context_data(**kwargs)
+        context["group"] = self.group
+        return context
+
+
+# @login_required
+# def group_meetings(request, group_id):
+#     group = get_object_or_404(Group, id=group_id)
+#     return HttpResponse("List of Group #%s Meetings" % group.id)
 
 
 @login_required
