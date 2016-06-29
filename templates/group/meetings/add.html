@@ -11,41 +11,24 @@
       {{ group.name|capfirst }} Group
     </h3>
   </div>
-  {% if latest_group_meeting %}
-  <div class="panel-body">
-    <form class="form-horizontal" role="form">
-      <div class="box-form">
-        <div class="form-group grp-view">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Last Meeting Date :</label><span class="col-lg-6 mar-top">{{ latest_group_meeting.meeting_date }}</span>
-        </div>
-      </div>
-      <!--div 1 of fomr ends above-->
-      <!--div 2 of form starts below-->
-      <div class="box-form">
-        <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-5 control-label">Last Meeting Time :</label><span class="col-lg-6 mar-top">{{ latest_group_meeting.meeting_time }}</span>
-        </div>
-      </div>
-    </form>
-  </div>
-  <div class="clearfix"></div>
-  {% endif %}
   <div class="panel-body">
     <!--panel body starts above-->
-    <form id="addgroupmeetingform" class="form-horizontal" role="form" action="{% url 'micro_admin:addgroupmeeting' group.id %}" method="post">
+    <form id="addgroupmeetingform" class="form-horizontal" role="form" method="post">
       {% csrf_token %}
       <!--div 1 0f form-->
       <div class="box-form-as">
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-4 control-label" style="text-align:right;">Meeting Date</label>
           <div class="col-sm-6">
-            <input type="text" class="wid-form" name="meeting_date" id="datepicker" required="True" />
+            <input type="text" class="wid-form" name="meeting_date" id="datepicker" />
+            <p id="meeting_date"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-4 control-label" style="text-align:right;">Meeting Time</label>
           <div class="col-sm-6">
-            <input type="text" class="wid-form" id="timepicker" name="meeting_time" required="True" />
+            <input type="text" class="wid-form" id="timepicker" name="meeting_time" />
+            <p id="meeting_time"></p>
           </div>
         </div>
         <!--div 1 of fomr ends above-->
@@ -61,4 +44,27 @@
   </div>
 </div>
 <!--content ends above-->
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#addgroupmeetingform').submit(function(e) {
+      e.preventDefault();
+      $.post('.', $('#addgroupmeetingform').serialize(), function(data) {
+        if (data.error) {
+          $("span.error").remove();
+          $.each(data.errors, function( key, value ) {
+            $('#'+key).after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
+          });
+        }
+        else {
+          url = "{% url 'micro_admin:groupprofile' 1 %}"
+          url.replace(1, data.group_id)
+          window.location = url;
+        }
+      }, "json");
+    });
+    $('.cancel-btn').click(function(e){
+      $("span.error").remove();
+    });
+  });
+</script>
 {% endblock %}

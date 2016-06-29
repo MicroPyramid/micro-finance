@@ -578,20 +578,25 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/addgroupmeeting/' + str(self.group1.id) + '/')
+            reverse('micro_admin:addgroupmeeting',
+                    kwargs={'group_id': self.group1.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/addgroupmeeting/' + str(self.group1.id) + '/',
+            reverse('micro_admin:addgroupmeeting',
+                    kwargs={'group_id': self.group1.id}),
             {'meeting_date': '2014/10/10:10-10-10'})
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/clientsavingsapplication/' + str(self.member1.id) + '/')
+            reverse('micro_admin:clientsavingsapplication',
+                    kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 302)
 
+        SavingsAccount.objects.filter(client=self.member1).delete()
         response = self.client.post(
-            '/clientsavingsapplication/' + str(self.member1.id) + '/',
+            reverse('micro_admin:clientsavingsapplication',
+                    kwargs={'client_id': self.member1.id}),
             {"account_no": 12345, "created_by": self.user.username,
              "opening_date": '10/10/2014', "min_required_balance": 0,
              "annual_interest_rate": 0})
@@ -864,38 +869,57 @@ class Admin_Views_test(TestCase):
     def test_add_group_meeting_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/addgroupmeeting/' + str(self.group1.id) +
-                                    '/', {"meeting_date": "2/20/2015",
-                                          "meeting_time": "10-10-10",
-                                          "group": self.group1.id})
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(
-            response,
-            reverse('micro_admin:groupprofile',
+        response = self.client.post(
+            reverse('micro_admin:addgroupmeeting',
                     kwargs={'group_id': self.group1.id}),
-            status_code=302, target_status_code=200)
+            {
+                "meeting_date": "",
+                "meeting_time": "10-10-10",
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(str(
+            '"meeting_date": ["This field is required."]'
+        ) in str(response.content.decode('utf8')))
 
-    def test_client_savings_application_post_data(self):
+    def test_add_group_meeting_post_valid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/clientsavingsapplication/' +
-                                    str(self.member1.id) + '/',
-                                    {"account_no": 123,
-                                     "opening_date": '10/10/2014',
-                                     "min_required_balance": 0,
-                                     "annual_interest_rate": 3})
+        response = self.client.post(
+            reverse('micro_admin:addgroupmeeting',
+                    kwargs={'group_id': self.group1.id}),
+            {
+                "meeting_date": "2/20/2015",
+                "meeting_time": "10-10-10",
+            }
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_client_savings_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/clientsavingsapplication/' +
-                                    str(self.member1.id) + '/',
-                                    {"account_no": '',
-                                     "opening_date": '',
-                                     "min_required_balance": '',
-                                     "annual_interest_rate": ''})
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post(
+            reverse('micro_admin:clientsavingsapplication',
+                    kwargs={'client_id': self.member1.id}),
+            {"account_no": '',
+             "opening_date": '',
+             "min_required_balance": '',
+             "annual_interest_rate": ''}
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_client_savings_application_post_valid_data(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        self.assertTrue(user_login)
+        response = self.client.post(
+            reverse('micro_admin:clientsavingsapplication',
+                    kwargs={'client_id': self.member1.id}),
+            {"account_no": 123,
+             "opening_date": '10/10/2014',
+             "min_required_balance": 0,
+             "annual_interest_rate": 3}
+        )
+        self.assertEqual(response.status_code, 302)
 
     def test_group_savings_application_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
