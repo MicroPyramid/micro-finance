@@ -456,24 +456,29 @@ class GroupAddMembersView(LoginRequiredMixin,
         return JsonResponse({"error": True, "message": form.errors})
 
 
-@login_required
-def viewmembers_under_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    clients_list = group.clients.all()
-    return render(
-        request, "group/view-members.html",
-        {
-            "group": group, "clients_list": clients_list,
-            "clients_count": len(clients_list)
-        }
-    )
+class GroupMembersListView(LoginRequiredMixin, ListView):
+    template_name = "group/view-members.html"
+    context_object_name = 'clients_list'
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupMembersListView, self).get_context_data(**kwargs)
+        context["group"] = self.group
+        return context
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        return self.group.clients.all()
 
 
-@login_required
-def groups_list(request):
-    groups_list = Group.objects.all() \
-        .select_related("staff", "branch").prefetch_related("clients")
-    return render(request, "group/list.html", {"groups_list": groups_list})
+class GroupsListView(LoginRequiredMixin, ListView):
+    model = Group
+    template_name = "group/list.html"
+    context_object_name = 'groups_list'
+
+    def get_queryset(self):
+        query_set = super(GroupsListView, self).get_queryset()
+        return query_set.select_related("staff", "branch") \
+            .prefetch_related("clients")
 
 
 @login_required

@@ -339,7 +339,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'branch/list.html')
 
-        response = self.client.get('/groupslist/')
+        response = self.client.get(reverse('micro_admin:groupslist'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/list.html')
 
@@ -540,7 +540,7 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/branch/view/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/groupslist/')
+        response = self.client.get(reverse('micro_admin:groupslist'))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/list/')
@@ -565,7 +565,10 @@ class Admin_Views_test(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/viewmembers/' + str(self.group1.id) + '/')
+        response = self.client.get(
+            reverse('micro_admin:viewmembers',
+                    kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
@@ -846,7 +849,10 @@ class Admin_Views_test(TestCase):
     #     response = self.client.get("/deletegroup/"+str(self.group1.id)+"/")
     #     self.assertEqual(response.status_code, 302)
     #     self.assertEqual(Group.objects.count(), group_count-1)
-    #     self.assertRedirects(response, "/groupslist/", status_code=302, target_status_code=200)
+    #     self.assertRedirects(
+    #         response, reverse('micro_admin:groupslist'),
+    #         status_code=302, target_status_code=200)
+
     def test_add_group_meeting_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
@@ -3193,7 +3199,8 @@ class Admin_Views_test(TestCase):
         response = self.client.get("/deletegroup/" + str(self.group1.id) + "/")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
-            response, "/groupslist/", status_code=302, target_status_code=200)
+            response, reverse('micro_admin:groupslist'),
+            status_code=302, target_status_code=200)
 
     def test_group_delete1(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
@@ -3205,7 +3212,8 @@ class Admin_Views_test(TestCase):
                                    str(self.group_delete.id) + "/")
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
-            response, "/groupslist/", status_code=302, target_status_code=200)
+            response, reverse('micro_admin:groupslist'),
+            status_code=302, target_status_code=200)
 
     def test_getloan_demands(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
