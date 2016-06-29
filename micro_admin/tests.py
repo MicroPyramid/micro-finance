@@ -802,8 +802,11 @@ class Admin_Views_test(TestCase):
     def test_removemembers_from_group_view(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/removemember/' + str(self.group1.id) +
-                                   '/' + str(self.member1.id) + '/')
+        response = self.client.get(
+            reverse('micro_admin:removemember',
+                    kwargs={'group_id': self.group1.id,
+                            'client_id': self.member1.id})
+        )
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
             response,
@@ -846,7 +849,10 @@ class Admin_Views_test(TestCase):
 
     # def test_group_delete(self):
     #     group_count = Group.objects.count()
-    #     response = self.client.get("/deletegroup/"+str(self.group1.id)+"/")
+    #     response = self.client.get(
+    #         reverse('micro_admin:deletegroup',
+    #                 kwargs={'group_id': self.group1.id})
+    #     )
     #     self.assertEqual(response.status_code, 302)
     #     self.assertEqual(Group.objects.count(), group_count-1)
     #     self.assertRedirects(
@@ -3196,7 +3202,10 @@ class Admin_Views_test(TestCase):
     def test_group_delete(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get("/deletegroup/" + str(self.group1.id) + "/")
+        response = self.client.get(
+            reverse('micro_admin:deletegroup',
+                    kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
             response, reverse('micro_admin:groupslist'),
@@ -3208,8 +3217,10 @@ class Admin_Views_test(TestCase):
         self.group_delete = Group.objects.create(
             name='group10', created_by=self.staff, account_number='10',
             activation_date='2014-1-1', branch=self.branch)
-        response = self.client.get("/deletegroup/" +
-                                   str(self.group_delete.id) + "/")
+        response = self.client.get(
+            reverse('micro_admin:deletegroup',
+                    kwargs={'group_id': self.group_delete.id})
+        )
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
             response, reverse('micro_admin:groupslist'),

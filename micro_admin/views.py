@@ -35,7 +35,8 @@ from django.views.generic import ListView, DetailView, \
     FormView, RedirectView
 from django.http import JsonResponse
 from micro_admin.mixins import (
-    UserPermissionRequiredMixin, BranchAccessRequiredMixin)
+    UserPermissionRequiredMixin, BranchAccessRequiredMixin,
+    BranchManagerRequiredMixin)
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 d = decimal.Decimal
@@ -481,14 +482,17 @@ class GroupsListView(LoginRequiredMixin, ListView):
             .prefetch_related("clients")
 
 
-@login_required
-def delete_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    if (
-        request.user.is_admin or
-        (request.user.has_perm("branch_manager") and
-         request.user.branch == group.branch)
-    ):
+class GroupInactiveView(LoginRequiredMixin,
+                        BranchManagerRequiredMixin, UpdateView):
+    model = Group
+    pk_url_kwarg = 'group_id'
+
+    def get(self, request, *args, **kwargs):
+        if not hasattr(self, 'object'):
+            group = self.get_object()
+        else:
+            group = self.object
+
         if (
             LoanAccount.objects.filter(
                 group=group, status="Approved"
@@ -496,28 +500,36 @@ def delete_group(request, group_id):
                 total_loan_balance=0
             ).count() or not group.is_active
         ):
+            # TODO: Add message saying that, this group
+            # has pending loans or already in-active.
             pass
         else:
-            group.is_active = 0
+            group.is_active = False
             group.save()
-    return HttpResponseRedirect(reverse('micro_admin:groupslist'))
+        return HttpResponseRedirect(reverse('micro_admin:groupslist'))
 
 
-@login_required
-def removemembers_from_group(request, group_id, client_id):
-    group = get_object_or_404(Group, id=group_id)
-    if (
-        request.user.is_admin or
-        (request.user.has_perm("branch_manager") and
-         request.user.branch == group.branch)
-    ):
-        client = get_object_or_404(Client, id=client_id)
+class GroupRemoveMembersView(LoginRequiredMixin,
+                             BranchManagerRequiredMixin, UpdateView):
+    model = Group
+    pk_url_kwarg = 'group_id'
+    context_object_name = 'group'
+
+    def get(self, request, *args, **kwargs):
+        if not hasattr(self, 'object'):
+            group = self.get_object()
+        else:
+            group = self.object
+
+        client = get_object_or_404(
+            Client, id=self.kwargs.get('client_id'))
         group.clients.remove(client)
-        group.save()
         client.status = "UnAssigned"
         client.save()
-    return HttpResponseRedirect(
-        reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
+        return HttpResponseRedirect(
+            reverse('micro_admin:groupprofile',
+                    kwargs={'group_id': group.id})
+        )
 
 
 @login_required

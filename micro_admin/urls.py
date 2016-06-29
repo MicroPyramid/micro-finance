@@ -62,12 +62,15 @@ urlpatterns = [
     url(r'^client/profile/update/(?P<client_id>\d+)/$',
         update_clientprofile, name='updateclientprofile'),
     # ------------------------------------------- #
-    # Group
+    # Group (add, view, remove, list)
     url(r'^group/create/$', CreateGroupView.as_view(), name='creategroup'),
-    url(r'^group/profile/(?P<group_id>\d+)/$', GroupProfileView.as_view(),
+    url(r'^group/(?P<group_id>\d+)/profile/$', GroupProfileView.as_view(),
         name='groupprofile'),
     url(r'^groups/list/$', GroupsListView.as_view(), name='groupslist'),
-    url(r'^deletegroup/(?P<group_id>\d+)/$', delete_group, name='deletegroup'),
+    url(r'^group/(?P<group_id>\d+)/delete/$', GroupInactiveView.as_view(),
+        name='deletegroup'),
+
+    # Group - Assign Staff
     url(r'^group/(?P<group_id>\d+)/assign-staff/$',
         GroupAssignStaffView.as_view(), name='assignstaff'),
 
@@ -76,8 +79,11 @@ urlpatterns = [
         GroupAddMembersView.as_view(), name='addmember'),
     url(r'^group/(?P<group_id>\d+)/members/list/$',
         GroupMembersListView.as_view(), name='viewmembers'),
-    url(r'^removemember/(?P<group_id>\d+)/(?P<client_id>\d+)/$',
-        removemembers_from_group, name='removemember'),
+    url(r'^group/(?P<group_id>\d+)/member/(?P<client_id>\d+)/remove/$',
+        GroupRemoveMembersView.as_view(), name='removemember'),
+
+    # url(r'^removemember/(?P<group_id>\d+)/(?P<client_id>\d+)/$',
+    #     removemembers_from_group, name='removemember'),
     url(r'^groupmeetings/(?P<group_id>\d+)/$',
         group_meetings, name='groupmeetings'),
     url(r'^addgroupmeeting/(?P<group_id>\d+)/$',
