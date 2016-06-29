@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.base import RedirectView
 import json
-from django.contrib.auth.models import Permission
+# from django.contrib.auth.models import Permission
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
@@ -13,7 +13,7 @@ from micro_admin.models import (
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
     SavingsAccountForm, LoanAccountForm, ReceiptForm, FixedDepositForm,
-    PaymentForm, ReccuringDepositForm)
+    PaymentForm, ReccuringDepositForm, GroupMeetingsForm)
 from django.contrib.auth.decorators import login_required
 import datetime
 import decimal
@@ -35,7 +35,8 @@ from django.views.generic import ListView, DetailView, \
     FormView, RedirectView
 from django.http import JsonResponse
 from micro_admin.mixins import (
-    UserPermissionRequiredMixin, BranchAccessRequiredMixin)
+    UserPermissionRequiredMixin, BranchAccessRequiredMixin,
+    BranchManagerRequiredMixin)
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 d = decimal.Decimal
@@ -456,34 +457,42 @@ class GroupAddMembersView(LoginRequiredMixin,
         return JsonResponse({"error": True, "message": form.errors})
 
 
-@login_required
-def viewmembers_under_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    clients_list = group.clients.all()
-    return render(
-        request, "group/view-members.html",
-        {
-            "group": group, "clients_list": clients_list,
-            "clients_count": len(clients_list)
-        }
-    )
+class GroupMembersListView(LoginRequiredMixin, ListView):
+    template_name = "group/view-members.html"
+    context_object_name = 'clients_list'
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupMembersListView, self).get_context_data(**kwargs)
+        context["group"] = self.group
+        return context
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        return self.group.clients.all()
 
 
-@login_required
-def groups_list(request):
-    groups_list = Group.objects.all() \
-        .select_related("staff", "branch").prefetch_related("clients")
-    return render(request, "group/list.html", {"groups_list": groups_list})
+class GroupsListView(LoginRequiredMixin, ListView):
+    model = Group
+    template_name = "group/list.html"
+    context_object_name = 'groups_list'
+
+    def get_queryset(self):
+        query_set = super(GroupsListView, self).get_queryset()
+        return query_set.select_related("staff", "branch") \
+            .prefetch_related("clients")
 
 
-@login_required
-def delete_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    if (
-        request.user.is_admin or
-        (request.user.has_perm("branch_manager") and
-         request.user.branch == group.branch)
-    ):
+class GroupInactiveView(LoginRequiredMixin,
+                        BranchManagerRequiredMixin, UpdateView):
+    model = Group
+    pk_url_kwarg = 'group_id'
+
+    def get(self, request, *args, **kwargs):
+        if not hasattr(self, 'object'):
+            group = self.get_object()
+        else:
+            group = self.object
+
         if (
             LoanAccount.objects.filter(
                 group=group, status="Approved"
@@ -491,91 +500,113 @@ def delete_group(request, group_id):
                 total_loan_balance=0
             ).count() or not group.is_active
         ):
+            # TODO: Add message saying that, this group
+            # has pending loans or already in-active.
             pass
         else:
-            group.is_active = 0
+            group.is_active = False
             group.save()
-    return HttpResponseRedirect(reverse('micro_admin:groupslist'))
+        return HttpResponseRedirect(reverse('micro_admin:groupslist'))
 
 
-@login_required
-def removemembers_from_group(request, group_id, client_id):
-    group = get_object_or_404(Group, id=group_id)
-    if (
-        request.user.is_admin or
-        (request.user.has_perm("branch_manager") and
-         request.user.branch == group.branch)
-    ):
-        client = get_object_or_404(Client, id=client_id)
+class GroupRemoveMembersView(LoginRequiredMixin,
+                             BranchManagerRequiredMixin, UpdateView):
+    model = Group
+    pk_url_kwarg = 'group_id'
+    context_object_name = 'group'
+
+    def get(self, request, *args, **kwargs):
+        if not hasattr(self, 'object'):
+            group = self.get_object()
+        else:
+            group = self.object
+
+        client = get_object_or_404(
+            Client, id=self.kwargs.get('client_id'))
         group.clients.remove(client)
-        group.save()
         client.status = "UnAssigned"
         client.save()
-    return HttpResponseRedirect(
-        reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
-
-
-@login_required
-def group_meetings(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    return HttpResponse("List of Group #%s Meetings" % group.id)
-
-
-@login_required
-def add_group_meeting(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    if request.method == "GET":
-        group_meetings = GroupMeetings.objects.filter(
-            group_id=group.id).order_by('-id')
-        return render(
-            request, "group/add_group_meeting.html",
-            {
-                "group": group,
-                "latest_group_meeting":
-                    group_meetings.first() if group_meetings else None
-            }
-        )
-    else:
-        datestring_format = datetime.datetime.strptime(
-            request.POST.get("meeting_date"), '%m/%d/%Y').strftime('%Y-%m-%d')
-        meeting_date = datetime.datetime.strptime(
-            datestring_format, "%Y-%m-%d")
-        meeting_time = request.POST.get("meeting_time")
-        GroupMeetings.objects.create(meeting_date=meeting_date,
-                                     meeting_time=meeting_time,
-                                     group=group)
         return HttpResponseRedirect(
-            reverse('micro_admin:groupprofile', kwargs={'group_id': group_id}))
+            reverse('micro_admin:groupprofile',
+                    kwargs={'group_id': group.id})
+        )
 
 
-@login_required
-def client_savings_application(request, client_id):
-    if request.method == "GET":
-        client = Client.objects.get(id=client_id)
-        count = SavingsAccount.objects.filter(client=client).count()
-        if count == 1:
+class GroupMeetingsListView(LoginRequiredMixin, ListView):
+    model = GroupMeetings
+    template_name = "group/meetings/list.html"
+    context_object_name = 'group_meetings'
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        query_set = super(GroupMeetingsListView, self).get_queryset()
+        return query_set.filter(group=self.group).order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupMeetingsListView, self).get_context_data(**kwargs)
+        context["group"] = self.group
+        return context
+
+
+class GroupMeetingsAddView(LoginRequiredMixin, CreateView):
+    model = GroupMeetings
+    form_class = GroupMeetingsForm
+    template_name = "group/meetings/add.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupMeetingsAddView, self).get_context_data(**kwargs)
+        context["group"] = get_object_or_404(
+            Group, id=self.kwargs.get("group_id"))
+        return context
+
+    def form_valid(self, form):
+        group = get_object_or_404(
+            Group, id=self.kwargs.get("group_id"))
+        meeting = form.save(commit=False)
+        meeting.group = group
+        meeting.save()
+        return JsonResponse({"error": False, "group_id": group.id})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
+
+
+class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
+    model = SavingsAccount
+    form_class = SavingsAccountForm
+    template_name = "client/savings/application.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.client = get_object_or_404(
+            Client, id=self.kwargs.get('client_id'))
+        if SavingsAccount.objects.filter(client=self.client).exists():
             return HttpResponseRedirect(
                 reverse("micro_admin:clientsavingsaccount", kwargs={
-                    'client_id': client_id}))
-        else:
-            count = SavingsAccount.objects.all().count()
-            account_no = "%s%s%d" % ("S", client.branch.id, count + 1)
-            return render(
-                request, "client/savings/application.html",
-                {"client": client, "account_no": account_no})
-    else:
-        form = SavingsAccountForm(request.POST)
-        if form.is_valid():
-            obj_sav_acc = form.save(commit=False)
-            obj_sav_acc.status = "Applied"
-            obj_sav_acc.created_by = User.objects.get(username=request.user)
-            obj_sav_acc.client = Client.objects.get(id=client_id)
-            obj_sav_acc.save()
-            data = {"error": False, "client_id": obj_sav_acc.client.id}
-            return HttpResponse(json.dumps(data))
-        else:
-            data = {"error": True, "message": form.errors}
-            return HttpResponse(json.dumps(data))
+                    'client_id': self.client.id}))
+
+        return super(ClientSavingsApplicationView, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            ClientSavingsApplicationView, self).get_context_data(**kwargs)
+        count = SavingsAccount.objects.all().count()
+        context["client"] = self.client
+        context["account_no"] = "%s%s%d" % (
+            "S", self.client.branch.id, count + 1)
+        return context
+
+    def form_valid(self, form):
+        obj_sav_acc = form.save(commit=False)
+        obj_sav_acc.status = "Applied"
+        obj_sav_acc.created_by = self.request.user
+        obj_sav_acc.client = self.client
+        obj_sav_acc.save()
+        return JsonResponse(
+            {"error": False, "client_id": self.client.id})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 @login_required

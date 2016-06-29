@@ -18,7 +18,7 @@
       <!--div 1 0f form-->
       <div class="box-form">
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Members :</label><span class="col-lg-6 mar-top">{{ clients_count }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 control-label">Members :</label><span class="col-lg-6 mar-top">{{ clients_list|length }}</span>
         </div>
       </div>
       <!--div 1 of fomr ends above-->
@@ -51,7 +51,7 @@
                 <td>{{ client.client_role }}</td>
                 <td><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }}</a></td>
                 {% if user.is_admin %}
-                <td class="anchr-trash"><a href="{% url 'micro_admin:removemember' group.id client.id %}"><i class="fa fa-trash-o trash-icon"></i></a></td>
+                <td class="anchr-trash"><a href="{% url 'micro_admin:removemember' group.id client.id %}" title="Remove Member"><i class="fa fa-trash-o trash-icon"></i></a></td>
                 {% endif %}
               </tr>
               {% endfor %}

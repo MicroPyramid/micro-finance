@@ -80,7 +80,7 @@
   $(document).ready(function() {
     $('#grouploanapplicationform').submit(function(e) {
       e.preventDefault();
-      $.post('/grouploanapplication/'+$('#group_id').val()+'/', $('#grouploanapplicationform').serialize(), function(data) {
+      $.post('.', $('#grouploanapplicationform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
           $.each(data.message, function( key, value ) {

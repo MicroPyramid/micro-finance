@@ -37,3 +37,24 @@ class BranchAccessRequiredMixin(object):
 
         return super(BranchAccessRequiredMixin, self).dispatch(
             request, *args, **kwargs)
+
+
+class BranchManagerRequiredMixin(object):
+
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(self, 'object'):
+            self.object = self.get_object()
+
+        # Checking the permissions
+        if not(
+            request.user.is_admin or
+            (
+                request.user.has_perm("branch_manager") and
+                request.user.branch == self.object.branch
+            )
+        ):
+            # TODO: Add "PermissionDenied" message
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+        return super(BranchManagerRequiredMixin, self).dispatch(
+            request, *args, **kwargs)

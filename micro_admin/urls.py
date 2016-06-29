@@ -62,30 +62,39 @@ urlpatterns = [
     url(r'^client/profile/update/(?P<client_id>\d+)/$',
         update_clientprofile, name='updateclientprofile'),
     # ------------------------------------------- #
-    # Group
+    # Group (add, view, remove, list)
     url(r'^group/create/$', CreateGroupView.as_view(), name='creategroup'),
-    url(r'^group/profile/(?P<group_id>\d+)/$', GroupProfileView.as_view(),
+    url(r'^group/(?P<group_id>\d+)/profile/$', GroupProfileView.as_view(),
         name='groupprofile'),
-    url(r'^groupslist/$', groups_list, name='groupslist'),
-    url(r'^deletegroup/(?P<group_id>\d+)/$', delete_group, name='deletegroup'),
+    url(r'^groups/list/$', GroupsListView.as_view(), name='groupslist'),
+    url(r'^group/(?P<group_id>\d+)/delete/$', GroupInactiveView.as_view(),
+        name='deletegroup'),
+
+    # Group - Assign Staff
     url(r'^group/(?P<group_id>\d+)/assign-staff/$',
         GroupAssignStaffView.as_view(), name='assignstaff'),
 
     # Group Members (add, remove, view)
     url(r'^group/(?P<group_id>\d+)/members/add/$',
         GroupAddMembersView.as_view(), name='addmember'),
-    url(r'^viewmembers/(?P<group_id>\d+)/$',
-        viewmembers_under_group, name='viewmembers'),
-    url(r'^removemember/(?P<group_id>\d+)/(?P<client_id>\d+)/$',
-        removemembers_from_group, name='removemember'),
-    url(r'^groupmeetings/(?P<group_id>\d+)/$',
-        group_meetings, name='groupmeetings'),
-    url(r'^addgroupmeeting/(?P<group_id>\d+)/$',
-        add_group_meeting, name='addgroupmeeting'),
-    url(r'^clientsavingsapplication/(?P<client_id>\d+)/$',
-        client_savings_application, name='clientsavingsapplication'),
+    url(r'^group/(?P<group_id>\d+)/members/list/$',
+        GroupMembersListView.as_view(), name='viewmembers'),
+    url(r'^group/(?P<group_id>\d+)/member/(?P<client_id>\d+)/remove/$',
+        GroupRemoveMembersView.as_view(), name='removemember'),
+
+    # Group Meeting (list, add)
+    url(r'^group/(?P<group_id>\d+)/meetings/list/$',
+        GroupMeetingsListView.as_view(), name='groupmeetings'),
+    url(r'^group/(?P<group_id>\d+)/meetings/add/$',
+        GroupMeetingsAddView.as_view(), name='addgroupmeeting'),
+
+    # Client Savings
+    url(r'^client/(?P<client_id>\d+)/savings/application/$',
+        ClientSavingsApplicationView.as_view(),
+        name='clientsavingsapplication'),
     url(r'^clientsavingsaccount/(?P<client_id>\d+)/$',
         client_savings_account, name='clientsavingsaccount'),
+
     url(r'^groupsavingsapplication/(?P<group_id>\d+)/$',
         group_savings_application, name='groupsavingsapplication'),
     url(r'^groupsavingsaccount/(?P<group_id>\d+)/$',

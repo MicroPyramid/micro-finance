@@ -1,6 +1,7 @@
 from django import forms
 from micro_admin.models import Branch, User, Group, Client, SavingsAccount,\
-    LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits
+    LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits, \
+    GroupMeetings
 
 
 class BranchForm(forms.ModelForm):
@@ -239,3 +240,10 @@ class ReccuringDepositForm(forms.ModelForm):
                   "relationship_with_nominee",
                   "nominee_photo", "nominee_signature",
                   "nominee_date_of_birth"]
+
+
+class GroupMeetingsForm(forms.ModelForm):
+
+    class Meta:
+        model = GroupMeetings
+        fields = ["meeting_date", "meeting_time"]
