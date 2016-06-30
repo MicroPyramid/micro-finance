@@ -1,6 +1,3 @@
-from decimal import Decimal
-from datetime import datetime
-
 from django import forms
 from django.core.validators import MinValueValidator
 from django.forms.utils import ErrorList
@@ -178,16 +175,12 @@ class ReceiptForm(forms.ModelForm):
     def verify_loan(self, loan_account):
         if loan_account.status == "Applied":
             errors = self._errors.setdefault("message1", ErrorList())
-            errors.append(
-                "Loan is under pending for approval."
-            )
+            errors.append("Loan is under pending for approval.")
             raise forms.ValidationError(errors)
         elif loan_account.status == "Approved":
             if not loan_account.loan_issued_date:
                 errors = self._errors.setdefault("message1", ErrorList())
-                errors.append(
-                    "Loan Payment has not yet done."
-                )
+                errors.append("Loan Payment has not yet done.")
                 raise forms.ValidationError(errors)
             else:
                 if not ((loan_account.total_loan_balance) or
@@ -195,35 +188,26 @@ class ReceiptForm(forms.ModelForm):
                         (loan_account.loan_repayment_amount) or
                         (loan_account.principle_repayment)):
                     errors = self._errors.setdefault("message1", ErrorList())
-                    errors.append(
-                        "Loan has been cleared sucessfully."
-                    )
+                    errors.append("Loan has been cleared sucessfully.")
                     raise forms.ValidationError(errors)
                 else:
                     if not ((self.cleaned_data.get("loanprinciple_amount", 0)) <=
                             (loan_account.total_loan_balance)):
                         errors = self._errors.setdefault("message1", ErrorList())
-                        errors.append(
-                            "Amount is greater than loan balance."
-                        )
+                        errors.append("Amount is greater than loan balance.")
                         raise forms.ValidationError(errors)
                     else:
                         if (self.cleaned_data.get("loaninterest_amount", 0)) >\
                            (loan_account.interest_charged):
                             errors = self._errors.setdefault("message1", ErrorList())
-                            errors.append(
-                                "Entered interest amount is greater than interest charged."
-                            )
+                            errors.append("Entered interest amount is greater than interest charged.")
                             raise forms.ValidationError(errors)
                         elif((self.cleaned_data.get("loaninterest_amount", 0)) >
                                 (loan_account.loan_amount) or
                                 (self.cleaned_data.get("loanprinciple_amount", 0)) >
                                 (loan_account.loan_amount)):
                             errors = self._errors.setdefault("message1", ErrorList())
-                            errors.append(
-                                "Amount is greater than issued loan amount.\
-                                Transaction can't be done."
-                            )
+                            errors.append("Amount is greater than issued loan amount. Transaction can't be done.")
                             raise forms.ValidationError(errors)
                         else:
                             if self.cleaned_data.get("loanprinciple_amount", 0):
@@ -243,23 +227,16 @@ class ReceiptForm(forms.ModelForm):
                                         if (self.cleaned_data.get("loanprinciple_amount", 0)) > \
                                            (loan_account.principle_repayment):
                                             errors = self._errors.setdefault("message1", ErrorList())
-                                            errors.append(
-                                                "Amount is greater than issued loan amount.\
-                                                Transaction can't be done."
-                                            )
+                                            errors.append("Amount is greater than issued loan amount. Transaction can't be done.")
                                             raise forms.ValidationError(errors)
 
         elif loan_account.status == "Rejected":
             errors = self._errors.setdefault("message1", ErrorList())
-            errors.append(
-                "Loan has been Rejected."
-            )
+            errors.append("Loan has been Rejected.")
             raise forms.ValidationError(errors)
         elif loan_account.status == "Closed":
             errors = self._errors.setdefault("message1", ErrorList())
-            errors.append(
-                "Loan has been Closed."
-            )
+            errors.append("Loan has been Closed.")
             raise forms.ValidationError(errors)
 
     def clean(self):
@@ -277,9 +254,7 @@ class ReceiptForm(forms.ModelForm):
             ).last()
             if not self.client:
                 errors = self._errors.setdefault("message1", ErrorList())
-                errors.append(
-                    "No Client exists with this First Name and Account number."
-                )
+                errors.append("No Client exists with this First Name and Account number.")
                 raise forms.ValidationError(errors)
         else:
             errors = self._errors.setdefault("message1", ErrorList())
@@ -310,19 +285,14 @@ class ReceiptForm(forms.ModelForm):
             ).last()
             if not self.loan_account:
                 errors = self._errors.setdefault("message1", ErrorList())
-                errors.append(
-                    "Loan does not exists with this\
-                    Loan Account Number for this Member."
-                )
+                errors.append("Loan does not exists with this Loan Account Number for this Member.")
                 raise forms.ValidationError(errors)
         elif (self.cleaned_data.get("loanprinciple_amount") or
               self.cleaned_data.get("loanprocessingfee_amount") or
               self.cleaned_data.get("loaninterest_amount")) and\
                 not (loan_account_no or group_loan_account_no):
                 errors = self._errors.setdefault("message1", ErrorList())
-                errors.append(
-                    "Please select personal/group loan account number"
-                )
+                errors.append("Please select personal/group loan account number")
                 raise forms.ValidationError(errors)
         # client group
         self.client_group = self.client.group_set.first()
@@ -336,15 +306,11 @@ class ReceiptForm(forms.ModelForm):
             ).last()
             if not self.group:
                     errors = self._errors.setdefault("message1", ErrorList())
-                    errors.append(
-                        "No Group exists with given client, name and account number."
-                    )
+                    errors.append("No Group exists with given client, name and account number.")
                     raise forms.ValidationError(errors)
         elif group_name or group_account_number:
             errors = self._errors.setdefault("message1", ErrorList())
-            errors.append(
-                "Please enter both Group Name and Account Number."
-            )
+            errors.append("Please enter both Group Name and Account Number.")
             raise forms.ValidationError(errors)
         # client group a/c
         if group_loan_account_no and self.group:
@@ -355,16 +321,12 @@ class ReceiptForm(forms.ModelForm):
             ).last()
             if not self.group_loan_account:
                 errors = self._errors.setdefault("message1", ErrorList())
-                errors.append(
-                    "Loan does not exists with this Loan Account Number for this Group."
-                )
+                errors.append("Loan does not exists with this Loan Account Number for this Group.")
                 raise forms.ValidationError(errors)
         # cannot pay both loans at once
         if self.group_loan_account and self.loan_account:
             errors = self._errors.setdefault("message1", ErrorList())
-            errors.append(
-                "Unable pay personal loan and group loan at once."
-            )
+            errors.append("Unable pay personal loan and group loan at once.")
             raise forms.ValidationError(errors)
         # check personal savings a/c
         if self.cleaned_data.get("savingsdeposit_thrift_amount") or self.cleaned_data.get("recurringdeposit_amount"):
@@ -373,9 +335,7 @@ class ReceiptForm(forms.ModelForm):
             ).last()
             if not self.savings_account:
                 errors = self._errors.setdefault("message1", ErrorList())
-                errors.append(
-                    "Member does not have savings account"
-                )
+                errors.append("Member does not have savings account")
                 raise forms.ValidationError(errors)
         # check group savings a/c
         if self.cleaned_data.get("savingsdeposit_thrift_amount") and self.client_group:
@@ -420,41 +380,31 @@ class PaymentForm(forms.ModelForm):
     def clean(self):
         errors = self._errors.setdefault("message1", ErrorList())
         if not (self.cleaned_data.get("amount") != 0 and self.cleaned_data.get("total_amount") != 0):
-            errors.append(
-                "Voucher can't be generated with amount/total amount zero"
-            )
+            errors.append("Voucher can't be generated with amount/total amount zero")
             raise forms.ValidationError(errors)
-        if self.cleaned_data.get("payment_type") == "TravellingAllowance" or\
+        if self.cleaned_data.get("payment_type") == "TravellingAllowance" or \
            self.cleaned_data.get("payment_type") == "Paymentofsalary":
             if not self.cleaned_data.get("staff_username"):
-                errors.append(
-                    "Please enter Employee Username"
-                )
+                errors.append("Please enter Employee Username")
                 raise forms.ValidationError(errors)
             else:
                 self.staff = User.objects.filter(username__iexact=self.cleaned_data.get("staff_username")).first()
                 if not self.staff:
-                    errors.append(
-                        "Entered Employee Username is incorrect"
-                    )
+                    errors.append("Entered Employee Username is incorrect")
                 if self.cleaned_data.get("interest"):
                     errors.append(
                         "Interest must be empty for TA and Payment of salary Voucher."
                     )
                     raise forms.ValidationError(errors)
-        elif self.cleaned_data.get("payment_type") == "PrintingCharges" or\
-                self.cleaned_data.get("payment_type") == "StationaryCharges" or\
+        elif self.cleaned_data.get("payment_type") == "PrintingCharges" or \
+                self.cleaned_data.get("payment_type") == "StationaryCharges" or \
                 self.cleaned_data.get("payment_type") == "OtherCharges":
             if self.cleaned_data.get("interest"):
-                errors.append(
-                    "Interest must be empty for Charges Voucher."
-                )
+                errors.append("Interest must be empty for Charges Voucher.")
                 raise forms.ValidationError(errors)
             else:
                 if not (self.cleaned_data.get("total_amount") == self.cleaned_data.get("amount")):
-                    errors.append(
-                        "Entered total amount is not equal to amount."
-                    )
+                    errors.append("Entered total amount is not equal to amount.")
                     raise forms.ValidationError(errors)
         elif self.cleaned_data.get("payment_type") == "SavingsWithdrawal":
             if not self.cleaned_data.get("client_name"):

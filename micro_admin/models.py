@@ -101,7 +101,7 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, username, password, branch=None):
+    def create_superuser(self, username, password):
         user = self.create_user(username, email="", password=password)
         user.is_admin = True
         user.is_active = True
@@ -147,10 +147,8 @@ class User(AbstractBaseUser):
                 user_perm = self.user_permissions.get(codename=perm)
             except ObjectDoesNotExist:
                 user_perm = False
-            if user_perm:
-                return True
-            else:
-                return False
+
+            return bool(user_perm)
 
     class Meta:
         permissions = (
