@@ -14,7 +14,12 @@ from django.template import Context
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, UpdateView, View
-from django.views.generic import ListView, DetailView, RedirectView
+from django.views.generic import(
+    ListView,
+    DetailView,
+    RedirectView,
+    FormView,
+)
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
