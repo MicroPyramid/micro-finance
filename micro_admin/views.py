@@ -30,8 +30,9 @@ from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
     RecurringDeposits, USER_ROLES)
-from micro_admin.forms import(BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm,
-    ReceiptForm, FixedDepositForm, PaymentForm, ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
+from micro_admin.forms import(
+    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm, ReceiptForm, FixedDepositForm,
+    PaymentForm, ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
 
 from django.contrib.auth.decorators import login_required
 import datetime
