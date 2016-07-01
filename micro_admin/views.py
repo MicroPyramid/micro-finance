@@ -3,9 +3,8 @@ import datetime
 import decimal
 import csv
 
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import login_required
@@ -41,9 +40,7 @@ d = decimal.Decimal
 def index(request):
     if request.user.is_authenticated():
         return render(request, "index.html", {"user": request.user})
-    data = {}
-    data.update(csrf(request))
-    return render_to_response("login.html", data)
+    return render(request, "login.html")
 
 
 class LoginView(View):
@@ -64,7 +61,7 @@ class LoginView(View):
     def get(self, request):
         if request.user.is_authenticated():
             return render(request, 'index.html', {'user': request.user})
-        return render_to_response("login.html")
+        return render(request, "login.html")
 
 
 class LogoutView(RedirectView):
