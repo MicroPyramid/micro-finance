@@ -2,15 +2,7 @@ from django import forms
 from django.core.validators import MinValueValidator
 from django.forms.utils import ErrorList
 
-from micro_admin.models import(
-    User,
-    Client,
-    Receipts,
-    Payments,
-    LoanAccount,
-    Group,
-    SavingsAccount,
-)
+from micro_admin.models import User, Client, Receipts, Payments, LoanAccount, Group, SavingsAccount
 
 
 class ClientLoanAccountsForm(forms.Form):

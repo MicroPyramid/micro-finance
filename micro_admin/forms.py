@@ -1,17 +1,6 @@
 from django import forms
-from micro_admin.models import(
-    Branch,
-    User,
-    Group,
-    Client,
-    SavingsAccount,
-    LoanAccount,
-    FixedDeposits,
-    Receipts,
-    Payments,
-    RecurringDeposits,
-    GroupMeetings,
-)
+from micro_admin.models import (Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts,
+    Payments, RecurringDeposits, GroupMeetings,)
 
 
 class BranchForm(forms.ModelForm):
