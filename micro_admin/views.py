@@ -747,44 +747,41 @@ class GroupSavingsAccountView(LoginRequiredMixin, DetailView):
         return self.render_to_response(context)
 
 
-@login_required
-def change_savings_account_status(request, savingsaccount_id):
-    if request.method == "POST":
-        savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
-        if savings_account.group:
+class ChangeSavingsAccountStatus(LoginRequiredMixin, UpdateView):
+    model = SavingsAccount
+    pk_url_kwarg = "savingsaccount_id"
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        group = self.object.group
+        client = self.object.client
+        if group:
+            branch_id = group.branch.id
+        elif client:
+            branch_id = client.branch.id
+        else:
+            branch_id = None
+        if branch_id:
             if (
                 request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.group.branch)
+                (request.user.has_perm("branch_manager") and request.user.branch.id == branch_id)
             ):
-                savings_account.status = request.GET.get("status")
-                savings_account.save()
-                data = {"error": False, "group_id": savings_account.group.id}
+                if request.POST.get("status") in ['Closed', 'Withdrawn', 'Rejected', 'Approved']:
+                    self.object.status = request.POST.get("status")
+                    self.object.approved_date = datetime.datetime.now()
+                    self.object.save()
+                    data = {"error": False}
+                else:
+                    data = {"error": True,
+                            "error_message": "Invalid status. Selected status is not in available choices."}
             else:
                 data = {
                     "error": True,
-                    "errmsg": "You don't have permission to " +
-                              request.GET.get("status") + " savings account.",
-                    "group_id": savings_account.group.id
+                    "error_message": "You don't have permission to change the status.",
                 }
-            return HttpResponse(json.dumps(data))
-        elif savings_account.client:
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.client.branch)
-            ):
-                savings_account.status = request.GET.get("status")
-                savings_account.save()
-                data = {"error": False, "client_id": savings_account.client.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              request.GET.get("status") + " savings account.",
-                    "client_id": savings_account.client.id
-                }
-            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error": True, "error_message": "Branch ID not Found"}
+        return JsonResponse(data)
 
 
 class GroupLoanApplicationView(LoginRequiredMixin, CreateView):

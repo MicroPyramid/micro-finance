@@ -8,24 +8,24 @@
     {% if user.is_admin or user.user_roles == "BranchManager" %}
     <div class="btn-row">
       {% if savings_account.status == "Withdrawn" %}
-      <a title="Account has already been Withdrawn"><button><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button></a>
+        <button title="Account has already been Withdrawn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button>
       {% else %}
-      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Withdrawn"><button id="withdraw-button" class="change-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+        <button data-href="Withdrawn" class="change-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button>
       {% endif %}
       {% if savings_account.status == "Approved" %}
-      <a title="Account has already been Approved"><button><i class="fa fa-check-circle-o padd"></i>Approved</button></a>
+        <button title="Account has already been Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
       {% else %}
-      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Approved"><button id="approve-button" class="change-account-status"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+        <button data-href="Approved" class="change-account-status"><i class="fa fa-check-circle-o padd"></i>Approve</button>
       {% endif %}
       {% if savings_account.status == "Rejected" %}
-      <a title="Account has already been Rejected"><button><i class="fa fa-times-circle-o padd"></i>Rejected</button></a>
+        <button title="Account has already been Rejected"><i class="fa fa-times-circle-o padd"></i>Rejected</button>
       {% else %}
-      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Rejected"><button id="reject-button" class="change-account-status"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+        <button data-href="Rejected" class="change-account-status"><i class="fa fa-times-circle-o padd"></i>Reject</button>
       {% endif %}
       {% if savings_account.status == "Closed" %}
-      <a title="Account has already been Closed"><button><i class="fa fa-trash-o padd"></i>Closed</button></a>
+        <button title="Account has already been Closed"><i class="fa fa-trash-o padd"></i>Closed</button>
       {% else %}
-      <a data-href="{% url 'micro_admin:savings_account_status' savings_account.id %}?status=Closed"><button id="close-button" class="change-account-status"><i class="fa fa-trash-o padd"></i>Close</button></a>
+        <button data-href="Closed" class="change-account-status"><i class="fa fa-trash-o padd"></i>Close</button>
       {% endif %}
       <br clear="all" />
     </div>
@@ -40,11 +40,11 @@
         <a href="{% url 'micro_admin:viewgroupsavingswithdrawals' group.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Withdraws</a>
         <a href="{% url 'micro_admin:viewgroupsavingsdeposits' group.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Deposits</a>
         {% if user.is_admin == 0 and user.user_roles != "BranchManager" %}
-        {% if savings_account.status == "Withdrawn" %}
-        <a title="Account has already been Withdrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
-        {% else %}
-        <a href="#" id="withdraw-button" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
-        {% endif %}
+          {% if savings_account.status == "Withdrawn" %}
+            <a title="Account has already been Withdrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
+          {% else %}
+            <a data-href="Withdrawn" class="view-tab-btn change-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
+          {% endif %}
         {% endif %}
         </span>
     </div>
@@ -116,17 +116,14 @@
   $(document).ready(function() {
     $('.change-account-status').click(function(e) {
       e.preventDefault();
-      submit_url = $(this).parent().attr("data-href")
-      $.post(submit_url, $('#groupsavingsaccountform').serialize(), function(data) {
+      var submit_url = "{% url 'micro_admin:change-savings-account-status' savings_account.id %}"
+      $.post(submit_url, {"status": $(this).attr("data-href"), "csrfmiddlewaretoken": $("input[name='csrfmiddlewaretoken']").val() }, function(data) {
         if (data.error) {
-          alert(data.errmsg)
-          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}".replace(1, data.group_id)
-          window.location = url
+          alert(data.error_message);
         }
         else {
-          alert("Group savings account status Changed sucessfully")
-          url = "{% url 'micro_admin:groupsavingsaccount' 1 %}".replace(1, data.group_id)
-          window.location = url
+          alert("Group savings account status changed sucessfully");
+          window.location = '.'
         }
       }, "json");
     });
