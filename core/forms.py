@@ -1,6 +1,9 @@
 from django import forms
 from django.core.validators import MinValueValidator
 from django.forms.utils import ErrorList
+import decimal
+
+d = decimal.Decimal
 
 from micro_admin.models import User, Client, Receipts, Payments, LoanAccount, Group, SavingsAccount
 
@@ -281,43 +284,154 @@ class PaymentForm(forms.ModelForm):
         model = Payments
         fields = ["date", "branch", "voucher_number", "payment_type", "amount", "interest", "total_amount", "totalamount_in_words"]
 
+    def clean_voucher_number(self):
+        voucher_number = self.cleaned_data.get("voucher_number")
+        is_voucher_number_exist = Payments.objects.filter(voucher_number=voucher_number)
+        if is_voucher_number_exist:
+            raise forms.ValidationError("Payslip with this Voucher number already exists.")
+        return voucher_number
+
     def clean(self):
-        errors = self._errors.setdefault("message1", ErrorList())
+
         if not (self.cleaned_data.get("amount") != 0 and self.cleaned_data.get("total_amount") != 0):
-            errors.append("Voucher can't be generated with amount/total amount zero")
-            raise forms.ValidationError(errors)
+            raise forms.ValidationError("Voucher can't be generated with amount/total amount zero")
         if self.cleaned_data.get("payment_type") == "TravellingAllowance" or self.cleaned_data.get("payment_type") == "Paymentofsalary":
             if not self.cleaned_data.get("staff_username"):
-                errors.append("Please enter Employee Username")
-                raise forms.ValidationError(errors)
+                raise forms.ValidationError("Please enter Employee Username")
+
             else:
                 self.staff = User.objects.filter(username__iexact=self.cleaned_data.get("staff_username")).first()
                 if not self.staff:
-                    errors.append("Entered Employee Username is incorrect")
+                    raise forms.ValidationError("Entered Employee Username is incorrect")
                 if self.cleaned_data.get("interest"):
-                    errors.append("Interest must be empty for TA and Payment of salary Voucher.")
-                    raise forms.ValidationError(errors)
+                    raise forms.ValidationError("Interest must be empty for TA and Payment of salary Voucher.")
+
         elif self.cleaned_data.get("payment_type") == "PrintingCharges" or \
                 self.cleaned_data.get("payment_type") == "StationaryCharges" or \
                 self.cleaned_data.get("payment_type") == "OtherCharges":
             if self.cleaned_data.get("interest"):
-                errors.append("Interest must be empty for Charges Voucher.")
-                raise forms.ValidationError(errors)
+                raise forms.ValidationError("Interest must be empty for Charges Voucher.")
+
             else:
                 if not (self.cleaned_data.get("total_amount") == self.cleaned_data.get("amount")):
-                    errors.append("Entered total amount is not equal to amount.")
-                    raise forms.ValidationError(errors)
+                    raise forms.ValidationError("Entered total amount is not equal to amount.")
+
         elif self.cleaned_data.get("payment_type") == "SavingsWithdrawal":
             if not self.cleaned_data.get("client_name"):
-                errors.append("Please enter the Member First Name")
-                raise forms.ValidationError(errors)
-            if not self.cleaned_data.get("client_account_number"):
-                errors.append("Please enter the Member Account number")
-                raise forms.ValidationError(errors)
-            self.client = Client.objects.get(first_name__iexact=self.cleaned_data.get("client_name"),
-                                             account_number=self.cleaned_data.get("client_account_number"))
+                raise forms.ValidationError("Please enter the Member First Name")
+
+            elif self.cleaned_data.get("client_name"):
+                if not self.cleaned_data.get("client_account_number"):
+                    raise forms.ValidationError("Please enter the Member Account number")
+
+                client_filter = Client.objects.filter(first_name__iexact=self.cleaned_data.get("client_name"), account_number=self.cleaned_data.get("client_account_number"))
+                if client_filter:
+                    client = client_filter.first()
+                    savings_account = SavingsAccount.objects.filter(client=client)
+                    if savings_account:
+                        savings_account = savings_account.first()
+                        if d(savings_account.savings_balance) >= d(self.cleaned_data.get("amount")):
+                            client_group = client.group_set.first()
+                            if client_group:
+                                group_savings_account = SavingsAccount.objects.filter(group=client_group)
+                                if group_savings_account:
+                                    group_savings_account = group_savings_account.first()
+                                    if d(group_savings_account.savings_balance) >= d(self.cleaned_data.get("amount")):
+                                        if self.cleaned_data.get("group_name"):
+                                            if self.cleaned_data.get("group_name").lower() == client_group.name.lower():
+                                                if self.cleaned_data.get("group_account_number"):
+                                                    if self.cleaned_data.get("group_account_number") == client_group.account_number:
+                                                        if not self.cleaned_data.get("interest"):
+                                                            if d(self.cleaned_data.get("total_amount")) != d(self.cleaned_data.get("amount")):
+                                                                raise forms.ValidationError("Entered total amount is not equal to amount.")
+
+                                                        elif self.cleaned_data.get("interest"):
+                                                            if d(self.cleaned_data.get("total_amount")) != d(d(self.cleaned_data.get("amount")) + d(self.cleaned_data.get("interest"))):
+                                                                raise forms.ValidationError("Entered total amount is incorrect.")
+
+                                                        else:
+                                                            raise forms.ValidationError("Entered Group A/C Number is incorrect.")
+
+                                                    else:
+                                                        raise forms.ValidationError("Entered Group A/C Number is incorrect.")
+
+                                                else:
+                                                    raise forms.ValidationError("Please enter the Group A/C Number.")
+
+                                            else:
+                                                raise forms.ValidationError("Member does not belong to the entered Group Name.")
+
+                                        else:
+                                            raise forms.ValidationError("Please enter the Group name of the Member.")
+
+                                    elif d(group_savings_account.savings_balance) < d((self.cleaned_data.get("amount"))):
+                                        raise forms.ValidationError("Group Savings A/C does not have sufficient balance.")
+
+                                else:
+                                    raise forms.ValidationError("The Group which the Member belongs to does not have Savings Account.")
+
+                            else:
+                                if self.cleaned_data.get("group_name") or self.cleaned_data.get("group_account_number"):
+                                    raise forms.ValidationError("Member does not assigned to any Group. Please clear Group details")
+
+                                else:
+                                    if not self.cleaned_data.get("interest"):
+                                        if d(self.cleaned_data.get("total_amount")) != d(self.cleaned_data.get("amount")):
+                                            raise forms.ValidationError("Entered total amount is not equal to amount.")
+
+                                    elif self.cleaned_data.get("interest"):
+                                        if d(self.cleaned_data.get("total_amount")) != d(d(self.cleaned_data.get("amount")) + d(self.cleaned_data.get("interest"))):
+                                            raise forms.ValidationError("Entered total amount is incorrect.")
+
+                        elif d(savings_account.savings_balance) < d(self.cleaned_data.get("amount")):
+                            raise forms.ValidationError("Member Savings Account does not have sufficient balance.")
+                    else:
+                        raise forms.ValidationError("Member does not have Savings Account to withdraw amount.")
+                else:
+                    raise forms.ValidationError("Member does not exists with this First Name and A/C Number. Please enter correct details.")
 
         elif self.cleaned_data.get("payment_type") == "Loans":
-            pass
+            if self.cleaned_data.get("interest"):
+                raise forms.ValidationError("Interest amount must be empty while issuing Loans.")
+
+            if self.cleaned_data.get("client_name") or self.cleaned_data.get("client_account_number"):
+                raise forms.ValidationError("Client details must be empty while issuing Loans.")
+
+            if not self.cleaned_data.get("group_name"):
+                raise forms.ValidationError("Please enter Group Name.")
+
+            elif self.cleaned_data.get("group_name"):
+                if not self.cleaned_data.get("group_account_number"):
+                    raise forms.ValidationError("Please enter Group Account Number.")
+
+                elif self.cleaned_data.get("group_account_number"):
+                    group_filter = Group.objects.filter(
+                        name__iexact=self.cleaned_data.get("group_name"),
+                        account_number=self.cleaned_data.get("group_account_number"))
+                    if group_filter:
+                        group = group_filter.first()
+                        if not self.cleaned_data.get("group_loan_account_no"):
+                            raise forms.ValidationError("Please enter the Group Loan Account Number.")
+                        else:
+                            loan_account_filter = LoanAccount.objects.filter(group=group, account_no=self.cleaned_data.get("group_loan_account_no"))
+                            if loan_account_filter:
+                                loan_account = loan_account_filter.first()
+                                if d(self.cleaned_data.get("total_amount")) == d(self.cleaned_data.get("amount")):
+                                    if d(loan_account.loan_amount) == d(self.cleaned_data.get("total_amount")):
+                                        clients_list = group.clients.all()
+                                        if clients_list:
+                                            if len(clients_list) == 0:
+                                                raise forms.ValidationError("Group does not contain members inorder to issue Loan.")
+                                        else:
+                                            raise forms.ValidationError("Group does not contain members inorder to issue Loan.")
+                                    else:
+                                        raise forms.ValidationError("Amount is less than applied loan amount.")
+
+                                else:
+                                    raise forms.ValidationError("Entered total amount is not equal to amount.")
+                            else:
+                                raise forms.ValidationError("Group does not have any Loan with this Loan A/C Number.")
+                    else:
+                        raise forms.ValidationError("Group does not exists with this Name and A/C Number. Please enter correct details.")
 
         return self.cleaned_data

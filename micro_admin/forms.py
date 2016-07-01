@@ -2,6 +2,12 @@ from django import forms
 from micro_admin.models import (
     Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits, GroupMeetings,)
 
+from django.core.exceptions import ObjectDoesNotExist
+import datetime
+import decimal
+
+d = decimal.Decimal
+
 
 class BranchForm(forms.ModelForm):
 
@@ -213,8 +219,7 @@ class PaymentForm(forms.ModelForm):
 
     class Meta:
         model = Payments
-        fields = ["date", "branch", "voucher_number", "payment_type",
-                  "amount", "interest", "total_amount", "totalamount_in_words"]
+        fields = ["branch", "voucher_number", "payment_type", "amount", "interest", "total_amount", "totalamount_in_words"]
 
 
 class FixedDepositForm(forms.ModelForm):

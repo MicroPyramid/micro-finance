@@ -377,27 +377,27 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
         return JsonResponse({"error": False})
 
 
-class PaySlip(LoginRequiredMixin, CreateView):
-    template_name = "core/paymentform.html"
+class PaySlipCreateView(LoginRequiredMixin, CreateView):
+    login_url = '/'
+    redirect_field_name = 'next'
     model = Payments
     form_class = PaymentForm
+    template_name = "core/paymentform.html"
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(PaySlip, self).get_context_data(*args, **kwargs)
-
-        if self.request.method == "GET":
-            context["branches"] = Branch.objects.all()
-            context["voucher_types"] = [voucher_type[0] for voucher_type in PAYMENT_TYPES]
+    def get_context_data(self, **kwargs):
+        context = super(PaySlipCreateView, self).get_context_data(**kwargs)
+        context['branches'] = Branch.objects.all()
+        context['voucher_types'] = dict(PAYMENT_TYPES).keys()
         return context
 
-    def form_invalid(self, form):
-        data = {"error": True,
-                "message": form.errors}
+    def form_valid(self, form):
+        pay_slip = form.save()
+        data = {"error": False, 'pay_slip': pay_slip.id}
         return JsonResponse(data)
 
-    def form_valid(self, form):
-
-        return JsonResponse({"error": False})
+    def form_invalid(self, form):
+        data = {"error": True, "errors": form.errors}
+        return JsonResponse(data)
 
 
 # class GetmemberLoanAccounts(LoginRequiredMixin, view):
