@@ -667,43 +667,58 @@ class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
         return JsonResponse({"error": True, "errors": form.errors})
 
 
-@login_required
-def client_savings_account(request, client_id):
-    client = Client.objects.get(id=client_id)
-    savingsaccount = SavingsAccount.objects.get(client=client)
-    return render(
-        request, "client/savings/account.html",
-        {"client": client, "savingsaccount": savingsaccount})
+class ClientSavingsAccountView(LoginRequiredMixin, DetailView):
+    model = SavingsAccount
+    context_object_name = "savingsaccount"
+    template_name = "client/savings/account.html"
+
+    def get_object(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        self.object = get_object_or_404(SavingsAccount, client=self.client)
+        return self.object
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context["client"] = self.client
+        return self.render_to_response(context)
 
 
-@login_required
-def group_savings_application(request, group_id):
-    if request.method == "GET":
-        group = Group.objects.get(id=group_id)
-        count = SavingsAccount.objects.filter(group=group).count()
-        if count == 1:
-            return HttpResponseRedirect(reverse(
-                "micro_admin:groupsavingsaccount",
-                kwargs={'group_id': group_id}))
-        else:
-            count = SavingsAccount.objects.all().count()
-            account_no = "%s%s%d" % ("S", group.branch.id, count + 1)
-            return render(
-                request, "group/savings/application.html",
-                {"group": group, "account_no": account_no})
-    else:
-        group_savingsaccount_form = SavingsAccountForm(request.POST)
-        if group_savingsaccount_form.is_valid():
-            obj_sav_acc = group_savingsaccount_form.save(commit=False)
-            obj_sav_acc.status = "Applied"
-            obj_sav_acc.created_by = User.objects.get(username=request.user)
-            obj_sav_acc.group = Group.objects.get(id=group_id)
-            obj_sav_acc.save()
-            data = {"error": False, "group_id": obj_sav_acc.group.id}
-            return HttpResponse(json.dumps(data))
-        else:
-            data = {"error": True, "message": group_savingsaccount_form.errors}
-            return HttpResponse(json.dumps(data))
+class GroupSavingsApplicationView(LoginRequiredMixin, CreateView):
+    model = SavingsAccount
+    form_class = SavingsAccountForm
+    template_name = "group/savings/application.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.group = get_object_or_404(Group, id=self.kwargs.get('group_id'))
+        if SavingsAccount.objects.filter(group=self.group).exists():
+            return HttpResponseRedirect(
+                reverse("micro_admin:groupsavingsaccount",
+                        kwargs={'group_id': self.group.id})
+            )
+        return super(GroupSavingsApplicationView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupSavingsApplicationView, self).get_context_data(**kwargs)
+        count = SavingsAccount.objects.all().count()
+        context["group"] = self.group
+        context["account_no"] = "%s%s%d" % ("S", self.group.branch.id, count + 1)
+        return context
+
+    def form_valid(self, form):
+        obj_sav_acc = form.save(commit=False)
+        obj_sav_acc.status = "Applied"
+        obj_sav_acc.created_by = self.request.user
+        obj_sav_acc.group = self.group
+        obj_sav_acc.save()
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse("micro_admin:groupsavingsaccount",
+                                   kwargs={'group_id': self.group.id})
+        })
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 @login_required

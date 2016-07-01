@@ -50,9 +50,10 @@ urlpatterns = [
 
     # Client Savings
     url(r'^client/(?P<client_id>\d+)/savings/application/$', ClientSavingsApplicationView.as_view(), name='clientsavingsapplication'),
-    url(r'^clientsavingsaccount/(?P<client_id>\d+)/$', client_savings_account, name='clientsavingsaccount'),
+    url(r'^client/(?P<client_id>\d+)/savings/account/view/$', ClientSavingsAccountView.as_view(), name='clientsavingsaccount'),
 
-    url(r'^groupsavingsapplication/(?P<group_id>\d+)/$', group_savings_application, name='groupsavingsapplication'),
+    # Group Savings
+    url(r'^group/(?P<group_id>\d+)/savings/application/$', GroupSavingsApplicationView.as_view(), name='groupsavingsapplication'),
     url(r'^groupsavingsaccount/(?P<group_id>\d+)/$', group_savings_account, name='groupsavingsaccount'),
     # savings account status
     url(r'^savings-account/status/(?P<savingsaccount_id>\d+)/$', change_savings_account_status, name='savings_account_status'),

@@ -602,26 +602,35 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/clientsavingsaccount/' + str(self.member2.id) + '/')
+            reverse("micro_admin:clientsavingsaccount",
+                    kwargs={'client_id': self.member2.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/groupsavingsapplication/' + str(self.group1.id) + '/')
+            reverse('micro_admin:groupsavingsapplication',
+                    kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 302)
 
+        SavingsAccount.objects.filter(group=self.group1).delete()
         response = self.client.post(
-            '/groupsavingsapplication/' + str(self.group1.id) + '/',
+            reverse('micro_admin:groupsavingsapplication',
+                    kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "created_by": self.user.username,
              "opening_date": '10/10/2014', 'created_by': self.user.id,
-             "status": "Applied", "min_required_balance": 0,
-             "annual_interest_rate": 3})
+             "status": "Applied", "min_required_balance": '',
+             "annual_interest_rate": 3}
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(
-            '/groupsavingsapplication/' + str(self.group1.id) + '/',
+            reverse('micro_admin:groupsavingsapplication',
+                    kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "opening_date": '10/10/2014',
              "created_by": self.user.username, "min_required_balance": 0,
-             "annual_interest_rate": 3})
+             "annual_interest_rate": 3}
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
@@ -920,26 +929,28 @@ class Admin_Views_test(TestCase):
         )
         self.assertEqual(response.status_code, 302)
 
-    def test_group_savings_application_post_data(self):
-        user_login = self.client.login(username='jagadeesh', password='jag123')
-        self.assertTrue(user_login)
-        response = self.client.post('/groupsavingsapplication/' +
-                                    str(self.group1.id) + '/',
-                                    {"account_no": 123,
-                                     "opening_date": '10/10/2014',
-                                     "min_required_balance": 0,
-                                     "annual_interest_rate": 3})
-        self.assertEqual(response.status_code, 200)
-
     def test_group_savings_application_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/groupsavingsapplication/' +
-                                    str(self.group1.id) + '/',
-                                    {"account_no": '', "opening_date": '',
-                                     "min_required_balance": '',
-                                     "annual_interest_rate": ''})
+        SavingsAccount.objects.filter(group=self.group1).delete()
+        response = self.client.post(
+            reverse('micro_admin:groupsavingsapplication',
+                    kwargs={'group_id': self.group1.id}),
+            {"account_no": '', "opening_date": '', "min_required_balance": '',
+             "annual_interest_rate": ''}
+        )
         self.assertEqual(response.status_code, 200)
+
+    def test_group_savings_application_post_valid_data(self):
+        user_login = self.client.login(username='jagadeesh', password='jag123')
+        self.assertTrue(user_login)
+        response = self.client.post(
+            reverse('micro_admin:groupsavingsapplication',
+                    kwargs={'group_id': self.group1.id}),
+            {"account_no": 123, "opening_date": '10/10/2014',
+             "min_required_balance": 0, "annual_interest_rate": 3}
+        )
+        self.assertEqual(response.status_code, 302)
 
     def test_group_savings_account(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
