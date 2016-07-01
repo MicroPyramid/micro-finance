@@ -778,7 +778,7 @@ class Admin_Views_test(TestCase):
         self.assertTrue(user_login)
         response = self.client.get("/logout/")
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/',
+        self.assertRedirects(response, '/login/',
                              status_code=302, target_status_code=200)
 
     def test_user_logout_without_login(self):
