@@ -634,7 +634,9 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/groupsavingsaccount/' + str(self.group2.id) + '/')
+            reverse("micro_admin:groupsavingsaccount",
+                    kwargs={'group_id': self.group2.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
@@ -955,8 +957,10 @@ class Admin_Views_test(TestCase):
     def test_group_savings_account(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/groupsavingsaccount/' +
-                                   str(self.group1.id) + '/')
+        response = self.client.get(
+            reverse("micro_admin:groupsavingsaccount",
+                    kwargs={'group_id': self.group1.id})
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "group/savings/account.html")
 

@@ -18,6 +18,7 @@ from django.views.generic import ListView, DetailView, RedirectView, FormView
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
+from django.db.models import Sum
 
 import xlwt
 # from xhtml2pdf import pisa
@@ -721,31 +722,29 @@ class GroupSavingsApplicationView(LoginRequiredMixin, CreateView):
         return JsonResponse({"error": True, "errors": form.errors})
 
 
-@login_required
-def group_savings_account(request, group_id):
-    group = Group.objects.get(id=group_id)
-    savings_account = SavingsAccount.objects.get(group=group)
-    clients_list = group.clients.all()
-    sharecapital_amount = 0
-    entrancefee_amount = 0
-    membershipfee_amount = 0
-    bookfee_amount = 0
-    insurance_amount = 0
-    for client in clients_list:
-        sharecapital_amount += client.sharecapital_amount
-        entrancefee_amount += client.entrancefee_amount
-        membershipfee_amount += client.membershipfee_amount
-        bookfee_amount += client.bookfee_amount
-        insurance_amount += client.insurance_amount
-    group_totals_dict = {}
-    group_totals_dict["sharecapital_amount"] = sharecapital_amount
-    group_totals_dict["entrancefee_amount"] = entrancefee_amount
-    group_totals_dict["membershipfee_amount"] = membershipfee_amount
-    group_totals_dict["bookfee_amount"] = bookfee_amount
-    group_totals_dict["insurance_amount"] = insurance_amount
-    return render(request, "group/savings/account.html",
-                  {"group": group, "savings_account": savings_account,
-                   "dict": group_totals_dict})
+class GroupSavingsAccountView(LoginRequiredMixin, DetailView):
+    model = SavingsAccount
+    context_object_name = "savings_account"
+    pk_url_kwarg = "group_id"
+    template_name = "group/savings/account.html"
+
+    def get_object(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        self.object = get_object_or_404(SavingsAccount, group=self.group)
+        return self.object
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context["group"] = self.group
+        context["totals"] = self.group.clients.all().aggregate(
+            sharecapital_amount=Sum('sharecapital_amount'),
+            entrancefee_amount=Sum('entrancefee_amount'),
+            membershipfee_amount=Sum('membershipfee_amount'),
+            bookfee_amount=Sum('bookfee_amount'),
+            insurance_amount=Sum('insurance_amount'),
+        )
+        return self.render_to_response(context)
 
 
 @login_required
