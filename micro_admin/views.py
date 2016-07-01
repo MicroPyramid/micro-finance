@@ -325,18 +325,11 @@ class CreateUserView(LoginRequiredMixin, CreateView):
 class UpdateUserView(LoginRequiredMixin, UpdateView):
     login_url = '/'
     redirect_field_name = 'next'
-    pk = 'pk'
+    pk_url_kwarg = 'pk'
     model = User
     form_class = UserForm
     context_object_name = 'selecteduser'
     template_name = "user/edit.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        user = get_object_or_404(User, id=self.kwargs.get('pk'))
-        data = request.POST.copy()
-        data['password'] = user.password
-        request.POST = data
-        return super(UpdateUserView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UpdateUserView, self).get_context_data(**kwargs)
