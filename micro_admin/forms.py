@@ -42,7 +42,7 @@ class UserForm(forms.ModelForm):
     date_of_birth = forms.DateField(
         required=False,
         input_formats=['%m/%d/%Y'])
-    password = forms.CharField(max_length=100)
+    password = forms.CharField(max_length=100, required=False)
 
     class Meta:
         model = User
@@ -52,6 +52,7 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
+
         self.fields['gender'].widget.attrs\
             .update({
                 'placeholder': 'Gender',
@@ -62,6 +63,8 @@ class UserForm(forms.ModelForm):
                                'pincode', 'last_name']
         for field in not_required_fields:
             self.fields[field].required = False
+        if not self.instance.pk:
+            self.fields['password'].required = True
 
     def clean_password(self):
         password = self.cleaned_data.get('password')
