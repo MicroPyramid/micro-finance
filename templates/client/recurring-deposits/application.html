@@ -21,41 +21,41 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">RD Account Number<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="reccuring_deposit_number" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="reccuring_deposit_number" id="inputEmail3" >
             <p id="reccuring_deposit_number"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Member Name<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="client_name" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="client_name" id="inputEmail3" >
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Member A/C No.<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="client_account_no" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="client_account_no" id="inputEmail3" >
             <p id="membererror"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Date of Deposit<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="deposited_date" id="date-picker-cc" required="True">
+            <input type="text" class="text-box wid-form" name="deposited_date" id="date-picker-cc" >
             <p id="deposited_date"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Deposit Amount<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="recurring_deposit_amount" required="True">
+            <input type="text" class="text-box wid-form" name="recurring_deposit_amount" >
             <p id="recurring_deposit_amount"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Deposit Period(in months)<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="recurring_deposit_period" id="inputEmail3" required="True">
+            <input type="text" class="text-box wid-form" name="recurring_deposit_period" id="inputEmail3" >
             <p id="recurring_deposit_period"></p>
           </div>
         </div>
@@ -63,7 +63,7 @@
           <label for="inputEmail3" class="col-sm-5 control-label">Interest Rate<span>*</span></label>
           <div class="col-sm-7">
             <input type="text" class="text-box wid-form" name="recurring_deposit_interest_rate" id="inputEmail3"
-            required="True">
+            >
             <p id="recurring_deposit_interest_rate"></p>
           </div>
         </div>
@@ -73,14 +73,14 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">First Name<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_firstname" required="True">
+            <input type="text" class="text-box wid-form" name="nominee_firstname" >
             <p id="nominee_firstname"></p>
           </div>
         </div>
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Last Name<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_lastname" required="True">
+            <input type="text" class="text-box wid-form" name="nominee_lastname" >
             <p id="nominee_lastname"></p>
           </div>
         </div>
@@ -97,14 +97,14 @@
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Date of Birth<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" id="datepicker-dob" name="nominee_date_of_birth" required="True">
+            <input type="text" class="text-box wid-form" id="datepicker-dob" name="nominee_date_of_birth" >
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-sm-5 control-label">Relationship with Nominee<span>*</span></label>
           <div class="col-sm-7">
             <select class="text-box wid-form" name="relationship_with_nominee">
-              <option>Select Relationship</option>
+              <option value="">Select Relationship</option>
               <option>Father</option>
               <option>Mother</option>
               <option>Daughter</option>
@@ -128,7 +128,7 @@
         <div class="form-group" style="margin-top: -10px;">
           <label for="inputEmail3" class="col-sm-5 control-label">Nominee Occupation<span>*</span></label>
           <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_occupation" required="True">
+            <input type="text" class="text-box wid-form" name="nominee_occupation" >
             <p id="nominee_occupation"></p>
           </div>
         </div>
@@ -164,22 +164,26 @@
       data : $('#recurringdepositapplicationform').serialize(),
       type: "POST",
       success: function(data){
+        $(".error").remove();
         if(data.error == false)
         {
-          alert("RD Application Submitted sucessfully.");
-          url = "{% url 'micro_admin:clientrecurringdepositsprofile' 1 %}".replace(1, data.recurring_deposit_id);
-          window.location = url;
+          alert("FD Application Submitted sucessfully.");
+          window.location = data.success_url;
         }
         else
         {
           $('.error').text('');
           if (data.message) {
-            $.each(data.message, function( key, value ) {
-              $('#'+key).prepend("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
+            $.each(data.message, function( field, error ) {
+              console.log(field)
+              console.log(error)
+              if (field == "nominee_gender"){
+                $("#nominee_gender").html("<span class='error' style='height:11px;color:red;'>" + error + "</span>")
+              }
+              else{
+                $("[name='" + field + "']").after("<span class='error' style='height:11px;color:red;'>" + error + "</span>")
+              }
             });
-          }
-          if (data.messagememerr) {
-            $("#membererror").prepend("<span class='error' style='height:11px;color:red;'>" + data.messagememerr + "</span>");
           }
         }
       }

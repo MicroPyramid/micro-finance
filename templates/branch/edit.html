@@ -86,8 +86,7 @@
       $("span.error").remove();
       $.post('.', $('#editbranchform').serialize(), function(data) {
         if (data.error == false) {
-          url = "{% url 'micro_admin:branchprofile' 1 %}".replace(1, data.branch_id)
-          window.location = url;
+          window.location = data.success_url;
         }
         else
         {

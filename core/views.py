@@ -1,19 +1,8 @@
 from django.http import JsonResponse
 from django.views.generic import(CreateView, FormView,)
 from .mixins import LoginRequiredMixin
-from .forms import (
-    ReceiptForm,
-    PaymentForm,
-    ClientLoanAccountsForm,
-    GetLoanDemandsForm,
-)
-from micro_admin.models import(
-    Branch,
-    Receipts,
-    PAYMENT_TYPES,
-    Payments,
-    LoanAccount,
-)
+from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDemandsForm
+from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount
 
 
 class ClientLoanAccountsView(LoginRequiredMixin, FormView):

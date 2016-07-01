@@ -93,8 +93,7 @@
         }
         else {
           alert("Branch created successfully.");
-          url = "{% url 'micro_admin:branchprofile' 1 %}".replace(1, data.branch_id)
-          window.location = url;
+          window.location = data.success_url;
         }
       }, "json");
     });

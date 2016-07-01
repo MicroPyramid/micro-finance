@@ -351,8 +351,7 @@ class Admin_Views_test(TestCase):
             '/branch/delete/' + str(self.branch2.id) + '/')
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get(
-            '/userchangepassword/' + str(self.user.id) + '/')
+        response = self.client.get('/userchangepassword/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user_change_password.html')
 
