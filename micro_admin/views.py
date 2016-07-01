@@ -19,40 +19,21 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.db.models import Sum
-
 import xlwt
 # from xhtml2pdf import pisa
 # from django.template.loader import get_template
 # import cStringIO as StringIO
-
-from weasyprint import HTML
+# from weasyprint import HTML
 
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
     RecurringDeposits, USER_ROLES)
-from micro_admin.forms import(
-    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm, ReceiptForm, FixedDepositForm,
-    PaymentForm, ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
-
-from django.contrib.auth.decorators import login_required
-import datetime
-import decimal
-from django.conf import settings
-import csv
-from django.utils.encoding import smart_str
-import xlwt
-# from xhtml2pdf import pisa
-# from django.template.loader import get_template
-# import cStringIO as StringIO
-from django.template import Context
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
-from weasyprint import HTML
-
-from micro_admin.mixins import (
-    UserPermissionRequiredMixin, BranchAccessRequiredMixin,
-    BranchManagerRequiredMixin)
+from micro_admin.forms import (
+    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm,
+    LoanAccountForm, ReceiptForm, FixedDepositForm, PaymentForm,
+    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
+from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
 
 d = decimal.Decimal
 
@@ -70,23 +51,15 @@ class LoginView(View):
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(username=username, password=password)
-
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
                 data = {"error": False, "errors": "Loggedin Successfully"}
-                return HttpResponse(json.dumps(data))
             else:
                 data = {"error": True, "errors": "User is not active."}
-                return JsonResponse(data)
         else:
-            data = {
-                "error": True,
-                "errors": "Username and Password were incorrect."
-            }
-            return JsonResponse(data)
-
-        return render(request, "index.html")
+            data = {"error": True, "errors": "Username and Password were incorrect."}
+        return JsonResponse(data)
 
     def get(self, request):
         if request.user.is_authenticated():
@@ -95,7 +68,7 @@ class LoginView(View):
 
 
 class LogoutView(RedirectView):
-    url = '/'
+    pattern_name = "micro_admin:login"
 
     def get(self, request, *args, **kwargs):
         logout(request)
