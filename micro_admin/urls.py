@@ -32,7 +32,6 @@ urlpatterns = [
     # Group
     url(r'^group/create/$', CreateGroupView.as_view(), name='creategroup'),
     url(r'^group/(?P<group_id>\d+)/profile/$', GroupProfileView.as_view(), name='groupprofile'),
-
     url(r'^groups/list/$', GroupsListView.as_view(), name='groupslist'),
     url(r'^group/(?P<group_id>\d+)/delete/$', GroupInactiveView.as_view(), name='deletegroup'),
 
@@ -50,12 +49,15 @@ urlpatterns = [
 
     # Client Savings
     url(r'^client/(?P<client_id>\d+)/savings/application/$', ClientSavingsApplicationView.as_view(), name='clientsavingsapplication'),
-    url(r'^clientsavingsaccount/(?P<client_id>\d+)/$', client_savings_account, name='clientsavingsaccount'),
+    url(r'^client/(?P<client_id>\d+)/savings/account/view/$', ClientSavingsAccountView.as_view(), name='clientsavingsaccount'),
 
-    url(r'^groupsavingsapplication/(?P<group_id>\d+)/$', group_savings_application, name='groupsavingsapplication'),
-    url(r'^groupsavingsaccount/(?P<group_id>\d+)/$', group_savings_account, name='groupsavingsaccount'),
-    # savings account status
-    url(r'^savings-account/status/(?P<savingsaccount_id>\d+)/$', change_savings_account_status, name='savings_account_status'),
+    # Group Savings
+    url(r'^group/(?P<group_id>\d+)/savings/application/$', GroupSavingsApplicationView.as_view(), name='groupsavingsapplication'),
+    url(r'^group/(?P<group_id>\d+)/savings/account/view/$', GroupSavingsAccountView.as_view(), name='groupsavingsaccount'),
+
+    # Change Savings Account Status
+    url(r'^savings/account/(?P<savingsaccount_id>\d+)/change-status/$', ChangeSavingsAccountStatus.as_view(), name='change-savings-account-status'),
+
     url(r'^viewgroupsavingsdeposits/(?P<group_id>\d+)/$', ViewGroupSavingsDeposits.as_view(), name='viewgroupsavingsdeposits'),
     url(r'^viewgroupsavingswithdrawals/(?P<group_id>\d+)/$', ViewGroupSavingsWithdrawals.as_view(), name='viewgroupsavingswithdrawals'),
     url(r'^group/loan/application/(?P<group_id>\d+)/$', GroupLoanApplicationView.as_view(), name='grouploanapplication'),

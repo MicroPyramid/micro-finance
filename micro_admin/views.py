@@ -3,9 +3,8 @@ import datetime
 import decimal
 import csv
 
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template.context_processors import csrf
 from django.contrib.auth import login, authenticate, logout
 from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import login_required
@@ -18,40 +17,22 @@ from django.views.generic import ListView, DetailView, RedirectView, FormView
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
-
+from django.db.models import Sum
 import xlwt
 # from xhtml2pdf import pisa
 # from django.template.loader import get_template
 # import cStringIO as StringIO
-
-from weasyprint import HTML
+# from weasyprint import HTML
 
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
     RecurringDeposits, USER_ROLES)
-from micro_admin.forms import(
-    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm, LoanAccountForm, ReceiptForm, FixedDepositForm,
-    PaymentForm, ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
-
-from django.contrib.auth.decorators import login_required
-import datetime
-import decimal
-from django.conf import settings
-import csv
-from django.utils.encoding import smart_str
-import xlwt
-# from xhtml2pdf import pisa
-# from django.template.loader import get_template
-# import cStringIO as StringIO
-from django.template import Context
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
-from weasyprint import HTML
-
-from micro_admin.mixins import (
-    UserPermissionRequiredMixin, BranchAccessRequiredMixin,
-    BranchManagerRequiredMixin)
+from micro_admin.forms import (
+    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm,
+    LoanAccountForm, ReceiptForm, FixedDepositForm, PaymentForm,
+    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
+from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
 
 d = decimal.Decimal
 
@@ -59,9 +40,7 @@ d = decimal.Decimal
 def index(request):
     if request.user.is_authenticated():
         return render(request, "index.html", {"user": request.user})
-    data = {}
-    data.update(csrf(request))
-    return render_to_response("login.html", data)
+    return render(request, "login.html")
 
 
 class LoginView(View):
@@ -69,32 +48,24 @@ class LoginView(View):
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(username=username, password=password)
-
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
                 data = {"error": False, "errors": "Loggedin Successfully"}
-                return HttpResponse(json.dumps(data))
             else:
                 data = {"error": True, "errors": "User is not active."}
-                return JsonResponse(data)
         else:
-            data = {
-                "error": True,
-                "errors": "Username and Password were incorrect."
-            }
-            return JsonResponse(data)
-
-        return render(request, "index.html")
+            data = {"error": True, "errors": "Username and Password were incorrect."}
+        return JsonResponse(data)
 
     def get(self, request):
         if request.user.is_authenticated():
             return render(request, 'index.html', {'user': request.user})
-        return render_to_response("login.html")
+        return render(request, "login.html")
 
 
 class LogoutView(RedirectView):
-    url = '/'
+    pattern_name = "micro_admin:login"
 
     def get(self, request, *args, **kwargs):
         logout(request)
@@ -660,110 +631,120 @@ class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
         return JsonResponse({"error": True, "errors": form.errors})
 
 
-@login_required
-def client_savings_account(request, client_id):
-    client = Client.objects.get(id=client_id)
-    savingsaccount = SavingsAccount.objects.get(client=client)
-    return render(
-        request, "client/savings/account.html",
-        {"client": client, "savingsaccount": savingsaccount})
+class ClientSavingsAccountView(LoginRequiredMixin, DetailView):
+    model = SavingsAccount
+    context_object_name = "savingsaccount"
+    template_name = "client/savings/account.html"
+
+    def get_object(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        self.object = get_object_or_404(SavingsAccount, client=self.client)
+        return self.object
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context["client"] = self.client
+        return self.render_to_response(context)
 
 
-@login_required
-def group_savings_application(request, group_id):
-    if request.method == "GET":
-        group = Group.objects.get(id=group_id)
-        count = SavingsAccount.objects.filter(group=group).count()
-        if count == 1:
-            return HttpResponseRedirect(reverse(
-                "micro_admin:groupsavingsaccount",
-                kwargs={'group_id': group_id}))
+class GroupSavingsApplicationView(LoginRequiredMixin, CreateView):
+    model = SavingsAccount
+    form_class = SavingsAccountForm
+    template_name = "group/savings/application.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.group = get_object_or_404(Group, id=self.kwargs.get('group_id'))
+        if SavingsAccount.objects.filter(group=self.group).exists():
+            return HttpResponseRedirect(
+                reverse("micro_admin:groupsavingsaccount",
+                        kwargs={'group_id': self.group.id})
+            )
+        return super(GroupSavingsApplicationView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupSavingsApplicationView, self).get_context_data(**kwargs)
+        count = SavingsAccount.objects.all().count()
+        context["group"] = self.group
+        context["account_no"] = "%s%s%d" % ("S", self.group.branch.id, count + 1)
+        return context
+
+    def form_valid(self, form):
+        obj_sav_acc = form.save(commit=False)
+        obj_sav_acc.status = "Applied"
+        obj_sav_acc.created_by = self.request.user
+        obj_sav_acc.group = self.group
+        obj_sav_acc.save()
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse("micro_admin:groupsavingsaccount",
+                                   kwargs={'group_id': self.group.id})
+        })
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
+
+
+class GroupSavingsAccountView(LoginRequiredMixin, DetailView):
+    model = SavingsAccount
+    context_object_name = "savings_account"
+    pk_url_kwarg = "group_id"
+    template_name = "group/savings/account.html"
+
+    def get_object(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        self.object = get_object_or_404(SavingsAccount, group=self.group)
+        return self.object
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context["group"] = self.group
+        context["totals"] = self.group.clients.all().aggregate(
+            sharecapital_amount=Sum('sharecapital_amount'),
+            entrancefee_amount=Sum('entrancefee_amount'),
+            membershipfee_amount=Sum('membershipfee_amount'),
+            bookfee_amount=Sum('bookfee_amount'),
+            insurance_amount=Sum('insurance_amount'),
+        )
+        return self.render_to_response(context)
+
+
+class ChangeSavingsAccountStatus(LoginRequiredMixin, UpdateView):
+    model = SavingsAccount
+    pk_url_kwarg = "savingsaccount_id"
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        group = self.object.group
+        client = self.object.client
+        if group:
+            branch_id = group.branch.id
+        elif client:
+            branch_id = client.branch.id
         else:
-            count = SavingsAccount.objects.all().count()
-            account_no = "%s%s%d" % ("S", group.branch.id, count + 1)
-            return render(
-                request, "group/savings/application.html",
-                {"group": group, "account_no": account_no})
-    else:
-        group_savingsaccount_form = SavingsAccountForm(request.POST)
-        if group_savingsaccount_form.is_valid():
-            obj_sav_acc = group_savingsaccount_form.save(commit=False)
-            obj_sav_acc.status = "Applied"
-            obj_sav_acc.created_by = User.objects.get(username=request.user)
-            obj_sav_acc.group = Group.objects.get(id=group_id)
-            obj_sav_acc.save()
-            data = {"error": False, "group_id": obj_sav_acc.group.id}
-            return HttpResponse(json.dumps(data))
-        else:
-            data = {"error": True, "message": group_savingsaccount_form.errors}
-            return HttpResponse(json.dumps(data))
-
-
-@login_required
-def group_savings_account(request, group_id):
-    group = Group.objects.get(id=group_id)
-    savings_account = SavingsAccount.objects.get(group=group)
-    clients_list = group.clients.all()
-    sharecapital_amount = 0
-    entrancefee_amount = 0
-    membershipfee_amount = 0
-    bookfee_amount = 0
-    insurance_amount = 0
-    for client in clients_list:
-        sharecapital_amount += client.sharecapital_amount
-        entrancefee_amount += client.entrancefee_amount
-        membershipfee_amount += client.membershipfee_amount
-        bookfee_amount += client.bookfee_amount
-        insurance_amount += client.insurance_amount
-    group_totals_dict = {}
-    group_totals_dict["sharecapital_amount"] = sharecapital_amount
-    group_totals_dict["entrancefee_amount"] = entrancefee_amount
-    group_totals_dict["membershipfee_amount"] = membershipfee_amount
-    group_totals_dict["bookfee_amount"] = bookfee_amount
-    group_totals_dict["insurance_amount"] = insurance_amount
-    return render(request, "group/savings/account.html",
-                  {"group": group, "savings_account": savings_account,
-                   "dict": group_totals_dict})
-
-
-@login_required
-def change_savings_account_status(request, savingsaccount_id):
-    if request.method == "POST":
-        savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
-        if savings_account.group:
+            branch_id = None
+        if branch_id:
             if (
                 request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.group.branch)
+                (request.user.has_perm("branch_manager") and request.user.branch.id == branch_id)
             ):
-                savings_account.status = request.GET.get("status")
-                savings_account.save()
-                data = {"error": False, "group_id": savings_account.group.id}
+                if request.POST.get("status") in ['Closed', 'Withdrawn', 'Rejected', 'Approved']:
+                    self.object.status = request.POST.get("status")
+                    self.object.approved_date = datetime.datetime.now()
+                    self.object.save()
+                    data = {"error": False}
+                else:
+                    data = {"error": True,
+                            "error_message": "Invalid status. Selected status is not in available choices."}
             else:
                 data = {
                     "error": True,
-                    "errmsg": "You don't have permission to " +
-                              request.GET.get("status") + " savings account.",
-                    "group_id": savings_account.group.id
+                    "error_message": "You don't have permission to change the status.",
                 }
-            return HttpResponse(json.dumps(data))
-        elif savings_account.client:
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and
-                 request.user.branch == savings_account.client.branch)
-            ):
-                savings_account.status = request.GET.get("status")
-                savings_account.save()
-                data = {"error": False, "client_id": savings_account.client.id}
-            else:
-                data = {
-                    "error": True,
-                    "errmsg": "You don't have permission to " +
-                              request.GET.get("status") + " savings account.",
-                    "client_id": savings_account.client.id
-                }
-            return HttpResponse(json.dumps(data))
+        else:
+            data = {"error": True, "error_message": "Branch ID not Found"}
+        return JsonResponse(data)
 
 
 class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
