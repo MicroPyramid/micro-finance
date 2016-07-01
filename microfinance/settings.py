@@ -53,6 +53,7 @@ DATABASES = {
     }
 }
 
+LOGIN_URL = '/'
 
 LANGUAGE_CODE = 'en-us'
 
