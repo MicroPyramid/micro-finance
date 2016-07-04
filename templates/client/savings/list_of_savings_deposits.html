@@ -16,7 +16,7 @@
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{savingsaccount.client.first_name|capfirst}} {{savingsaccount.client.last_name|capfirst}} Savings Deposits</h3>
-        <span class="mar-tp-m"><a href="{% url 'micro_admin:clientsavingsaccount' savingsaccount.client.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
+        <span class="mar-tp-m"><a href="{% url 'savings:clientsavingsaccount' savingsaccount.client.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="hg-table panel-body pb-table">
       <div class="table-responsive">

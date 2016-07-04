@@ -47,27 +47,12 @@ urlpatterns = [
     url(r'^group/(?P<group_id>\d+)/meetings/list/$', GroupMeetingsListView.as_view(), name='groupmeetings'),
     url(r'^group/(?P<group_id>\d+)/meetings/add/$', GroupMeetingsAddView.as_view(), name='addgroupmeeting'),
 
-    # Client Savings
-    url(r'^client/(?P<client_id>\d+)/savings/application/$', ClientSavingsApplicationView.as_view(), name='clientsavingsapplication'),
-    url(r'^client/(?P<client_id>\d+)/savings/account/view/$', ClientSavingsAccountView.as_view(), name='clientsavingsaccount'),
-
-    # Group Savings
-    url(r'^group/(?P<group_id>\d+)/savings/application/$', GroupSavingsApplicationView.as_view(), name='groupsavingsapplication'),
-    url(r'^group/(?P<group_id>\d+)/savings/account/view/$', GroupSavingsAccountView.as_view(), name='groupsavingsaccount'),
-
-    # Change Savings Account Status
-    url(r'^savings/account/(?P<savingsaccount_id>\d+)/change-status/$', ChangeSavingsAccountStatus.as_view(), name='change-savings-account-status'),
-
-    url(r'^viewgroupsavingsdeposits/(?P<group_id>\d+)/$', ViewGroupSavingsDeposits.as_view(), name='viewgroupsavingsdeposits'),
-    url(r'^viewgroupsavingswithdrawals/(?P<group_id>\d+)/$', ViewGroupSavingsWithdrawals.as_view(), name='viewgroupsavingswithdrawals'),
     url(r'^group/loan/application/(?P<group_id>\d+)/$', GroupLoanApplicationView.as_view(), name='grouploanapplication'),
     url(r'^grouploanaccount/(?P<pk>\d+)/$', GroupLoanAccount.as_view(), name='grouploanaccount'),
     url(r'^client/loan/application/(?P<client_id>\d+)/$', ClientLoanApplicationView.as_view(), name='clientloanapplication'),
     url(r'^clientloanaccount/(?P<pk>\d+)/$', ClientLoanAccount.as_view(), name='clientloanaccount'),
     url(r'^loan-account/status/(?P<pk>\d+)/$', ChangeLoanAccountStatus.as_view(), name='change_loan_account_status'),
     url(r'^listofclientloandeposits/(?P<client_id>\d+)/(?P<loanaccount_id>\d+)/$', ListOfClientLoanDeposits.as_view(), name='listofclientloandeposits'),
-    url(r'^listofclientsavingsdeposits/(?P<client_id>\d+)/$', ListOfClientSavingsDeposits.as_view(), name='listofclientsavingsdeposits'),
-    url(r'^listofclientsavingswithdrawals/(?P<client_id>\d+)/$', ListOfClientSavingsWithdrawals.as_view(), name='listofclientsavingswithdrawals'),
     url(r'^viewgrouploandeposits/(?P<group_id>\d+)/(?P<loanaccount_id>\d+)/$', ViewGroupLoanDiposits.as_view(), name='viewgrouploandeposits'),
     url(r'^issueloan/(?P<loanaccount_id>\d+)/$', IssueLoan.as_view(), name='issueloan'),
     url(r'^receiptsdeposit/$', receipts_deposit, name="receiptsdeposit"),

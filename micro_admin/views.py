@@ -408,9 +408,7 @@ class GroupProfileView(LoginRequiredMixin, DetailView):
         return context
 
 
-class GroupAssignStaffView(LoginRequiredMixin,
-                           BranchAccessRequiredMixin,
-                           DetailView):
+class GroupAssignStaffView(LoginRequiredMixin, BranchAccessRequiredMixin, DetailView):
     model = Group
     pk_url_kwarg = 'group_id'
     context_object_name = 'group'
@@ -439,8 +437,7 @@ class GroupAssignStaffView(LoginRequiredMixin,
         return JsonResponse(data)
 
 
-class GroupAddMembersView(LoginRequiredMixin,
-                          BranchAccessRequiredMixin, UpdateView):
+class GroupAddMembersView(LoginRequiredMixin, BranchAccessRequiredMixin, UpdateView):
     model = Group
     pk_url_kwarg = 'group_id'
     context_object_name = 'group'
@@ -500,12 +497,10 @@ class GroupsListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         query_set = super(GroupsListView, self).get_queryset()
-        return query_set.select_related("staff", "branch") \
-            .prefetch_related("clients")
+        return query_set.select_related("staff", "branch").prefetch_related("clients")
 
 
-class GroupInactiveView(LoginRequiredMixin,
-                        BranchManagerRequiredMixin, UpdateView):
+class GroupInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
     model = Group
     pk_url_kwarg = 'group_id'
 
@@ -531,8 +526,7 @@ class GroupInactiveView(LoginRequiredMixin,
         return HttpResponseRedirect(reverse('micro_admin:groupslist'))
 
 
-class GroupRemoveMembersView(LoginRequiredMixin,
-                             BranchManagerRequiredMixin, UpdateView):
+class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
     model = Group
     pk_url_kwarg = 'group_id'
     context_object_name = 'group'
@@ -591,160 +585,6 @@ class GroupMeetingsAddView(LoginRequiredMixin, CreateView):
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "errors": form.errors})
-
-
-class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
-    model = SavingsAccount
-    form_class = SavingsAccountForm
-    template_name = "client/savings/application.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.client = get_object_or_404(
-            Client, id=self.kwargs.get('client_id'))
-        if SavingsAccount.objects.filter(client=self.client).exists():
-            return HttpResponseRedirect(
-                reverse("micro_admin:clientsavingsaccount", kwargs={
-                    'client_id': self.client.id}))
-
-        return super(ClientSavingsApplicationView, self).dispatch(
-            request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(
-            ClientSavingsApplicationView, self).get_context_data(**kwargs)
-        count = SavingsAccount.objects.all().count()
-        context["client"] = self.client
-        context["account_no"] = "%s%s%d" % (
-            "S", self.client.branch.id, count + 1)
-        return context
-
-    def form_valid(self, form):
-        obj_sav_acc = form.save(commit=False)
-        obj_sav_acc.status = "Applied"
-        obj_sav_acc.created_by = self.request.user
-        obj_sav_acc.client = self.client
-        obj_sav_acc.save()
-        return JsonResponse(
-            {"error": False, "client_id": self.client.id})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class ClientSavingsAccountView(LoginRequiredMixin, DetailView):
-    model = SavingsAccount
-    context_object_name = "savingsaccount"
-    template_name = "client/savings/account.html"
-
-    def get_object(self):
-        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        self.object = get_object_or_404(SavingsAccount, client=self.client)
-        return self.object
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        context["client"] = self.client
-        return self.render_to_response(context)
-
-
-class GroupSavingsApplicationView(LoginRequiredMixin, CreateView):
-    model = SavingsAccount
-    form_class = SavingsAccountForm
-    template_name = "group/savings/application.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.group = get_object_or_404(Group, id=self.kwargs.get('group_id'))
-        if SavingsAccount.objects.filter(group=self.group).exists():
-            return HttpResponseRedirect(
-                reverse("micro_admin:groupsavingsaccount",
-                        kwargs={'group_id': self.group.id})
-            )
-        return super(GroupSavingsApplicationView, self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupSavingsApplicationView, self).get_context_data(**kwargs)
-        count = SavingsAccount.objects.all().count()
-        context["group"] = self.group
-        context["account_no"] = "%s%s%d" % ("S", self.group.branch.id, count + 1)
-        return context
-
-    def form_valid(self, form):
-        obj_sav_acc = form.save(commit=False)
-        obj_sav_acc.status = "Applied"
-        obj_sav_acc.created_by = self.request.user
-        obj_sav_acc.group = self.group
-        obj_sav_acc.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse("micro_admin:groupsavingsaccount",
-                                   kwargs={'group_id': self.group.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class GroupSavingsAccountView(LoginRequiredMixin, DetailView):
-    model = SavingsAccount
-    context_object_name = "savings_account"
-    pk_url_kwarg = "group_id"
-    template_name = "group/savings/account.html"
-
-    def get_object(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        self.object = get_object_or_404(SavingsAccount, group=self.group)
-        return self.object
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        context["group"] = self.group
-        context["totals"] = self.group.clients.all().aggregate(
-            sharecapital_amount=Sum('sharecapital_amount'),
-            entrancefee_amount=Sum('entrancefee_amount'),
-            membershipfee_amount=Sum('membershipfee_amount'),
-            bookfee_amount=Sum('bookfee_amount'),
-            insurance_amount=Sum('insurance_amount'),
-        )
-        return self.render_to_response(context)
-
-
-class ChangeSavingsAccountStatus(LoginRequiredMixin, UpdateView):
-    model = SavingsAccount
-    pk_url_kwarg = "savingsaccount_id"
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        group = self.object.group
-        client = self.object.client
-        if group:
-            branch_id = group.branch.id
-        elif client:
-            branch_id = client.branch.id
-        else:
-            branch_id = None
-        if branch_id:
-            if (
-                request.user.is_admin or
-                (request.user.has_perm("branch_manager") and request.user.branch.id == branch_id)
-            ):
-                if request.POST.get("status") in ['Closed', 'Withdrawn', 'Rejected', 'Approved']:
-                    self.object.status = request.POST.get("status")
-                    self.object.approved_date = datetime.datetime.now()
-                    self.object.save()
-                    data = {"error": False}
-                else:
-                    data = {"error": True,
-                            "error_message": "Invalid status. Selected status is not in available choices."}
-            else:
-                data = {
-                    "error": True,
-                    "error_message": "You don't have permission to change the status.",
-                }
-        else:
-            data = {"error": True, "error_message": "Branch ID not Found"}
-        return JsonResponse(data)
 
 
 class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
@@ -939,49 +779,6 @@ class ViewGroupLoanDiposits(LoginRequiredMixin, ListView):
         return context
 
 
-class ViewGroupSavingsDeposits(LoginRequiredMixin, ListView):
-
-    model = Receipts
-    context_object_name = "receipts_list"
-    template_name = "group/savings/list_of_savings_deposits.html"
-
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        self.savings_account = get_object_or_404(SavingsAccount, group=self.group)
-        queryset = self.model.objects.filter(
-            group=self.group
-        ).exclude(
-            savingsdeposit_thrift_amount=0
-        )
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewGroupSavingsDeposits, self).get_context_data(**kwargs)
-        context["savings_account"] = self.savings_account
-        context["group"] = self.group
-        return context
-
-
-class ViewGroupSavingsWithdrawals(LoginRequiredMixin, ListView):
-
-    model = Payments
-    context_object_name = "savings_withdrawals_list"
-    template_name = "group/savings/list_of_savings_withdrawals.html"
-
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        queryset = self.model.objects.filter(
-            group=self.group,
-            payment_type="SavingsWithdrawal"
-        )
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewGroupSavingsWithdrawals, self).get_context_data(**kwargs)
-        context["group"] = self.group
-        return context
-
-
 class ListOfClientLoanDeposits(LoginRequiredMixin, ListView):
 
     model = Receipts
@@ -1003,46 +800,6 @@ class ListOfClientLoanDeposits(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(ListOfClientLoanDeposits, self).get_context_data(**kwargs)
         context["loanaccount"] = self.loanaccount
-        return context
-
-
-class ListOfClientSavingsDeposits(LoginRequiredMixin, ListView):
-
-    model = Receipts
-    context_object_name = "receipts_lists"
-    template_name = "client/savings/list_of_savings_deposits.html"
-
-    def get_queryset(self):
-        queryset = self.model.objects.filter(
-            client=self.kwargs.get('client_id')
-        ).exclude(savingsdeposit_thrift_amount=0)
-        return queryset
-
-    def get_context_data(self):
-        context = super(ListOfClientSavingsDeposits, self).get_context_data()
-        context["savingsaccount"] = get_object_or_404(
-            SavingsAccount, client=self.kwargs.get("client_id")
-        )
-        return context
-
-
-class ListOfClientSavingsWithdrawals(LoginRequiredMixin, ListView):
-
-    model = Payments
-    context_object_name = "savings_withdrawals_list"
-    template_name = "client/savings/list_of_savings_withdrawals.html"
-
-    def get_queryset(self):
-        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        queryset = self.model.objects.filter(
-            client=self.client,
-            payment_type="SavingsWithdrawal"
-        )
-        return queryset
-
-    def get_context_data(self):
-        context = super(ListOfClientSavingsWithdrawals, self).get_context_data()
-        context['client'] = self.client
         return context
 
 
@@ -2920,6 +2677,7 @@ class UserChangePassword(LoginRequiredMixin, FormView):
         data = {"error": True,
                 "errors": form.errors}
         return JsonResponse(data)
+
 
 @login_required
 def getmember_loanaccounts(request):
