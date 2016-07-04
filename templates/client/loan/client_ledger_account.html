@@ -3,7 +3,7 @@
 <li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
 <li><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }} Member</a></li>
 <li><a href="{% url 'micro_admin:clientloanaccountslist' loanaccount.client.id %}">Loans</a></li>
-<li><a href="{% url 'micro_admin:clientloanaccount' loanaccount.id %}">Loan Account - {{ loanaccount.account_no }}</a></li>
+<li><a href="{% url 'loans:clientloanaccount' loanaccount.id %}">Loan Account - {{ loanaccount.account_no }}</a></li>
 <li>Ledger Account</li>
 {% endblock %}
 {% block stage %}

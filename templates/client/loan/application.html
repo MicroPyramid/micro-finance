@@ -96,7 +96,7 @@
         }
         else {
           alert("Member Loan Application submitted sucessfully");
-          url = "{% url 'micro_admin:clientloanaccount' 1 %}".replace(1, data.loanaccount_id)
+          url = "{% url 'loans:clientloanaccount' 1 %}".replace(1, data.loanaccount_id)
           window.location = url;
         }
       }, "json");

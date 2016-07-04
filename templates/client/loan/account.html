@@ -14,22 +14,22 @@
       {% if loanaccount.status == "Approved" %}
       <button title="Already Approved"><i class="fa fa-check-circle-o padd"></i>Approved</button>
       {% else %}
-      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Approved"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'loans:change_loan_account_status' loanaccount.id %}?status=Approved"><button id="approve-button"><i class="fa fa-check-circle-o padd"></i>Approve</button></a>
       {% endif %}
       {% if loanaccount.status == "Withdrawn" %}
       <button title="Already Withrawn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</button>
       {% else %}
-      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Withdrawn"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'loans:change_loan_account_status' loanaccount.id %}?status=Withdrawn"><button id="withdraw-button"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</button></a>
       {% endif %}
       {% if loanaccount.status == "Rejected" %}
       <button title="Already Rejected"><i class="fa fa-times-circle-o padd"></i>Rejected</button>
       {% else %}
-      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Rejected"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'loans:change_loan_account_status' loanaccount.id %}?status=Rejected"><button id="reject-button"><i class="fa fa-times-circle-o padd"></i>Reject</button></a>
       {% endif %}
       {% if loanaccount.status == "Closed" %}
       <button title = "Already Closed"><i class="fa fa-trash-o padd"></i>Closed</button>
       {% else %}
-      <a class='change-loan-account-status' data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Closed"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
+      <a class='change-loan-account-status' data-href="{% url 'loans:change_loan_account_status' loanaccount.id %}?status=Closed"><button id="close-button"><i class="fa fa-trash-o padd"></i>Close</button></a>
       {% endif %}
       <br clear="all" />
       {% endif %}
@@ -47,13 +47,13 @@
       {{ loanaccount.client.first_name|capfirst }} Loan Account
     </h3>
     <span class="mar-tp-m mar-top-m24">
-    <a href="{% url 'micro_admin:listofclientloandeposits' loanaccount.client.id loanaccount.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</a>
+    <a href="{% url 'loans:listofclientloandeposits' loanaccount.client.id loanaccount.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</a>
     <a href="{% url 'micro_admin:ledgeraccount' loanaccount.client.id loanaccount.id %}" class="view-tab-btn">Ledger</a>
     {% if user.is_admin == 0 and user.user_roles != "BranchManager" %}
     {% if loanaccount.status == "Withdrawn" %}
     <a  title="Already Withrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
     {% else %}
-    <a data-href="{% url 'micro_admin:change_loan_account_status' loanaccount.id %}?status=Withdrawn" id="withdraw-button" class="view-tab-btn change-loan-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
+    <a data-href="{% url 'loans:change_loan_account_status' loanaccount.id %}?status=Withdrawn" id="withdraw-button" class="view-tab-btn change-loan-account-status"><i class="fa fa-arrow-circle-o-down padd"></i>Withdraw</a>
     {% endif %}
     {% endif %}
     </span>
@@ -119,7 +119,7 @@
           <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Loan Issued On :</label><span class="col-lg-6 col-sm-6 col-xs-6 mar-top">
           {{ loanaccount.loan_issued_date }}
           {% if user.is_admin and not loanaccount.loan_issued_date %}
-          <a href="{% url 'micro_admin:issueloan' loanaccount.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
+          <a href="{% url 'loans:issueloan' loanaccount.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
           {% endif %}
           </span>
         </div>
@@ -154,12 +154,11 @@
       submit_url = $(this).attr("data-href")
       $.post(submit_url, $('#loanaccountform').serialize(), function(data) {
         if (data.error) {
-          alert(data.error_message)
-          window.location = data.success_url
+          alert(data.error_message);
         }
         else {
-          alert("Changed Member Loan status successfully")
-          window.location = data.success_url
+          alert("Member Loan status changed successfully.")
+          window.location = '.';
         }
       }, "json");
     });
