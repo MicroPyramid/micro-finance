@@ -408,9 +408,7 @@ class GroupProfileView(LoginRequiredMixin, DetailView):
         return context
 
 
-class GroupAssignStaffView(LoginRequiredMixin,
-                           BranchAccessRequiredMixin,
-                           DetailView):
+class GroupAssignStaffView(LoginRequiredMixin, BranchAccessRequiredMixin, DetailView):
     model = Group
     pk_url_kwarg = 'group_id'
     context_object_name = 'group'
@@ -439,8 +437,7 @@ class GroupAssignStaffView(LoginRequiredMixin,
         return JsonResponse(data)
 
 
-class GroupAddMembersView(LoginRequiredMixin,
-                          BranchAccessRequiredMixin, UpdateView):
+class GroupAddMembersView(LoginRequiredMixin, BranchAccessRequiredMixin, UpdateView):
     model = Group
     pk_url_kwarg = 'group_id'
     context_object_name = 'group'
@@ -500,12 +497,10 @@ class GroupsListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         query_set = super(GroupsListView, self).get_queryset()
-        return query_set.select_related("staff", "branch") \
-            .prefetch_related("clients")
+        return query_set.select_related("staff", "branch").prefetch_related("clients")
 
 
-class GroupInactiveView(LoginRequiredMixin,
-                        BranchManagerRequiredMixin, UpdateView):
+class GroupInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
     model = Group
     pk_url_kwarg = 'group_id'
 
@@ -531,8 +526,7 @@ class GroupInactiveView(LoginRequiredMixin,
         return HttpResponseRedirect(reverse('micro_admin:groupslist'))
 
 
-class GroupRemoveMembersView(LoginRequiredMixin,
-                             BranchManagerRequiredMixin, UpdateView):
+class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
     model = Group
     pk_url_kwarg = 'group_id'
     context_object_name = 'group'
@@ -785,49 +779,6 @@ class ViewGroupLoanDiposits(LoginRequiredMixin, ListView):
         return context
 
 
-class ViewGroupSavingsDeposits(LoginRequiredMixin, ListView):
-
-    model = Receipts
-    context_object_name = "receipts_list"
-    template_name = "group/savings/list_of_savings_deposits.html"
-
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        self.savings_account = get_object_or_404(SavingsAccount, group=self.group)
-        queryset = self.model.objects.filter(
-            group=self.group
-        ).exclude(
-            savingsdeposit_thrift_amount=0
-        )
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewGroupSavingsDeposits, self).get_context_data(**kwargs)
-        context["savings_account"] = self.savings_account
-        context["group"] = self.group
-        return context
-
-
-class ViewGroupSavingsWithdrawals(LoginRequiredMixin, ListView):
-
-    model = Payments
-    context_object_name = "savings_withdrawals_list"
-    template_name = "group/savings/list_of_savings_withdrawals.html"
-
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        queryset = self.model.objects.filter(
-            group=self.group,
-            payment_type="SavingsWithdrawal"
-        )
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewGroupSavingsWithdrawals, self).get_context_data(**kwargs)
-        context["group"] = self.group
-        return context
-
-
 class ListOfClientLoanDeposits(LoginRequiredMixin, ListView):
 
     model = Receipts
@@ -849,46 +800,6 @@ class ListOfClientLoanDeposits(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(ListOfClientLoanDeposits, self).get_context_data(**kwargs)
         context["loanaccount"] = self.loanaccount
-        return context
-
-
-class ListOfClientSavingsDeposits(LoginRequiredMixin, ListView):
-
-    model = Receipts
-    context_object_name = "receipts_lists"
-    template_name = "client/savings/list_of_savings_deposits.html"
-
-    def get_queryset(self):
-        queryset = self.model.objects.filter(
-            client=self.kwargs.get('client_id')
-        ).exclude(savingsdeposit_thrift_amount=0)
-        return queryset
-
-    def get_context_data(self):
-        context = super(ListOfClientSavingsDeposits, self).get_context_data()
-        context["savingsaccount"] = get_object_or_404(
-            SavingsAccount, client=self.kwargs.get("client_id")
-        )
-        return context
-
-
-class ListOfClientSavingsWithdrawals(LoginRequiredMixin, ListView):
-
-    model = Payments
-    context_object_name = "savings_withdrawals_list"
-    template_name = "client/savings/list_of_savings_withdrawals.html"
-
-    def get_queryset(self):
-        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        queryset = self.model.objects.filter(
-            client=self.client,
-            payment_type="SavingsWithdrawal"
-        )
-        return queryset
-
-    def get_context_data(self):
-        context = super(ListOfClientSavingsWithdrawals, self).get_context_data()
-        context['client'] = self.client
         return context
 
 
@@ -2766,6 +2677,7 @@ class UserChangePassword(LoginRequiredMixin, FormView):
         data = {"error": True,
                 "errors": form.errors}
         return JsonResponse(data)
+
 
 @login_required
 def getmember_loanaccounts(request):

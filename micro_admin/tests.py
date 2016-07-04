@@ -639,16 +639,16 @@ class Admin_Views_test(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(
-            '/viewgroupsavingsdeposits/' + str(self.group2.id) + '/')
+        response = self.client.get(reverse("savings:viewgroupsavingsdeposits",
+                                           kwargs={'group_id': self.group2.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
             '/issueloan/' + str(self.loanaccount_group2.id) + '/')
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get(
-            '/viewgroupsavingswithdrawals/' + str(self.group2.id) + '/')
+        response = self.client.get(reverse("savings:viewgroupsavingswithdrawals",
+                                           kwargs={'group_id': self.group2.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(reverse(
@@ -674,7 +674,8 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/listofclientsavingsdeposits/' + str(self.member2.id) + '/')
+            reverse("savings:listofclientsavingsdeposits",
+                    kwargs={'client_id': self.member2.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
@@ -1034,8 +1035,8 @@ class Admin_Views_test(TestCase):
     def test_listofclient_savings_withdrawals(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/listofclientsavingswithdrawals/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse("savings:listofclientsavingswithdrawals",
+                                           kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response,

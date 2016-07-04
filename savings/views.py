@@ -2,8 +2,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
-from django.views.generic import CreateView, UpdateView, DetailView
-from micro_admin.models import Group, Client, SavingsAccount
+from django.views.generic import CreateView, UpdateView, DetailView, ListView
+from micro_admin.models import Group, Client, SavingsAccount, Receipts, Payments
 from micro_admin.forms import SavingsAccountForm
 from django.db.models import Sum
 import decimal
@@ -12,6 +12,7 @@ import datetime
 d = decimal.Decimal
 
 
+# Client Savings
 class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
     model = SavingsAccount
     form_class = SavingsAccountForm
@@ -25,16 +26,13 @@ class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
                 reverse("savings:clientsavingsaccount", kwargs={
                     'client_id': self.client.id}))
 
-        return super(ClientSavingsApplicationView, self).dispatch(
-            request, *args, **kwargs)
+        return super(ClientSavingsApplicationView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(
-            ClientSavingsApplicationView, self).get_context_data(**kwargs)
+        context = super(ClientSavingsApplicationView, self).get_context_data(**kwargs)
         count = SavingsAccount.objects.all().count()
         context["client"] = self.client
-        context["account_no"] = "%s%s%d" % (
-            "S", self.client.branch.id, count + 1)
+        context["account_no"] = "%s%s%d" % ("S", self.client.branch.id, count + 1)
         return context
 
     def form_valid(self, form):
@@ -43,8 +41,7 @@ class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
         obj_sav_acc.created_by = self.request.user
         obj_sav_acc.client = self.client
         obj_sav_acc.save()
-        return JsonResponse(
-            {"error": False, "client_id": self.client.id})
+        return JsonResponse({"error": False, "client_id": self.client.id})
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "errors": form.errors})
@@ -67,6 +64,45 @@ class ClientSavingsAccountView(LoginRequiredMixin, DetailView):
         return self.render_to_response(context)
 
 
+class ClientSavingsDepositsListView(LoginRequiredMixin, ListView):
+    model = Receipts
+    context_object_name = "receipts_lists"
+    template_name = "client/savings/list_of_savings_deposits.html"
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            client=self.kwargs.get('client_id')
+        ).exclude(savingsdeposit_thrift_amount=0)
+        return queryset
+
+    def get_context_data(self):
+        context = super(ClientSavingsDepositsListView, self).get_context_data()
+        context["savingsaccount"] = get_object_or_404(
+            SavingsAccount, client=self.kwargs.get("client_id")
+        )
+        return context
+
+
+class ClientSavingsWithdrawalsListView(LoginRequiredMixin, ListView):
+    model = Payments
+    context_object_name = "savings_withdrawals_list"
+    template_name = "client/savings/list_of_savings_withdrawals.html"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        queryset = self.model.objects.filter(
+            client=self.client,
+            payment_type="SavingsWithdrawal"
+        )
+        return queryset
+
+    def get_context_data(self):
+        context = super(ClientSavingsWithdrawalsListView, self).get_context_data()
+        context['client'] = self.client
+        return context
+
+
+# Group Savings
 class GroupSavingsApplicationView(LoginRequiredMixin, CreateView):
     model = SavingsAccount
     form_class = SavingsAccountForm
@@ -129,6 +165,49 @@ class GroupSavingsAccountView(LoginRequiredMixin, DetailView):
         return self.render_to_response(context)
 
 
+class GroupSavingsDepositsListView(LoginRequiredMixin, ListView):
+    model = Receipts
+    context_object_name = "receipts_list"
+    template_name = "group/savings/list_of_savings_deposits.html"
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        self.savings_account = get_object_or_404(SavingsAccount, group=self.group)
+        queryset = self.model.objects.filter(
+            group=self.group
+        ).exclude(
+            savingsdeposit_thrift_amount=0
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupSavingsDepositsListView, self).get_context_data(**kwargs)
+        context["savings_account"] = self.savings_account
+        context["group"] = self.group
+        return context
+
+
+class GroupSavingsWithdrawalsListView(LoginRequiredMixin, ListView):
+
+    model = Payments
+    context_object_name = "savings_withdrawals_list"
+    template_name = "group/savings/list_of_savings_withdrawals.html"
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        queryset = self.model.objects.filter(
+            group=self.group,
+            payment_type="SavingsWithdrawal"
+        )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupSavingsWithdrawalsListView, self).get_context_data(**kwargs)
+        context["group"] = self.group
+        return context
+
+
+# Change Group/Client Savings account status
 class ChangeSavingsAccountStatus(LoginRequiredMixin, UpdateView):
     model = SavingsAccount
     pk_url_kwarg = "savingsaccount_id"
