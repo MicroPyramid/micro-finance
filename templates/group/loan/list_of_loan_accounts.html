@@ -43,7 +43,7 @@
               {% for loan_account in loan_accounts_list %}
               <tr>
                 <td><b>{{ forloop.counter }}</b></td>
-                <td><a href="{% url 'micro_admin:grouploanaccount' loan_account.id %}" style="color:#337ab7;">{{ loan_account.account_no }}</a></td>
+                <td><a href="{% url 'loans:grouploanaccount' loan_account.id %}" style="color:#337ab7;">{{ loan_account.account_no }}</a></td>
                 <td>{{ loan_account.opening_date }}</td>
                 <td>{{ loan_account.status }}</td>
                 <td>{{ loan_account.interest_type }}</td>

@@ -22,6 +22,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'micro_admin',
     'savings',
+    'loans',
     'core',
     'compressor',
 )
