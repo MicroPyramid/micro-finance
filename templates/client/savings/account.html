@@ -119,7 +119,7 @@
   $(document).ready(function() {
     $('.change-account-status').click(function(e) {
       e.preventDefault();
-      var submit_url = "{% url 'micro_admin:change-savings-account-status' savingsaccount.id %}"
+      var submit_url = "{% url 'savings:change-savings-account-status' savingsaccount.id %}"
       $.post(submit_url, {"status": $(this).attr("data-href"), "csrfmiddlewaretoken": $("input[name='csrfmiddlewaretoken']").val() }, function(data) {
         if (data.error) {
           alert(data.error_message);

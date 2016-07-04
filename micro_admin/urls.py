@@ -47,17 +47,6 @@ urlpatterns = [
     url(r'^group/(?P<group_id>\d+)/meetings/list/$', GroupMeetingsListView.as_view(), name='groupmeetings'),
     url(r'^group/(?P<group_id>\d+)/meetings/add/$', GroupMeetingsAddView.as_view(), name='addgroupmeeting'),
 
-    # Client Savings
-    url(r'^client/(?P<client_id>\d+)/savings/application/$', ClientSavingsApplicationView.as_view(), name='clientsavingsapplication'),
-    url(r'^client/(?P<client_id>\d+)/savings/account/view/$', ClientSavingsAccountView.as_view(), name='clientsavingsaccount'),
-
-    # Group Savings
-    url(r'^group/(?P<group_id>\d+)/savings/application/$', GroupSavingsApplicationView.as_view(), name='groupsavingsapplication'),
-    url(r'^group/(?P<group_id>\d+)/savings/account/view/$', GroupSavingsAccountView.as_view(), name='groupsavingsaccount'),
-
-    # Change Savings Account Status
-    url(r'^savings/account/(?P<savingsaccount_id>\d+)/change-status/$', ChangeSavingsAccountStatus.as_view(), name='change-savings-account-status'),
-
     url(r'^viewgroupsavingsdeposits/(?P<group_id>\d+)/$', ViewGroupSavingsDeposits.as_view(), name='viewgroupsavingsdeposits'),
     url(r'^viewgroupsavingswithdrawals/(?P<group_id>\d+)/$', ViewGroupSavingsWithdrawals.as_view(), name='viewgroupsavingswithdrawals'),
     url(r'^group/loan/application/(?P<group_id>\d+)/$', GroupLoanApplicationView.as_view(), name='grouploanapplication'),

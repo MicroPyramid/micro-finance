@@ -11,9 +11,9 @@
     <div class="btn-row">
       <a href="{% url 'micro_admin:editclient' client.id %}"><button><i class="fa fa-pencil-square-o padd"></i>Edit</button></a>
       {% if client.savingsaccount_set.count %}
-      <a href="{% url 'micro_admin:clientsavingsaccount' client.id %}"><button><i class="fa fa-money padd"></i>View Savings</button></a>
+      <a href="{% url 'savings:clientsavingsaccount' client.id %}"><button><i class="fa fa-money padd"></i>View Savings</button></a>
       {% else %}
-      <a href="{% url 'micro_admin:clientsavingsapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Savings</button></a>
+      <a href="{% url 'savings:clientsavingsapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Savings</button></a>
       {% endif %}
       <a href="{% url 'micro_admin:clientloanapplication' client.id %}"><button><i class="fa fa-plus padd"></i>Loan</button></a>
       <a href="{% url 'micro_admin:clientloanaccountslist' client.id %}"><button><i class="fa fa-money padd"></i>View Loans</button></a>

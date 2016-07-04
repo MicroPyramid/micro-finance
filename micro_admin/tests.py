@@ -588,13 +588,13 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 302)
 
         SavingsAccount.objects.filter(client=self.member1).delete()
         response = self.client.post(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}),
             {"account_no": 12345, "created_by": self.user.username,
              "opening_date": '10/10/2014', "min_required_balance": 0,
@@ -602,20 +602,20 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse("micro_admin:clientsavingsaccount",
+            reverse("savings:clientsavingsaccount",
                     kwargs={'client_id': self.member2.id})
         )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id})
         )
         self.assertEqual(response.status_code, 302)
 
         SavingsAccount.objects.filter(group=self.group1).delete()
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "created_by": self.user.username,
              "opening_date": '10/10/2014', 'created_by': self.user.id,
@@ -625,7 +625,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "opening_date": '10/10/2014',
              "created_by": self.user.username, "min_required_balance": 0,
@@ -634,7 +634,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse("micro_admin:groupsavingsaccount",
+            reverse("savings:groupsavingsaccount",
                     kwargs={'group_id': self.group2.id})
         )
         self.assertEqual(response.status_code, 200)
@@ -909,7 +909,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}),
             {"account_no": '',
              "opening_date": '',
@@ -922,7 +922,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}),
             {"account_no": 123,
              "opening_date": '10/10/2014',
@@ -936,7 +936,7 @@ class Admin_Views_test(TestCase):
         self.assertTrue(user_login)
         SavingsAccount.objects.filter(group=self.group1).delete()
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": '', "opening_date": '', "min_required_balance": '',
              "annual_interest_rate": ''}
@@ -947,7 +947,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "opening_date": '10/10/2014',
              "min_required_balance": 0, "annual_interest_rate": 3}
@@ -958,7 +958,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.get(
-            reverse("micro_admin:groupsavingsaccount",
+            reverse("savings:groupsavingsaccount",
                     kwargs={'group_id': self.group1.id})
         )
         self.assertEqual(response.status_code, 200)
