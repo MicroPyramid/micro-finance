@@ -1,15 +1,23 @@
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
+from django.template import Context
 from micro_admin.models import User, Group, Client, LoanAccount, Receipts
 from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
+from django.utils.encoding import smart_str
+from django.conf import settings
 import decimal
 import datetime
+import xlwt
+import csv
 
 d = decimal.Decimal
 
+
+# Client Loans - (apply, list, detail, repayments-list)
+# -------------------------------------------------------
 
 class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
     model = LoanAccount
@@ -103,6 +111,241 @@ class ClientLoanDepositsListView(LoginRequiredMixin, ListView):
         context["loanaccount"] = self.loanaccount
         return context
 
+
+# Client Loans - Ledger (view, CSV, Excel, PDF downloads)
+# -------------------------------------------------------
+
+class ClientLoanLedgerView(LoginRequiredMixin, ListView):
+    model = Receipts
+    context_object_name = "receipts_list"
+    template_name = "client/loan/client_ledger_account.html"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        self.loanaccount = get_object_or_404(LoanAccount, id=self.kwargs.get("loanaccount_id"))
+        queryset = self.model.objects.filter(
+            client_id=self.client,
+            member_loan_account=self.loanaccount
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        return queryset
+
+    def get_context_data(self):
+        context = super(ClientLoanLedgerView, self).get_context_data()
+        context['client'] = self.client
+        context['loanaccount'] = self.loanaccount
+        return context
+
+
+class ClientLedgerCSVDownload(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        receipts_list = Receipts.objects.filter(
+            client=client
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        try:
+            response = HttpResponse(content_type='application/x-download')
+            response['Content-Disposition'] = 'attachment; filename=' + \
+                client.first_name + client.last_name + "_ledger.csv"
+            writer = csv.writer(response, csv.excel)
+            response.write(u'\ufeff'.encode('utf8'))
+            group = client.group_set.get()
+            writer.writerow([
+                smart_str(client.id),
+                smart_str(client.first_name),
+                smart_str(group.name),
+            ])
+            writer.writerow([
+                smart_str(u"Date"),
+                smart_str(u"Recepit No"),
+                smart_str(u"Demand Principal"),
+                smart_str(u"Demand Interest"),
+                smart_str(u"Demand Peenal Interest"),
+                smart_str(u"Collecton Principal"),
+                smart_str(u"Collecton Interest"),
+                smart_str(u"Collecton Peenal Interest"),
+                smart_str(u"Balance Principal"),
+                smart_str(u"Balance Interest"),
+                smart_str(u"Balance Peenal Interest"),
+                smart_str(u"Loan Outstanding"),
+            ])
+            for receipt in receipts_list:
+                if receipt.demand_loanprinciple_amount_atinstant:
+                    var1 = d(receipt.demand_loanprinciple_amount_atinstant)
+                else:
+                    var1 = 0
+                if receipt.loanprinciple_amount:
+                    var2 = d(receipt.loanprinciple_amount)
+                else:
+                    var2 = 0
+                if var1 > var2:
+                    balance_principle = d(d(var1) - d(var2))
+                else:
+                    balance_principle = 0
+                if receipt.demand_loaninterest_amount_atinstant:
+                    var4 = d(receipt.demand_loaninterest_amount_atinstant)
+                else:
+                    var4 = 0
+                if receipt.loaninterest_amount:
+                    var5 = d(receipt.loaninterest_amount)
+                else:
+                    var5 = 0
+                if var4 > var5:
+                    balance_interest = d(d(var4) - d(var5))
+                else:
+                    balance_interest = 0
+                writer.writerow([
+                    smart_str(receipt.date),
+                    smart_str(receipt.receipt_number),
+                    smart_str(receipt.demand_loanprinciple_amount_atinstant),
+                    smart_str(receipt.demand_loaninterest_amount_atinstant),
+                    smart_str("0"),
+                    smart_str(receipt.loanprinciple_amount),
+                    smart_str(receipt.loaninterest_amount),
+                    smart_str("0"),
+                    smart_str(balance_principle),
+                    smart_str(balance_interest),
+                    smart_str("0"),
+                    smart_str(receipt.principle_loan_balance_atinstant),
+                ])
+            return response
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
+
+
+class ClientLedgerExcelDownload(LoginRequiredMixin, View):
+
+    def get(self, request, **kwargs):
+        client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        receipts_list = Receipts.objects.filter(
+            client=client
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        try:
+            response = HttpResponse(content_type='application/ms-excel')
+            response['Content-Disposition'] = 'attachment; filename=' + \
+                client.first_name + client.last_name + "_ledger.xls"
+            wb = xlwt.Workbook(encoding='utf-8')
+            ws = wb.add_sheet("Ledger")
+
+            row_num = 0
+
+            columns = [
+                (u"Date", 1000),
+                (u"Receipt Number", 1000),
+                (u"Demand Principal", 2000),
+                (u"Demand Interest", 2000),
+                (u"Demand Peenal Interest", 2000),
+                (u"Collection Principal", 2000),
+                (u"Collection Interest", 2000),
+                (u"Collection Peenal Interest", 2000),
+                (u"Balance Principal", 2000),
+                (u"Balance Interest", 2000),
+                (u"Balance Peenal Interest", 2000),
+                (u"Loan Outstanding", 2000),
+            ]
+
+            font_style = xlwt.XFStyle()
+            font_style.font.bold = True
+
+            for col_num in xrange(len(columns)):
+                ws.write(row_num, col_num, columns[col_num][0], font_style)
+                ws.col(col_num).width = columns[col_num][1]
+
+            font_style = xlwt.XFStyle()
+            font_style.alignment.wrap = 1
+
+            for receipt in receipts_list:
+                row_num += 1
+                if receipt.demand_loanprinciple_amount_atinstant:
+                    var1 = d(receipt.demand_loanprinciple_amount_atinstant)
+                else:
+                    var1 = 0
+                if receipt.loanprinciple_amount:
+                    var2 = d(receipt.loanprinciple_amount)
+                else:
+                    var2 = 0
+                if var1 > var2:
+                    balance_principle = d(d(var1) - d(var2))
+                else:
+                    balance_principle = 0
+                if receipt.demand_loaninterest_amount_atinstant:
+                    var4 = d(receipt.demand_loaninterest_amount_atinstant)
+                else:
+                    var4 = 0
+                if receipt.loaninterest_amount:
+                    var5 = d(receipt.loaninterest_amount)
+                else:
+                    var5 = 0
+                if var4 > var5:
+                    balance_interest = d(d(var4) - d(var5))
+                else:
+                    balance_interest = 0
+
+                row = [
+                    str(receipt.date),
+                    receipt.receipt_number,
+                    receipt.demand_loanprinciple_amount_atinstant,
+                    receipt.demand_loaninterest_amount_atinstant,
+                    0,
+                    receipt.loanprinciple_amount,
+                    receipt.loaninterest_amount,
+                    0,
+                    balance_principle,
+                    balance_interest,
+                    0,
+                    receipt.principle_loan_balance_atinstant,
+                ]
+                for col_num in xrange(len(row)):
+                    ws.write(row_num, col_num, row[col_num], font_style)
+
+            wb.save(response)
+            return response
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
+
+
+class ClientLedgerPDFDownload(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        receipts_list = Receipts.objects.filter(
+            client=client
+        ).exclude(
+            demand_loanprinciple_amount_atinstant=0,
+            demand_loaninterest_amount_atinstant=0
+        )
+        try:
+            # template = get_template("pdfledger.html")
+            context = Context({
+                'pagesize': 'A4', "receipts_list": receipts_list,
+                "client": client, "mediaroot": settings.MEDIA_ROOT})
+            return render(request, 'pdfledger.html', context)
+            # html = template.render(context)
+            # result = StringIO.StringIO()
+            # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+            # if not pdf.err:
+            #     return HttpResponse(result.getvalue(),
+            #                         content_type='application/pdf')
+            # else:
+            #     return HttpResponse('We had some errors')
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
+
+
+# Group Loans - (apply, list, detail, repayments-list)
+# -------------------------------------------------------
 
 class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
     model = LoanAccount
@@ -207,6 +450,7 @@ class GroupLoanDepositsListView(LoginRequiredMixin, ListView):
         return context
 
 
+# Change Loan Account Status (group/client)
 class ChangeLoanAccountStatus(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
@@ -240,6 +484,7 @@ class ChangeLoanAccountStatus(LoginRequiredMixin, View):
         return JsonResponse(data)
 
 
+# Issue group/client Loan
 class IssueLoan(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
