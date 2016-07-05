@@ -2,7 +2,7 @@
 {% block breadcrumb %}
 <li><a href="{% url 'micro_admin:branchprofile' loanaccount.client.branch.id %}">{{ loanaccount.client.branch.name|capfirst }} Branch</a></li>
 <li><a href="{% url 'micro_admin:clientprofile' loanaccount.client.id %}">{{ loanaccount.client.first_name|capfirst }} Member</a></li>
-<li><a href="{% url 'micro_admin:clientloanaccountslist' loanaccount.client.id %}">Loans</a></li>
+<li><a href="{% url 'loans:clientloanaccountslist' loanaccount.client.id %}">Loans</a></li>
 <li><a href="{% url 'loans:clientloanaccount' loanaccount.id %}">Loan Account - {{ loanaccount.account_no }}</a></li>
 <li>View Loan Deposits</li>
 {% endblock %}

@@ -59,6 +59,22 @@ class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
         return JsonResponse({"error": True, "message": form.errors})
 
 
+class ClientLoansListView(LoginRequiredMixin, ListView):
+
+    template_name = "client/loan/list_of_loan_accounts.html"
+    context_object_name = "loan_accounts_list"
+
+    def get_queryset(self):
+        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
+        queryset = LoanAccount.objects.filter(client=self.client)
+        return queryset
+
+    def get_context_data(self):
+        context = super(ClientLoansListView, self).get_context_data()
+        context["client"] = self.client
+        return context
+
+
 class ClientLoanAccount(LoginRequiredMixin, DetailView):
     model = LoanAccount
     pk = 'pk'
@@ -137,6 +153,22 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "message": form.errors})
+
+
+class GroupLoansListView(LoginRequiredMixin, ListView):
+
+    template_name = "group/loan/list_of_loan_accounts.html"
+    context_object_name = "loan_accounts_list"
+
+    def get_queryset(self):
+        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
+        queryset = LoanAccount.objects.filter(group=self.group)
+        return queryset
+
+    def get_context_data(self):
+        context = super(GroupLoansListView, self).get_context_data()
+        context["group"] = self.group
+        return context
 
 
 class GroupLoanAccount(LoginRequiredMixin, DetailView):

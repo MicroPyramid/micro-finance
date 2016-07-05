@@ -726,12 +726,12 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/payslip/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/grouploanaccountslist/' +
-                                   str(self.group1.id) + '/')
+        response = self.client.get(reverse("loans:grouploanaccountslist",
+                                           kwargs={'group_id': self.group1.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientloanaccountslist/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse("loans:clientloanaccountslist",
+                                           kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/paymentslist/')

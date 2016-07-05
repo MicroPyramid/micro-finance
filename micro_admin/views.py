@@ -2095,38 +2095,6 @@ def pay_slip(request):
             return HttpResponse(json.dumps(data))
 
 
-class ViewGroupLoansList(LoginRequiredMixin, ListView):
-
-    template_name = "group/loan/list_of_loan_accounts.html"
-    context_object_name = "loan_accounts_list"
-
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        queryset = LoanAccount.objects.filter(group=self.group)
-        return queryset
-
-    def get_context_data(self):
-        context = super(ViewGroupLoansList, self).get_context_data()
-        context["group"] = self.group
-        return context
-
-
-class ViewClientLoansList(LoginRequiredMixin, ListView):
-
-    template_name = "client/loan/list_of_loan_accounts.html"
-    context_object_name = "loan_accounts_list"
-
-    def get_queryset(self):
-        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        queryset = LoanAccount.objects.filter(client=self.client)
-        return queryset
-
-    def get_context_data(self):
-        context = super(ViewClientLoansList, self).get_context_data()
-        context["client"] = self.client
-        return context
-
-
 class ClientLedgerCSVDownload(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
