@@ -48,7 +48,7 @@
     </h3>
     <span class="mar-tp-m mar-top-m24">
     <a href="{% url 'loans:listofclientloandeposits' loanaccount.client.id loanaccount.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Loan Deposits</a>
-    <a href="{% url 'micro_admin:ledgeraccount' loanaccount.client.id loanaccount.id %}" class="view-tab-btn">Ledger</a>
+    <a href="{% url 'loans:clientloanledgeraccount' loanaccount.client.id loanaccount.id %}" class="view-tab-btn">Ledger</a>
     {% if user.is_admin == 0 and user.user_roles != "BranchManager" %}
     {% if loanaccount.status == "Withdrawn" %}
     <a  title="Already Withrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>

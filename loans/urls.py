@@ -9,10 +9,10 @@ urlpatterns = [
     url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/deposits/list/$', ClientLoanDepositsListView.as_view(), name='listofclientloandeposits'),
 
     # Client Loans - Ledger (view, CSV, Excel, PDF downloads)
-    url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/$', ClientLoanLedgerView.as_view(), name="ledgeraccount"),
-    url(r'^clientledgercsvdownload/(?P<client_id>\d+)/$', ClientLedgerCSVDownload.as_view(), name="clientledgercsvdownload"),
-    url(r'^clientledgerexceldownload/(?P<client_id>\d+)/$', ClientLedgerExcelDownload.as_view(), name="clientledgerexceldownload"),
-    url(r'^clientledgerpdfdownload/(?P<client_id>\d+)/$', ClientLedgerPDFDownload.as_view(), name="clientledgerpdfdownload"),
+    url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/$', ClientLoanLedgerView.as_view(), name="clientloanledgeraccount"),
+    url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/csv/$', ClientLedgerCSVDownload.as_view(), name="clientledgercsvdownload"),
+    url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/excel$', ClientLedgerExcelDownload.as_view(), name="clientledgerexceldownload"),
+    url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/pdf/$', ClientLedgerPDFDownload.as_view(), name="clientledgerpdfdownload"),
 
     # Group Loans (apply, view, list)
     url(r'^group/(?P<group_id>\d+)/loan/apply/$', GroupLoanApplicationView.as_view(), name='grouploanapplication'),

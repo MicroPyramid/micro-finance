@@ -124,7 +124,7 @@ class ClientLoanLedgerView(LoginRequiredMixin, ListView):
         self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
         self.loanaccount = get_object_or_404(LoanAccount, id=self.kwargs.get("loanaccount_id"))
         queryset = self.model.objects.filter(
-            client_id=self.client,
+            client=self.client,
             member_loan_account=self.loanaccount
         ).exclude(
             demand_loanprinciple_amount_atinstant=0,
@@ -143,8 +143,10 @@ class ClientLedgerCSVDownload(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        loanaccount = get_object_or_404(LoanAccount, id=self.kwargs.get("loanaccount_id"))
         receipts_list = Receipts.objects.filter(
-            client=client
+            client=client,
+            member_loan_account=loanaccount
         ).exclude(
             demand_loanprinciple_amount_atinstant=0,
             demand_loaninterest_amount_atinstant=0
@@ -224,8 +226,10 @@ class ClientLedgerExcelDownload(LoginRequiredMixin, View):
 
     def get(self, request, **kwargs):
         client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        loanaccount = get_object_or_404(LoanAccount, id=self.kwargs.get("loanaccount_id"))
         receipts_list = Receipts.objects.filter(
-            client=client
+            client=client,
+            member_loan_account=loanaccount
         ).exclude(
             demand_loanprinciple_amount_atinstant=0,
             demand_loaninterest_amount_atinstant=0
@@ -257,7 +261,7 @@ class ClientLedgerExcelDownload(LoginRequiredMixin, View):
             font_style = xlwt.XFStyle()
             font_style.font.bold = True
 
-            for col_num in xrange(len(columns)):
+            for col_num in range(len(columns)):
                 ws.write(row_num, col_num, columns[col_num][0], font_style)
                 ws.col(col_num).width = columns[col_num][1]
 
@@ -305,7 +309,7 @@ class ClientLedgerExcelDownload(LoginRequiredMixin, View):
                     0,
                     receipt.principle_loan_balance_atinstant,
                 ]
-                for col_num in xrange(len(row)):
+                for col_num in range(len(row)):
                     ws.write(row_num, col_num, row[col_num], font_style)
 
             wb.save(response)
@@ -319,8 +323,10 @@ class ClientLedgerPDFDownload(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         client = get_object_or_404(Client, id=kwargs.get("client_id"))
+        loanaccount = get_object_or_404(LoanAccount, id=self.kwargs.get("loanaccount_id"))
         receipts_list = Receipts.objects.filter(
-            client=client
+            client=client,
+            member_loan_account=loanaccount
         ).exclude(
             demand_loanprinciple_amount_atinstant=0,
             demand_loaninterest_amount_atinstant=0
