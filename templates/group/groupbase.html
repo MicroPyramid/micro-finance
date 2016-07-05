@@ -21,7 +21,7 @@
           {% endif %}
           <li><a href="{% url 'loans:grouploanapplication' group.id %}"><i class="fa fa-plus padd"></i>New Loan Application</a>
           </li>
-          <li><a href="{% url 'micro_admin:grouploanaccountslist' group.id %}"><i class="fa fa-money padd"></i>View Loans</a></li>
+          <li><a href="{% url 'loans:grouploanaccountslist' group.id %}"><i class="fa fa-money padd"></i>View Loans</a></li>
         </ul>
       </li>
       <li>

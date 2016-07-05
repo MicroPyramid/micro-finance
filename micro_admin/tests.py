@@ -696,8 +696,12 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/receiptslist/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/ledgeraccount/' + str(self.member1.id) +
-                                    '/' + str(self.clientloan.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientloanledgeraccount", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id}
+            )
+        )
+
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/generalledger/')
@@ -726,12 +730,12 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/payslip/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/grouploanaccountslist/' +
-                                   str(self.group1.id) + '/')
+        response = self.client.get(reverse("loans:grouploanaccountslist",
+                                           kwargs={'group_id': self.group1.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientloanaccountslist/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse("loans:clientloanaccountslist",
+                                           kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/paymentslist/')
@@ -748,16 +752,22 @@ class Admin_Views_test(TestCase):
                                    str(self.member1.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientledgercsvdownload/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientledgercsvdownload", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id})
+        )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientledgerexceldownload/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientledgerexceldownload", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id})
+        )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientledgerpdfdownload/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientledgerpdfdownload", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/daybookpdfdownload/2014-10-10/')
@@ -1092,9 +1102,11 @@ class Admin_Views_test(TestCase):
     def test_ledger_account(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/ledgeraccount/' +
-                                   str(self.member1.id) +
-                                   '/' + str(self.clientloan.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientloanledgeraccount", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "client/loan/client_ledger_account.html")
 
