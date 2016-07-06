@@ -1,8 +1,12 @@
 from django.http import JsonResponse
 from django.views.generic import(CreateView, FormView,)
 from .mixins import LoginRequiredMixin
-from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDemandsForm
-from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount
+from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDemandsForm, GetFixedDepositsForm, GetRecurringDepositsForm, \
+    GetFixedDepositsPaidForm, GetRecurringDepositsPaidForm, ClientDepositsAccountsForm
+from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount, Group, Client, FixedDeposits, RecurringDeposits
+import decimal
+
+d = decimal.Decimal
 
 
 class ClientLoanAccountsView(LoginRequiredMixin, FormView):
@@ -20,15 +24,27 @@ class ClientLoanAccountsView(LoginRequiredMixin, FormView):
             group_accounts = LoanAccount.objects.filter(
                 group__in=groups
             ).values_list("account_no", "loan_amount")
+            fixed_deposit_accounts = FixedDeposits.objects.filter(
+                client=form.client,
+                status='Opened'
+            ).values_list("fixed_deposit_number", "fixed_deposit_amount")
+            recurring_deposit_accounts = RecurringDeposits.objects.filter(
+                client=form.client,
+                status="Opened"
+            ).values_list("reccuring_deposit_number", "recurring_deposit_amount")
         else:
             loan_accounts = []
             group_accounts = []
+            fixed_deposit_accounts = []
+            recurring_deposit_accounts = []
             default_group = None
         group = {"group_name": default_group.name if default_group else "",
                  "group_account_number": default_group.account_number if default_group else ""}
         data = {"error": False,
                 "loan_accounts": list(loan_accounts),
                 "group_accounts": list(group_accounts),
+                "fixed_deposit_accounts": list(fixed_deposit_accounts),
+                "recurring_deposit_accounts": list(recurring_deposit_accounts),
                 "group": group if default_group else False}
         return JsonResponse(data)
 
@@ -47,6 +63,40 @@ class GetLoanDemandsView(LoginRequiredMixin, FormView):
             "error": False,
             "demand_loanprinciple": form.loan_account.principle_repayment or 0,
             "demand_loaninterest": form.loan_account.interest_charged or 0
+        }
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)
+
+
+class GetFixedDepositAccountsView(LoginRequiredMixin, FormView):
+
+    form_class = GetFixedDepositsForm
+
+    def form_valid(self, form):
+        data = {
+            "error": False,
+            "fixeddeposit_amount": form.fixed_deposit_account.fixed_deposit_amount or 0
+        }
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)
+
+
+class GetRecurringDepositAccountsView(LoginRequiredMixin, FormView):
+
+    form_class = GetRecurringDepositsForm
+
+    def form_valid(self, form):
+        data = {
+            "error": False,
+            "recurringdeposit_amount": form.recurring_deposit_account.recurring_deposit_amount or 0
         }
         return JsonResponse(data)
 
@@ -123,9 +173,35 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                 self.savings_account.total_deposits += \
                     (form.cleaned_data.get("savingsdeposit_thrift_amount"))
 
-            if form.cleaned_data.get("recurringdeposit_amount"):
-                self.savings_account.recurringdeposit_amount += \
-                    (form.cleaned_data.get("recurringdeposit_amount"))
+            if form.cleaned_data.get('recurring_deposit_account_no'):
+                recurring_deposit_account_filter = RecurringDeposits.objects.filter(
+                    reccuring_deposit_number=form.cleaned_data.get('recurring_deposit_account_no')
+                )
+                if recurring_deposit_account_filter:
+                    recurring_deposit_account = recurring_deposit_account_filter.first()
+                    if form.cleaned_data.get('recurringdeposit_amount'):
+                        if int(recurring_deposit_account.number_of_payments) <= int(recurring_deposit_account.recurring_deposit_period):
+                            if d(recurring_deposit_account.recurring_deposit_amount) == d(form.cleaned_data.get('recurringdeposit_amount')):
+                                self.savings_account.recurringdeposit_amount += \
+                                    (form.cleaned_data.get('recurringdeposit_amount'))
+                                recurring_deposit_account.number_of_payments += 1
+                                if int(recurring_deposit_account.number_of_payments) == int(recurring_deposit_account.recurring_deposit_period):
+                                    recurring_deposit_account.status = 'Paid'
+                                recurring_deposit_account.save()
+
+            if form.cleaned_data.get('fixed_deposit_account_no'):
+                fixed_deposit_account_filter = FixedDeposits.objects.filter(
+                    fixed_deposit_number=form.cleaned_data.get('fixed_deposit_account_no')
+                )
+                if fixed_deposit_account_filter:
+                    fixed_deposit_account = fixed_deposit_account_filter.first()
+                    if form.cleaned_data.get('fixeddeposit_amount'):
+                        if d(fixed_deposit_account.fixed_deposit_amount) == d(form.cleaned_data.get('fixeddeposit_amount')):
+                            self.savings_account.fixeddeposit_amount += \
+                                (form.cleaned_data.get('fixeddeposit_amount'))
+                            fixed_deposit_account.status = 'Paid'
+                            fixed_deposit_account.save()
+
         if form.group_savings_account:
             # group
             self.group_savings_account = form.group_savings_account
@@ -390,6 +466,11 @@ class PaySlipCreateView(LoginRequiredMixin, CreateView):
         context['voucher_types'] = dict(PAYMENT_TYPES).keys()
         return context
 
+    def get_form_kwargs(self):
+        kwargs = super(PaySlipCreateView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
         pay_slip = form.save()
         data = {"error": False, 'pay_slip': pay_slip.id}
@@ -400,6 +481,130 @@ class PaySlipCreateView(LoginRequiredMixin, CreateView):
         return JsonResponse(data)
 
 
-# class GetmemberLoanAccounts(LoginRequiredMixin, view):
+def get_group_loan_accounts(request):
+    group_name = request.GET.get("group_name", None)
+    group_account_number = request.GET.get('group_account_no', None)
+    loan_accounts_data = {}
+    if group_name and group_account_number:
+        group_filter = Group.objects.filter(
+            name__iexact=group_name,
+            account_number=group_account_number)
+        if group_filter:
+            group = group_filter.first()
+            loan_accounts = LoanAccount.objects.filter(group=group)
+            if loan_accounts:
+                for account in loan_accounts:
+                    loan_accounts_data[account.id] = account.account_no
+        else:
+            return JsonResponse({"error": True,
+                                 "data": dict(loan_accounts_data)})
 
-#     def post(self, request, )
+    return JsonResponse({"error": False, "data": dict(loan_accounts_data)})
+
+
+def get_member_loan_accounts(request):
+    client_name = request.GET.get("client_name", None)
+    client_account_number = request.GET.get('client_account_number', None)
+    loan_accounts_data = {}
+    if client_name and client_account_number:
+        member_filter = Client.objects.filter(
+            first_name__iexact=client_name,
+            account_number=client_account_number)
+        if member_filter:
+            client = member_filter.first()
+            loan_accounts = LoanAccount.objects.filter(client=client)
+            if loan_accounts:
+                for account in loan_accounts:
+                    loan_accounts_data[account.id] = account.account_no
+        else:
+            return JsonResponse({"error": True,
+                                 "data": dict(loan_accounts_data)})
+
+    return JsonResponse({"error": False, "data": dict(loan_accounts_data)})
+
+
+class ClientDepositAccountsView(LoginRequiredMixin, FormView):
+
+    form_class = ClientDepositsAccountsForm
+
+    def form_valid(self, form):
+        if form.client:
+            fixed_deposit_accounts = []
+            recurring_deposit_accounts = []
+            if form.pay_type == 'FixedWithdrawal':
+                fixed_deposit_accounts = FixedDeposits.objects.filter(
+                    client=form.client,
+                    status='Paid'
+                ).values_list("fixed_deposit_number", "fixed_deposit_amount")
+            elif form.pay_type == 'RecurringWithdrawal':
+                recurring_deposit_accounts_filter = RecurringDeposits.objects.filter(
+                    client=form.client
+                ).exclude(number_of_payments=0).exclude(status='Closed')
+                recurring_deposit_accounts = \
+                    recurring_deposit_accounts_filter.values_list(
+                        "reccuring_deposit_number", "recurring_deposit_amount")
+        else:
+            fixed_deposit_accounts = []
+            recurring_deposit_accounts = []
+        data = {"error": False,
+                "fixed_deposit_accounts": list(fixed_deposit_accounts),
+                "recurring_deposit_accounts": list(recurring_deposit_accounts)}
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)
+
+
+class GetFixedDepositPaidAccountsView(LoginRequiredMixin, FormView):
+
+    form_class = GetFixedDepositsPaidForm
+
+    def form_valid(self, form):
+        fixed_deposit = form.fixed_deposit_account
+        interest_charged = (fixed_deposit.fixed_deposit_amount * (
+            fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
+        fixed_deposit_interest_charged = interest_charged * d(
+            fixed_deposit.fixed_deposit_period)
+        total_amount = \
+            fixed_deposit.fixed_deposit_amount + fixed_deposit_interest_charged
+        data = {
+            "error": False,
+            "fixeddeposit_amount": fixed_deposit.fixed_deposit_amount or 0,
+            "interest_charged": round(fixed_deposit_interest_charged, 6),
+            'total_amount': round(total_amount, 6)
+        }
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)
+
+
+class GetRecurringDepositPaidAccountsView(LoginRequiredMixin, FormView):
+
+    form_class = GetRecurringDepositsPaidForm
+
+    def form_valid(self, form):
+        recurring_deposit = form.recurring_deposit_account
+        recurring_deposit_amount = d(recurring_deposit.recurring_deposit_amount) * recurring_deposit.number_of_payments
+        interest_charged = (recurring_deposit_amount * (
+            recurring_deposit.recurring_deposit_interest_rate / 12)) / 100
+        recurring_deposit_interest_charged = interest_charged * d(
+            recurring_deposit.recurring_deposit_period)
+        total_amount = \
+            recurring_deposit_amount + recurring_deposit_interest_charged
+        data = {
+            "error": False,
+            "recurringdeposit_amount": recurring_deposit_amount,
+            "interest_charged": round(recurring_deposit_interest_charged, 6),
+            'total_amount': round(total_amount, 6)
+        }
+        return JsonResponse(data)
+
+    def form_invalid(self, form):
+        data = {"error": True,
+                "errors": form.errors}
+        return JsonResponse(data)

@@ -72,9 +72,18 @@
             <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label color-inner-hedng box-center"><b>Fixed Deposits</b></label>
           </div>
           <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Member Fixed Deposit A/C. No.</label>
+            <div class="col-sm-8">
+              <select id="fixeddepositaccountnoselect" class="text-box wid-form select-box-pad" name="fixed_deposit_account_no">
+                <option value="">Select Member Fixed Deposit A/C. No.</option>
+              </select>
+              <p id="fixed_deposit_account_no_error"></p>
+            </div>
+          </div>
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="fixeddeposit_amount" value="">
+              <input type="text" class="text-box wid-form" id='fixeddeposit_amount' name="fixeddeposit_amount" value="">
               <p id="fixeddepositamounterror"></p>
             </div>
           </div>
@@ -82,9 +91,18 @@
             <label for="inputEmail3" class="col-sm-12 col-xs-12 col-xs-12 control-label color-inner-hedng box-center"><b>Recurring Deposits</b></label>
           </div>
           <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Recurring Deposit A/C. No.</label>
+            <div class="col-sm-8">
+              <select id="recurringdepositaccountnoselect" class="text-box wid-form select-box-pad" name="recurring_deposit_account_no">
+                <option>Select Member Recurring Deposit A/C. No.</option>
+              </select>
+              <p id="recurring_deposit_account_no_error"></p>
+            </div>
+          </div>
+          <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="recurringdeposit_amount" value="">
+              <input type="text" class="text-box wid-form" id='recurringdeposit_amount' name="recurringdeposit_amount" value="">
               <p id="recurringdepositamounterror"></p>
             </div>
           </div>
@@ -275,6 +293,38 @@
           $("#group_name").val(data.group.group_name)
           $("#group_account_number").val(data.group.group_account_number)
         }
+        else{
+          $("#group_name").val('')
+          $("#group_account_number").val('')
+        }
+        if(data.fixed_deposit_accounts){
+          options = "<option value=\"\">Select Member Fixed Deposit A/C. No.</option>"
+          $.each(data.fixed_deposit_accounts, function( index, value ) {
+            option  = "<option value=\"" + value[0] + "\">A/C: " +
+                        value[0] + " Amount: " + value[1] +
+                      "</option>"
+            options = options + option
+          });
+          $("#fixeddepositaccountnoselect").html(options)
+        }
+        else{
+          option = "<option value=\"\">No Fixed Deposit Accounts Found</option>"
+          $("#fixeddepositaccountnoselect").html(option)
+        }
+        if(data.recurring_deposit_accounts){
+          options = "<option value=\"\">Select Member Recurring Deposit A/C. No.</option>"
+          $.each(data.recurring_deposit_accounts, function( index, value ) {
+            option  = "<option value=\"" + value[0] + "\">A/C: " +
+                        value[0] + " Amount: " + value[1] +
+                      "</option>"
+            options = options + option
+          });
+          $("#recurringdepositaccountnoselect").html(options)
+        }
+        else{
+          option = "<option value=\"\">No Recurring Deposit Accounts Found</option>"
+          $("#recurringdepositaccountnoselect").html(option)
+        }
       }
     }, "json");
   }
@@ -324,12 +374,65 @@
 
     }, "json");
   });
+  // fixeddepositaccountnoselect, recurringdepositaccountnoselect
+  $('#fixeddepositaccountnoselect, #recurringdepositaccountnoselect').change(function() {
+    if(!$(this).val()){
+      return false;
+    }
+    if ($(this).attr("id") == "fixeddepositaccountnoselect"){
+      var fixed_deposit_acc = $(this).val();
+      $.post('/finance/getmemberfixeddepositaccounts/', $('#createreceiptform').serialize(), function(data) {
+
+        document.getElementById('fixeddeposit_amount').value = '';
+        $("span.error").remove();
+        if (data.error) {
+          if (data.errors.message1) {
+            $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" + data.errors.message1 + "</span>");
+          }
+          $.each(data.errors, function(field, error){
+              html = "<span class='error' style='height:11px;color:red;'>" + error + "</span>"
+              $('[name='+field+']').after(html)
+            })
+        } else {
+          if (data.fixeddeposit_amount >= 0) {
+            document.getElementById('fixeddeposit_amount').value = data.fixeddeposit_amount;
+            $("#fixeddeposit_amount").attr("readonly", true)
+          }
+        }
+
+      }, "json");
+    }
+    if ($(this).attr("id") == "recurringdepositaccountnoselect"){
+      var recurring_deposit_acc = $(this).val();
+      $.post('/finance/getmemberrecurringdepositaccounts/', $('#createreceiptform').serialize(), function(data) {
+
+        document.getElementById('recurringdeposit_amount').value = '';
+        $("span.error").remove();
+        if (data.error) {
+          if (data.errors.message1) {
+            $("#message1error").prepend("<span class='error' style='height:11px;color:red;text-align:center;'>" + data.errors.message1 + "</span>");
+          }
+          $.each(data.errors, function(field, error){
+              html = "<span class='error' style='height:11px;color:red;'>" + error + "</span>"
+              $('[name='+field+']').after(html)
+            })
+        } else {
+
+          if (data.recurringdeposit_amount >= 0) {
+            document.getElementById('recurringdeposit_amount').value = data.recurringdeposit_amount;
+            $("#recurringdeposit_amount").attr("readonly", true)
+          }
+
+        }
+
+      }, "json");
+    }
+  });
 </script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#createreceiptform').submit(function(e) {
       e.preventDefault();
-      console.log($('#createreceiptform').serialize())
       $.post('', $('#createreceiptform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
