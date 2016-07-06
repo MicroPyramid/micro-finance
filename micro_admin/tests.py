@@ -487,7 +487,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(reverse(
-            "micro_admin:grouploanapplication",
+            "loans:grouploanapplication",
             kwargs={"group_id": self.group1.id}),
             {"account_no": 123, "interest_type": 'Flat',
              "created_by": self.staff.username, "loan_amount": 1000,
@@ -508,7 +508,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(reverse(
-            'micro_admin:clientloanapplication',
+            'loans:clientloanapplication',
             kwargs={'client_id': self.member1.id}),
             {"account_no": 12, "created_by": self.staff.username,
              "loan_amount": 10000, "interest_type": 'Flat',
@@ -588,13 +588,13 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 302)
 
         SavingsAccount.objects.filter(client=self.member1).delete()
         response = self.client.post(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}),
             {"account_no": 12345, "created_by": self.user.username,
              "opening_date": '10/10/2014', "min_required_balance": 0,
@@ -602,20 +602,20 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse("micro_admin:clientsavingsaccount",
+            reverse("savings:clientsavingsaccount",
                     kwargs={'client_id': self.member2.id})
         )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id})
         )
         self.assertEqual(response.status_code, 302)
 
         SavingsAccount.objects.filter(group=self.group1).delete()
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "created_by": self.user.username,
              "opening_date": '10/10/2014', 'created_by': self.user.id,
@@ -625,7 +625,7 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "opening_date": '10/10/2014',
              "created_by": self.user.username, "min_required_balance": 0,
@@ -634,25 +634,26 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            reverse("micro_admin:groupsavingsaccount",
+            reverse("savings:groupsavingsaccount",
                     kwargs={'group_id': self.group2.id})
         )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(
-            '/viewgroupsavingsdeposits/' + str(self.group2.id) + '/')
+        response = self.client.get(reverse("savings:viewgroupsavingsdeposits",
+                                           kwargs={'group_id': self.group2.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/issueloan/' + str(self.loanaccount_group2.id) + '/')
+            reverse("loans:issueloan",
+                    kwargs={'loanaccount_id': self.loanaccount_group2.id}))
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get(
-            '/viewgroupsavingswithdrawals/' + str(self.group2.id) + '/')
+        response = self.client.get(reverse("savings:viewgroupsavingswithdrawals",
+                                           kwargs={'group_id': self.group2.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(reverse(
-            "micro_admin:grouploanapplication",
+            "loans:grouploanapplication",
             kwargs={"group_id": self.group2.id}),
             {"account_no": 1239, "interest_type": 'Flat', "loan_amount": 1000,
              "loan_repayment_period": 10, "loan_repayment_every": 10,
@@ -661,36 +662,46 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/grouploanaccount/' + str(self.grouploan.id) + '/')
+            reverse("loans:grouploanaccount",
+                    kwargs={'pk': self.grouploan.id}))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse("loans:clientloanaccount",
+                                           kwargs={'pk': self.clientloan.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/clientloanaccount/' + str(self.clientloan.id) + '/')
+            reverse("loans:listofclientloandeposits", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id})
+        )
+
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/listofclientloandeposits/' + str(self.member1.id) + '/' +
-            str(self.clientloan.id) + '/')
+            reverse("savings:listofclientsavingsdeposits",
+                    kwargs={'client_id': self.member2.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/listofclientsavingsdeposits/' + str(self.member2.id) + '/')
+            reverse("loans:viewgrouploandeposits", kwargs={
+                'group_id': self.group1.id, 'loanaccount_id': self.grouploan.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
-            '/viewgrouploandeposits/' + str(self.group1.id) + '/' +
-            str(self.grouploan.id) + '/')
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.post(
-            '/issueloan/' + str(self.clientloan.id) + '/')
+            reverse("loans:issueloan",
+                    kwargs={'loanaccount_id': self.clientloan.id}))
         self.assertEqual(response.status_code, 302)
 
         response = self.client.get('/receiptslist/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/ledgeraccount/' + str(self.member1.id) +
-                                    '/' + str(self.clientloan.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientloanledgeraccount", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id}
+            )
+        )
+
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/generalledger/')
@@ -719,12 +730,12 @@ class Admin_Views_test(TestCase):
         response = self.client.get('/payslip/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/grouploanaccountslist/' +
-                                   str(self.group1.id) + '/')
+        response = self.client.get(reverse("loans:grouploanaccountslist",
+                                           kwargs={'group_id': self.group1.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientloanaccountslist/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse("loans:clientloanaccountslist",
+                                           kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/paymentslist/')
@@ -741,16 +752,22 @@ class Admin_Views_test(TestCase):
                                    str(self.member1.id) + '/')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientledgercsvdownload/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientledgercsvdownload", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id})
+        )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientledgerexceldownload/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientledgerexceldownload", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id})
+        )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientledgerpdfdownload/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientledgerpdfdownload", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id})
+        )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/daybookpdfdownload/2014-10-10/')
@@ -909,7 +926,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}),
             {"account_no": '',
              "opening_date": '',
@@ -922,7 +939,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            reverse('micro_admin:clientsavingsapplication',
+            reverse('savings:clientsavingsapplication',
                     kwargs={'client_id': self.member1.id}),
             {"account_no": 123,
              "opening_date": '10/10/2014',
@@ -936,7 +953,7 @@ class Admin_Views_test(TestCase):
         self.assertTrue(user_login)
         SavingsAccount.objects.filter(group=self.group1).delete()
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": '', "opening_date": '', "min_required_balance": '',
              "annual_interest_rate": ''}
@@ -947,7 +964,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            reverse('micro_admin:groupsavingsapplication',
+            reverse('savings:groupsavingsapplication',
                     kwargs={'group_id': self.group1.id}),
             {"account_no": 123, "opening_date": '10/10/2014',
              "min_required_balance": 0, "annual_interest_rate": 3}
@@ -958,7 +975,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.get(
-            reverse("micro_admin:groupsavingsaccount",
+            reverse("savings:groupsavingsaccount",
                     kwargs={'group_id': self.group1.id})
         )
         self.assertEqual(response.status_code, 200)
@@ -968,7 +985,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.get(reverse(
-            "micro_admin:grouploanapplication",
+            "loans:grouploanapplication",
             kwargs={"group_id": self.group1.id})
         )
         self.assertEqual(response.status_code, 200)
@@ -978,7 +995,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(reverse(
-            "micro_admin:grouploanapplication",
+            "loans:grouploanapplication",
             kwargs={"group_id": self.group1.id}),
             {"account_no": 12,
              'created_by': self.staff.id,
@@ -994,7 +1011,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(reverse(
-            "micro_admin:grouploanapplication",
+            "loans:grouploanapplication",
             kwargs={"group_id": self.group1.id}),
             {"account_no": '',
              'created_by': self.staff.id,
@@ -1010,7 +1027,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.get(reverse(
-            'micro_admin:clientloanapplication',
+            'loans:clientloanapplication',
             kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "client/loan/application.html")
@@ -1019,7 +1036,7 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(reverse(
-            'micro_admin:clientloanapplication',
+            'loans:clientloanapplication',
             kwargs={'client_id': self.member1.id}),
             {"account_no": '',
              'created_by': self.staff.id,
@@ -1034,8 +1051,8 @@ class Admin_Views_test(TestCase):
     def test_listofclient_savings_withdrawals(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/listofclientsavingswithdrawals/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse("savings:listofclientsavingswithdrawals",
+                                           kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response,
@@ -1044,11 +1061,11 @@ class Admin_Views_test(TestCase):
     def test_issue_loan_client(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get("/issueloan/" +
-                                   str(self.clientloan.id) + "/")
+        response = self.client.get(
+            reverse("loans:issueloan",
+                    kwargs={'loanaccount_id': self.clientloan.id}))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/clientloanaccount/' +
-                             str(self.clientloan.id) + '/',
+        self.assertRedirects(response, reverse("loans:clientloanaccount", kwargs={'pk': self.clientloan.id}),
                              status_code=302, target_status_code=200)
 
     # def test_withdraw_loan_post_data(self):
@@ -1085,9 +1102,11 @@ class Admin_Views_test(TestCase):
     def test_ledger_account(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/ledgeraccount/' +
-                                   str(self.member1.id) +
-                                   '/' + str(self.clientloan.id) + '/')
+        response = self.client.get(
+            reverse("loans:clientloanledgeraccount", kwargs={
+                'client_id': self.member1.id, 'loanaccount_id': self.clientloan.id}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "client/loan/client_ledger_account.html")
 

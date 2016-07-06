@@ -44,8 +44,8 @@
         <i class="fa fa-square red padd"></i>{% endif %}
         {{ client.first_name|capfirst }} Savings Account</h3>
         <span class="mar-tp-m mar-tp-m24">
-        <a href="{% url 'micro_admin:listofclientsavingswithdrawals' client.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdrawals</a>
-        <a href="{% url 'micro_admin:listofclientsavingsdeposits' client.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Deposits</a>
+        <a href="{% url 'savings:listofclientsavingswithdrawals' client.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Withdrawals</a>
+        <a href="{% url 'savings:listofclientsavingsdeposits' client.id %}" class="view-tab-btn"><i class="fa fa-eye padd"></i>View Savings Deposits</a>
         {% if user.is_admin == 0 and user.user_roles != "BranchManager" %}
           {% if savingsaccount.status == "Withdrawn" %}
             <a title="Already Withrawn" class="view-tab-btn"><i class="fa fa-arrow-circle-o-down padd"></i>Withdrawn</a>
@@ -119,7 +119,7 @@
   $(document).ready(function() {
     $('.change-account-status').click(function(e) {
       e.preventDefault();
-      var submit_url = "{% url 'micro_admin:change-savings-account-status' savingsaccount.id %}"
+      var submit_url = "{% url 'savings:change-savings-account-status' savingsaccount.id %}"
       $.post(submit_url, {"status": $(this).attr("data-href"), "csrfmiddlewaretoken": $("input[name='csrfmiddlewaretoken']").val() }, function(data) {
         if (data.error) {
           alert(data.error_message);

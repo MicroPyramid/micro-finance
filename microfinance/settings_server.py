@@ -1,4 +1,6 @@
-from settings import *
+from .settings import *
+
+ALLOWED_HOSTS = ['.micropyramid.com']
 
 DEBUG = False
 THUMBNAIL_DEBUG = False

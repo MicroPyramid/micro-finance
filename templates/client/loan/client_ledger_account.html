@@ -2,8 +2,8 @@
 {% block breadcrumb %}
 <li><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }} Branch</a></li>
 <li><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }} Member</a></li>
-<li><a href="{% url 'micro_admin:clientloanaccountslist' loanaccount.client.id %}">Loans</a></li>
-<li><a href="{% url 'micro_admin:clientloanaccount' loanaccount.id %}">Loan Account - {{ loanaccount.account_no }}</a></li>
+<li><a href="{% url 'loans:clientloanaccountslist' loanaccount.client.id %}">Loans</a></li>
+<li><a href="{% url 'loans:clientloanaccount' loanaccount.id %}">Loan Account - {{ loanaccount.account_no }}</a></li>
 <li>Ledger Account</li>
 {% endblock %}
 {% block stage %}
@@ -15,10 +15,10 @@
       <h3 class="panel-title">
         {{ client.first_name|capfirst }} {{ client.last_name|capfirst }} Loan account - {{ loanaccount.account_no }} Ledger </h3>
         <span class="doNotPrint mar-tp-m mar-tp-m24">
-          <a href="{% url 'micro_admin:clientledgercsvdownload' client.id %}" class="view-tab-btn">
+          <a href="{% url 'loans:clientledgercsvdownload' client.id loanaccount.id %}" class="view-tab-btn">
           <i class="fa fa-download padd"></i>CSV Download</a>
-          <a href="{% url 'micro_admin:clientledgerexceldownload' client.id %}" class="view-tab-btn"><i class="fa fa-download padd"></i>Excel Download</a>
-          <a href="{% url 'micro_admin:clientledgerpdfdownload' client.id %}" target="_blank" class="view-tab-btn">
+          <a href="{% url 'loans:clientledgerexceldownload' client.id loanaccount.id %}" class="view-tab-btn"><i class="fa fa-download padd"></i>Excel Download</a>
+          <a href="{% url 'loans:clientledgerpdfdownload' client.id loanaccount.id %}" target="_blank" class="view-tab-btn">
           <i class="fa fa-download padd"></i>PDF Download</a>
           <!--<a target="_blank" class="view-tab-btn">
             <button class="view-tab-btn" onclick="window.print()">Print

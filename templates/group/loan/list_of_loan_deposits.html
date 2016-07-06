@@ -1,7 +1,7 @@
 {% extends 'group/groupbase.html' %}
 {% block groupbreadcrumb %}
-<li><a href="{% url 'micro_admin:grouploanaccountslist' loan_account.group.id %}">Loans</a></li>
-<li><a href="{% url 'micro_admin:grouploanaccount' loan_account.id %}">Loan Account - {{ loan_account.account_no }}</a></li>
+<li><a href="{% url 'loans:grouploanaccountslist' loan_account.group.id %}">Loans</a></li>
+<li><a href="{% url 'loans:grouploanaccount' loan_account.id %}">Loan Account - {{ loan_account.account_no }}</a></li>
 <li>View Loan Deposits</li>
 {% endblock %}
 {% block groupstage %}
@@ -11,7 +11,7 @@
       <h3 class="panel-title">
         {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
         {{ group.name|capfirst }} Loan Deposits List</h3>
-        <span class="mar-tp-m"><a href="{% url 'micro_admin:grouploanaccount' loan_account.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
+        <span class="mar-tp-m"><a href="{% url 'loans:grouploanaccount' loan_account.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="panel-body">
       <!--panel body starts above-->

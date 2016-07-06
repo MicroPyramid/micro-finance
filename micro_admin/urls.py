@@ -47,32 +47,10 @@ urlpatterns = [
     url(r'^group/(?P<group_id>\d+)/meetings/list/$', GroupMeetingsListView.as_view(), name='groupmeetings'),
     url(r'^group/(?P<group_id>\d+)/meetings/add/$', GroupMeetingsAddView.as_view(), name='addgroupmeeting'),
 
-    # Client Savings
-    url(r'^client/(?P<client_id>\d+)/savings/application/$', ClientSavingsApplicationView.as_view(), name='clientsavingsapplication'),
-    url(r'^client/(?P<client_id>\d+)/savings/account/view/$', ClientSavingsAccountView.as_view(), name='clientsavingsaccount'),
-
-    # Group Savings
-    url(r'^group/(?P<group_id>\d+)/savings/application/$', GroupSavingsApplicationView.as_view(), name='groupsavingsapplication'),
-    url(r'^group/(?P<group_id>\d+)/savings/account/view/$', GroupSavingsAccountView.as_view(), name='groupsavingsaccount'),
-
-    # Change Savings Account Status
-    url(r'^savings/account/(?P<savingsaccount_id>\d+)/change-status/$', ChangeSavingsAccountStatus.as_view(), name='change-savings-account-status'),
-
-    url(r'^viewgroupsavingsdeposits/(?P<group_id>\d+)/$', ViewGroupSavingsDeposits.as_view(), name='viewgroupsavingsdeposits'),
-    url(r'^viewgroupsavingswithdrawals/(?P<group_id>\d+)/$', ViewGroupSavingsWithdrawals.as_view(), name='viewgroupsavingswithdrawals'),
-    url(r'^group/loan/application/(?P<group_id>\d+)/$', GroupLoanApplicationView.as_view(), name='grouploanapplication'),
-    url(r'^grouploanaccount/(?P<pk>\d+)/$', GroupLoanAccount.as_view(), name='grouploanaccount'),
-    url(r'^client/loan/application/(?P<client_id>\d+)/$', ClientLoanApplicationView.as_view(), name='clientloanapplication'),
-    url(r'^clientloanaccount/(?P<pk>\d+)/$', ClientLoanAccount.as_view(), name='clientloanaccount'),
-    url(r'^loan-account/status/(?P<pk>\d+)/$', ChangeLoanAccountStatus.as_view(), name='change_loan_account_status'),
-    url(r'^listofclientloandeposits/(?P<client_id>\d+)/(?P<loanaccount_id>\d+)/$', ListOfClientLoanDeposits.as_view(), name='listofclientloandeposits'),
-    url(r'^listofclientsavingsdeposits/(?P<client_id>\d+)/$', ListOfClientSavingsDeposits.as_view(), name='listofclientsavingsdeposits'),
-    url(r'^listofclientsavingswithdrawals/(?P<client_id>\d+)/$', ListOfClientSavingsWithdrawals.as_view(), name='listofclientsavingswithdrawals'),
-    url(r'^viewgrouploandeposits/(?P<group_id>\d+)/(?P<loanaccount_id>\d+)/$', ViewGroupLoanDiposits.as_view(), name='viewgrouploandeposits'),
-    url(r'^issueloan/(?P<loanaccount_id>\d+)/$', IssueLoan.as_view(), name='issueloan'),
+    # Receipts(create, list)
     url(r'^receiptsdeposit/$', receipts_deposit, name="receiptsdeposit"),
     url(r'^receiptslist/$', ReceiptsList.as_view(), name="receiptslist"),
-    url(r'^ledgeraccount/(?P<client_id>\d+)/(?P<loanaccount_id>\d+)/$', LedgerAccount.as_view(), name="ledgeraccount"),
+
     url(r'^generalledger/$', GeneralLedger.as_view(), name="generalledger"),
     url(r'^fixeddeposits/$', FixedDepositsView.as_view(), name="fixeddeposits"),
     url(r'^clientfixeddepositsprofile/(?P<fixed_deposit_id>\d+)/$', ClientFixedDepositsProfile.as_view(), name="clientfixeddepositsprofile"),
@@ -80,16 +58,11 @@ urlpatterns = [
     url(r'^viewdaybook/$', view_day_book, name="viewdaybook"),
     url(r'^viewparticularclientfixeddeposits/(?P<client_id>\d+)/$', ViewParticularClientFixedDeposits.as_view(), name="viewparticularclientfixeddeposits"),
     url(r'^payslip/$', pay_slip, name="payslip"),
-    url(r'^grouploanaccountslist/(?P<group_id>\d+)/$', ViewGroupLoansList.as_view(), name="grouploanaccountslist"),
-    url(r'^clientloanaccountslist/(?P<client_id>\d+)/$', ViewClientLoansList.as_view(), name="clientloanaccountslist"),
     url(r'^paymentslist/$', PaymentsList.as_view(), name="paymentslist"),
     url(r'^recurringdeposits/$', RecurringDepositsView.as_view(), name="recurringdeposits"),
     url(r'^clientrecurringdepositsprofile/(?P<recurring_deposit_id>\d+)/$', ClientRecurringDepositsProfile.as_view(), name="clientrecurringdepositsprofile"),
     url(r'^viewclientrecurringdeposits/$', ViewClientRecurringDeposits.as_view(), name="viewclientrecurringdeposits"),
     url(r'^viewparticularclientrecurringdeposits/(?P<client_id>\d+)/$', ViewParticularClientRecurringDeposits.as_view(), name="viewparticularclientrecurringdeposits"),
-    url(r'^clientledgercsvdownload/(?P<client_id>\d+)/$', ClientLedgerCSVDownload.as_view(), name="clientledgercsvdownload"),
-    url(r'^clientledgerexceldownload/(?P<client_id>\d+)/$', ClientLedgerExcelDownload.as_view(), name="clientledgerexceldownload"),
-    url(r'^clientledgerpdfdownload/(?P<client_id>\d+)/$', ClientLedgerPDFDownload.as_view(), name="clientledgerpdfdownload"),
     url(r'^generalledgerpdfdownload/$', GeneralLedgerPdfDownload.as_view(), name="generalledgerpdfdownload"),
     url(r'^daybookpdfdownload/(?P<date>\d{4}-\d{2}-\d{2})/$', DayBookPdfDownload.as_view(), name="daybookpdfdownload"),
     url(r'^userchangepassword/$', UserChangePassword.as_view(), name="userchangepassword"),

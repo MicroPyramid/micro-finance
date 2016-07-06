@@ -2,8 +2,8 @@
 {% block breadcrumb %}
 <li><a href="{% url 'micro_admin:branchprofile' loanaccount.client.branch.id %}">{{ loanaccount.client.branch.name|capfirst }} Branch</a></li>
 <li><a href="{% url 'micro_admin:clientprofile' loanaccount.client.id %}">{{ loanaccount.client.first_name|capfirst }} Member</a></li>
-<li><a href="{% url 'micro_admin:clientloanaccountslist' loanaccount.client.id %}">Loans</a></li>
-<li><a href="{% url 'micro_admin:clientloanaccount' loanaccount.id %}">Loan Account - {{ loanaccount.account_no }}</a></li>
+<li><a href="{% url 'loans:clientloanaccountslist' loanaccount.client.id %}">Loans</a></li>
+<li><a href="{% url 'loans:clientloanaccount' loanaccount.id %}">Loan Account - {{ loanaccount.account_no }}</a></li>
 <li>View Loan Deposits</li>
 {% endblock %}
 {% block stage %}
@@ -18,7 +18,7 @@
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{loanaccount.client.first_name|capfirst}}  Loan Deposits</h3>
-        <span class="mar-tp-m"><a href="{% url 'micro_admin:clientloanaccount' loanaccount.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
+        <span class="mar-tp-m"><a href="{% url 'loans:clientloanaccount' loanaccount.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="panel-body pb-table">
       <div class="table-responsive">

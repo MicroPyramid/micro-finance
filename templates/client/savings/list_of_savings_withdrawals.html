@@ -16,7 +16,7 @@
         {% else %}
         <i class="fa fa-square red padd"></i>
         {% endif %}{{client.first_name|capfirst}} {{client.last_name|capfirst}} Savings Withdrawals List</h3>
-        <span class="mar-tp-m"><a href="{% url 'micro_admin:clientsavingsaccount' client.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
+        <span class="mar-tp-m"><a href="{% url 'savings:clientsavingsaccount' client.id %}" class="view-tab-btn ed-btn"><i class="fa fa-arrow-circle-left padd"></i>Back</a></span>
     </div>
     <div class="panel-body pb-table">
       <!--panel body starts above-->
