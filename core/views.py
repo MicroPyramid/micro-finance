@@ -5,6 +5,7 @@ from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDema
     GetFixedDepositsPaidForm, GetRecurringDepositsPaidForm, ClientDepositsAccountsForm
 from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount, Group, Client, FixedDeposits, RecurringDeposits
 import decimal
+from django.db.models import Q
 
 d = decimal.Decimal
 
@@ -15,15 +16,34 @@ class ClientLoanAccountsView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         if form.client:
-            loan_accounts = LoanAccount.objects.filter(
+            loan_accounts_filter = LoanAccount.objects.filter(
                 client=form.client,
-                total_loan_balance__gt=0
-            ).values_list("account_no", "loan_amount")
+                total_loan_balance__gt=0,
+                status='Approved'
+            ).exclude(loan_issued_by__isnull=True,
+                      loan_issued_date__isnull=True)
+            member_loan_has_payments = []
+            for loan in loan_accounts_filter:
+                payments = Payments.objects.filter(client=form.client, loan_account=loan)
+                if payments:
+                    member_loan_has_payments.append(loan.id)
+            loan_accounts = loan_accounts_filter.filter(
+                id__in=[int(x) for x in member_loan_has_payments]).values_list("account_no", "loan_amount")
             groups = form.client.group_set.all()
             default_group = groups.first()
-            group_accounts = LoanAccount.objects.filter(
-                group__in=groups
-            ).values_list("account_no", "loan_amount")
+            group_accounts_filter = LoanAccount.objects.filter(
+                group__in=groups,
+                status='Approved'
+            ).exclude(loan_issued_by__isnull=True,
+                      loan_issued_date__isnull=True)
+            group_loan_has_payments = []
+            for loan in group_accounts_filter:
+                payments = Payments.objects.filter(client=form.client, loan_account=loan)
+                if payments:
+                    group_loan_has_payments.append(loan.id)
+
+            group_accounts = group_accounts_filter.filter(
+                id__in=[int(x) for x in group_loan_has_payments]).values_list("account_no", "loan_amount")
             fixed_deposit_accounts = FixedDeposits.objects.filter(
                 client=form.client,
                 status='Opened'
@@ -491,7 +511,7 @@ def get_group_loan_accounts(request):
             account_number=group_account_number)
         if group_filter:
             group = group_filter.first()
-            loan_accounts = LoanAccount.objects.filter(group=group)
+            loan_accounts = LoanAccount.objects.filter(group=group, status='Approved')
             if loan_accounts:
                 for account in loan_accounts:
                     loan_accounts_data[account.id] = account.account_no
@@ -512,7 +532,7 @@ def get_member_loan_accounts(request):
             account_number=client_account_number)
         if member_filter:
             client = member_filter.first()
-            loan_accounts = LoanAccount.objects.filter(client=client)
+            loan_accounts = LoanAccount.objects.filter(client=client, status='Approved')
             if loan_accounts:
                 for account in loan_accounts:
                     loan_accounts_data[account.id] = account.account_no

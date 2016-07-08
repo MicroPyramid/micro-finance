@@ -197,6 +197,17 @@ class Client(models.Model):
         return self.first_name + ' ' + self.last_name
 
 
+class ClientBranchTransfer(models.Model):
+    client = models.ForeignKey(Client, related_name='client_name')
+    from_branch = models.ForeignKey(Branch, related_name='from_branch')
+    to_branch = models.ForeignKey(Branch, related_name='to_branch')
+    changed_on = models.DateTimeField(auto_now=True)
+    changed_by = models.ForeignKey(User, related_name='changed_by')
+
+    def __str__(self):
+        return self.client.first_name + '-' + 'from:' + self.from_branch.name + '-to:' + self.to_branch.name
+
+
 class Group(models.Model):
     name = models.CharField(max_length=200)
     created_by = models.ForeignKey(User, related_name="group_created_by")

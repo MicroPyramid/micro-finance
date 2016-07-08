@@ -27,7 +27,7 @@ import xlwt
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES)
+    RecurringDeposits, USER_ROLES, ClientBranchTransfer)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm,
     LoanAccountForm, ReceiptForm, FixedDepositForm, PaymentForm,
@@ -190,6 +190,12 @@ class UpdateClientView(LoginRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
     template_name = "client/edit.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(UpdateClientView, self).get_form_kwargs()
+        client_obj = get_object_or_404(Client, pk=self.kwargs.get('pk'))
+        kwargs.update({'user': self.request.user, 'client': client_obj})
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(UpdateClientView, self).get_context_data(**kwargs)

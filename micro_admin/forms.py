@@ -1,6 +1,7 @@
 from django import forms
 from micro_admin.models import (
-    Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits, GroupMeetings,)
+    Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits, GroupMeetings,
+    ClientBranchTransfer)
 
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
@@ -135,6 +136,8 @@ class ClientForm(forms.ModelForm):
                   'email']
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.client = kwargs.pop('client', None)
         super(ClientForm, self).__init__(*args, **kwargs)
         not_required = ['blood_group', 'email']
         for field in not_required:
@@ -166,10 +169,54 @@ class ClientForm(forms.ModelForm):
                     'Please enter a valid pincode')
         return pincode
 
+    def clean_branch(self):
+        if self.instance.id:
+            if self.instance.branch != self.cleaned_data.get('branch'):
+                loan_account_filter = LoanAccount.objects.filter(client=self.instance).exclude(status='Closed').exclude(status='Withdrawn')
+                group_account_filter = Group.objects.filter(clients=self.instance)
+                if group_account_filter:
+                    group_account = group_account_filter.first()
+                    group_loan_accounts = LoanAccount.objects.filter(group=group_account).exclude(status='Closed')
+                    if group_loan_accounts:
+                        loan_account = group_loan_accounts.first()
+                        if loan_account.status == 'Applied':
+                            raise forms.ValidationError(
+                                "This client has a Group loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
+                        elif loan_account.status == 'Approved':
+                            raise forms.ValidationError(
+                                "This client has a Group loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
+                        elif loan_account.status == 'Rejected':
+                            raise forms.ValidationError(
+                                "This client has a Group loan A/C in Rejected status. So, can't be moved to another branch until it is withdrawn/closed.")
+                        raise forms.ValidationError(
+                            "This client has a Group loan A/C. So, can't be moved to another branch until it is withdrawn/closed.")
+
+                if loan_account_filter:
+                    loan_account = loan_account_filter.first()
+                    if loan_account.status == 'Applied':
+                        raise forms.ValidationError(
+                            "This client has a Personal loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
+                    elif loan_account.status == 'Approved':
+                        raise forms.ValidationError(
+                            "This client has a Personal loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
+                    elif loan_account.status == 'Rejected':
+                        raise forms.ValidationError(
+                            "This client has a Personal loan A/C in Rejected status. So, can't be moved to another branch until it is withdrawn/closed.")
+                    raise forms.ValidationError(
+                        "This client has a Personal loan A/C. So, can't be moved to another branch until it is withdrawn/closed.")
+        return self.cleaned_data.get('branch')
+
     def save(self, commit=True, *args, **kwargs):
         instance = super(ClientForm, self).save(commit=False, *args, **kwargs)
         # instance.created_by = User.objects.filter(
         #     username=self.cleaned_data.get('created_by')).first()
+
+        if instance.id:
+            if self.client.branch != self.cleaned_data.get('branch'):
+                ClientBranchTransfer.objects.create(
+                    client=instance, from_branch=self.client.branch,
+                    to_branch=self.cleaned_data.get('branch'),
+                    changed_by=self.user)
         if commit:
             instance.save()
         return instance

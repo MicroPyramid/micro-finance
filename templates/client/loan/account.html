@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load loans_tags %}
 {% block breadcrumb %}
 <li><a href="{% url 'micro_admin:branchprofile' loanaccount.client.branch.id %}">{{ loanaccount.client.branch.name|capfirst }} Branch</a></li>
 <li><a href="{% url 'micro_admin:clientprofile' loanaccount.client.id %}">{{ loanaccount.client.first_name|capfirst }} Member</a></li>
