@@ -1194,12 +1194,6 @@ class ViewParticularClientRecurringDeposits(LoginRequiredMixin, ListView):
         return context
 
 
-def get_receipts_list(receipts_list, receipt, value):
-    if value > 0:
-        receipts_list.append(receipt)
-    return receipts_list
-
-
 def get_results_list(receipts_list, group_id, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list,
                      entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list,
                      loanprocessingfee_amount_sum_list, insurance_amount_sum_list, fixed_deposit_sum_list,
@@ -1369,7 +1363,6 @@ def get_results_list(receipts_list, group_id, thrift_deposit_sum_list, loanprinc
         fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list
 
 
-@login_required
 def day_book_function(request, date):
     selected_date = date
     query_set = Receipts.objects.filter(date=selected_date)
@@ -1379,8 +1372,6 @@ def day_book_function(request, date):
     thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
         membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
         fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list = [], [], [], [], [], [], [], [], [], [], []
-
-    print(grouped_receipts_list)
 
     for group_id in grouped_receipts_list:
         if group_id:
@@ -1527,8 +1518,7 @@ def view_day_book(request):
             "recurringwithdrawal_list": recurringwithdrawal_list,
             "grouped_receipts_list": grouped_receipts_list,
             "thrift_deposit_sum_list": thrift_deposit_sum_list,
-            "loanprocessingfee_amount_sum_list":
-                loanprocessingfee_amount_sum_list,
+            "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list,
         })
 
 
