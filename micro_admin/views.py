@@ -1200,419 +1200,233 @@ def get_receipts_list(receipts_list, receipt, value):
     return receipts_list
 
 
+def get_results_list(receipts_list, group_id, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list,
+                     entrancefee_amount_sum_list, membershipfee_amount_sum_list, bookfee_amount_sum_list,
+                     loanprocessingfee_amount_sum_list, insurance_amount_sum_list, fixed_deposit_sum_list,
+                     recurring_deposit_sum_list, share_capital_amount_sum_list):
+    group = None
+    if group_id:
+        group = Group.objects.get(id=group_id)
+
+    thrift_deposit_sum, loanprinciple_amount_sum, loaninterest_amount_sum, entrancefee_amount_sum, \
+        membershipfee_amount_sum, bookfee_amount_sum, loanprocessingfee_amount_sum, \
+        insurance_amount_sum, fixed_deposit_sum, recurring_deposit_sum, \
+        share_capital_amount_sum = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+    if group:
+        thrift_deposit_receipts_list, loanprinciple_receipts_list, loaninterest_receipts_list, \
+            entrancefee_receipts_list, membershipfee_receipts_list, bookfee_receipts_list, \
+            loanprocessingfee_receipts_list, insurance_receipts_list, fixed_deposit_receipts_list, \
+            recurring_deposit_receipts_list, share_capital_receipts_list = [], [], [], [], [], [], [], [], [], [], []
+
+    for receipt in receipts_list:
+        if receipt.savingsdeposit_thrift_amount and receipt.savingsdeposit_thrift_amount > 0:
+            if group:
+                thrift_deposit_receipts_list.append(receipt)
+            thrift_deposit_sum += d(receipt.savingsdeposit_thrift_amount)
+        if receipt.loanprinciple_amount and receipt.loanprinciple_amount > 0:
+            if group:
+                loanprinciple_receipts_list.append(receipt)
+            loanprinciple_amount_sum += d(receipt.loanprinciple_amount)
+        if receipt.loaninterest_amount and receipt.loaninterest_amount > 0:
+            if group:
+                loaninterest_receipts_list.append(receipt)
+            loaninterest_amount_sum += d(receipt.loaninterest_amount)
+        if receipt.entrancefee_amount and receipt.entrancefee_amount > 0:
+            if group:
+                entrancefee_receipts_list.append(receipt)
+            entrancefee_amount_sum += d(receipt.entrancefee_amount)
+        if receipt.membershipfee_amount and receipt.membershipfee_amount > 0:
+            if group:
+                membershipfee_receipts_list.append(receipt)
+            membershipfee_amount_sum += d(receipt.membershipfee_amount)
+        if receipt.bookfee_amount and receipt.bookfee_amount > 0:
+            if group:
+                bookfee_receipts_list.append(receipt)
+            bookfee_amount_sum += d(receipt.bookfee_amount)
+        if receipt.loanprocessingfee_amount and receipt.loanprocessingfee_amount > 0:
+            if group:
+                loanprocessingfee_receipts_list.append(receipt)
+            loanprocessingfee_amount_sum += d(receipt.loanprocessingfee_amount)
+        if receipt.insurance_amount and receipt.insurance_amount > 0:
+            if group:
+                insurance_receipts_list.append(receipt)
+            insurance_amount_sum += d(receipt.insurance_amount)
+        if receipt.fixeddeposit_amount and receipt.fixeddeposit_amount > 0:
+            if group:
+                fixed_deposit_receipts_list.append(receipt)
+            fixed_deposit_sum += d(receipt.fixeddeposit_amount)
+        if receipt.recurringdeposit_amount and receipt.recurringdeposit_amount > 0:
+            if group:
+                recurring_deposit_receipts_list.append(receipt)
+            recurring_deposit_sum += d(receipt.recurringdeposit_amount)
+        if receipt.sharecapital_amount and receipt.sharecapital_amount > 0:
+            if group:
+                share_capital_receipts_list.append(receipt)
+            share_capital_amount_sum += d(receipt.sharecapital_amount)
+
+    # Share Capital
+    share_capital_amount_sum_list.append({
+        "share_capital_amount_sum": share_capital_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": share_capital_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Recurring deposits
+    recurring_deposit_sum_list.append({
+        "recurring_deposit_sum": recurring_deposit_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": recurring_deposit_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Fixed Deposits
+    fixed_deposit_sum_list.append({
+        "fixed_deposit_sum": fixed_deposit_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": fixed_deposit_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Savings(Thrift) Deposits
+    thrift_deposit_sum_list.append({
+        "thrift_deposit_sum": thrift_deposit_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": thrift_deposit_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Loan priniciple repayments
+    loanprinciple_amount_sum_list.append({
+        "loanprinciple_amount_sum": loanprinciple_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": loanprinciple_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Loan interest Repayments
+    loaninterest_amount_sum_list.append({
+        "loaninterest_amount_sum": loaninterest_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": loaninterest_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Entrance fees
+    entrancefee_amount_sum_list.append({
+        "entrancefee_amount_sum": entrancefee_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": entrancefee_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Membership Fees
+    membershipfee_amount_sum_list.append({
+        "membershipfee_amount_sum": membershipfee_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": membershipfee_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Book Fees
+    bookfee_amount_sum_list.append({
+        "bookfee_amount_sum": bookfee_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": bookfee_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Loan Processing fees
+    loanprocessingfee_amount_sum_list.append({
+        "loanprocessingfee_amount_sum": loanprocessingfee_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": loanprocessingfee_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    # Insurance Amounts
+    insurance_amount_sum_list.append({
+        "insurance_amount_sum": insurance_amount_sum,
+        "group_name": group.name if group else receipt.client.first_name,
+        "account_number": group.account_number if group else receipt.client.account_number,
+        "receipt_number": insurance_receipts_list if group else receipt.receipt_number,
+        "has_list": True if group else False
+    })
+
+    return thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
+        membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
+        fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list
+
+
 @login_required
 def day_book_function(request, date):
     selected_date = date
     query_set = Receipts.objects.filter(date=selected_date)
-
-    query_set.query.group_by = ["group_id"]
-
-    grouped_receipts_list = []
+    grouped_receipts_list = list(set([i.group_id for i in query_set]))
     receipts_list = []
 
-    for i in query_set:
-        grouped_receipts_list.append(i.group_id)
+    thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
+        membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
+        fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list = [], [], [], [], [], [], [], [], [], [], []
 
-    thrift_deposit_sum_list = []
-    loanprinciple_amount_sum_list = []
-    loaninterest_amount_sum_list = []
-    entrancefee_amount_sum_list = []
-    membershipfee_amount_sum_list = []
-    bookfee_amount_sum_list = []
-    loanprocessingfee_amount_sum_list = []
-    insurance_amount_sum_list = []
-    fixed_deposit_sum_list = []
-    recurring_deposit_sum_list = []
-    share_capital_amount_sum_list = []
+    print(grouped_receipts_list)
 
     for group_id in grouped_receipts_list:
         if group_id:
-            receipts_list = Receipts.objects.filter(
-                group=group_id, date=selected_date)
-            thrift_deposit_sum = 0
-            loanprinciple_amount_sum = 0
-            loaninterest_amount_sum = 0
-            entrancefee_amount_sum = 0
-            membershipfee_amount_sum = 0
-            bookfee_amount_sum = 0
-            loanprocessingfee_amount_sum = 0
-            insurance_amount_sum = 0
-            fixed_deposit_sum = 0
-            recurring_deposit_sum = 0
-            share_capital_amount_sum = 0
-
-            thrift_deposit_receipts_list = []
-            loanprinciple_receipts_list = []
-            loaninterest_receipts_list = []
-            entrancefee_receipts_list = []
-            membershipfee_receipts_list = []
-            bookfee_receipts_list = []
-            loanprocessingfee_receipts_list = []
-            insurance_receipts_list = []
-            fixed_deposit_receipts_list = []
-            recurring_deposit_receipts_list = []
-            share_capital_receipts_list = []
-
-            for receipt in receipts_list:
-                thrift_deposit_receipts_list = get_receipts_list(
-                    thrift_deposit_receipts_list, receipt,
-                    receipt.savingsdeposit_thrift_amount)
-                loanprinciple_receipts_list = get_receipts_list(
-                    loanprinciple_receipts_list, receipt,
-                    receipt.loanprinciple_amount)
-                loaninterest_receipts_list = get_receipts_list(
-                    loaninterest_receipts_list, receipt,
-                    receipt.loaninterest_amount)
-                entrancefee_receipts_list = get_receipts_list(
-                    entrancefee_receipts_list, receipt,
-                    receipt.entrancefee_amount)
-                membershipfee_receipts_list = get_receipts_list(
-                    membershipfee_receipts_list, receipt,
-                    receipt.membershipfee_amount)
-                bookfee_receipts_list = get_receipts_list(
-                    bookfee_receipts_list, receipt, receipt.bookfee_amount)
-                loanprocessingfee_receipts_list = get_receipts_list(
-                    loanprocessingfee_receipts_list, receipt,
-                    receipt.loanprocessingfee_amount)
-                insurance_receipts_list = get_receipts_list(
-                    insurance_receipts_list, receipt, receipt.insurance_amount)
-                fixed_deposit_receipts_list = get_receipts_list(
-                    fixed_deposit_receipts_list, receipt,
-                    receipt.fixeddeposit_amount)
-                recurring_deposit_receipts_list = get_receipts_list(
-                    recurring_deposit_receipts_list, receipt,
-                    receipt.recurringdeposit_amount)
-                share_capital_receipts_list = get_receipts_list(
-                    share_capital_receipts_list, receipt,
-                    receipt.sharecapital_amount)
-                if receipt.savingsdeposit_thrift_amount:
-                    thrift_deposit_sum += d(receipt.savingsdeposit_thrift_amount)
-                if receipt.loanprinciple_amount:
-                    loanprinciple_amount_sum += d(receipt.loanprinciple_amount)
-                if receipt.loaninterest_amount:
-                    loaninterest_amount_sum += d(receipt.loaninterest_amount)
-                if receipt.entrancefee_amount:
-                    entrancefee_amount_sum += d(receipt.entrancefee_amount)
-                if receipt.membershipfee_amount:
-                    membershipfee_amount_sum += d(receipt.membershipfee_amount)
-                if receipt.bookfee_amount:
-                    bookfee_amount_sum += d(receipt.bookfee_amount)
-                if receipt.loanprocessingfee_amount:
-                    loanprocessingfee_amount_sum += d(
-                        receipt.loanprocessingfee_amount)
-                if receipt.insurance_amount:
-                    insurance_amount_sum += d(receipt.insurance_amount)
-                if receipt.fixeddeposit_amount:
-                    fixed_deposit_sum += d(receipt.fixeddeposit_amount)
-                if receipt.recurringdeposit_amount:
-                    recurring_deposit_sum += d(receipt.recurringdeposit_amount)
-                if receipt.sharecapital_amount:
-                    share_capital_amount_sum += d(receipt.sharecapital_amount)
-
-            group = Group.objects.get(id=group_id)
-            share_capital_amount_sum_dict = {}
-            share_capital_amount_sum_dict["group_name"] = group.name
-            share_capital_amount_sum_dict["receipt_number"] = \
-                share_capital_receipts_list
-            share_capital_amount_sum_dict["share_capital_amount_sum"] = \
-                share_capital_amount_sum
-            share_capital_amount_sum_dict["account_number"] = \
-                group.account_number
-            share_capital_amount_sum_list.append(share_capital_amount_sum_dict)
-            recurring_deposit_sum_dict = {}
-            recurring_deposit_sum_dict["group_name"] = group.name
-            recurring_deposit_sum_dict["receipt_number"] = \
-                recurring_deposit_receipts_list
-            recurring_deposit_sum_dict["recurring_deposit_sum"] = \
-                recurring_deposit_sum
-            recurring_deposit_sum_dict["account_number"] = group.account_number
-            recurring_deposit_sum_list.append(recurring_deposit_sum_dict)
-            fixed_deposit_sum_dict = {}
-            fixed_deposit_sum_dict["group_name"] = group.name
-            fixed_deposit_sum_dict["receipt_number"] = \
-                fixed_deposit_receipts_list
-            fixed_deposit_sum_dict["fixed_deposit_sum"] = fixed_deposit_sum
-            fixed_deposit_sum_dict["account_number"] = group.account_number
-            fixed_deposit_sum_list.append(fixed_deposit_sum_dict)
-            thrift_deposit_sum_dict = {}
-            thrift_deposit_sum_dict["group_name"] = group.name
-            thrift_deposit_sum_dict["receipt_number"] = \
-                thrift_deposit_receipts_list
-            thrift_deposit_sum_dict["thrift_deposit_sum"] = thrift_deposit_sum
-            thrift_deposit_sum_dict["account_number"] = group.account_number
-            thrift_deposit_sum_list.append(thrift_deposit_sum_dict)
-            loanprinciple_amount_sum_dict = {}
-            loanprinciple_amount_sum_dict["group_name"] = group.name
-            loanprinciple_amount_sum_dict["group_id"] = group.id
-            loanprinciple_amount_sum_dict["receipt_number"] = \
-                loanprinciple_receipts_list
-            loanprinciple_amount_sum_dict["loanprinciple_amount_sum"] = \
-                loanprinciple_amount_sum
-            loanprinciple_amount_sum_dict["account_number"] = \
-                group.account_number
-            loanprinciple_amount_sum_list.append(loanprinciple_amount_sum_dict)
-            loaninterest_amount_sum_dict = {}
-            loaninterest_amount_sum_dict["group_name"] = group.name
-            loaninterest_amount_sum_dict["group_id"] = group.id
-            loaninterest_amount_sum_dict["receipt_number"] = \
-                loaninterest_receipts_list
-            loaninterest_amount_sum_dict["loaninterest_amount_sum"] = \
-                loaninterest_amount_sum
-            loaninterest_amount_sum_dict["account_number"] = \
-                group.account_number
-            loaninterest_amount_sum_list.append(loaninterest_amount_sum_dict)
-            entrancefee_amount_sum_dict = {}
-            entrancefee_amount_sum_dict["group_name"] = group.name
-            entrancefee_amount_sum_dict["group_id"] = group.id
-            entrancefee_amount_sum_dict["receipt_number"] = \
-                entrancefee_receipts_list
-            entrancefee_amount_sum_dict["entrancefee_amount_sum"] = \
-                entrancefee_amount_sum
-            entrancefee_amount_sum_dict["account_number"] = \
-                group.account_number
-            entrancefee_amount_sum_list.append(entrancefee_amount_sum_dict)
-            membershipfee_amount_sum_dict = {}
-            membershipfee_amount_sum_dict["group_name"] = group.name
-            membershipfee_amount_sum_dict["group_id"] = group.id
-            membershipfee_amount_sum_dict["receipt_number"] = \
-                membershipfee_receipts_list
-            membershipfee_amount_sum_dict["membershipfee_amount_sum"] = \
-                membershipfee_amount_sum
-            membershipfee_amount_sum_dict["account_number"] = \
-                group.account_number
-            membershipfee_amount_sum_list.append(membershipfee_amount_sum_dict)
-            bookfee_amount_sum_dict = {}
-            bookfee_amount_sum_dict["group_name"] = group.name
-            bookfee_amount_sum_dict["group_id"] = group.id
-            bookfee_amount_sum_dict["receipt_number"] = bookfee_receipts_list
-            bookfee_amount_sum_dict["bookfee_amount_sum"] = bookfee_amount_sum
-            bookfee_amount_sum_dict["account_number"] = group.account_number
-            bookfee_amount_sum_list.append(bookfee_amount_sum_dict)
-            loanprocessingfee_sum_dict = {}
-            loanprocessingfee_sum_dict["group_name"] = group.name
-            loanprocessingfee_sum_dict["group_id"] = group.id
-            loanprocessingfee_sum_dict["receipt_number"] = \
-                loanprocessingfee_receipts_list
-            loanprocessingfee_sum_dict["loanprocessingfee_amount_sum"] = \
-                loanprocessingfee_amount_sum
-            loanprocessingfee_sum_dict["account_number"] = \
-                group.account_number
-            loanprocessingfee_amount_sum_list.append(
-                loanprocessingfee_sum_dict)
-            insurance_amount_sum_dict = {}
-            insurance_amount_sum_dict["group_name"] = group.name
-            insurance_amount_sum_dict["group_id"] = group.id
-            insurance_amount_sum_dict["receipt_number"] = \
-                insurance_receipts_list
-            insurance_amount_sum_dict["insurance_amount_sum"] = \
-                insurance_amount_sum
-            insurance_amount_sum_dict["account_number"] = group.account_number
-            insurance_amount_sum_list.append(insurance_amount_sum_dict)
+            receipts_list = Receipts.objects.filter(group=group_id, date=selected_date)
+            # Calculate all the deposits collected from this group.
+            (thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list,
+             membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list,
+             fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list) = \
+                get_results_list(receipts_list, group_id, thrift_deposit_sum_list, loanprinciple_amount_sum_list,
+                                 loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list,
+                                 bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list,
+                                 fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list)
         else:
-            receipts_list = Receipts.objects.filter(
-                date=selected_date, group=0)
-            thrift_deposit_sum = 0
-            loanprinciple_amount_sum = 0
-            loaninterest_amount_sum = 0
-            entrancefee_amount_sum = 0
-            membershipfee_amount_sum = 0
-            bookfee_amount_sum = 0
-            loanprocessingfee_amount_sum = 0
-            insurance_amount_sum = 0
-            fixed_deposit_sum = 0
-            recurring_deposit_sum = 0
-            share_capital_amount_sum = 0
-
+            receipts_list = Receipts.objects.filter(group=None, date=selected_date)
             for receipt in receipts_list:
-                thrift_deposit_sum = d(receipt.savingsdeposit_thrift_amount)
-                loanprinciple_amount_sum = d(receipt.loanprinciple_amount)
-                loaninterest_amount_sum = d(receipt.loaninterest_amount)
-                entrancefee_amount_sum = d(receipt.entrancefee_amount)
-                membershipfee_amount_sum = d(receipt.membershipfee_amount)
-                bookfee_amount_sum = d(receipt.bookfee_amount)
-                loanprocessingfee_amount_sum = \
-                    d(receipt.loanprocessingfee_amount)
-                insurance_amount_sum = d(receipt.insurance_amount)
-                fixed_deposit_sum = d(receipt.fixeddeposit_amount)
-                recurring_deposit_sum = d(receipt.recurringdeposit_amount)
-                share_capital_amount_sum = d(receipt.sharecapital_amount)
+                # Calculate individual deposit.
+                (thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list, entrancefee_amount_sum_list,
+                 membershipfee_amount_sum_list, bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list,
+                 fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list) = \
+                    get_results_list([receipt], None, thrift_deposit_sum_list, loanprinciple_amount_sum_list,
+                                     loaninterest_amount_sum_list, entrancefee_amount_sum_list, membershipfee_amount_sum_list,
+                                     bookfee_amount_sum_list, loanprocessingfee_amount_sum_list, insurance_amount_sum_list,
+                                     fixed_deposit_sum_list, recurring_deposit_sum_list, share_capital_amount_sum_list)
 
-                recurring_deposit_sum_dict = {}
-                recurring_deposit_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                recurring_deposit_sum_dict["recurring_deposit_sum"] = \
-                    recurring_deposit_sum
-                recurring_deposit_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                recurring_deposit_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                recurring_deposit_sum_list.append(recurring_deposit_sum_dict)
-                share_capital_sum_dict = {}
-                share_capital_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                share_capital_sum_dict["share_capital_amount_sum"] = \
-                    share_capital_amount_sum
-                share_capital_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                share_capital_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                share_capital_amount_sum_list.append(share_capital_sum_dict)
-                fixed_deposit_sum_dict = {}
-                fixed_deposit_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                fixed_deposit_sum_dict["fixed_deposit_sum"] = \
-                    fixed_deposit_sum
-                fixed_deposit_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                fixed_deposit_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                fixed_deposit_sum_list.append(fixed_deposit_sum_dict)
-                thrift_deposit_sum_dict = {}
-                thrift_deposit_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                thrift_deposit_sum_dict["thrift_deposit_sum"] = \
-                    thrift_deposit_sum
-                thrift_deposit_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                thrift_deposit_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                thrift_deposit_sum_list.append(thrift_deposit_sum_dict)
-                loanprinciple_amount_sum_dict = {}
-                loanprinciple_amount_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                loanprinciple_amount_sum_dict["loanprinciple_amount_sum"] = \
-                    loanprinciple_amount_sum
-                loanprinciple_amount_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                loanprinciple_amount_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                loanprinciple_amount_sum_list.append(
-                    loanprinciple_amount_sum_dict)
-                loaninterest_sum_dict = {}
-                loaninterest_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                loaninterest_sum_dict["loaninterest_amount_sum"] = \
-                    loaninterest_amount_sum
-                loaninterest_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                loaninterest_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                loaninterest_amount_sum_list.append(loaninterest_sum_dict)
-                entrancefee_sum_dict = {}
-                entrancefee_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                entrancefee_sum_dict["entrancefee_amount_sum"] = \
-                    entrancefee_amount_sum
-                entrancefee_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                entrancefee_sum_dict["receipt_number"] = receipt.receipt_number
-                entrancefee_amount_sum_list.append(entrancefee_sum_dict)
-                membershipfee_sum_dict = {}
-                membershipfee_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                membershipfee_sum_dict["membershipfee_amount_sum"] = \
-                    membershipfee_amount_sum
-                membershipfee_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                membershipfee_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                membershipfee_amount_sum_list.append(membershipfee_sum_dict)
-                bookfee_sum_dict = {}
-                bookfee_sum_dict["group_name"] = receipt.client.first_name
-                bookfee_sum_dict["bookfee_amount_sum"] = bookfee_amount_sum
-                bookfee_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                bookfee_sum_dict["receipt_number"] = receipt.receipt_number
-                bookfee_amount_sum_list.append(bookfee_sum_dict)
-                loanprocessingfee_sum_dict = {}
-                loanprocessingfee_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                loanprocessingfee_sum_dict["loanprocessingfee_amount_sum"] = \
-                    loanprocessingfee_amount_sum
-                loanprocessingfee_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                loanprocessingfee_sum_dict["receipt_number"] = \
-                    receipt.receipt_number
-                loanprocessingfee_amount_sum_list.append(
-                    loanprocessingfee_sum_dict)
-                insurance_sum_dict = {}
-                insurance_sum_dict["group_name"] = \
-                    receipt.client.first_name
-                insurance_sum_dict["insurance_amount_sum"] = \
-                    insurance_amount_sum
-                insurance_sum_dict["account_number"] = \
-                    receipt.client.account_number
-                insurance_sum_dict["receipt_number"] = receipt.receipt_number
-                insurance_amount_sum_list.append(insurance_sum_dict)
+    total_dict = {
+        "total_recurring_deposit_sum": sum([i["recurring_deposit_sum"] for i in recurring_deposit_sum_list]),
+        "total_share_capital_amount_sum": sum([i["share_capital_amount_sum"] for i in share_capital_amount_sum_list]),
+        "total_fixed_deposit_sum": sum([i["fixed_deposit_sum"] for i in fixed_deposit_sum_list]),
+        "total_thrift_deposit_sum": sum([i["thrift_deposit_sum"] for i in thrift_deposit_sum_list]),
+        "total_loanprinciple_amount_sum": sum([i["loanprinciple_amount_sum"] for i in loanprinciple_amount_sum_list]),
+        "total_loaninterest_amount_sum": sum([i["loaninterest_amount_sum"] for i in loaninterest_amount_sum_list]),
+        "total_entrancefee_amount_sum": sum([i["entrancefee_amount_sum"] for i in entrancefee_amount_sum_list]),
+        "total_membershipfee_amount_sum": sum([i["membershipfee_amount_sum"] for i in membershipfee_amount_sum_list]),
+        "total_bookfee_amount_sum": sum([i["bookfee_amount_sum"] for i in bookfee_amount_sum_list]),
+        "total_loanprocessingfee_amount_sum": sum([i["loanprocessingfee_amount_sum"] for i in loanprocessingfee_amount_sum_list]),
+        "total_insurance_amount_sum": sum([i["insurance_amount_sum"] for i in insurance_amount_sum_list]),
+    }
+    # Total deposits anount
+    total = sum([value for value in total_dict.values()])
 
-    total_dict = {}
-    total_recurring_deposit_sum = 0
-    for dictionary in recurring_deposit_sum_list:
-        total_recurring_deposit_sum += dictionary["recurring_deposit_sum"]
-    total_dict["total_recurring_deposit_sum"] = total_recurring_deposit_sum
-    total_share_capital_amount_sum = 0
-    for dictionary in share_capital_amount_sum_list:
-        total_share_capital_amount_sum += \
-            dictionary["share_capital_amount_sum"]
-    total_dict["total_share_capital_amount_sum"] = \
-        total_share_capital_amount_sum
-    total_fixed_deposit_sum = 0
-    for dictionary in fixed_deposit_sum_list:
-        total_fixed_deposit_sum += dictionary["fixed_deposit_sum"]
-    total_dict["total_fixed_deposit_sum"] = total_fixed_deposit_sum
-    total_thrift_deposit_sum = 0
-    for dictionary in thrift_deposit_sum_list:
-        total_thrift_deposit_sum += dictionary["thrift_deposit_sum"]
-    total_dict["total_thrift_deposit_sum"] = total_thrift_deposit_sum
-    total_loanprinciple_amount_sum = 0
-    for dictionary in loanprinciple_amount_sum_list:
-        total_loanprinciple_amount_sum += \
-            dictionary["loanprinciple_amount_sum"]
-    total_dict["total_loanprinciple_amount_sum"] = \
-        total_loanprinciple_amount_sum
-    total_loaninterest_amount_sum = 0
-    for dictionary in loaninterest_amount_sum_list:
-        total_loaninterest_amount_sum += dictionary["loaninterest_amount_sum"]
-    total_dict["total_loaninterest_amount_sum"] = total_loaninterest_amount_sum
-    total_entrancefee_amount_sum = 0
-    for dictionary in entrancefee_amount_sum_list:
-        total_entrancefee_amount_sum += dictionary["entrancefee_amount_sum"]
-    total_dict["total_entrancefee_amount_sum"] = total_entrancefee_amount_sum
-    total_membershipfee_amount_sum = 0
-    for dictionary in membershipfee_amount_sum_list:
-        total_membershipfee_amount_sum += \
-            dictionary["membershipfee_amount_sum"]
-    total_dict["total_membershipfee_amount_sum"] = \
-        total_membershipfee_amount_sum
-    total_bookfee_amount_sum = 0
-    for dictionary in bookfee_amount_sum_list:
-        total_bookfee_amount_sum += dictionary["bookfee_amount_sum"]
-    total_dict["total_bookfee_amount_sum"] = total_bookfee_amount_sum
-    total_loanprocessingfee_amount_sum = 0
-    for dictionary in loanprocessingfee_amount_sum_list:
-        total_loanprocessingfee_amount_sum += \
-            dictionary["loanprocessingfee_amount_sum"]
-    total_dict["total_loanprocessingfee_amount_sum"] = \
-        total_loanprocessingfee_amount_sum
-    total_insurance_amount_sum = 0
-    for dictionary in insurance_amount_sum_list:
-        total_insurance_amount_sum += dictionary["insurance_amount_sum"]
-    total_dict["total_insurance_amount_sum"] = total_insurance_amount_sum
-
-    total = 0
-    for key in total_dict:
-        total += total_dict[key]
-
+    # Payments totals
     payments_list = Payments.objects.filter(date=selected_date)
-    travellingallowance_list = []
-    loans_list = []
-    paymentofsalary_list = []
-    printingcharges_list = []
-    stationarycharges_list = []
-    othercharges_list = []
-    savingswithdrawal_list = []
-    fixedwithdrawal_list = []
-    recurringwithdrawal_list = []
+    travellingallowance_list, loans_list, paymentofsalary_list, printingcharges_list, \
+        stationarycharges_list, othercharges_list, savingswithdrawal_list, \
+        fixedwithdrawal_list, recurringwithdrawal_list = [], [], [], [], [], [], [], [], []
+
     for payment in payments_list:
         if payment.payment_type == "TravellingAllowance":
             travellingallowance_list.append(payment)
@@ -1632,47 +1446,21 @@ def day_book_function(request, date):
             fixedwithdrawal_list.append(payment)
         elif payment.payment_type == "RecurringWithdrawal":
             recurringwithdrawal_list.append(payment)
-    dict_payments = {}
-    travellingallowance_sum = 0
-    loans_sum = 0
-    paymentofsalary_sum = 0
-    printingcharges_sum = 0
-    stationarycharges_sum = 0
-    othercharges_sum = 0
-    savingswithdrawal_sum = 0
-    fixedwithdrawal_sum = 0
-    recurringwithdrawal_sum = 0
-    for payment in travellingallowance_list:
-        travellingallowance_sum += d(payment.total_amount)
-    dict_payments["travellingallowance_sum"] = travellingallowance_sum
-    for payment in loans_list:
-        loans_sum += d(payment.total_amount)
-    dict_payments["loans_sum"] = loans_sum
-    for payment in paymentofsalary_list:
-        paymentofsalary_sum += d(payment.total_amount)
-    dict_payments["paymentofsalary_sum"] = paymentofsalary_sum
-    for payment in printingcharges_list:
-        printingcharges_sum += d(payment.total_amount)
-    dict_payments["printingcharges_sum"] = printingcharges_sum
-    for payment in stationarycharges_list:
-        stationarycharges_sum += d(payment.total_amount)
-    dict_payments["stationarycharges_sum"] = stationarycharges_sum
-    for payment in othercharges_list:
-        othercharges_sum += d(payment.total_amount)
-    dict_payments["othercharges_sum"] = othercharges_sum
-    for payment in savingswithdrawal_list:
-        savingswithdrawal_sum += d(payment.total_amount)
-    dict_payments["savingswithdrawal_sum"] = savingswithdrawal_sum
-    for payment in fixedwithdrawal_list:
-        fixedwithdrawal_sum += d(payment.total_amount)
-    dict_payments["fixedwithdrawal_sum"] = fixedwithdrawal_sum
-    for payment in recurringwithdrawal_list:
-        recurringwithdrawal_sum += d(payment.total_amount)
-    dict_payments["recurringwithdrawal_sum"] = recurringwithdrawal_sum
 
-    total_payments = 0
-    for key in dict_payments:
-        total_payments += dict_payments[key]
+    dict_payments = {
+        "loans_sum": sum([i.total_amount for i in loans_list]),
+        "othercharges_sum": sum([i.total_amount for i in othercharges_list]),
+        "fixedwithdrawal_sum": sum([i.total_amount for i in fixedwithdrawal_list]),
+        "paymentofsalary_sum": sum([i.total_amount for i in paymentofsalary_list]),
+        "printingcharges_sum": sum([i.total_amount for i in printingcharges_list]),
+        "stationarycharges_sum": sum([i.total_amount for i in stationarycharges_list]),
+        "savingswithdrawal_sum": sum([i.total_amount for i in savingswithdrawal_list]),
+        "recurringwithdrawal_sum": sum([i.total_amount for i in recurringwithdrawal_list]),
+        "travellingallowance_sum": sum([i.total_amount for i in travellingallowance_list]),
+    }
+
+    # Total payments amount
+    total_payments = sum([value for value in dict_payments.values()])
 
     return receipts_list, total_payments, travellingallowance_list, \
         loans_list, paymentofsalary_list, printingcharges_list, \
