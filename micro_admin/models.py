@@ -195,6 +195,10 @@ class Client(models.Model):
     def __unicode__(self):
         return self.first_name + ' ' + self.last_name
 
+    def get_full_name(self):
+        full_name = '%s %s' % (self.first_name, self.last_name)
+        return full_name.strip()
+
 
 class Group(models.Model):
     name = models.CharField(max_length=200)
