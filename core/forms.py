@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from django.forms.utils import ErrorList
 import decimal
 import datetime
+import calendar
 
 d = decimal.Decimal
 
@@ -599,12 +600,19 @@ class PaymentForm(forms.ModelForm):
                                 if self.fixed_deposit_account:
                                     fixed_deposit = self.fixed_deposit_account
                                     fixed_deposit_amount = fixed_deposit.fixed_deposit_amount
-                                    interest_charged = (fixed_deposit.fixed_deposit_amount * (
-                                        fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
-                                    fixed_deposit_interest_charged = interest_charged * d(
-                                        fixed_deposit.fixed_deposit_period)
-                                    total_amount = \
-                                        fixed_deposit.fixed_deposit_amount + fixed_deposit_interest_charged
+                                    # interest_charged = (fixed_deposit.fixed_deposit_amount * (
+                                    #     fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
+                                    # fixed_deposit_interest_charged = interest_charged * d(
+                                    #     fixed_deposit.fixed_deposit_period)
+                                    # total_amount = \
+                                    #     fixed_deposit.fixed_deposit_amount + fixed_deposit_interest_charged
+                                    current_date = datetime.now().date()
+                                    year_days = 366 if calendar.isleap(current_date.year) else 365
+                                    interest_charged = (fixed_deposit.fixed_deposit_amount * fixed_deposit.fixed_deposit_interest_rate) / (d(year_days) * 100)
+                                    days_to_calculate = (current_date - fixed_deposit.deposited_date).days
+                                    calculated_interest_money_till_date = interest_charged * days_to_calculate
+                                    fixed_deposit_interest_charged = calculated_interest_money_till_date
+                                    total_amount = fixed_deposit.fixed_deposit_amount + calculated_interest_money_till_date
                                     if self.cleaned_data.get("amount"):
                                         if d(fixed_deposit_amount) > d(self.cleaned_data.get("amount")):
                                             raise forms.ValidationError("Entered amount is less than the Member Fixed Deposit amount.")
@@ -659,12 +667,18 @@ class PaymentForm(forms.ModelForm):
                                 if self.recurring_deposit_account:
                                     recurring_deposit = self.recurring_deposit_account
                                     recurring_deposit_amount = d(recurring_deposit.recurring_deposit_amount) * recurring_deposit.number_of_payments
-                                    interest_charged = (recurring_deposit_amount * (
-                                        recurring_deposit.recurring_deposit_interest_rate / 12)) / 100
-                                    recurring_deposit_interest_charged = interest_charged * d(
-                                        recurring_deposit.recurring_deposit_period)
-                                    total_amount = \
-                                        recurring_deposit_amount + recurring_deposit_interest_charged
+                                    # interest_charged = (recurring_deposit_amount * (
+                                    #     recurring_deposit.recurring_deposit_interest_rate / 12)) / 100
+                                    # recurring_deposit_interest_charged = interest_charged * d(
+                                    #     recurring_deposit.recurring_deposit_period)
+                                    # total_amount = \
+                                    #     recurring_deposit_amount + recurring_deposit_interest_charged
+                                    current_date = datetime.now().date()
+                                    year_days = 366 if calendar.isleap(current_date.year) else 365
+                                    interest_charged = (recurring_deposit_amount * recurring_deposit.recurring_deposit_interest_rate) / (d(year_days) * 100)
+                                    days_to_calculate = (current_date - recurring_deposit.deposited_date).days
+                                    recurring_deposit_interest_charged = interest_charged * days_to_calculate
+                                    total_amount = recurring_deposit_amount + recurring_deposit_interest_charged
                                     if self.cleaned_data.get("amount"):
                                         if d(recurring_deposit_amount) > d(self.cleaned_data.get("amount")):
                                             raise forms.ValidationError("Entered amount is less than the Member Recurring Deposit amount.")

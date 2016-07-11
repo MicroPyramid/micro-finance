@@ -5,7 +5,7 @@ from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDema
     GetFixedDepositsPaidForm, GetRecurringDepositsPaidForm, ClientDepositsAccountsForm
 from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount, Group, Client, FixedDeposits, RecurringDeposits
 import decimal
-from datetime import datetime, timedelta
+from datetime import datetime
 import calendar
 from django.shortcuts import get_object_or_404
 
