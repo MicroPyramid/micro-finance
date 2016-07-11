@@ -11,7 +11,7 @@ urlpatterns = [
     # Client Loans - Ledger (view, CSV, Excel, PDF downloads)
     url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/$', ClientLoanLedgerView.as_view(), name="clientloanledgeraccount"),
     url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/csv/$', ClientLedgerCSVDownload.as_view(), name="clientledgercsvdownload"),
-    url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/excel$', ClientLedgerExcelDownload.as_view(), name="clientledgerexceldownload"),
+    url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/excel/$', ClientLedgerExcelDownload.as_view(), name="clientledgerexceldownload"),
     url(r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/pdf/$', ClientLedgerPDFDownload.as_view(), name="clientledgerpdfdownload"),
 
     # Group Loans (apply, view, list)

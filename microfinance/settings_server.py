@@ -2,6 +2,10 @@ from .settings import *
 
 ALLOWED_HOSTS = ['.micropyramid.com']
 
+SITE_URL = "http://mfi.micropyramid.com"
+
+FROM_EMAIL = "admin@example.com"
+
 DEBUG = False
 THUMBNAIL_DEBUG = False
 
