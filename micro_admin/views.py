@@ -1418,36 +1418,46 @@ def day_book_function(request, date):
         share_capital_amount_sum_list
 
 
-@login_required
-def view_day_book(request):
-    if request.method == "POST":
-        date = datetime.datetime.strptime(
-            request.POST.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
-    else:
-        if request.GET.get("date"):
-            date = request.GET.get("date")
+class DayBookView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if self.request.GET.get("date"):
+            try:
+                self.date = datetime.datetime.strptime(self.request.GET.get("date"), "%Y-%m-%d").date()
+            except (ValueError, TypeError):
+                return render(request, "day_book.html", {"error_message": "Invalid date."})
         else:
-            date = datetime.datetime.now().date()
+            self.date = datetime.datetime.now().date()
 
-    # date = str(date)
-    receipts_list, total_payments, travellingallowance_list, \
-        loans_list, paymentofsalary_list, printingcharges_list, \
-        stationarycharges_list, othercharges_list, savingswithdrawal_list,\
-        recurringwithdrawal_list, fixedwithdrawal_list, total, \
-        dict_payments, total_dict, selected_date, grouped_receipts_list, \
-        thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
-        loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
-        membershipfee_amount_sum_list, bookfee_amount_sum_list, \
-        loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
-        fixed_deposit_sum_list, recurring_deposit_sum_list, \
-        share_capital_amount_sum_list = day_book_function(request, date)
+        context = self.get_context_data(**kwargs)
+        return render(request, "day_book.html", context)
 
-    date_formated = datetime.datetime.strptime(
-        str(selected_date), "%Y-%m-%d").strftime("%m/%d/%Y")
-    return render(
-        request,
-        "day_book.html",
-        {
+    def post(self, request, *args, **kwargs):
+        try:
+            self.date = datetime.datetime.strptime(self.request.POST.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
+        except (ValueError, TypeError):
+            return render(request, "day_book.html", {"error_message": "Invalid date."})
+
+        context = self.get_context_data(**kwargs)
+        return render(request, "day_book.html", context)
+
+    def get_context_data(self):
+        date = self.date
+
+        receipts_list, total_payments, travellingallowance_list, \
+            loans_list, paymentofsalary_list, printingcharges_list, \
+            stationarycharges_list, othercharges_list, savingswithdrawal_list,\
+            recurringwithdrawal_list, fixedwithdrawal_list, total, \
+            dict_payments, total_dict, selected_date, grouped_receipts_list, \
+            thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
+            loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
+            membershipfee_amount_sum_list, bookfee_amount_sum_list, \
+            loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
+            fixed_deposit_sum_list, recurring_deposit_sum_list, \
+            share_capital_amount_sum_list = day_book_function(self.request, date)
+
+        date_formated = datetime.datetime.strptime(str(selected_date), "%Y-%m-%d").strftime("%m/%d/%Y")
+        return {
             "receipts_list": receipts_list, "total_payments": total_payments,
             "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
             "dict_payments": dict_payments, "dict": total_dict,
@@ -1471,7 +1481,7 @@ def view_day_book(request):
             "grouped_receipts_list": grouped_receipts_list,
             "thrift_deposit_sum_list": thrift_deposit_sum_list,
             "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list,
-        })
+        }
 
 
 class RecurringDepositsView(LoginRequiredMixin, CreateView):

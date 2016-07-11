@@ -55,7 +55,9 @@ urlpatterns = [
     url(r'^fixeddeposits/$', FixedDepositsView.as_view(), name="fixeddeposits"),
     url(r'^clientfixeddepositsprofile/(?P<fixed_deposit_id>\d+)/$', ClientFixedDepositsProfile.as_view(), name="clientfixeddepositsprofile"),
     url(r'^viewclientfixeddeposits/$', ViewClientFixedDeposits.as_view(), name="viewclientfixeddeposits"),
-    url(r'^viewdaybook/$', view_day_book, name="viewdaybook"),
+
+    # Day Book
+    url(r'^viewdaybook/$', DayBookView.as_view(), name="viewdaybook"),
     url(r'^viewparticularclientfixeddeposits/(?P<client_id>\d+)/$', ViewParticularClientFixedDeposits.as_view(), name="viewparticularclientfixeddeposits"),
     url(r'^payslip/$', pay_slip, name="payslip"),
     url(r'^paymentslist/$', PaymentsList.as_view(), name="paymentslist"),
