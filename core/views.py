@@ -463,15 +463,15 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                 receipt.savings_balance_atinstant = self.savings_account.savings_balance
             if form.cleaned_data.get("fixeddeposit_amount"):
                 receipt.fixeddeposit_amount = form.cleaned_data.get("fixeddeposit_amount")
-            if form.cleaned_data.get('fixed_deposit_account_no') and form.cleaned_data.get("fixeddeposit_amount"):
-                receipt.fixed_deposit_account = FixedDeposits.objects.filter(
-                    fixed_deposit_number=form.cleaned_data.get('fixed_deposit_account_no')).first()
-
             if form.cleaned_data.get("recurringdeposit_amount"):
                 receipt.recurringdeposit_amount = form.cleaned_data.get("recurringdeposit_amount")
-            if form.cleaned_data.get("recurringdeposit_amount") and form.cleaned_data.get('recurring_deposit_account_no'):
-                receipt.recurring_deposit_account = RecurringDeposits.objects.filter(
-                    reccuring_deposit_number=form.cleaned_data.get('recurring_deposit_account_no')).first()
+            if form.savings_account:
+                if form.cleaned_data.get('fixed_deposit_account_no') and form.cleaned_data.get("fixeddeposit_amount"):
+                    receipt.fixed_deposit_account = FixedDeposits.objects.filter(
+                        fixed_deposit_number=form.cleaned_data.get('fixed_deposit_account_no')).first()
+                if form.cleaned_data.get("recurringdeposit_amount") and form.cleaned_data.get('recurring_deposit_account_no'):
+                    receipt.recurring_deposit_account = RecurringDeposits.objects.filter(
+                        reccuring_deposit_number=form.cleaned_data.get('recurring_deposit_account_no')).first()
             if form.cleaned_data.get("insurance_amount"):
                 receipt.insurance_amount = form.cleaned_data.get("insurance_amount")
             if form.cleaned_data.get("loanprinciple_amount"):
@@ -883,7 +883,7 @@ class PaySlipCreateView(LoginRequiredMixin, CreateView):
 def get_group_loan_accounts(request):
     group_name = request.GET.get("group_name", None)
     group_account_number = request.GET.get('group_account_no', None)
-    loan_accounts_data = {}
+    loan_accounts_data = []
     if group_name and group_account_number:
         group_filter = Group.objects.filter(
             name__iexact=group_name,
@@ -891,20 +891,21 @@ def get_group_loan_accounts(request):
         if group_filter:
             group = group_filter.first()
             loan_accounts = LoanAccount.objects.filter(group=group, status='Approved')
-            if loan_accounts:
-                for account in loan_accounts:
-                    loan_accounts_data[account.id] = account.account_no
+            # if loan_accounts:
+            #     for account in loan_accounts:
+            #         loan_accounts_data[account.id] = account.account_no
+            loan_accounts_data = loan_accounts.values_list("id", "account_no", "loan_amount")
         else:
             return JsonResponse({"error": True,
-                                 "data": dict(loan_accounts_data)})
+                                 "data": list(loan_accounts_data)})
 
-    return JsonResponse({"error": False, "data": dict(loan_accounts_data)})
+    return JsonResponse({"error": False, "data": list(loan_accounts_data)})
 
 
 def get_member_loan_accounts(request):
     client_name = request.GET.get("client_name", None)
     client_account_number = request.GET.get('client_account_number', None)
-    loan_accounts_data = {}
+    loan_accounts_data = []
     if client_name and client_account_number:
         member_filter = Client.objects.filter(
             first_name__iexact=client_name,
@@ -912,14 +913,15 @@ def get_member_loan_accounts(request):
         if member_filter:
             client = member_filter.first()
             loan_accounts = LoanAccount.objects.filter(client=client, status='Approved')
-            if loan_accounts:
-                for account in loan_accounts:
-                    loan_accounts_data[account.id] = account.account_no
+            # if loan_accounts:
+            #     for account in loan_accounts:
+            #         loan_accounts_data[account.id] = account.account_no
+            loan_accounts_data = loan_accounts.values_list("id", "account_no", "loan_amount")
         else:
             return JsonResponse({"error": True,
-                                 "data": dict(loan_accounts_data)})
+                                 "data": list(loan_accounts_data)})
 
-    return JsonResponse({"error": False, "data": dict(loan_accounts_data)})
+    return JsonResponse({"error": False, "data": list(loan_accounts_data)})
 
 
 class ClientDepositAccountsView(LoginRequiredMixin, FormView):
