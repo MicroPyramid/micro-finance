@@ -23,12 +23,18 @@
   <!--form div starts below-->
   <div class="panel panel-default my-panel-bprofile margin-top-set">
     <div class="panel-heading">
+    {% if error_message %}
+      <div class="alert alert-danger">
+        <p>{{ error_message }}</p>
+      </div>
+    {% else %}
       <h3 class="panel-title">
         Day Book
         <span><a href="{% url 'micro_admin:daybookpdfdownload' selected_date %}" target="_blank"><button class="view-tab-btn"><i class="fa fa-download padd"></i>PDF Download</button></a></span>
       </h3>
     </div>
     {% include "daybook_table.html" %}
+    {% endif %}
   </div>
   <!--form div ends above-->
 </div>

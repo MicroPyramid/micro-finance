@@ -1,14 +1,14 @@
 import json
 import datetime
 import decimal
-import csv
+# import csv
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import login, authenticate, logout
-from django.views.generic.detail import BaseDetailView
+# from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import login_required
-from django.utils.encoding import smart_str
+# from django.utils.encoding import smart_str
 from django.template import Context
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -18,7 +18,7 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.db.models import Sum
-import xlwt
+# import xlwt
 # from xhtml2pdf import pisa
 # from django.template.loader import get_template
 # import cStringIO as StringIO
@@ -29,21 +29,24 @@ from micro_admin.models import (
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
     RecurringDeposits, USER_ROLES)
 from micro_admin.forms import (
-    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm,
-    LoanAccountForm, ReceiptForm, FixedDepositForm, PaymentForm,
+    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
+    ReceiptForm, FixedDepositForm, PaymentForm,
     ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
 from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
 
 d = decimal.Decimal
 
 
-def index(request):
-    if request.user.is_authenticated():
-        return render(request, "index.html", {"user": request.user})
-    return render(request, "login.html")
+class IndexView(View):
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return render(request, "index.html", {"user": request.user})
+        return render(request, "login.html")
 
 
 class LoginView(View):
+
     def post(self, request):
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -1015,79 +1018,31 @@ def receipts_deposit(request):
 
 
 class ReceiptsList(LoginRequiredMixin, ListView):
-
     context_object_name = "receipt_list"
     queryset = Receipts.objects.all().order_by("-id")
     template_name = "listof_receipts.html"
 
 
-def general_ledger_function(request):
-    query_set = Receipts.objects.all()
-    query_set.query.group_by = ["date"]
-    grouped_receipts_list = []
-    for i in query_set:
-        grouped_receipts_list.append(i)
-    general_ledger_list = []
-    for objreceipt in grouped_receipts_list:
-        sum_sharecapital_amount = 0
-        sum_entrancefee_amount = 0
-        sum_membershipfee_amount = 0
-        sum_bookfee_amount = 0
-        sum_loanprocessingfee_amount = 0
-        sum_savingsdeposit_thrift_amount = 0
-        sum_fixeddeposit_amount = 0
-        sum_recurringdeposit_amount = 0
-        sum_loanprinciple_amount = 0
-        sum_loaninterest_amount = 0
-        sum_insurance_amount = 0
-        total_sum = 0
-
-        receipts_list = Receipts.objects.filter(date=objreceipt.date)
-        data = {}
-        data["date"] = objreceipt.date
-        for receipt in receipts_list:
-            if receipt.sharecapital_amount:
-                sum_sharecapital_amount += d(receipt.sharecapital_amount)
-            if receipt.entrancefee_amount:
-                sum_entrancefee_amount += d(receipt.entrancefee_amount)
-            if receipt.membershipfee_amount:
-                sum_membershipfee_amount += d(receipt.membershipfee_amount)
-            if receipt.bookfee_amount:
-                sum_bookfee_amount += d(receipt.bookfee_amount)
-            if receipt.loanprocessingfee_amount:
-                sum_loanprocessingfee_amount += d(receipt.loanprocessingfee_amount)
-            if receipt.savingsdeposit_thrift_amount:
-                sum_savingsdeposit_thrift_amount += d(
-                    receipt.savingsdeposit_thrift_amount)
-            if receipt.fixeddeposit_amount:
-                sum_fixeddeposit_amount += d(receipt.fixeddeposit_amount)
-            if receipt.recurringdeposit_amount:
-                sum_recurringdeposit_amount += d(receipt.recurringdeposit_amount)
-            if receipt.loanprinciple_amount:
-                sum_loanprinciple_amount += d(receipt.loanprinciple_amount)
-            if receipt.loaninterest_amount:
-                sum_loaninterest_amount += d(receipt.loaninterest_amount)
-            if receipt.insurance_amount:
-                sum_insurance_amount += d(receipt.insurance_amount)
-
-        data["sum_sharecapital_amount"] = d(sum_sharecapital_amount)
-        data["sum_entrancefee_amount"] = d(sum_entrancefee_amount)
-        data["sum_membershipfee_amount"] = d(sum_membershipfee_amount)
-        data["sum_bookfee_amount"] = d(sum_bookfee_amount)
-        data["sum_loanprocessingfee_amount"] = d(sum_loanprocessingfee_amount)
-        data["sum_savingsdeposit_thrift_amount"] = d(
-            sum_savingsdeposit_thrift_amount)
-        data["sum_fixeddeposit_amount"] = d(sum_fixeddeposit_amount)
-        data["sum_recurringdeposit_amount"] = d(sum_recurringdeposit_amount)
-        data["sum_loanprinciple_amount"] = d(sum_loanprinciple_amount)
-        data["sum_loaninterest_amount"] = d(sum_loaninterest_amount)
-        data["sum_insurance_amount"] = d(sum_insurance_amount)
-        for key in data:
-            if key != "date":
-                total_sum += data[key]
-        data["total_sum"] = total_sum
-        general_ledger_list.append(data)
-    return general_ledger_list
+def general_ledger_function():
+    return Receipts.objects.all().values("date").distinct().order_by("-date").annotate(
+        sum_sharecapital_amount=Sum('sharecapital_amount'),
+        sum_entrancefee_amount=Sum('entrancefee_amount'),
+        sum_membershipfee_amount=Sum('membershipfee_amount'),
+        sum_bookfee_amount=Sum('bookfee_amount'),
+        sum_loanprocessingfee_amount=Sum('loanprocessingfee_amount'),
+        sum_savingsdeposit_thrift_amount=Sum('savingsdeposit_thrift_amount'),
+        sum_fixeddeposit_amount=Sum('fixeddeposit_amount'),
+        sum_recurringdeposit_amount=Sum('recurringdeposit_amount'),
+        sum_loanprinciple_amount=Sum('loanprinciple_amount'),
+        sum_loaninterest_amount=Sum('loaninterest_amount'),
+        sum_insurance_amount=Sum('insurance_amount'),
+        total_sum=(Sum('sharecapital_amount') + Sum('entrancefee_amount') +
+                   Sum('membershipfee_amount') + Sum('bookfee_amount') +
+                   Sum('loanprocessingfee_amount') + Sum('savingsdeposit_thrift_amount') +
+                   Sum('fixeddeposit_amount') + Sum('recurringdeposit_amount') +
+                   Sum('loanprinciple_amount') + Sum('loaninterest_amount') +
+                   Sum('insurance_amount'))
+    )
 
 
 class GeneralLedger(LoginRequiredMixin, ListView):
@@ -1096,7 +1051,7 @@ class GeneralLedger(LoginRequiredMixin, ListView):
     template_name = "generalledger.html"
 
     def get_queryset(self):
-        return general_ledger_function(self.request)
+        return general_ledger_function()
 
 
 class FixedDepositsView(LoginRequiredMixin, CreateView):
@@ -1466,36 +1421,46 @@ def day_book_function(request, date):
         share_capital_amount_sum_list
 
 
-@login_required
-def view_day_book(request):
-    if request.method == "POST":
-        date = datetime.datetime.strptime(
-            request.POST.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
-    else:
-        if request.GET.get("date"):
-            date = request.GET.get("date")
+class DayBookView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if self.request.GET.get("date"):
+            try:
+                self.date = datetime.datetime.strptime(self.request.GET.get("date"), "%Y-%m-%d").date()
+            except (ValueError, TypeError):
+                return render(request, "day_book.html", {"error_message": "Invalid date."})
         else:
-            date = datetime.datetime.now().date()
+            self.date = datetime.datetime.now().date()
 
-    # date = str(date)
-    receipts_list, total_payments, travellingallowance_list, \
-        loans_list, paymentofsalary_list, printingcharges_list, \
-        stationarycharges_list, othercharges_list, savingswithdrawal_list,\
-        recurringwithdrawal_list, fixedwithdrawal_list, total, \
-        dict_payments, total_dict, selected_date, grouped_receipts_list, \
-        thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
-        loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
-        membershipfee_amount_sum_list, bookfee_amount_sum_list, \
-        loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
-        fixed_deposit_sum_list, recurring_deposit_sum_list, \
-        share_capital_amount_sum_list = day_book_function(request, date)
+        context = self.get_context_data(**kwargs)
+        return render(request, "day_book.html", context)
 
-    date_formated = datetime.datetime.strptime(
-        str(selected_date), "%Y-%m-%d").strftime("%m/%d/%Y")
-    return render(
-        request,
-        "day_book.html",
-        {
+    def post(self, request, *args, **kwargs):
+        try:
+            self.date = datetime.datetime.strptime(self.request.POST.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
+        except (ValueError, TypeError):
+            return render(request, "day_book.html", {"error_message": "Invalid date."})
+
+        context = self.get_context_data(**kwargs)
+        return render(request, "day_book.html", context)
+
+    def get_context_data(self):
+        date = self.date
+
+        receipts_list, total_payments, travellingallowance_list, \
+            loans_list, paymentofsalary_list, printingcharges_list, \
+            stationarycharges_list, othercharges_list, savingswithdrawal_list,\
+            recurringwithdrawal_list, fixedwithdrawal_list, total, \
+            dict_payments, total_dict, selected_date, grouped_receipts_list, \
+            thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
+            loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
+            membershipfee_amount_sum_list, bookfee_amount_sum_list, \
+            loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
+            fixed_deposit_sum_list, recurring_deposit_sum_list, \
+            share_capital_amount_sum_list = day_book_function(self.request, date)
+
+        date_formated = datetime.datetime.strptime(str(selected_date), "%Y-%m-%d").strftime("%m/%d/%Y")
+        return {
             "receipts_list": receipts_list, "total_payments": total_payments,
             "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
             "dict_payments": dict_payments, "dict": total_dict,
@@ -1519,7 +1484,7 @@ def view_day_book(request):
             "grouped_receipts_list": grouped_receipts_list,
             "thrift_deposit_sum_list": thrift_deposit_sum_list,
             "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list,
-        })
+        }
 
 
 class RecurringDepositsView(LoginRequiredMixin, CreateView):
@@ -1851,7 +1816,7 @@ def pay_slip(request):
 class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        general_ledger_list = general_ledger_function(request)
+        general_ledger_list = general_ledger_function()
         try:
             # template = get_template("pdfgeneral_ledger.html")
             context = Context(
