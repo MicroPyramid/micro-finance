@@ -6,6 +6,9 @@ from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDema
 from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount, Group, Client, FixedDeposits, RecurringDeposits
 import decimal
 from django.db.models import Q
+from datetime import datetime
+import calendar
+from django.shortcuts import get_object_or_404
 
 d = decimal.Decimal
 
@@ -957,14 +960,30 @@ class GetFixedDepositPaidAccountsView(LoginRequiredMixin, FormView):
 
     form_class = GetFixedDepositsPaidForm
 
+    def get_form_kwargs(self):
+        kwargs = super(GetFixedDepositPaidAccountsView, self).get_form_kwargs()
+        client = Client.objects.filter(
+            first_name__iexact=kwargs['data'].get('client_name'),
+            account_number=kwargs['data'].get('client_account_number')).first()
+        if client:
+            kwargs.update(initial={'client': client})
+        return kwargs
+
     def form_valid(self, form):
         fixed_deposit = form.fixed_deposit_account
-        interest_charged = (fixed_deposit.fixed_deposit_amount * (
-            fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
-        fixed_deposit_interest_charged = interest_charged * d(
-            fixed_deposit.fixed_deposit_period)
-        total_amount = \
-            fixed_deposit.fixed_deposit_amount + fixed_deposit_interest_charged
+        # interest_charged = (fixed_deposit.fixed_deposit_amount * (
+        #     fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
+        # fixed_deposit_interest_charged = interest_charged * d(
+        #     fixed_deposit.fixed_deposit_period)
+        # total_amount = \
+        #     fixed_deposit.fixed_deposit_amount + fixed_deposit_interest_charged
+        current_date = datetime.now().date()
+        year_days = 366 if calendar.isleap(current_date.year) else 365
+        interest_charged = (fixed_deposit.fixed_deposit_amount * fixed_deposit.fixed_deposit_interest_rate) / (d(year_days) * 100)
+        days_to_calculate = (current_date - fixed_deposit.deposited_date).days
+        calculated_interest_money_till_date = interest_charged * days_to_calculate
+        fixed_deposit_interest_charged = calculated_interest_money_till_date
+        total_amount = fixed_deposit.fixed_deposit_amount + calculated_interest_money_till_date
         data = {
             "error": False,
             "fixeddeposit_amount": fixed_deposit.fixed_deposit_amount or 0,
@@ -983,15 +1002,30 @@ class GetRecurringDepositPaidAccountsView(LoginRequiredMixin, FormView):
 
     form_class = GetRecurringDepositsPaidForm
 
+    def get_form_kwargs(self):
+        kwargs = super(GetRecurringDepositPaidAccountsView, self).get_form_kwargs()
+        client = Client.objects.filter(
+            first_name__iexact=kwargs['data'].get('client_name'),
+            account_number=kwargs['data'].get('client_account_number')).first()
+        if client:
+            kwargs.update(initial={'client': client})
+        return kwargs
+
     def form_valid(self, form):
         recurring_deposit = form.recurring_deposit_account
         recurring_deposit_amount = d(recurring_deposit.recurring_deposit_amount) * recurring_deposit.number_of_payments
-        interest_charged = (recurring_deposit_amount * (
-            recurring_deposit.recurring_deposit_interest_rate / 12)) / 100
-        recurring_deposit_interest_charged = interest_charged * d(
-            recurring_deposit.recurring_deposit_period)
-        total_amount = \
-            recurring_deposit_amount + recurring_deposit_interest_charged
+        # interest_charged = (recurring_deposit_amount * (
+        #     recurring_deposit.recurring_deposit_interest_rate / 12)) / 100
+        # recurring_deposit_interest_charged = interest_charged * d(
+        #     recurring_deposit.recurring_deposit_period)
+        # total_amount = \
+        #     recurring_deposit_amount + recurring_deposit_interest_charged
+        current_date = datetime.now().date()
+        year_days = 366 if calendar.isleap(current_date.year) else 365
+        interest_charged = (recurring_deposit_amount * recurring_deposit.recurring_deposit_interest_rate) / (d(year_days) * 100)
+        days_to_calculate = (current_date - recurring_deposit.deposited_date).days
+        recurring_deposit_interest_charged = interest_charged * days_to_calculate
+        total_amount = recurring_deposit_amount + recurring_deposit_interest_charged
         data = {
             "error": False,
             "recurringdeposit_amount": recurring_deposit_amount,

@@ -23,7 +23,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ thrift_deposit_sum.account_number }}</td>
-          {% if thrift_deposit_sum.receipt_number|length > 1 %}
+          {% if thrift_deposit_sum.has_list %}
             <td>
               {% for receipt in thrift_deposit_sum.receipt_number %}
                 {{receipt}}
@@ -52,7 +52,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ fixed_deposit_sum.account_number }}</td>
-          {% if fixed_deposit_sum.receipt_number|length > 1 %}
+          {% if fixed_deposit_sum.has_list %}
             <td>
               {% for receipt in fixed_deposit_sum.receipt_number %}
                 {{receipt}}
@@ -81,7 +81,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ recurring_deposit_sum.account_number }}</td>
-          {% if recurring_deposit_sum.receipt_number %}
+          {% if recurring_deposit_sum.has_list %}
             <td>
             {% for receipt in recurring_deposit_sum.receipt_number %}
               {{ receipt }}
@@ -110,7 +110,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ share_capital_amount.account_number }}</td>
-          {% if share_capital_amount.receipt_number %}
+          {% if share_capital_amount.has_list %}
             <td>
             {% for receipt in share_capital_amount.receipt_number %}
               {{ receipt }}
@@ -139,7 +139,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ loanprinciple_amount.account_number }}</td>
-          {% if loanprinciple_amount.group_id %}
+          {% if loanprinciple_amount.has_list %}
             <td>
               {% for receipt in loanprinciple_amount.receipt_number %}
                 {{receipt}}
@@ -168,7 +168,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ loaninterest_amount.account_number }}</td>
-          {% if loaninterest_amount.group_id %}
+          {% if loaninterest_amount.has_list %}
             <td>
               {% for receipt in loaninterest_amount.receipt_number %}
                 {{ receipt }}
@@ -197,7 +197,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ entrancefee_amount.account_number }}</td>
-          {% if entrancefee_amount.group_id %}
+          {% if entrancefee_amount.has_list %}
             <td>
               {% for receipt in entrancefee_amount.receipt_number %}
                 {{ receipt }}
@@ -226,7 +226,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ membershipfee_amount.account_number }}</td>
-          {% if membershipfee_amount.group_id %}
+          {% if membershipfee_amount.has_list %}
             <td>
             {% for receipt in membershipfee_amount.receipt_number %}
               {{ receipt }}
@@ -255,7 +255,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ bookfee_amount.account_number }}</td>
-          {% if bookfee_amount.group_id %}
+          {% if bookfee_amount.has_list %}
             <td>
             {% for receipt in bookfee_amount.receipt_number %}
               {{ receipt }}
@@ -284,7 +284,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ loanprocessingfee_amount.account_number }}</td>
-          {% if loanprocessingfee_amount.group_id %}
+          {% if loanprocessingfee_amount.has_list %}
             <td>
             {% for receipt in loanprocessingfee_amount.receipt_number %}
               {{ receipt }}
@@ -313,7 +313,7 @@
         <tr>
           <td>{{ selected_date }}</td>
           <td>{{ insurance_amount.account_number }}</td>
-          {% if insurance_amount.group_id %}
+          {% if insurance_amount.has_list %}
             <td>
             {% for receipt in insurance_amount.receipt_number %}
               {{ receipt }}

@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from django.forms.utils import ErrorList
 import decimal
 import datetime
+import calendar
 
 d = decimal.Decimal
 
@@ -79,7 +80,6 @@ class GetFixedDepositsForm(forms.Form):
     fixed_deposit_account_no = forms.CharField(max_length=100, required=False)
 
     def clean(self):
-
         if self.cleaned_data.get("fixed_deposit_account_no"):
             self.fixed_deposit_account = FixedDeposits.objects.filter(
                 fixed_deposit_number=self.cleaned_data.get("fixed_deposit_account_no")).last()
@@ -335,6 +335,7 @@ class ReceiptForm(forms.ModelForm):
                 errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
                 errors.append('Please, select the fixed deposit before you enter the amount or clear the amount.')
                 raise forms.ValidationError(errors)
+
         if self.cleaned_data.get('recurring_deposit_account_no'):
             recurring_deposit_account_filter = RecurringDeposits.objects.filter(
                 reccuring_deposit_number=self.cleaned_data.get('recurring_deposit_account_no')
@@ -390,10 +391,15 @@ class GetFixedDepositsPaidForm(forms.Form):
 
     fixed_deposit_account_no = forms.CharField(max_length=100, required=False)
 
-    def clean(self):
 
+    def __init__(self, *args, **kwargs):
+        self.client = kwargs['initial'].pop('client', None)
+        super(GetFixedDepositsPaidForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
         if self.cleaned_data.get("fixed_deposit_account_no"):
             self.fixed_deposit_account = FixedDeposits.objects.filter(
+                client=self.client,
                 fixed_deposit_number=self.cleaned_data.get("fixed_deposit_account_no")).last()
         if not self.fixed_deposit_account:
             errors = self._errors.setdefault("message1", ErrorList())
@@ -414,10 +420,15 @@ class GetRecurringDepositsPaidForm(forms.Form):
 
     recurring_deposit_account_no = forms.CharField(max_length=100, required=False)
 
+    def __init__(self, *args, **kwargs):
+        self.client = kwargs['initial'].pop('client', None)
+        super(GetRecurringDepositsPaidForm, self).__init__(*args, **kwargs)
+
     def clean(self):
 
         if self.cleaned_data.get("recurring_deposit_account_no"):
             self.recurring_deposit_account = RecurringDeposits.objects.filter(
+                client=self.client,
                 reccuring_deposit_number=self.cleaned_data.get("recurring_deposit_account_no")
             ).last()
         if not self.recurring_deposit_account:
@@ -456,13 +467,6 @@ class PaymentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(PaymentForm, self).__init__(*args, **kwargs)
-
-    def clean_voucher_number(self):
-        voucher_number = self.cleaned_data.get("voucher_number")
-        is_voucher_number_exist = Payments.objects.filter(voucher_number=voucher_number)
-        if is_voucher_number_exist:
-            raise forms.ValidationError("Payslip with this Voucher number already exists.")
-        return voucher_number
 
     def clean(self):
 
@@ -612,22 +616,41 @@ class PaymentForm(forms.ModelForm):
                                 if self.fixed_deposit_account:
                                     fixed_deposit = self.fixed_deposit_account
                                     fixed_deposit_amount = fixed_deposit.fixed_deposit_amount
-                                    interest_charged = (fixed_deposit.fixed_deposit_amount * (
-                                        fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
-                                    fixed_deposit_interest_charged = interest_charged * d(
-                                        fixed_deposit.fixed_deposit_period)
-                                    total_amount = \
-                                        fixed_deposit.fixed_deposit_amount + fixed_deposit_interest_charged
+                                    # interest_charged = (fixed_deposit.fixed_deposit_amount * (
+                                    #     fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
+                                    # fixed_deposit_interest_charged = interest_charged * d(
+                                    #     fixed_deposit.fixed_deposit_period)
+                                    # total_amount = \
+                                    #     fixed_deposit.fixed_deposit_amount + fixed_deposit_interest_charged
+                                    current_date = datetime.datetime.now().date()
+                                    year_days = 366 if calendar.isleap(current_date.year) else 365
+                                    interest_charged = (fixed_deposit.fixed_deposit_amount * fixed_deposit.fixed_deposit_interest_rate) / (d(year_days) * 100)
+                                    days_to_calculate = (current_date - fixed_deposit.deposited_date).days
+                                    calculated_interest_money_till_date = interest_charged * days_to_calculate
+                                    fixed_deposit_interest_charged = calculated_interest_money_till_date
+                                    total_amount = fixed_deposit.fixed_deposit_amount + calculated_interest_money_till_date
                                     if self.cleaned_data.get("amount"):
-                                        if d(fixed_deposit_amount) != d(self.cleaned_data.get("amount")):
+                                        if d(fixed_deposit_amount) > d(self.cleaned_data.get("amount")):
+                                            raise forms.ValidationError("Entered amount is less than the Member Fixed Deposit amount.")
+                                        elif d(fixed_deposit_amount) < d(self.cleaned_data.get("amount")):
+                                            raise forms.ValidationError("Entered amount is greater than the Member Fixed Deposit amount.")
+                                        elif d(fixed_deposit_amount) != d(self.cleaned_data.get("amount")):
                                             raise forms.ValidationError("Entered amount is not equals to the Member Fixed Deposit amount.")
                                     if self.cleaned_data.get("interest"):
-                                        if round(d(fixed_deposit_interest_charged), 6) != round(d(self.cleaned_data.get("interest")), 6):
+                                        if round(d(fixed_deposit_interest_charged), 6) > round(d(self.cleaned_data.get("interest")), 6):
+                                            raise forms.ValidationError("Entered interest amount is less than the Member Fixed Deposit interest amount.")
+                                        elif round(d(fixed_deposit_interest_charged), 6) < round(d(self.cleaned_data.get("interest")), 6):
+                                            raise forms.ValidationError("Entered interest amount is greater than the Member Fixed Deposit interest amount.")
+                                        elif round(d(fixed_deposit_interest_charged), 6) != round(d(self.cleaned_data.get("interest")), 6):
                                             raise forms.ValidationError("Entered interest amount is not equals to the Member Fixed Deposit interest amount.")
                                     else:
                                         raise forms.ValidationError("Interest Amount field is required for Fixed Deposit Wirthdrawl.")
                                     if self.cleaned_data.get('total_amount'):
-                                        if round(d(total_amount), 6) != round(d(self.cleaned_data.get("total_amount")), 6):
+                                        if round(d(total_amount), 6) > round(d(self.cleaned_data.get("total_amount")), 6):
+                                            raise forms.ValidationError("Entered total amount is less than the Member Fixed Deposit total amount.")
+                                        elif round(d(total_amount), 6) < round(d(self.cleaned_data.get("total_amount")), 6):
+                                            raise forms.ValidationError("Entered total amount is greater than the Member Fixed Deposit total amount.")
+                                        elif round(d(total_amount), 6) != round(d(self.cleaned_data.get("total_amount")), 6):
                                             raise forms.ValidationError("Entered total amount is not equals to the Member Fixed Deposit total amount.")
                             else:
                                 errors = self._errors.setdefault("message1", ErrorList())
@@ -660,22 +683,40 @@ class PaymentForm(forms.ModelForm):
                                 if self.recurring_deposit_account:
                                     recurring_deposit = self.recurring_deposit_account
                                     recurring_deposit_amount = d(recurring_deposit.recurring_deposit_amount) * recurring_deposit.number_of_payments
-                                    interest_charged = (recurring_deposit_amount * (
-                                        recurring_deposit.recurring_deposit_interest_rate / 12)) / 100
-                                    recurring_deposit_interest_charged = interest_charged * d(
-                                        recurring_deposit.recurring_deposit_period)
-                                    total_amount = \
-                                        recurring_deposit_amount + recurring_deposit_interest_charged
+                                    # interest_charged = (recurring_deposit_amount * (
+                                    #     recurring_deposit.recurring_deposit_interest_rate / 12)) / 100
+                                    # recurring_deposit_interest_charged = interest_charged * d(
+                                    #     recurring_deposit.recurring_deposit_period)
+                                    # total_amount = \
+                                    #     recurring_deposit_amount + recurring_deposit_interest_charged
+                                    current_date = datetime.now().date()
+                                    year_days = 366 if calendar.isleap(current_date.year) else 365
+                                    interest_charged = (recurring_deposit_amount * recurring_deposit.recurring_deposit_interest_rate) / (d(year_days) * 100)
+                                    days_to_calculate = (current_date - recurring_deposit.deposited_date).days
+                                    recurring_deposit_interest_charged = interest_charged * days_to_calculate
+                                    total_amount = recurring_deposit_amount + recurring_deposit_interest_charged
                                     if self.cleaned_data.get("amount"):
-                                        if d(recurring_deposit_amount) != d(self.cleaned_data.get("amount")):
+                                        if d(recurring_deposit_amount) > d(self.cleaned_data.get("amount")):
+                                            raise forms.ValidationError("Entered amount is less than the Member Recurring Deposit amount.")
+                                        elif d(recurring_deposit_amount) < d(self.cleaned_data.get("amount")):
+                                            raise forms.ValidationError("Entered amount is greater than the Member Recurring Deposit amount.")
+                                        elif d(recurring_deposit_amount) != d(self.cleaned_data.get("amount")):
                                             raise forms.ValidationError("Entered amount is not equals to the Member Recurring Deposit amount.")
                                     if self.cleaned_data.get("interest"):
-                                        if round(d(recurring_deposit_interest_charged), 6) != round(d(self.cleaned_data.get("interest")), 6):
+                                        if round(d(recurring_deposit_interest_charged), 6) < round(d(self.cleaned_data.get("interest")), 6):
+                                            raise forms.ValidationError("Entered interest amount is greater than the Member Recurring Deposit interest amount.")
+                                        elif round(d(recurring_deposit_interest_charged), 6) > round(d(self.cleaned_data.get("interest")), 6):
+                                            raise forms.ValidationError("Entered interest amount is less than the Member Recurring Deposit interest amount.")
+                                        elif round(d(recurring_deposit_interest_charged), 6) != round(d(self.cleaned_data.get("interest")), 6):
                                             raise forms.ValidationError("Entered interest amount is not equals to the Member Recurring Deposit interest amount.")
                                     else:
                                         raise forms.ValidationError("This Interest Amount field is required for Recurring Deposit Wirthdrawl.")
                                     if self.cleaned_data.get('total_amount'):
-                                        if round(d(total_amount), 6) != round(d(self.cleaned_data.get("total_amount")), 6):
+                                        if round(d(total_amount), 6) < round(d(self.cleaned_data.get("total_amount")), 6):
+                                            raise forms.ValidationError("Entered total amount is greater than the Member Recurring Deposit total amount.")
+                                        elif round(d(total_amount), 6) > round(d(self.cleaned_data.get("total_amount")), 6):
+                                            raise forms.ValidationError("Entered total amount is less than the Member Recurring Deposit total amount.")
+                                        elif round(d(total_amount), 6) != round(d(self.cleaned_data.get("total_amount")), 6):
                                             raise forms.ValidationError("Entered total amount is not equals to the Member Recurring Deposit total amount.")
 
                             else:
@@ -771,18 +812,15 @@ class PaymentForm(forms.ModelForm):
                 instance.staff = staff
             elif self.cleaned_data.get("payment_type") == "SavingsWithdrawal":
                 if self.cleaned_data.get("client_name") and self.cleaned_data.get('client_account_number'):
-                    client_filter = Client.objects.filter(first_name__iexact=self.cleaned_data.get("client_name"), \
-                                                account_number=self.cleaned_data.get("client_account_number"))
-                    if client_filter:
-                        client = client_filter.first()
-                        savings_account_filter = SavingsAccount.objects.filter(client=client)
-                        if savings_account_filter:
-                            savings_account = savings_account_filter.first()
+                    client = Client.objects.filter(first_name__iexact=self.cleaned_data.get("client_name"), \
+                                                account_number=self.cleaned_data.get("client_account_number")).first()
+                    if client:
+                        savings_account = SavingsAccount.objects.filter(client=client).first()
+                        if savings_account:
                             client_group = client.group_set.first()
                             if client_group:
-                                group_savings_account_filter = SavingsAccount.objects.filter(group=client_group)
-                                if group_savings_account_filter:
-                                    group_savings_account = group_savings_account_filter.first()
+                                group_savings_account = SavingsAccount.objects.filter(group=client_group).first()
+                                if group_savings_account:
                                     if self.cleaned_data.get("group_name"):
                                         if self.cleaned_data.get("group_name").lower() == client_group.name.lower():
                                             if self.cleaned_data.get("group_account_number"):
@@ -811,14 +849,12 @@ class PaymentForm(forms.ModelForm):
                 else:
                     if self.cleaned_data.get("group_name"):
                         if self.cleaned_data.get("group_account_number"):
-                            group_filter = Group.objects.filter(
+                            group = Group.objects.filter(
                                 name__iexact=self.cleaned_data.get("group_name"),
-                                account_number=self.cleaned_data.get("group_account_number"))
-                            if group_filter:
-                                group = group_filter.first()
-                                savings_account = SavingsAccount.objects.filter(group=group)
-                                if savings_account:
-                                    group_savings_account = savings_account.first()
+                                account_number=self.cleaned_data.get("group_account_number")).first()
+                            if group:
+                                group_savings_account = SavingsAccount.objects.filter(group=group).first()
+                                if group_savings_account:
                                     if d(group_savings_account.savings_balance) >= d(self.cleaned_data.get("amount")):
                                         client_group = group.clients.all()
                                         savings_accounts_filter = SavingsAccount.objects.filter(client__in=[client for client in client_group])
@@ -838,15 +874,13 @@ class PaymentForm(forms.ModelForm):
 
             elif self.cleaned_data.get("payment_type") == "Loans":
                 if self.cleaned_data.get("group_name") and not self.cleaned_data.get("client_name"):
-                    group_filter = Group.objects.filter(
+                    group = Group.objects.filter(
                         name__iexact=self.cleaned_data.get("group_name"),
-                        account_number=self.cleaned_data.get("group_account_number"))
-                    if group_filter:
-                        group = group_filter.first()
-                        loan_account_filter = LoanAccount.objects.filter(
-                            id=self.cleaned_data.get("group_loan_account_no"))
-                        if loan_account_filter:
-                            loan_account = loan_account_filter.first()
+                        account_number=self.cleaned_data.get("group_account_number")).first()
+                    if group:
+                        loan_account = LoanAccount.objects.filter(
+                            id=self.cleaned_data.get("group_loan_account_no")).first()
+                        if loan_account:
                             clients_list = group.clients.all()
                             if len(clients_list) != 0:
                                 instance.group = group
@@ -856,14 +890,12 @@ class PaymentForm(forms.ModelForm):
                                 loan_account.save()
                 if self.cleaned_data.get("client_name") and not self.cleaned_data.get("group_name"):
                     if self.cleaned_data.get("client_account_number"):
-                        member_filter = Client.objects.filter(
+                        client = Client.objects.filter(
                             first_name__iexact=self.cleaned_data.get("client_name"),
-                            account_number=self.cleaned_data.get("client_account_number"))
-                        if member_filter:
-                            client = member_filter.first()
-                            loan_account_filter = LoanAccount.objects.filter(id=self.cleaned_data.get("member_loan_account_no"))
-                            if loan_account_filter:
-                                loan_account = loan_account_filter.first()
+                            account_number=self.cleaned_data.get("client_account_number")).first()
+                        if client:
+                            loan_account = LoanAccount.objects.filter(id=self.cleaned_data.get("member_loan_account_no")).first()
+                            if loan_account:
                                 instance.client = client
                                 instance.loan_account = loan_account
                                 loan_account.loan_issued_date = datetime.datetime.now().date()
@@ -872,42 +904,38 @@ class PaymentForm(forms.ModelForm):
             elif self.cleaned_data.get('payment_type') == 'FixedWithdrawal':
                 if self.cleaned_data.get("client_name") and not self.cleaned_data.get("group_name"):
                     if self.cleaned_data.get("client_account_number"):
-                        member_filter = Client.objects.filter(
+                        client = Client.objects.filter(
                             first_name__iexact=self.cleaned_data.get("client_name"),
-                            account_number=self.cleaned_data.get("client_account_number"))
-                        if member_filter:
-                            client = member_filter.first()
+                            account_number=self.cleaned_data.get("client_account_number")).first()
+                        if client:
                             if self.cleaned_data.get('fixed_deposit_account_no'):
-                                fixed_deposits_account_filter = FixedDeposits.objects.filter(
+                                fixed_deposits_account = FixedDeposits.objects.filter(
                                     client=client,
                                     fixed_deposit_number=self.cleaned_data.get('fixed_deposit_account_no')
-                                ).exclude(status='Closed')
-                                if fixed_deposits_account_filter:
-                                    fixed_deposits_account = fixed_deposits_account_filter.first()
+                                ).exclude(status='Closed').first()
+                                if fixed_deposits_account:
                                     instance.client = client
                                     instance.fixed_deposit_account = fixed_deposits_account
-                                    fixed_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('amount')
+                                    fixed_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('total_amount')
                                     fixed_deposits_account.total_withdrawal_amount_interest = self.cleaned_data.get('interest')
                                     fixed_deposits_account.status = 'Closed'
                                     fixed_deposits_account.save()
             elif self.cleaned_data.get('payment_type') == 'RecurringWithdrawal':
                 if self.cleaned_data.get("client_name") and not self.cleaned_data.get("group_name"):
                     if self.cleaned_data.get("client_account_number"):
-                        member_filter = Client.objects.filter(
+                        client = Client.objects.filter(
                             first_name__iexact=self.cleaned_data.get("client_name"),
-                            account_number=self.cleaned_data.get("client_account_number"))
-                        if member_filter:
-                            client = member_filter.first()
+                            account_number=self.cleaned_data.get("client_account_number")).first()
+                        if client:
                             if self.cleaned_data.get('recurring_deposit_account_no'):
-                                recurring_deposits_account_filter = RecurringDeposits.objects.filter(
+                                recurring_deposits_account = RecurringDeposits.objects.filter(
                                     client=client,
                                     reccuring_deposit_number=self.cleaned_data.get('recurring_deposit_account_no')
-                                ).exclude(status='Closed', number_of_payments=0)
-                                if recurring_deposits_account_filter:
-                                    recurring_deposits_account = recurring_deposits_account_filter.first()
+                                ).exclude(status='Closed', number_of_payments=0).first()
+                                if recurring_deposits_account:
                                     instance.client = client
                                     instance.recurring_deposit_account = recurring_deposits_account
-                                    recurring_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('amount')
+                                    recurring_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('total_amount')
                                     recurring_deposits_account.total_withdrawal_amount_interest = self.cleaned_data.get('interest')
                                     recurring_deposits_account.status = 'Closed'
                                     recurring_deposits_account.save()
