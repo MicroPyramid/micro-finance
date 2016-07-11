@@ -3,7 +3,7 @@ from micro_admin.views import *
 
 urlpatterns = [
 
-    url(r'^$', index, name='microadmin_index'),
+    url(r'^$', IndexView.as_view(), name='microadmin_index'),
     url(r'^login/$', LoginView.as_view(), name='login'),
     url(r'^logout/$', LogoutView.as_view(), name="logout"),
     # ------------------------------------------- #

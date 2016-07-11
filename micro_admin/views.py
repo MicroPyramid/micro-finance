@@ -1,24 +1,24 @@
 import json
 import datetime
 import decimal
-import csv
+# import csv
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import login, authenticate, logout
-from django.views.generic.detail import BaseDetailView
+# from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import login_required
-from django.utils.encoding import smart_str
+# from django.utils.encoding import smart_str
 from django.template import Context
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, UpdateView, View
-from django.views.generic import ListView, DetailView, RedirectView, FormView, TemplateView
+from django.views.generic import ListView, DetailView, RedirectView, FormView
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.db.models import Sum
-import xlwt
+# import xlwt
 # from xhtml2pdf import pisa
 # from django.template.loader import get_template
 # import cStringIO as StringIO
@@ -29,21 +29,24 @@ from micro_admin.models import (
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
     RecurringDeposits, USER_ROLES)
 from micro_admin.forms import (
-    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm, SavingsAccountForm,
-    LoanAccountForm, ReceiptForm, FixedDepositForm, PaymentForm,
+    BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
+    ReceiptForm, FixedDepositForm, PaymentForm,
     ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
 from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
 
 d = decimal.Decimal
 
 
-def index(request):
-    if request.user.is_authenticated():
-        return render(request, "index.html", {"user": request.user})
-    return render(request, "login.html")
+class IndexView(View):
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return render(request, "index.html", {"user": request.user})
+        return render(request, "login.html")
 
 
 class LoginView(View):
+
     def post(self, request):
         username = request.POST.get("username")
         password = request.POST.get("password")
