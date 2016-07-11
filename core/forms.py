@@ -299,7 +299,7 @@ class ReceiptForm(forms.ModelForm):
             errors.append("Unable pay personal loan and group loan at once.")
             raise forms.ValidationError(errors)
         # check personal savings a/c
-        if (self.cleaned_data.get("savingsdeposit_thrift_amount") >= 0) or (self.cleaned_data.get("recurringdeposit_amount") >= 0):
+        if (self.cleaned_data.get("savingsdeposit_thrift_amount")) or (self.cleaned_data.get("recurringdeposit_amount")) or (self.cleaned_data.get("fixeddeposit_amount")):
             self.savings_account = SavingsAccount.objects.filter(client=self.client).last()
             if not self.savings_account:
                 errors = self._errors.setdefault("message1", ErrorList())
@@ -327,7 +327,14 @@ class ReceiptForm(forms.ModelForm):
                             errors.append('Entered fixed amount is not equal to the actual amount.')
                             raise forms.ValidationError(errors)
                     else:
-                        raise forms.ValidationError('Please enter the Fixed amount for the Fixed Deposit A/C.')
+                        errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
+                        errors.append('Please enter the Fixed amount for the Fixed Deposit A/C.')
+                        raise forms.ValidationError(errors)
+        elif not self.cleaned_data.get('fixed_deposti_account_no'):
+            if self.cleaned_data.get("fixeddeposit_amount"):
+                errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
+                errors.append('Please, select the fixed deposit before you enter the amount or clear the amount.')
+                raise forms.ValidationError(errors)
         if self.cleaned_data.get('recurring_deposit_account_no'):
             recurring_deposit_account_filter = RecurringDeposits.objects.filter(
                 reccuring_deposit_number=self.cleaned_data.get('recurring_deposit_account_no')
@@ -344,7 +351,14 @@ class ReceiptForm(forms.ModelForm):
                         else:
                             raise forms.ValidationError('You have exceeded the recurring deposit reciepts adding to this A/C.')
                     else:
-                        raise forms.ValidationError('Please enter the Recurring amount for the Recurring Deposit A/C.')
+                        errors = self._errors.setdefault('recurringdeposit_amount', ErrorList())
+                        errors.append('Please enter the Recurring amount for the Recurring Deposit A/C.')
+                        raise forms.ValidationError(errors)
+        elif not self.cleaned_data.get('recurring_deposit_account_no'):
+            if self.cleaned_data.get("recurringdeposit_amount"):
+                errors = self._errors.setdefault('recurringdeposit_amount', ErrorList())
+                errors.append('Please, select the recurring deposit before you enter the amount or clear the amount.')
+                raise forms.ValidationError(errors)
 
         return self.cleaned_data
 
@@ -872,7 +886,7 @@ class PaymentForm(forms.ModelForm):
                                     fixed_deposits_account = fixed_deposits_account_filter.first()
                                     instance.client = client
                                     instance.fixed_deposit_account = fixed_deposits_account
-                                    fixed_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('total_amount')
+                                    fixed_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('amount')
                                     fixed_deposits_account.total_withdrawal_amount_interest = self.cleaned_data.get('interest')
                                     fixed_deposits_account.status = 'Closed'
                                     fixed_deposits_account.save()
@@ -893,7 +907,7 @@ class PaymentForm(forms.ModelForm):
                                     recurring_deposits_account = recurring_deposits_account_filter.first()
                                     instance.client = client
                                     instance.recurring_deposit_account = recurring_deposits_account
-                                    recurring_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('total_amount')
+                                    recurring_deposits_account.total_withdrawal_amount_principle = self.cleaned_data.get('amount')
                                     recurring_deposits_account.total_withdrawal_amount_interest = self.cleaned_data.get('interest')
                                     recurring_deposits_account.status = 'Closed'
                                     recurring_deposits_account.save()

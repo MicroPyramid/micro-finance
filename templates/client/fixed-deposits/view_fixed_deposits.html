@@ -49,9 +49,12 @@
                 {{ fixed_deposit.fixed_deposit_number }}</a>
               </td>
               {% if fixed_deposit.status == "Opened" %}
-              <td><i class="fa fa-circle green"></i></td>
+              <td><i class="fa fa-circle green" data-toggle="tooltip" data-placement="top" title="{{fixed_deposit.status}}"></i></td>
               {% elif fixed_deposit.status == "Closed" %}
-              <td><i class="fa fa-circle red"></i></td>
+              <td><i class="fa fa-circle red" data-toggle="tooltip" data-placement="top" title="{{fixed_deposit.status}}"></i></td>
+              {% else %}
+                <!--<td>{{ fixed_deposti.status }}</td>-->
+                <td><i class="fa fa-circle" data-toggle="tooltip" data-placement="top" title="{{fixed_deposit.status}}"></i></td>
               {% endif %}
                <td>{{ fixed_deposit.deposited_date  }}</td>
               {% if not client.first_name %}
@@ -74,4 +77,9 @@
   <!--form div ends above-->
 </div>
 <!--content ends above-->
+<script type="">
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
 {% endblock %}

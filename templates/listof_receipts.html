@@ -30,7 +30,9 @@
               <th class="wid-10">Book Fee</th>
               <th class="wid-74">Loan Processing Fee</th>
               <th class="wid-90">Thrift Deposits</th>
+              <th>Fixed Deposit Account</th>
               <th class="wid-90">Fixed Deposits</th>
+              <th>Recurring Deposit Account</th>
               <th class="wid-90">Recurring Deposits</th>
               <th class="wid-90">Member Loan A/C. No.</th>
               <th class="wid-90">Group Loan A/C. No.</th>
@@ -68,7 +70,17 @@
                 {% else %}-{% endif %}
               </td>
               <td>
+                {% if receipt.fixed_deposit_account %}
+                  <a href="{% url 'micro_admin:clientfixeddepositsprofile' receipt.fixed_deposit_account.id %}" style="color:#337ab7;">{{ receipt.fixed_deposit_account.fixed_deposit_number }}</a>
+                  {% else %}-{% endif %}
+              </td>
+              <td>
                 {% if receipt.fixeddeposit_amount%}{{ receipt.fixeddeposit_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td>
+                {% if receipt.recurring_deposit_account %}
+                  <a href="{% url 'micro_admin:clientrecurringdepositsprofile' receipt.recurring_deposit_account.id %}" style="color:#337ab7;">{{ receipt.recurring_deposit_account.reccuring_deposit_number }}</a>
+                {% else %}-{% endif %}
               </td>
               <td>
                 {% if receipt.recurringdeposit_amount%}{{ receipt.recurringdeposit_amount|floatformat:2 }}{% else %}-{% endif %}
