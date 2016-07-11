@@ -6,6 +6,10 @@ INSTALLED_APPS = INSTALLED_APPS + (
     'debug_toolbar',
 )
 
+SITE_URL = "http://127.0.0.1:8000"
+
+FROM_EMAIL = "admin@example.com"
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

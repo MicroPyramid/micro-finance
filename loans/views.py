@@ -6,6 +6,7 @@ from django.template import Context
 from micro_admin.models import User, Group, Client, LoanAccount, Receipts
 from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
+from core.utils import send_email_template
 from django.utils.encoding import smart_str
 from django.conf import settings
 import decimal
@@ -61,6 +62,18 @@ class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
         )
         loan_account.total_loan_balance = d(d(loan_account.loan_amount))
         loan_account.save()
+
+        if self.client.email and self.client.email.strip():
+            send_email_template(
+                subject="Your application for the Personal Loan (ID: %s) has been received." % loan_account.account_no,
+                template_name="emails/client/loan_applied.html",
+                receipient=self.client.email,
+                ctx={
+                    "client": self.client,
+                    "loan_account": loan_account,
+                    "link_prefix": settings.SITE_URL,
+                },
+            )
         return JsonResponse({"error": False, "loanaccount_id": loan_account.id})
 
     def form_invalid(self, form):
@@ -398,6 +411,20 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
         )
         loan_account.total_loan_balance = d(d(loan_account.loan_amount))
         loan_account.save()
+
+        for client in self.group.clients.all():
+            if client.email and client.email.strip():
+                send_email_template(
+                    subject="Group Loan (ID: %s) application has been received."
+                            % loan_account.account_no,
+                    template_name="emails/group/loan_applied.html",
+                    receipient=client.email,
+                    ctx={
+                        "client": client,
+                        "loan_account": loan_account,
+                        "link_prefix": settings.SITE_URL,
+                    },
+                )
         return JsonResponse({"error": False, "loanaccount_id": loan_account.id})
 
     def form_invalid(self, form):
