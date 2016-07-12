@@ -19,13 +19,10 @@ class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
     template_name = "client/savings/application.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.client = get_object_or_404(
-            Client, id=self.kwargs.get('client_id'))
+        self.client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
         if SavingsAccount.objects.filter(client=self.client).exists():
-            return HttpResponseRedirect(
-                reverse("savings:clientsavingsaccount", kwargs={
-                    'client_id': self.client.id}))
-
+            return HttpResponseRedirect(reverse("savings:clientsavingsaccount",
+                                                kwargs={'client_id': self.client.id}))
         return super(ClientSavingsApplicationView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -77,9 +74,7 @@ class ClientSavingsDepositsListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self):
         context = super(ClientSavingsDepositsListView, self).get_context_data()
-        context["savingsaccount"] = get_object_or_404(
-            SavingsAccount, client=self.kwargs.get("client_id")
-        )
+        context["savingsaccount"] = get_object_or_404(SavingsAccount, client=self.kwargs.get("client_id"))
         return context
 
 
@@ -188,7 +183,6 @@ class GroupSavingsDepositsListView(LoginRequiredMixin, ListView):
 
 
 class GroupSavingsWithdrawalsListView(LoginRequiredMixin, ListView):
-
     model = Payments
     context_object_name = "savings_withdrawals_list"
     template_name = "group/savings/list_of_savings_withdrawals.html"

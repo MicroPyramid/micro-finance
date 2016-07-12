@@ -78,28 +78,21 @@ class LogoutView(RedirectView):
 # --------------------------------------------------- #
 # Branch Model class Based View #
 class CreateBranchView(LoginRequiredMixin, CreateView):
-    login_url = '/'
-    redirect_field_name = 'next'
     form_class = BranchForm
     template_name = "branch/create.html"
 
     def form_valid(self, form):
         branch = form.save()
-        url = reverse('micro_admin:branchprofile',
-                      kwargs={"pk": branch.id})
-        data = {"error": False,
-                "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
+        })
 
     def form_invalid(self, form):
-        data = {"error": True,
-                "errors": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 class UpdateBranchView(LoginRequiredMixin, UpdateView):
-    login_url = '/'
-    redirect_field_name = 'next'
     pk = 'pk'
     model = Branch
     form_class = BranchForm
@@ -107,35 +100,26 @@ class UpdateBranchView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         branch = form.save()
-        url = reverse('micro_admin:branchprofile',
-                      kwargs={"pk": branch.id})
-        data = {"error": False,
-                "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({
+            "error": False, "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
+        })
 
     def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 class BranchProfileView(LoginRequiredMixin, DetailView):
-    login_url = '/'
-    redirect_field_name = 'next'
     model = Branch
     pk = 'pk'
     template_name = "branch/view.html"
 
 
 class BranchListView(LoginRequiredMixin, ListView):
-    login_url = '/'
-    redirect_field_name = 'next'
     model = Branch
     template_name = "branch/list.html"
 
 
 class BranchInactiveView(LoginRequiredMixin, View):
-    login_url = '/'
-    redirect_field_name = 'next'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_admin:
@@ -150,8 +134,6 @@ class BranchInactiveView(LoginRequiredMixin, View):
 # --------------------------------------------------- #
 # Clinet model views
 class CreateClientView(LoginRequiredMixin, CreateView):
-    login_url = '/'
-    redirect_field_name = 'next'
     form_class = ClientForm
     template_name = "client/create.html"
 
@@ -165,30 +147,22 @@ class CreateClientView(LoginRequiredMixin, CreateView):
         client = form.save(commit=False)
         client.created_by = self.request.user
         client.save()
-        url = reverse(
-            'micro_admin:clientprofile',
-            kwargs={"pk": client.id}
-        )
-        data = {"error": False,
-                "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
+        })
 
     def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 class ClienProfileView(LoginRequiredMixin, DetailView):
-    login_url = '/'
-    redirect_field_name = 'next'
     pk = 'pk'
     model = Client
     template_name = "client/profile.html"
 
 
 class UpdateClientView(LoginRequiredMixin, UpdateView):
-    login_url = '/'
-    redirect_field_name = 'next'
     pk = 'pk'
     model = Client
     form_class = ClientForm
@@ -204,17 +178,13 @@ class UpdateClientView(LoginRequiredMixin, UpdateView):
         # if not (request.user.is_admin or request.user.branch == client.branch):
         #     return HttpResponseRedirect(reverse('micro_admin:viewclient'))
         client = form.save()
-        url = reverse(
-            'micro_admin:clientprofile',
-            kwargs={"pk": client.id}
-        )
-        data = {"error": False,
-                "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
+        })
 
     def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 @login_required
@@ -226,8 +196,7 @@ def update_clientprofile(request, client_id):
                     'client_id': client_id}))
 
     if request.method == "GET":
-        return render(
-            request, "client/update-profile.html", {"client": client})
+        return render(request, "client/update-profile.html", {"client": client})
     else:
         if (
             request.FILES and request.FILES.get("photo") and
@@ -236,21 +205,15 @@ def update_clientprofile(request, client_id):
             client.photo = request.FILES.get("photo")
             client.signature = request.FILES.get("signature")
             client.save()
-        return HttpResponseRedirect(
-            reverse('micro_admin:clientprofile', kwargs={
-                    'client_id': client_id}))
+        return HttpResponseRedirect(reverse('micro_admin:clientprofile', kwargs={'client_id': client_id}))
 
 
 class ClientsListView(LoginRequiredMixin, ListView):
-    login_url = '/'
-    redirect_field_name = 'next'
     model = Client
     template_name = "client/list.html"
 
 
 class ClientInactiveView(LoginRequiredMixin, View):
-    login_url = '/'
-    redirect_field_name = 'next'
 
     def get(self, request, *args, **kwargs):
         client = get_object_or_404(Client, id=kwargs.get('client_id'))
@@ -269,8 +232,6 @@ class ClientInactiveView(LoginRequiredMixin, View):
 # ------------------------------------------- #
 # User Model views
 class CreateUserView(LoginRequiredMixin, CreateView):
-    login_url = '/'
-    redirect_field_name = 'next'
     form_class = UserForm
     template_name = "user/create.html"
 
@@ -282,22 +243,16 @@ class CreateUserView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         user = form.save()
-        url = reverse(
-            'micro_admin:userprofile',
-            kwargs={"pk": user.id}
-        )
-        data = {"error": False,
-                "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
+        })
 
     def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 class UpdateUserView(LoginRequiredMixin, UpdateView):
-    login_url = '/'
-    redirect_field_name = 'next'
     pk_url_kwarg = 'pk'
     model = User
     form_class = UserForm
@@ -312,22 +267,16 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         user = form.save()
-        url = reverse(
-            'micro_admin:userprofile',
-            kwargs={"pk": user.id}
-        )
-        data = {"error": False,
-                "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
+        })
 
     def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 class UserProfileView(LoginRequiredMixin, DetailView):
-    login_url = '/'
-    redirect_field_name = 'next'
     pk = 'pk'
     model = User
     context_object_name = 'selecteduser'
@@ -335,8 +284,6 @@ class UserProfileView(LoginRequiredMixin, DetailView):
 
 
 class UsersListView(LoginRequiredMixin, ListView):
-    login_url = '/'
-    redirect_field_name = 'next'
     model = User
     template_name = "user/list.html"
     context_object_name = 'list_of_users'
@@ -346,8 +293,6 @@ class UsersListView(LoginRequiredMixin, ListView):
 
 
 class UserInactiveView(LoginRequiredMixin, View):
-    login_url = '/'
-    redirect_field_name = 'next'
 
     def get(self, request, *args, **kwargs):
         user = get_object_or_404(User, id=kwargs.get('pk'))
@@ -379,13 +324,9 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
         group = form.save(commit=False)
         group.created_by = self.request.user
         group.save()
-        url = reverse(
-            'micro_admin:groupprofile',
-            kwargs={"group_id": group.id}
-        )
         return JsonResponse({
             "error": False,
-            "success_url": url
+            "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
         })
 
     def form_invalid(self, form):
@@ -401,13 +342,11 @@ class GroupProfileView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(GroupProfileView, self).get_context_data(**kwargs)
         clients_list = self.object.clients.all()
-        group_mettings = GroupMeetings.objects.filter(
-            group_id=self.object.id).order_by('-id')
+        group_mettings = GroupMeetings.objects.filter(group_id=self.object.id).order_by('-id')
 
         context["clients_list"] = clients_list
         context["clients_count"] = len(clients_list)
-        context["latest_group_meeting"] = \
-            group_mettings.first() if group_mettings else None
+        context["latest_group_meeting"] = group_mettings.first() if group_mettings else None
         return context
 
 
@@ -425,18 +364,14 @@ class GroupAssignStaffView(LoginRequiredMixin, BranchAccessRequiredMixin, Detail
     def post(self, request, *args, **kwargs):
         group = self.get_object()
         if request.POST.get("staff"):
-            group.staff = get_object_or_404(
-                User, id=request.POST.get("staff"))
+            group.staff = get_object_or_404(User, id=request.POST.get("staff"))
             group.save()
-            url = reverse(
-                'micro_admin:groupprofile',
-                kwargs={"group_id": group.id}
-            )
-            data = {"error": False,
-                    "success_url": url}
+            data = {
+                "error": False,
+                "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
+            }
         else:
-            data = {"error": True,
-                    "message": {"staff": "This field is required"}}
+            data = {"error": True, "message": {"staff": "This field is required"}}
         return JsonResponse(data)
 
 
@@ -449,8 +384,7 @@ class GroupAddMembersView(LoginRequiredMixin, BranchAccessRequiredMixin, UpdateV
 
     def get_context_data(self, **kwargs):
         context = super(GroupAddMembersView, self).get_context_data(**kwargs)
-        context["clients_list"] = Client.objects.filter(
-            status="UnAssigned", is_active=1)
+        context["clients_list"] = Client.objects.filter(status="UnAssigned", is_active=1)
         return context
 
     def form_valid(self, form):
@@ -458,8 +392,7 @@ class GroupAddMembersView(LoginRequiredMixin, BranchAccessRequiredMixin, UpdateV
         client_ids = self.request.POST.getlist("clients")
         for client_id in client_ids:
             try:
-                client = Client.objects.get(
-                    id=client_id, status="UnAssigned", is_active=1)
+                client = Client.objects.get(id=client_id, status="UnAssigned", is_active=1)
             except Client.DoesNotExist:
                 continue
             else:
@@ -467,13 +400,10 @@ class GroupAddMembersView(LoginRequiredMixin, BranchAccessRequiredMixin, UpdateV
                 group.save()
                 client.status = "Assigned"
                 client.save()
-        url = reverse(
-            'micro_admin:groupprofile',
-            kwargs={"group_id": group.id}
-        )
-        data = {"error": False,
-                "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
+        })
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "message": form.errors})
@@ -540,15 +470,11 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
         else:
             group = self.object
 
-        client = get_object_or_404(
-            Client, id=self.kwargs.get('client_id'))
+        client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
         group.clients.remove(client)
         client.status = "UnAssigned"
         client.save()
-        return HttpResponseRedirect(
-            reverse('micro_admin:groupprofile',
-                    kwargs={'group_id': group.id})
-        )
+        return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
 
 
 class GroupMeetingsListView(LoginRequiredMixin, ListView):
@@ -574,13 +500,11 @@ class GroupMeetingsAddView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(GroupMeetingsAddView, self).get_context_data(**kwargs)
-        context["group"] = get_object_or_404(
-            Group, id=self.kwargs.get("group_id"))
+        context["group"] = get_object_or_404(Group, id=self.kwargs.get("group_id"))
         return context
 
     def form_valid(self, form):
-        group = get_object_or_404(
-            Group, id=self.kwargs.get("group_id"))
+        group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
         meeting = form.save(commit=False)
         meeting.group = group
         meeting.save()
@@ -1046,7 +970,6 @@ def general_ledger_function():
 
 
 class GeneralLedger(LoginRequiredMixin, ListView):
-
     context_object_name = "list"
     template_name = "generalledger.html"
 
@@ -1055,7 +978,6 @@ class GeneralLedger(LoginRequiredMixin, ListView):
 
 
 class FixedDepositsView(LoginRequiredMixin, CreateView):
-
     form_class = FixedDepositForm
     template_name = "client/fixed-deposits/fixed_deposit_application.html"
 
@@ -1075,13 +997,10 @@ class FixedDepositsView(LoginRequiredMixin, CreateView):
         fixed_deposit.save()
         url = reverse('micro_admin:clientfixeddepositsprofile',
                       kwargs={"fixed_deposit_id": fixed_deposit.id})
-        data = {"error": False, "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({"error": False, "success_url": url})
 
     def form_invalid(self, form):
-        data = {"error": True,
-                "message": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "message": form.errors})
 
 
 class ClientFixedDepositsProfile(LoginRequiredMixin, DetailView):
@@ -1092,22 +1011,18 @@ class ClientFixedDepositsProfile(LoginRequiredMixin, DetailView):
 
 
 class ViewClientFixedDeposits(LoginRequiredMixin, ListView):
-
     model = FixedDeposits
     template_name = "client/fixed-deposits/view_fixed_deposits.html"
     context_object_name = "fixed_deposit_list"
 
 
 class ViewParticularClientFixedDeposits(LoginRequiredMixin, ListView):
-
     context_object_name = "fixed_deposit_list"
     template_name = "client/fixed-deposits/view_fixed_deposits.html"
 
     def get_queryset(self):
         self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        queryset = FixedDeposits.objects.filter(
-            client=self.client
-        ).order_by("-id")
+        queryset = FixedDeposits.objects.filter(client=self.client).order_by("-id")
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1117,7 +1032,6 @@ class ViewParticularClientFixedDeposits(LoginRequiredMixin, ListView):
 
 
 class ClientRecurringDepositsProfile(LoginRequiredMixin, DetailView):
-
     model = RecurringDeposits
     pk_url_kwarg = "recurring_deposit_id"
     context_object_name = "recurring_deposit"
@@ -1125,22 +1039,18 @@ class ClientRecurringDepositsProfile(LoginRequiredMixin, DetailView):
 
 
 class ViewClientRecurringDeposits(LoginRequiredMixin, ListView):
-
     queryset = RecurringDeposits.objects.all().order_by("-id")
     template_name = "client/recurring-deposits/view_recurring_deposits.html"
     context_object_name = "recurring_deposit_list"
 
 
 class ViewParticularClientRecurringDeposits(LoginRequiredMixin, ListView):
-
     template_name = "client/recurring-deposits/view_recurring_deposits.html"
     context_object_name = "recurring_deposit_list"
 
     def get_queryset(self):
         self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        queryset = RecurringDeposits.objects.filter(
-            client=self.client
-        ).order_by("-id")
+        queryset = RecurringDeposits.objects.filter(client=self.client).order_by("-id")
         return queryset
 
     def get_context_data(self):
@@ -1488,7 +1398,6 @@ class DayBookView(LoginRequiredMixin, View):
 
 
 class RecurringDepositsView(LoginRequiredMixin, CreateView):
-
     form_class = ReccuringDepositForm
     template_name = "client/recurring-deposits/application.html"
 
@@ -1499,17 +1408,13 @@ class RecurringDepositsView(LoginRequiredMixin, CreateView):
         recurring_deposit.save()
         url = reverse('micro_admin:clientrecurringdepositsprofile',
                       kwargs={"recurring_deposit_id": recurring_deposit.id})
-        data = {"error": False, "success_url": url}
-        return JsonResponse(data)
+        return JsonResponse({"error": False, "success_url": url})
 
     def form_invalid(self, form):
-        data = {"error": True,
-                "message": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "message": form.errors})
 
 
 class PaymentsList(LoginRequiredMixin, ListView):
-
     queryset = Payments.objects.all().order_by("-id")
     context_object_name = "payments_list"
     template_name = "list_of_payments.html"
@@ -1896,7 +1801,6 @@ class DayBookPdfDownload(LoginRequiredMixin, View):
 
 
 class UserChangePassword(LoginRequiredMixin, FormView):
-
     form_class = ChangePasswordForm
     template_name = "user_change_password.html"
 
@@ -1909,14 +1813,10 @@ class UserChangePassword(LoginRequiredMixin, FormView):
         user = self.request.user
         user.set_password(form.cleaned_data.get("new_password"))
         user.save()
-        data = {"error": False,
-                "message": "You have changed your password!"}
-        return JsonResponse(data)
+        return JsonResponse({"error": False, "message": "You have changed your password!"})
 
     def form_invalid(self, form):
-        data = {"error": True,
-                "errors": form.errors}
-        return JsonResponse(data)
+        return JsonResponse({"error": True, "errors": form.errors})
 
 
 @login_required
