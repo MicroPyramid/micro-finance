@@ -81,7 +81,6 @@ class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
 
 
 class ClientLoansListView(LoginRequiredMixin, ListView):
-
     template_name = "client/loan/list_of_loan_accounts.html"
     context_object_name = "loan_accounts_list"
 
@@ -432,7 +431,6 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
 
 
 class GroupLoansListView(LoginRequiredMixin, ListView):
-
     template_name = "group/loan/list_of_loan_accounts.html"
     context_object_name = "loan_accounts_list"
 
@@ -507,9 +505,7 @@ class ChangeLoanAccountStatus(LoginRequiredMixin, View):
                 else:
                     data = {"error": True, "error_message": "Status is not in available choices"}
             else:
-                data = {
-                    "error": True, "error_message": "You don't have permission to change the status.",
-                }
+                data = {"error": True, "error_message": "You don't have permission to change the status."}
         else:
             data = {"error": True, "error_message": "Branch Id not Found"}
 
