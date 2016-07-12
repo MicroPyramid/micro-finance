@@ -34,18 +34,21 @@ class ClientLoanAccountsView(LoginRequiredMixin, FormView):
                 id__in=[int(x) for x in member_loan_has_payments]).values_list("account_no", "loan_amount")
             groups = form.client.group_set.all()
             default_group = groups.first()
-            group_accounts_filter = LoanAccount.objects.filter(
-                group=default_group,
-                status='Approved'
-            ).exclude(loan_issued_by__isnull=True,
-                      loan_issued_date__isnull=True)
-            group_loan_has_payments = []
-            for loan in group_accounts_filter:
-                payments = Payments.objects.filter(group=default_group, loan_account=loan)
-                if payments:
-                    group_loan_has_payments.append(loan.id)
-            group_accounts = group_accounts_filter.filter(
-                id__in=[int(x) for x in group_loan_has_payments]).values_list("account_no", "loan_amount")
+            if default_group:
+                group_accounts_filter = LoanAccount.objects.filter(
+                    group=default_group,
+                    status='Approved'
+                ).exclude(loan_issued_by__isnull=True,
+                          loan_issued_date__isnull=True)
+                group_loan_has_payments = []
+                for loan in group_accounts_filter:
+                    payments = Payments.objects.filter(group=default_group, loan_account=loan)
+                    if payments:
+                        group_loan_has_payments.append(loan.id)
+                group_accounts = group_accounts_filter.filter(
+                    id__in=[int(x) for x in group_loan_has_payments]).values_list("account_no", "loan_amount")
+            else:
+                group_accounts = []
             fixed_deposit_accounts = FixedDeposits.objects.filter(
                 client=form.client,
                 status='Opened'
@@ -137,18 +140,15 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
             # now
         if loan_account.status == "Approved":
             if loan_account.loan_issued_date:
-                if d(loan_account.total_loan_balance) or d(loan_account.interest_charged) or d(loan_account.loan_repayment_amount) or d(loan_account.principle_repayment) :
+                if d(loan_account.total_loan_balance) or d(loan_account.interest_charged) or d(loan_account.loan_repayment_amount) or d(loan_account.principle_repayment):
                     if form.cleaned_data.get("loanprinciple_amount") or form.cleaned_data.get("loaninterest_amount"):
                         if d(form.cleaned_data.get("loanprinciple_amount")) <= d(loan_account.total_loan_balance):
-                            loan_account.total_loan_amount_repaid += d(form.cleaned_data.get("loanprinciple_amount"))
-                            loan_account.total_interest_repaid += d(form.cleaned_data.get("loaninterest_amount", 0))
-                            loan_account.total_loan_paid = d(d(loan_account.total_loan_amount_repaid) + d(loan_account.total_interest_repaid))
-                            loan_account.total_loan_balance -= d(form.cleaned_data.get("loanprinciple_amount"))
-                            loan_account.no_of_repayments_completed += loan_account.loan_repayment_every
-                            if not ((loan_account.total_loan_amount_repaid) ==
-                                    (loan_account.loan_amount) and
-                                    (loan_account.total_loan_balance) == 0):
-                                loan_account.save()
+                            # loan_account.total_loan_amount_repaid += d(form.cleaned_data.get("loanprinciple_amount"))
+                            # loan_account.total_interest_repaid += d(form.cleaned_data.get("loaninterest_amount", 0))
+                            # loan_account.total_loan_paid = d(d(loan_account.total_loan_amount_repaid) + d(loan_account.total_interest_repaid))
+                            # loan_account.total_loan_balance -= d(form.cleaned_data.get("loanprinciple_amount"))
+                            # loan_account.no_of_repayments_completed += loan_account.loan_repayment_every
+                            if d(loan_account.total_loan_amount_repaid) == d(loan_account.loan_amount) and d(loan_account.total_loan_balance) == d(0):
                                 if (form.cleaned_data.get("loaninterest_amount")) == \
                                    (loan_account.interest_charged):
                                     if (form.cleaned_data.get("loanprinciple_amount")) ==\
@@ -183,7 +183,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                                     loan_account.interest_charged = d(balance_interest)
                                                     loan_account.loan_repayment_amount = d(balance_principle) +\
                                                         d(balance_interest)
-                                return loan_account
+
                             elif loan_account.total_loan_amount_repaid < loan_account.loan_amount and loan_account.total_loan_balance:
                                 if int(loan_account.no_of_repayments_completed) >= int(loan_account.loan_repayment_period):
                                     if form.cleaned_data.get("loaninterest_amount") ==\
@@ -231,7 +231,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                     principle_repayable = (
                                         (loan_account.loan_amount) / (loan_account.loan_repayment_period))
                                     if loan_account.interest_type == "Flat":
-                                        if (self.data.get("loaninterest_amount")) ==\
+                                        if (form.cleaned_data.get("loaninterest_amount")) ==\
                                                 (loan_account.interest_charged):
                                             loan_account.interest_charged = (
                                                 int(loan_account.loan_repayment_every) * (
@@ -302,7 +302,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                                 (int(loan_account.loan_repayment_every) *
                                                     (principle_repayable)) +
                                                 (loan_account.interest_charged) + (balance_principle))
-                                return loan_account
+
         return loan_account
 
     def get_context_data(self, *args,  **kwargs):
@@ -461,17 +461,17 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
             if form.cleaned_data.get("savingsdeposit_thrift_amount"):
                 receipt.savingsdeposit_thrift_amount = form.cleaned_data.get("savingsdeposit_thrift_amount")
                 receipt.savings_balance_atinstant = self.savings_account.savings_balance
-            if form.cleaned_data.get("fixeddeposit_amount"):
-                receipt.fixeddeposit_amount = form.cleaned_data.get("fixeddeposit_amount")
-            if form.cleaned_data.get("recurringdeposit_amount"):
-                receipt.recurringdeposit_amount = form.cleaned_data.get("recurringdeposit_amount")
             if form.savings_account:
                 if form.cleaned_data.get('fixed_deposit_account_no') and form.cleaned_data.get("fixeddeposit_amount"):
                     receipt.fixed_deposit_account = FixedDeposits.objects.filter(
                         fixed_deposit_number=form.cleaned_data.get('fixed_deposit_account_no')).first()
+                if form.cleaned_data.get("fixeddeposit_amount"):
+                    receipt.fixeddeposit_amount = form.cleaned_data.get("fixeddeposit_amount")
                 if form.cleaned_data.get("recurringdeposit_amount") and form.cleaned_data.get('recurring_deposit_account_no'):
                     receipt.recurring_deposit_account = RecurringDeposits.objects.filter(
                         reccuring_deposit_number=form.cleaned_data.get('recurring_deposit_account_no')).first()
+                if form.cleaned_data.get("recurringdeposit_amount"):
+                    receipt.recurringdeposit_amount = form.cleaned_data.get("recurringdeposit_amount")
             if form.cleaned_data.get("insurance_amount"):
                 receipt.insurance_amount = form.cleaned_data.get("insurance_amount")
             if form.cleaned_data.get("loanprinciple_amount"):
@@ -494,8 +494,12 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
             receipt.save()
             self.client.save()
             if form.loan_account:
+                if d(self.loan_account.total_loan_amount_repaid) == d(self.loan_account.loan_amount) and d(self.loan_account.total_loan_balance) == d(0):
+                    self.loan_account.status = "Closed"
                 self.loan_account.save()
             if form.group_loan_account:
+                if d(self.group_loan_account.total_loan_amount_repaid) == d(self.group_loan_account.loan_amount) and d(self.group_loan_account.total_loan_balance) == d(0):
+                    self.group_loan_account.status = "Closed"
                 self.group_loan_account.save()
             if form.savings_account:
                 self.savings_account.save()

@@ -287,7 +287,7 @@ class ReceiptForm(forms.ModelForm):
             raise forms.ValidationError(errors)
         # client group a/c
         if group_loan_account_no and self.group:
-            self.group_loan_account = LoanAccount.objects.filter(group=self.group, client=self.client,
+            self.group_loan_account = LoanAccount.objects.filter(group=self.group,
                                                                  account_no=group_loan_account_no).last()
             if not self.group_loan_account:
                 errors = self._errors.setdefault("message1", ErrorList())
@@ -299,7 +299,7 @@ class ReceiptForm(forms.ModelForm):
             errors.append("Unable pay personal loan and group loan at once.")
             raise forms.ValidationError(errors)
         # check personal savings a/c
-        if (self.cleaned_data.get("savingsdeposit_thrift_amount")) or (self.cleaned_data.get("recurringdeposit_amount")) or (self.cleaned_data.get("fixeddeposit_amount")):
+        if (self.cleaned_data.get("savingsdeposit_thrift_amount")):
             self.savings_account = SavingsAccount.objects.filter(client=self.client).last()
             if not self.savings_account:
                 errors = self._errors.setdefault("message1", ErrorList())
@@ -315,46 +315,56 @@ class ReceiptForm(forms.ModelForm):
             elif self.group_loan_account:
                 self.verify_loan(self.group_loan_account)
         if self.cleaned_data.get('fixed_deposit_account_no'):
-            fixed_deposit_account_filter = FixedDeposits.objects.filter(
+            fixed_deposit_account = FixedDeposits.objects.filter(
                 fixed_deposit_number=self.cleaned_data.get('fixed_deposit_account_no')
-            )
-            if fixed_deposit_account_filter:
-                fixed_deposit_account = fixed_deposit_account_filter.first()
-                if fixed_deposit_account.status == 'Opened':
-                    if self.cleaned_data.get('fixeddeposit_amount') >= 0:
-                        if d(fixed_deposit_account.fixed_deposit_amount) != d(self.cleaned_data.get('fixeddeposit_amount')):
-                            errors = self._errors.setdefault('message1', ErrorList())
-                            errors.append('Entered fixed amount is not equal to the actual amount.')
+            ).first()
+            if fixed_deposit_account:
+                savings_account = SavingsAccount.objects.filter(client=fixed_deposit_account.client)
+                if savings_account:
+                    if fixed_deposit_account.status == 'Opened':
+                        if self.cleaned_data.get('fixeddeposit_amount') >= 0:
+                            if d(fixed_deposit_account.fixed_deposit_amount) != d(self.cleaned_data.get('fixeddeposit_amount')):
+                                errors = self._errors.setdefault('message1', ErrorList())
+                                errors.append('Entered fixed amount is not equal to the actual amount.')
+                                raise forms.ValidationError(errors)
+                        else:
+                            errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
+                            errors.append('Please enter the Fixed amount for the Fixed Deposit A/C.')
                             raise forms.ValidationError(errors)
-                    else:
-                        errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
-                        errors.append('Please enter the Fixed amount for the Fixed Deposit A/C.')
-                        raise forms.ValidationError(errors)
-        elif not self.cleaned_data.get('fixed_deposti_account_no'):
+                else:
+                    errors = self._errors.setdefault('fixed_deposit_account_no', ErrorList())
+                    errors.append('Please Create a Savings A/C first to store the Fixed amount for the Fixed Deposit A/C.')
+                    raise forms.ValidationError(errors)
+        elif not self.cleaned_data.get('fixed_deposit_account_no'):
             if self.cleaned_data.get("fixeddeposit_amount"):
                 errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
                 errors.append('Please, select the fixed deposit before you enter the amount or clear the amount.')
                 raise forms.ValidationError(errors)
 
         if self.cleaned_data.get('recurring_deposit_account_no'):
-            recurring_deposit_account_filter = RecurringDeposits.objects.filter(
+            recurring_deposit_account = RecurringDeposits.objects.filter(
                 reccuring_deposit_number=self.cleaned_data.get('recurring_deposit_account_no')
-            )
-            if recurring_deposit_account_filter:
-                recurring_deposit_account = recurring_deposit_account_filter.first()
-                if recurring_deposit_account.status == 'Opened':
-                    if self.cleaned_data.get('recurringdeposit_amount') >= 0:
-                        if int(recurring_deposit_account.number_of_payments) <= int(recurring_deposit_account.recurring_deposit_period):
-                            if d(recurring_deposit_account.recurring_deposit_amount) != d(self.cleaned_data.get('recurringdeposit_amount')):
-                                errors = self._errors.setdefault('message1', ErrorList())
-                                errors.append('Entered recurring amount is not equal to the actual amount.')
-                                raise forms.ValidationError(errors)
+            ).first()
+            if recurring_deposit_account:
+                savings_account = SavingsAccount.objects.filter(client=recurring_deposit_account.client)
+                if savings_account:
+                    if recurring_deposit_account.status == 'Opened':
+                        if self.cleaned_data.get('recurringdeposit_amount') >= 0:
+                            if int(recurring_deposit_account.number_of_payments) <= int(recurring_deposit_account.recurring_deposit_period):
+                                if d(recurring_deposit_account.recurring_deposit_amount) != d(self.cleaned_data.get('recurringdeposit_amount')):
+                                    errors = self._errors.setdefault('message1', ErrorList())
+                                    errors.append('Entered recurring amount is not equal to the actual amount.')
+                                    raise forms.ValidationError(errors)
+                            else:
+                                raise forms.ValidationError('You have exceeded the recurring deposit reciepts adding to this A/C.')
                         else:
-                            raise forms.ValidationError('You have exceeded the recurring deposit reciepts adding to this A/C.')
-                    else:
-                        errors = self._errors.setdefault('recurringdeposit_amount', ErrorList())
-                        errors.append('Please enter the Recurring amount for the Recurring Deposit A/C.')
-                        raise forms.ValidationError(errors)
+                            errors = self._errors.setdefault('recurringdeposit_amount', ErrorList())
+                            errors.append('Please enter the Recurring amount for the Recurring Deposit A/C.')
+                            raise forms.ValidationError(errors)
+                else:
+                    errors = self._errors.setdefault('recurring_deposit_account_no', ErrorList())
+                    errors.append('Please Create a Savings A/C first to store the Recurring amount for the Recurring Deposit A/C.')
+                    raise forms.ValidationError(errors)
         elif not self.cleaned_data.get('recurring_deposit_account_no'):
             if self.cleaned_data.get("recurringdeposit_amount"):
                 errors = self._errors.setdefault('recurringdeposit_amount', ErrorList())
