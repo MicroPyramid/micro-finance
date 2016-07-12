@@ -229,7 +229,7 @@ def update_clientprofile(request, client_id):
     if not (request.user.is_admin or request.user.branch == client.branch):
         return HttpResponseRedirect(
             reverse('micro_admin:clientprofile', kwargs={
-                    'client_id': client_id}))
+                    'pk': client_id}))
 
     if request.method == "GET":
         return render(
@@ -244,7 +244,7 @@ def update_clientprofile(request, client_id):
             client.save()
         return HttpResponseRedirect(
             reverse('micro_admin:clientprofile', kwargs={
-                    'client_id': client_id}))
+                    'pk': client_id}))
 
 
 class ClientsListView(LoginRequiredMixin, ListView):
