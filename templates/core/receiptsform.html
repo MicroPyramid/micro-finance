@@ -25,7 +25,7 @@
             <input type="hidden" class="text-box wid-form"  name="staff" value="{{user.username}}">
             <label for="inputEmail3" class="col-sm-4 control-label">Branch Name<span>*</span></label>
             <div class="col-sm-8">
-              <select class="text-box wid-form select-box-pad" name="branch">
+              <select class="text-box wid-form select-box-pad" id='branch' name="branch">
                 <option value="">Select Branch</option>
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.name }}</option>
@@ -37,7 +37,7 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Receipt Number<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="receipt_number" value="">
+              <input type="text" class="text-box wid-form" id="receipt_number" name="receipt_number" value="">
               <p id="receiptnumbererror"></p>
             </div>
           </div>
@@ -54,7 +54,7 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Member A/C. No.<span>*</span></label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="member_a/c_no" name="account_number"  onchange="memberloanaccount()" value="">
+              <input type="text" class="text-box wid-form" id="account_number" name="account_number"  onchange="memberloanaccount()" value="">
               <p id="accountnumbererror"></p>
             </div>
           </div>
@@ -64,7 +64,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="savingsdeposit_thrift_amount" value="">
+              <input type="text" class="text-box wid-form" id='savingsdeposit_thrift_amount' name="savingsdeposit_thrift_amount" value="">
               <p id="savingsdepositthriftamounterror"></p>
             </div>
           </div>
@@ -112,7 +112,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="insurance_amount" value="">
+              <input type="text" class="text-box wid-form" id="insurance_amount" name="insurance_amount" value="">
               <p id="insuranceamounterror"></p>
             </div>
           </div>
@@ -181,14 +181,14 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Loan Principal Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="loanprinciple_amount" value="">
+              <input type="text" class="text-box wid-form" id='loanprinciple_amount' name="loanprinciple_amount" value="">
               <p id="loanpricipleerror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Loan Interest Amount</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="loaninterest_amount" value="">
+              <input type="text" class="text-box wid-form" id='loaninterest_amount' name="loaninterest_amount" value="">
               <p id="loaninteresterror"></p>
             </div>
           </div>
@@ -198,28 +198,28 @@
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Share Capital</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form"  name="sharecapital_amount" value="">
+              <input type="text" class="text-box wid-form" id='sharecapital_amount' name="sharecapital_amount" value="">
               <p id="sharecapitalamounterror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Book Fees</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="bookfee_amount" value="">
+              <input type="text" class="text-box wid-form" id='bookfee_amount' name="bookfee_amount" value="">
               <p id="bookfeeamounterror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Entrance Fees</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" name="entrancefee_amount" id="inputEmail3" value="">
+              <input type="text" class="text-box wid-form" name="entrancefee_amount" id="entrancefee_amount" value="">
               <p id="entrancefeeamounterror"></p>
             </div>
           </div>
           <div class="form-group" style="margin-top: -10px;">
             <label for="inputEmail3" class="col-sm-4 control-label">Membership Fees</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="inputEmail3" name="membershipfee_amount" value="">
+              <input type="text" class="text-box wid-form" id="membershipfee_amount" name="membershipfee_amount" value="">
               <p id="membershipfeeamounterror"></p>
             </div>
           </div>
@@ -329,7 +329,7 @@
     }, "json");
   }
 
-  $("[name=name]").change(
+  $("[name=name], [name=account_number]").change(
     function(){
         memberloanaccount()
       }
@@ -338,10 +338,18 @@
 <script type="text/javascript">
   $('#memberloanaccountselect, #grouploanaccountselect').change(function() {
     if ($(this).attr("id") == "grouploanaccountselect"){
-      $("#memberloanaccountselect").val("")
+      $("#memberloanaccountselect").val("");
+      $('#demand_loanprinciple').val('');
+      $('#demand_loaninterest').val('');
+      $('#loanprinciple_amount').val('');
+      $('#loaninterest_amount').val('');
     }
     else if ($(this).attr("id") == "memberloanaccountselect"){
-      $("#grouploanaccountselect").val("")  
+      $("#grouploanaccountselect").val("");
+      $('#demand_loanprinciple').val('');
+      $('#demand_loaninterest').val('');
+      $('#loanprinciple_amount').val('');
+      $('#loaninterest_amount').val('');
     }
     if(!$(this).val()){
       return false;
@@ -375,8 +383,15 @@
     }, "json");
   });
   // fixeddepositaccountnoselect, recurringdepositaccountnoselect
-  $('#fixeddepositaccountnoselect, #recurringdepositaccountnoselect').change(function() {
+  $('#fixeddepositaccountnoselect, #recurringdepositaccountnoselect').change(function(e) {
     if(!$(this).val()){
+      if (e.target.id === 'fixeddepositaccountnoselect'){
+        document.getElementById('fixeddeposit_amount').value = '';
+        $("#fixeddeposit_amount").attr("readonly", false)
+      }else if (e.target.id === 'recurringdepositaccountnoselect'){
+        document.getElementById('recurringdeposit_amount').value = '';
+        $("#recurringdeposit_amount").attr("readonly", false)
+      }
       return false;
     }
     if ($(this).attr("id") == "fixeddepositaccountnoselect"){

@@ -27,7 +27,7 @@ from django.db.models import Sum
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES)
+    RecurringDeposits, USER_ROLES, ClientBranchTransfer)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
     ReceiptForm, FixedDepositForm, PaymentForm,
@@ -168,6 +168,12 @@ class UpdateClientView(LoginRequiredMixin, UpdateView):
     form_class = ClientForm
     template_name = "client/edit.html"
 
+    def get_form_kwargs(self):
+        kwargs = super(UpdateClientView, self).get_form_kwargs()
+        client_obj = get_object_or_404(Client, pk=self.kwargs.get('pk'))
+        kwargs.update({'user': self.request.user, 'client': client_obj})
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super(UpdateClientView, self).get_context_data(**kwargs)
         context['branches'] = Branch.objects.all()
@@ -191,9 +197,7 @@ class UpdateClientView(LoginRequiredMixin, UpdateView):
 def update_clientprofile(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     if not (request.user.is_admin or request.user.branch == client.branch):
-        return HttpResponseRedirect(
-            reverse('micro_admin:clientprofile', kwargs={
-                    'client_id': client_id}))
+        return HttpResponseRedirect(reverse('micro_admin:clientprofile', kwargs={'pk': client_id}))
 
     if request.method == "GET":
         return render(request, "client/update-profile.html", {"client": client})
@@ -205,7 +209,7 @@ def update_clientprofile(request, client_id):
             client.photo = request.FILES.get("photo")
             client.signature = request.FILES.get("signature")
             client.save()
-        return HttpResponseRedirect(reverse('micro_admin:clientprofile', kwargs={'client_id': client_id}))
+        return HttpResponseRedirect(reverse('micro_admin:clientprofile', kwargs={'pk': client_id}))
 
 
 class ClientsListView(LoginRequiredMixin, ListView):

@@ -225,8 +225,10 @@
             if (response.error == false){
               $("span.error").remove();
               html = '<option value="">Select an Account</option>'
-              $.each(response.data, function(id, name){
-                option = "<option value=\"" + id + "\">" + name + "</option>"
+              $.each(response.data, function(index, value) {
+                option  = "<option value=\"" + value[0] + "\">A/C: " +
+                            value[1] + " Amount: " + value[2] +
+                          "</option>"
                 html += option
               });
               $loan_accounts.html(html)
@@ -266,8 +268,10 @@
             if (response.error == false){
               $("span.error").remove();
               html = '<option value="">Select an Account</option>'
-              $.each(response.data, function(id, name){
-                option = "<option value=\"" + id + "\">" + name + "</option>"
+              $.each(response.data, function(index, value) {
+                option  = "<option value=\"" + value[0] + "\">A/C: " +
+                            value[1] + " Amount: " + value[2] +
+                          "</option>"
                 html += option
               });
               $loan_accounts.html(html)
