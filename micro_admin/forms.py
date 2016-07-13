@@ -182,7 +182,7 @@ class ClientForm(forms.ModelForm):
                 group_account_filter = Group.objects.filter(clients=self.instance)
                 if group_account_filter:
                     group_account = group_account_filter.first()
-                    group_loan_accounts = LoanAccount.objects.filter(group=group_account).exclude(status='Closed')
+                    group_loan_accounts = LoanAccount.objects.filter(group=group_account).exclude(status='Closed').exclude(status='Withdrawn')
                     if group_loan_accounts:
                         loan_account = group_loan_accounts.first()
                         if loan_account.status == 'Applied':
@@ -190,7 +190,7 @@ class ClientForm(forms.ModelForm):
                                 "This client has a Group loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
                         elif loan_account.status == 'Approved':
                             raise forms.ValidationError(
-                                "This client has a Group loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
+                                "This client has a Group loan A/C in Approved status. So, can't be moved to another branch until it is withdrawn/closed.")
                         elif loan_account.status == 'Rejected':
                             raise forms.ValidationError(
                                 "This client has a Group loan A/C in Rejected status. So, can't be moved to another branch until it is withdrawn/closed.")
@@ -204,7 +204,7 @@ class ClientForm(forms.ModelForm):
                             "This client has a Personal loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
                     elif loan_account.status == 'Approved':
                         raise forms.ValidationError(
-                            "This client has a Personal loan A/C in Applied status. So, can't be moved to another branch until it is withdrawn/closed.")
+                            "This client has a Personal loan A/C in Approved status. So, can't be moved to another branch until it is withdrawn/closed.")
                     elif loan_account.status == 'Rejected':
                         raise forms.ValidationError(
                             "This client has a Personal loan A/C in Rejected status. So, can't be moved to another branch until it is withdrawn/closed.")
