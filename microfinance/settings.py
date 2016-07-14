@@ -1,4 +1,9 @@
+from __future__ import absolute_import
 import os
+import djcelery
+from datetime import timedelta
+from celery.schedules import crontab
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -25,6 +30,9 @@ INSTALLED_APPS = (
     'loans',
     'core',
     'compressor',
+    'celery',
+    'djcelery',
+    'kombu.transport.django',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -137,4 +145,29 @@ LOGGING = {
             'propagate': True,
         },
     }
+}
+
+djcelery.setup_loader()
+BROKER_URL = 'django://'
+CELERY_IMPORTS = ("micro_admin.tasks")
+# BROKER_URL = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'UTC'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERYBEAT_SCHEDULE = {
+    'add-interest-every-day-midnight': {
+        'task': 'micro_admin.tasks.calculate_interest_of_savings_account',
+        # 'schedule': timedelta(seconds=15),
+        'schedule': crontab(minute='0', hour='0'),
+        # 'schedule': crontab(minute=0, hour=0) Execute daily at midnight.
+    }
+    # 'add-every-1-minute': {
+    #     'task': 'micro_admin.tasks.add',
+    #     'schedule': crontab(minute='*/1'),
+    #     'args': (16, 16)
+    # },
+    # 'add-every-30-seconds': {
+    #     'task': 'micro_admin.tasks.add',
+    #     'schedule': timedelta(seconds=30),
+    #     'args': (25, 25)
+    # },
 }

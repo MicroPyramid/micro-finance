@@ -3,6 +3,7 @@ from django.template.loader import get_template
 from django.core.mail import EmailMessage
 from django.conf import settings
 import sys
+import uuid
 
 
 def send_html_email(subject, message, receipient):
@@ -24,3 +25,13 @@ def send_email_template(subject, template_name, ctx, receipient):
     if template and message:
         return send_html_email(subject, message, receipient)
     return False
+
+
+def unique_random_number(model):
+    random_number = uuid.uuid4().hex[:12].upper()
+    print ' Model name: ', model.__name__, '-- random number', random_number
+    filter_result = model.objects.filter(account_no=random_number)
+    if filter_result:
+        unique_random_number(model)
+    else:
+        return random_number

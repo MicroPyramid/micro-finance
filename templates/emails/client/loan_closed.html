@@ -1,0 +1,11 @@
+<p>Dear {{client.get_full_name}},<p>
+
+<p>We are pleased to confirm that your application for the personal loan (ID: {{loan_account.account_no}}) has been Closed.<p>
+
+<p>To view your loan application, please click the link below:</p>
+
+<p>{{link_prefix}}{% url 'loans:clientloanaccount' loan_account.id %}</p>
+
+<br/>
+<p>Regards,<p>
+<p>The MicroFinance Team.</p>

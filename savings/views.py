@@ -6,6 +6,7 @@ from django.views.generic import CreateView, UpdateView, DetailView, ListView
 from micro_admin.models import Group, Client, SavingsAccount, Receipts, Payments
 from micro_admin.forms import SavingsAccountForm
 from django.db.models import Sum
+from core.utils import unique_random_number
 import decimal
 import datetime
 
@@ -27,9 +28,8 @@ class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(ClientSavingsApplicationView, self).get_context_data(**kwargs)
-        count = SavingsAccount.objects.all().count()
         context["client"] = self.client
-        context["account_no"] = "%s%s%d" % ("S", self.client.branch.id, count + 1)
+        context["account_no"] = unique_random_number(SavingsAccount)
         return context
 
     def form_valid(self, form):
@@ -114,9 +114,8 @@ class GroupSavingsApplicationView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(GroupSavingsApplicationView, self).get_context_data(**kwargs)
-        count = SavingsAccount.objects.all().count()
         context["group"] = self.group
-        context["account_no"] = "%s%s%d" % ("S", self.group.branch.id, count + 1)
+        context["account_no"] = unique_random_number(SavingsAccount)
         return context
 
     def form_valid(self, form):

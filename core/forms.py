@@ -4,6 +4,8 @@ from django.forms.utils import ErrorList
 import decimal
 import datetime
 import calendar
+from django.conf import settings
+from core.utils import send_email_template
 
 d = decimal.Decimal
 
@@ -478,8 +480,14 @@ class PaymentForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super(PaymentForm, self).__init__(*args, **kwargs)
 
-    def clean(self):
+    def clean_voucher_number(self):
+        voucher_number = self.cleaned_data.get("voucher_number")
+        is_voucher_number_exist = Payments.objects.filter(voucher_number=voucher_number)
+        if is_voucher_number_exist:
+            raise forms.ValidationError("Payslip with this Voucher number already exists.")
+        return voucher_number
 
+    def clean(self):
         if not (self.cleaned_data.get("amount") != 0 and self.cleaned_data.get("total_amount") != 0):
             raise forms.ValidationError("Voucher can't be generated with amount/total amount zero")
         if self.cleaned_data.get("payment_type") == "TravellingAllowance" or self.cleaned_data.get("payment_type") == "Paymentofsalary":
@@ -898,6 +906,19 @@ class PaymentForm(forms.ModelForm):
                                 loan_account.loan_issued_date = datetime.datetime.now().date()
                                 loan_account.loan_issued_by = self.user
                                 loan_account.save()
+                                for client in clients_list:
+                                    if client.email and client.email.strip():
+                                        send_email_template(
+                                            subject="Group Loan (ID: %s) application amount has been Issued."
+                                                    % loan_account.account_no,
+                                            template_name="emails/group/loan_issued.html",
+                                            receipient=client.email,
+                                            ctx={
+                                                "client": client,
+                                                "loan_account": loan_account,
+                                                "link_prefix": settings.SITE_URL,
+                                            },
+                                        )
                 if self.cleaned_data.get("client_name") and not self.cleaned_data.get("group_name"):
                     if self.cleaned_data.get("client_account_number"):
                         client = Client.objects.filter(
@@ -911,6 +932,18 @@ class PaymentForm(forms.ModelForm):
                                 loan_account.loan_issued_date = datetime.datetime.now().date()
                                 loan_account.loan_issued_by = self.user
                                 loan_account.save()
+                                if loan_account.client:
+                                    if loan_account.client.email and loan_account.client.email.strip():
+                                        send_email_template(
+                                            subject="Your application for the Personal Loan (ID: %s) amount has been Issued." % loan_account.account_no,
+                                            template_name="emails/client/loan_issued.html",
+                                            receipient=loan_account.client.email,
+                                            ctx={
+                                                "client": loan_account.client,
+                                                "loan_account": loan_account,
+                                                "link_prefix": settings.SITE_URL,
+                                            },
+                                        )
             elif self.cleaned_data.get('payment_type') == 'FixedWithdrawal':
                 if self.cleaned_data.get("client_name") and not self.cleaned_data.get("group_name"):
                     if self.cleaned_data.get("client_account_number"):
