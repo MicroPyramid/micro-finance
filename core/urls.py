@@ -5,7 +5,7 @@ from core.views import Receipts_Deposit, ClientLoanAccountsView, GetLoanDemandsV
 
 urlpatterns = [
     url(r'^receiptsdeposit/$', Receipts_Deposit.as_view(), name="receiptsdeposit"),
-    url(r'^getmemberloanaccounts/$', ClientLoanAccountsView.as_view(), name="receiptsdeposit"),
+    url(r'^getmemberloanaccounts/$', ClientLoanAccountsView.as_view(), name="getmemberloanaccounts"),
     url(r'^getloandemands/$', GetLoanDemandsView.as_view(), name="getloandemands"),
     url(r'^payslip/$', PaySlipCreateView.as_view(), name="payslip"),
     url(r'^loanaccounts/group$', get_group_loan_accounts, name="get_group_loan_accounts"),
