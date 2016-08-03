@@ -6,7 +6,7 @@ from django.template import Context
 from micro_admin.models import User, Group, Client, LoanAccount, Receipts
 from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
-from core.utils import send_email_template
+from core.utils import send_email_template, unique_random_number
 from django.utils.encoding import smart_str
 from django.conf import settings
 import decimal
@@ -31,9 +31,7 @@ class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(ClientLoanApplicationView, self).get_context_data(**kwargs)
-        count = LoanAccount.objects.all().count()
-        account_no = "%s%s%d" % ("L", self.client.branch.id, count + 1)
-        context["account_no"] = account_no
+        context["account_no"] = unique_random_number(LoanAccount)
         context["client"] = self.client
         return context
 
@@ -65,7 +63,7 @@ class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
 
         if self.client.email and self.client.email.strip():
             send_email_template(
-                subject="Your application for the Personal Loan (ID: %s) has been received." % loan_account.account_no,
+                subject="Your application for the Personal Loan (ID: %s) has been Received." % loan_account.account_no,
                 template_name="emails/client/loan_applied.html",
                 receipient=self.client.email,
                 ctx={
@@ -376,9 +374,7 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(GroupLoanApplicationView, self).get_context_data(**kwargs)
-        count = LoanAccount.objects.all().count()
-        account_no = "%s%s%d" % ("L", self.group.branch.id, count + 1)
-        context["account_no"] = account_no
+        context["account_no"] = unique_random_number(LoanAccount)
         context["group"] = self.group
         return context
 
@@ -414,7 +410,7 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
         for client in self.group.clients.all():
             if client.email and client.email.strip():
                 send_email_template(
-                    subject="Group Loan (ID: %s) application has been received."
+                    subject="Group Loan (ID: %s) application has been Received."
                             % loan_account.account_no,
                     template_name="emails/group/loan_applied.html",
                     receipient=client.email,
@@ -501,6 +497,34 @@ class ChangeLoanAccountStatus(LoginRequiredMixin, View):
                     self.object.status = request.GET.get("status")
                     self.object.approved_date = datetime.datetime.now()
                     self.object.save()
+                    if self.object.client:
+                        if self.object.status == 'Approved':
+                            if self.object.client.email and self.object.client.email.strip():
+                                send_email_template(
+                                    subject="Your application for the Personal Loan (ID: %s) has been Approved." % self.object.account_no,
+                                    template_name="emails/client/loan_approved.html",
+                                    receipient=self.object.client.email,
+                                    ctx={
+                                        "client": self.object.client,
+                                        "loan_account": self.object,
+                                        "link_prefix": settings.SITE_URL,
+                                    },
+                                )
+
+                    elif self.object.group:
+                        for client in self.object.group.clients.all():
+                            if client.email and client.email.strip():
+                                send_email_template(
+                                    subject="Group Loan (ID: %s) application has been Approved."
+                                            % self.object.account_no,
+                                    template_name="emails/group/loan_approved.html",
+                                    receipient=client.email,
+                                    ctx={
+                                        "client": client,
+                                        "loan_account": self.object,
+                                        "link_prefix": settings.SITE_URL,
+                                    },
+                                )
                     data = {"error": False}
                 else:
                     data = {"error": True, "error_message": "Status is not in available choices"}
