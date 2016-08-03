@@ -29,7 +29,7 @@ def send_email_template(subject, template_name, ctx, receipient):
 
 def unique_random_number(model):
     random_number = uuid.uuid4().hex[:12].upper()
-    print ' Model name: ', model.__name__, '-- random number', random_number
+    # print (' Model name: ', model.__name__, '-- random number', random_number)
     filter_result = model.objects.filter(account_no=random_number)
     if filter_result:
         unique_random_number(model)
