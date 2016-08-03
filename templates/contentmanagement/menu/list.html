@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Menu List</li>
+{% endblock %}
+{% block stage %}
+{% load recurse %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
+    <div class="panel-heading">Menu</div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr class="head-row-tb">
+              <th>Title</th>
+              <th>URL</th>
+              <th>Swap</th>
+              <th>Status</th>
+              {% if user.is_admin %}
+              <th>Edit/Delete</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% recurse menu_list.menu_set.all|dictsort:"lvl" with menu_list as menu_list %}
+          {% loop %}
+            <tr>
+              <td>{%if menu_list.parent%}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{%endif%}{{menu_list.title}}</td>
+              <td class="sec-col">{{menu_list.url}}</td>
+              <td class="menu-swap txt_center">
+                <div class="inner-swap-wid txt_center">
+                  <span class="caret-wid"><a href="#"><i class="fa fa-caret-down" 
+                    id="{{menu_list.id}}"></i></a></span>
+                  <span class="caret-wid"><a href="#"><i class="fa fa-caret-up" 
+                    id="{{menu_list.id}}"></i></a></span>
+                </div>
+              </td>
+              <td class="txt_center"><a href="#" class="on_off">
+                {% ifequal menu_list.status 'on' %}
+                <i class="fa fa-circle icon-squa green pad-lt"></i> ON
+                {% else %}
+                <i class="fa fa-circle icon-squa red pad-lt"></i> OFF
+                {% endifequal %}
+                </a>
+              </td>
+              <td>
+                <td class="ed"> &nbsp;&nbsp;&nbsp;<a href="{% url 'micro_admin:edit_menu' pk=menu_list.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+                <a href="#"><i class="fa fa-trash-o trash-icon"></i></a>
+              </td>
+              </td>
+            </tr>
+            {% child %}
+                  {% endloop %}
+                  {% endrecurse %}
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+</div>
+<!--wrapper ends above-->
+<script type="text/javascript">
+  $ = jQuery;
+  $(document).ready(function() {
+    $('.fa-caret-down').click(function(){
+        $.post('/portal/content/menu/'+$(this).attr('id')+'/order/',{'mode':'down'},function(data){
+          if (data.message){
+            alert(data.message);
+          }
+          window.location = '/portal/content/menu/';
+        }, 'json');
+    });
+    $('.fa-caret-up').click(function(){
+        $.post('/portal/content/menu/'+$(this).attr('id')+'/order/',{'mode':'up'},function(data){
+          if (data.message){
+            alert(data.message);
+          }
+          window.location = '/portal/content/menu/';
+        }, 'json');
+    });
+  });
+</script>
+{% endblock %}
