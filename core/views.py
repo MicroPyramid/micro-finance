@@ -239,7 +239,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                                 int(loan_account.loan_repayment_every) * (
                                                     ((loan_account.loan_amount) *
                                                         ((loan_account.annual_interest_rate) / 12)) / 100))
-                                        elif (form.cleaned_data.get("loaninterest_amount")) <\
+                                        elif form.cleaned_data.get("loaninterest_amount") and (form.cleaned_data.get("loaninterest_amount")) <\
                                                 (loan_account.interest_charged):
                                             balance_interest = \
                                                 d(loan_account.interest_charged) -\
