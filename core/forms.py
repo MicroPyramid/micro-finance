@@ -250,7 +250,7 @@ class ReceiptForm(forms.ModelForm):
            self.cleaned_data.get("recurringdeposit_amount") or
            self.cleaned_data.get("loanprinciple_amount") or
            self.cleaned_data.get("insurance_amount") or
-           self.cleaned_data.get("loaninterest_amount") > 0):
+           (self.cleaned_data.get("loaninterest_amount") or 0 > 0)):
             errors = self._errors.setdefault("message1", ErrorList())
             errors.append("Empty Receipt can't be generated.")
             raise forms.ValidationError(errors)

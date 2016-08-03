@@ -1,7 +1,9 @@
 {% extends 'group/groupbase.html' %}
+
 {% block groupbreadcrumb %}
-<li>Add Members</li>
+  <li>Add Members</li>
 {% endblock %}
+
 {% block groupstage %}
 <!--content goes below-->
 <div class="home-div-gp">
@@ -13,7 +15,6 @@
       <!--panel body starts above-->
       <form id="addmembersform" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
-        <!--div 1 0f form-->
         <br clear="all" />
         <div class="hg-table">
           <div class="table-responsive">
@@ -46,20 +47,18 @@
               </tbody>
             </table>
             <p id="clientserror"></p>
-            <div><input type="hidden"  id="group_id" value="{{group.id}}" style="dispaly:none;"></div>
           </div>
         </div>
+        <div class="btns-row">
+          <div class="form-group btns align-btns">
+            <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+            <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+          </div>
+        </div>
+      </form>
     </div>
-    <div class="btns-row" style="margin-top: -10px;">
-    <div class="form-group btns align-btns">
-    <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
-    <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
-    </div>
-    </div>
-    </form>
     <!--panel body ends below crct-->
   </div>
-</div>
 </div>
 <!--content ends above-->
 <script type="text/javascript">
