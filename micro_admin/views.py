@@ -1977,9 +1977,8 @@ class UpdateMenuView(LoginRequiredMixin, UpdateView):
         if updated_menu.parent != current_parent:
             try:
                 if updated_menu.parent.id == updated_menu.id:
-                    print ("eeee")
                     data = {'error': True, 'response': {
-                        'parent': 'you can not choose the same as parent'}}
+                        'parent': 'You can not choose the same as parent'}}
                     return HttpResponse(json.dumps(data), content_type='application/json; charset=utf-8')
             except Exception:
                 pass

@@ -5,7 +5,6 @@
 {% endblock %}
 {% block stage %}
 {% load recurse %}
-{% load range %}
 <!--content goes below-->
 <div class="container">
   <!--form div starts below-->
@@ -65,7 +64,7 @@
       if (data.error) {
         $('p.failure').remove();
         for (var key in data.errors){
-          $('#'+key).after('<p class="failure">'+data.errors[key]+'</p>');
+          $('#'+key).after('<span class="error" style="height:11px;color:red;">'+data.errors[key]+'</span>');
         }
       } else {
         window.location = '{% url "micro_admin:list_menu" %}';
