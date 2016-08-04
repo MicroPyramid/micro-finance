@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Menu List</li>
+{% endblock %}
+{% block stage %}
+{% load recurse %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
+    <div class="panel-heading">Menu
+    <span style='text-align:right;' ><a style="color:black;"href="{% url 'micro_admin:add_menu' %}">Add</a></span>
+    </div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr class="head-row-tb">
+              <th>No.</th>
+              <th>Title</th>
+              <th>URL</th>
+              <th>Swap</th>
+              <th>Status</th>
+              <th>Edit/Delete</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for menu in menu_list %}
+            <tr>
+            <td class="txt_center">{{forloop.counter}}</td>
+              <td>{%if menu.parent%}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{%endif%}{{menu.title}}</td>
+              <td class="sec-col">{{menu.url}}</td>
+              <td class="menu-swap">
+                <div class="inner-swap-wid">
+                  <span class="caret-wid" style="float:left;font-size:18px;padding-right:10px;"><a href="#"><i style="color:#4c4c4c!important;" class="fa fa-caret-down" 
+                    id="{{menu.id}}"></i></a></span>
+                  <span class="caret-wid" style="float:left;font-size:18px;padding-right:10px;"><a href="#"><i style="color:#4c4c4c!important;" class="fa fa-caret-up" 
+                    id="{{menu.id}}"></i></a></span>
+                </div>
+              </td>
+              <td class="txt_center"><a href="{% url 'micro_admin:changemenustatus' pk=menu.id %}" class="on_off">
+                {% ifequal menu.status 'on' %}
+                <i class="fa fa-circle icon-squa green pad-lt"></i> ON
+                {% else %}
+                <i class="fa fa-circle icon-squa red pad-lt"></i> OFF
+                {% endifequal %}
+                </a>
+              </td>
+                <td class="ed"><a href="{% url 'micro_admin:edit_menu' pk=menu.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+                <a class="delete_menu" href="{% url 'micro_admin:delete_menu' pk=menu.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+              </td>
+            </tr>
+            {%for chlidren in menu.menu_set.all|dictsort:'lvl' %}
+          <tr>
+            <td class="txt_center"></td>
+            <td>{%if chlidren.parent%}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{%endif%}{{chlidren.title}}</td>
+            <td class="sec-col">{{chlidren.url}}</td>
+            <td class="menu-swap txt_center">
+              <div class="inner-swap-wid">
+                <span class="caret-wid" style="float:left;font-size:18px;padding-right:10px;"><a href="#"><i style="color:#4c4c4c!important;" class="fa fa-caret-down" 
+                  id="{{chlidren.id}}"></i></a></span>
+                <span class="caret-wid" style="float:left;font-size:18px;padding-right:10px;"><a href="#"><i style="color:#4c4c4c!important;" class="fa fa-caret-up" 
+                  id="{{chlidren.id}}"></i></a></span>
+              </div>
+            </td>
+            <td class="txt_center"><a href="{% url 'micro_admin:changemenustatus' pk=chlidren.id %}" class="on_off">
+              {% ifequal chlidren.status 'on' %}
+              <i class="fa fa-circle icon-squa green pad-lt"></i> ON
+              {% else %}
+              <i class="fa fa-circle icon-squa red pad-lt"></i> OFF
+              {% endifequal %}
+              </a>
+            </td>
+            <td class="ed"><a href="{% url 'micro_admin:edit_menu' pk=chlidren.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+                <a class="delete_menu" href="{% url 'micro_admin:delete_menu' pk=chlidren.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+              </td>
+          </tr>
+          {% endfor %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+</div>
+<!--wrapper ends above-->
+<script type="text/javascript">
+  $ = jQuery;
+  $(document).ready(function() {
+    $('.fa-caret-down').click(function(){
+      url = '{% url "micro_admin:menu_order" 1 %}'
+      url = url.replace(1, $(this).attr('id'))
+        $.get(url,{'mode':'down'},function(data){
+          if (data.message){
+            alert(data.message);
+          }
+          window.location = "{% url 'micro_admin:list_menu' %}";
+        }, 'json');
+    });
+    $('.fa-caret-up').click(function(){
+      url = '{% url "micro_admin:menu_order" 1 %}'
+      url = url.replace(1, $(this).attr('id'))
+        $.get(url,{'mode':'up'},function(data){
+          if (data.message){
+            alert(data.message);
+          }
+          window.location = "{% url 'micro_admin:list_menu' %}";
+        }, 'json');
+    });
+  });
+  $(".delete_menu").click(function(e){
+    e.preventDefault();
+     if(confirm("You want to delete this Menu ?")){
+        window.location = $(this).attr("href")
+      }
+      
+  })
+</script>
+{% endblock %}

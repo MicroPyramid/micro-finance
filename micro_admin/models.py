@@ -154,6 +154,9 @@ class User(AbstractBaseUser):
         permissions = (
             ("branch_manager",
              "Can manage all accounts under his/her branch."),
+            ("content_managing",
+             "Can add, edit, delete content."),
+
         )
 
 
@@ -454,3 +457,33 @@ class Payments(models.Model):
 
     def __unicode__(self):
         return self.voucher_number
+
+
+class Menu(models.Model):
+    parent = models.ForeignKey('self', blank=True, null=True)
+    title = models.CharField(max_length=255)
+    url = models.URLField(max_length=255)
+    created = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=5, default="off", blank=True)
+    lvl = models.IntegerField()
+
+    def menu_state(self):
+        if self.status == 'on':
+            return True
+        else:
+            return False
+
+    def __unicode__(self):
+        return self.title
+
+    def has_children(self):
+        if self.menu_set.exists():
+            return True
+        return False
+
+    def is_child(self):
+        if self.parent:
+            return True
+        return False
+

@@ -4,7 +4,7 @@ import decimal
 # import csv
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth import login, authenticate, logout
 # from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import login_required
@@ -27,12 +27,14 @@ from django.db.models import Sum
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES, ClientBranchTransfer)
+    RecurringDeposits, USER_ROLES, ClientBranchTransfer, Menu)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
     ReceiptForm, FixedDepositForm, PaymentForm,
-    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm)
+    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, MenuForm)
 from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
+from django.db.models.aggregates import Max
+
 
 d = decimal.Decimal
 
@@ -1918,3 +1920,157 @@ def getloan_demands(request):
                 "message1": "Member Loan is under pending for approval."
             }
         return HttpResponse(json.dumps(data))
+
+
+class AddMenuView(LoginRequiredMixin, CreateView):
+    form_class = MenuForm
+    template_name = "contentmanagement/menu/add.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(AddMenuView, self).get_context_data(**kwargs)
+        context['parent'] = Menu.objects.filter(parent=None).order_by('lvl')
+        return context
+
+    def form_valid(self, form):
+        new_menu = form.save(commit=False)
+        if new_menu.status:
+            new_menu.status = 'on'
+
+        menu_count = Menu.objects.filter(parent=new_menu.parent).count()
+        new_menu.lvl = menu_count + 1
+        if new_menu.url[-1] != '/':
+            new_menu.url = new_menu.url + '/'
+
+        new_menu.save()
+        return JsonResponse({
+            "error": False})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
+
+
+class MenuListView(LoginRequiredMixin, ListView):
+    model = Menu
+    template_name = "contentmanagement/menu/list.html"
+    context_object_name = 'menu_list'
+
+    def get_queryset(self):
+        return Menu.objects.filter(parent=None).order_by('lvl')
+
+
+class UpdateMenuView(LoginRequiredMixin, UpdateView):
+    pk_url_kwarg = 'pk'
+    model = Menu
+    form_class = MenuForm
+    context_object_name = 'current_menu'
+    template_name = "contentmanagement/menu/edit.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateMenuView, self).get_context_data(**kwargs)
+        context['parent'] = Menu.objects.filter(parent=None).order_by('lvl')
+        return context
+
+    def form_valid(self, form):
+        current_menu = get_object_or_404(Menu, pk=self.kwargs.get('pk'))
+        current_parent = current_menu.parent
+        updated_menu = form.save(commit=False)
+        if updated_menu.parent != current_parent:
+            try:
+                if updated_menu.parent.id == updated_menu.id:
+                    data = {'error': True, 'response': {
+                        'parent': 'You can not choose the same as parent'}}
+                    return HttpResponse(
+                        json.dumps(data),
+                        content_type='application/json; charset=utf-8')
+            except Exception:
+                pass
+
+            lnk_count = Menu.objects.filter(
+                parent=updated_menu.parent).count()
+            updated_menu.lvl = lnk_count + 1
+            lvlmax = Menu.objects.filter(
+                parent=current_parent).aggregate(Max('lvl'))['lvl__max']
+            if lvlmax != 1:
+                for i in Menu.objects.filter(parent=current_parent,
+                                             lvl__gt=current_menu.lvl,
+                                             lvl__lte=lvlmax):
+                    i.lvl = i.lvl - 1
+                    i.save()
+        if updated_menu.url[-1] != '/':
+            updated_menu.url = updated_menu.url + '/'
+
+        if self.request.POST.get('status', ''):
+            updated_menu.status = 'on'
+
+        updated_menu.save()
+        return JsonResponse({
+            "error": False
+        })
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
+
+
+class DeleteMenuView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_admin:
+            menu = get_object_or_404(Menu, id=kwargs.get('pk'))
+            menu.delete()
+            return HttpResponseRedirect(reverse('micro_admin:list_menu'))
+        raise Http404("Oops! Unable to delete the menu")
+
+
+class ChangeMenuStatusView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        menu = get_object_or_404(Menu, pk=kwargs.get('pk'))
+        if menu.status == "on":
+            menu.status = "off"
+        else:
+            menu.status = "on"
+        menu.save()
+        return HttpResponseRedirect(reverse('micro_admin:list_menu'))
+
+
+class MenuOrderView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        curr_link = get_object_or_404(Menu, pk=kwargs.get('pk'))
+        link_parent = curr_link.parent
+        if self.request.GET.get('mode') == 'down':
+            lvlmax = Menu.objects.filter(
+                parent=kwargs.get('pk')).aggregate(Max('lvl'))['lvl__max']
+            if lvlmax == curr_link.lvl:
+                data = {'error': True, 'message': 'You cant move down.'}
+            count = Menu.objects.all().count()
+            if count == curr_link.lvl:
+                data = {'error': True, 'message': 'You cant move down.'}
+            else:
+                try:
+                    down_link = Menu.objects.get(
+                        parent=link_parent, lvl=curr_link.lvl + 1)
+                    curr_link.lvl = curr_link.lvl + 1
+                    down_link.lvl = down_link.lvl - 1
+                    curr_link.save()
+                    down_link.save()
+                except ObjectDoesNotExist:
+                    pass
+                data = {'error': False}
+        else:
+            count = Menu.objects.all().count()
+            if curr_link.lvl == 1:
+                data = {'error': True, 'message': 'You cant move up.'}
+            else:
+                try:
+                    up_link = Menu.objects.get(
+                        parent=link_parent, lvl=curr_link.lvl - 1)
+                    curr_link.lvl = curr_link.lvl - 1
+                    up_link.lvl = up_link.lvl + 1
+                    curr_link.save()
+                    up_link.save()
+                except ObjectDoesNotExist:
+                    pass
+                data = {'error': False}
+        return HttpResponse(
+            json.dumps(data), content_type='application/json; charset=utf-8')

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+<li>Menu Item</li>
+{% endblock %}
+{% block stage %}
+{% load recurse %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel margin-top-set">
+    <div class="panel-heading">Edit Menu Item</div>
+    <div class="panel-body pb-pad">
+      <form  id="edit_menu_form" class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-5 control-label">Title</label>
+          <div class="col-sm-7">
+            <input type="Text" class="form-control" id="title" name="title" value="{{current_menu.title}}">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-5 control-label">Parent</label>
+          <div class="col-sm-7">
+           <select class="form-control" id="parent" name="parent">
+          <option value="">Top Level</option>
+          {% recurse menu.menu_set.all|dictsort:"lvl"  with parent as menu %}
+          {% loop %}
+          <option value="{{ menu.id }}" {% if current_menu.parent.id == menu.id %} selected="selected" {% endif %}>
+          {% for i in level|add:"-1"|get_range %}----{% endfor %}{{menu.title}}</option>
+          {% child %}
+          {% endloop %}
+          {% endrecurse %}
+        </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: -10px;">
+          <label for="inputEmail3" class="col-sm-5 control-label">URL</label>
+          <div class="col-sm-7">
+            <input type="text" class="form-control" id="url" name="url" value="{{current_menu.url}}">
+          </div>
+        </div>
+        <div class="form-group">
+        <div class="col-sm-7">
+        <input type="checkbox" name="status" value="on" {% if current_menu.status == 'on' %} checked {% endif %}><label>Active</label>
+        </div>
+        </div>
+        <div class="form-group btns" style="margin-top: -10px;">
+          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script type="text/javascript">
+  $(document).ready(function () {
+  $("form#edit_menu_form").submit(function(e) {
+    e.preventDefault();
+    $.post(".", $("form#edit_menu_form").serialize(), function(data) {
+      if (data.error) {
+        $('p.failure').remove();
+        for (var key in data.errors){
+          $('#'+key).after('<span class="error" style="height:11px;color:red;">'+data.errors[key]+'</span>');
+        }
+        if (data.response){
+          $("#parent").after('<span class="error" style="height:11px;color:red;">'+data.response.parent+'</span>');
+        }
+      } else {
+        window.location = '{% url "micro_admin:list_menu" %}';
+      }
+    }, 'json');
+  });
+    $('.cancel-btn').click(function (e) {
+      window.location = '.';
+    });
+  });
+</script>
+{% endblock %}
