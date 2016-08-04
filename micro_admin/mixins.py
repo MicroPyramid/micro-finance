@@ -67,6 +67,7 @@ class ContentManagerRequiredMixin(object):
             self.object = self.get_object()
         # Checking the permissions
         if not(
+            self.request.user.is_admin or
             self.request.user.has_perm('content_manager')
         ):
             # TODO: Add "PermissionDenied" message
