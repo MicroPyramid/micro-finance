@@ -75,4 +75,9 @@ urlpatterns = [
     url(r'^content-management/menu/add/$', AddMenuView.as_view(), name="add_menu"),
     url(r'^content-management/menu/list/$', MenuListView.as_view(), name='list_menu'),
     url(r'^content-management/menu/edit/(?P<pk>\d+)/$', UpdateMenuView.as_view(), name='edit_menu'),
+    url(r'^content-management/menu/delete/(?P<pk>\d+)/$', DeleteMenuView.as_view(), name='delete_menu'),
+    url(r'^content-management/menu/change-status/(?P<pk>\d+)/$', ChangeMenuStatusView.as_view(), name='changemenustatus'),
+    url(r'^content-management/menu/change-order/(?P<pk>\d+)/$', MenuOrderView.as_view(), name='menu_order')
+
 ]
+

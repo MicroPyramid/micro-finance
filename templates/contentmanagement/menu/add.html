@@ -68,12 +68,12 @@
           $('#'+key).after('<p class="failure">'+data.errors[key]+'</p>');
         }
       } else {
-        window.location = '/';
+        window.location = '{% url "micro_admin:list_menu" %}';
       }
     }, 'json');
   });
     $('.cancel-btn').click(function (e) {
-      $("span.error").remove();
+      window.location = "."
     });
   });
 </script>

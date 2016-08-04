@@ -4,7 +4,7 @@ import decimal
 # import csv
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth import login, authenticate, logout
 # from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import login_required
@@ -2006,3 +2006,64 @@ class UpdateMenuView(LoginRequiredMixin, UpdateView):
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "errors": form.errors})
+
+
+class DeleteMenuView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_admin:
+            menu = get_object_or_404(Menu, id=kwargs.get('pk'))
+            menu.delete()
+            return HttpResponseRedirect(reverse('micro_admin:list_menu'))
+        raise Http404("Oops! Unable to delete the menu")
+
+
+class ChangeMenuStatusView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        menu = get_object_or_404(Menu, pk=kwargs.get('pk'))
+        if menu.status == "on":
+            menu.status = "off"
+        else:
+            menu.status = "on"
+        menu.save()
+        return HttpResponseRedirect(reverse('micro_admin:list_menu'))
+
+
+class MenuOrderView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        curr_link = get_object_or_404(Menu, pk=kwargs.get('pk'))
+        link_parent = curr_link.parent
+        if self.request.GET.get('mode') == 'down':
+            lvlmax = Menu.objects.filter(parent=kwargs.get('pk')).aggregate(Max('lvl'))['lvl__max']
+            if lvlmax == curr_link.lvl:
+                data = {'error': True, 'message': 'You cant move down.'}
+            count = Menu.objects.all().count()
+            if count == curr_link.lvl:
+                data = {'error': True, 'message': 'You cant move down.'}
+            else:
+                try:
+                    down_link = Menu.objects.get(parent=link_parent, lvl=curr_link.lvl+1)
+                    curr_link.lvl = curr_link.lvl+1
+                    down_link.lvl = down_link.lvl-1
+                    curr_link.save()
+                    down_link.save()
+                except ObjectDoesNotExist:
+                    pass
+                data = {'error': False}
+        else:
+            count = Menu.objects.all().count()
+            if curr_link.lvl == 1:
+                data = {'error': True, 'message': 'You cant move up.'}
+            else:
+                try:
+                    up_link = Menu.objects.get(parent=link_parent, lvl=curr_link.lvl-1)
+                    curr_link.lvl = curr_link.lvl-1
+                    up_link.lvl = up_link.lvl+1
+                    curr_link.save()
+                    up_link.save()
+                except ObjectDoesNotExist:
+                    pass
+                data = {'error': False}
+        return HttpResponse(json.dumps(data), content_type='application/json; charset=utf-8')
