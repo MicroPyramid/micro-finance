@@ -2,7 +2,6 @@ from django import forms
 from micro_admin.models import (
     Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits, GroupMeetings,
     ClientBranchTransfer, Menu, Page)
-
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
 import decimal
@@ -374,4 +373,4 @@ class PageForm(forms.ModelForm):
 
     class Meta:
         model = Page
-        exclude = ('slug', 'category',)
+        exclude = ('slug',)

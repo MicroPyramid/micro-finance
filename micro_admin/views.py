@@ -2031,7 +2031,7 @@ class UpdateMenuView(LoginRequiredMixin, ContentManagerRequiredMixin, UpdateView
         return JsonResponse({"error": True, "errors": form.errors})
 
 
-class DeleteMenuView(LoginRequiredMixin, ContentManagerRequiredMixin, View):
+class DeleteMenuView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_admin or request.user.has_perm('content_manager'):
@@ -2041,7 +2041,7 @@ class DeleteMenuView(LoginRequiredMixin, ContentManagerRequiredMixin, View):
         raise Http404("Oops! Unable to delete the menu")
 
 
-class ChangeMenuStatusView(LoginRequiredMixin, ContentManagerRequiredMixin, View):
+class ChangeMenuStatusView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         menu = get_object_or_404(Menu, pk=kwargs.get('pk'))
@@ -2053,7 +2053,7 @@ class ChangeMenuStatusView(LoginRequiredMixin, ContentManagerRequiredMixin, View
         return HttpResponseRedirect(reverse('micro_admin:list_menu'))
 
 
-class MenuOrderView(LoginRequiredMixin, ContentManagerRequiredMixin, View):
+class MenuOrderView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         curr_link = get_object_or_404(Menu, pk=kwargs.get('pk'))
@@ -2140,7 +2140,7 @@ class UpdatePageView(LoginRequiredMixin, ContentManagerRequiredMixin, UpdateView
         return JsonResponse({"error": True, "errors": form.errors})
 
 
-class DeletePageView(LoginRequiredMixin, ContentManagerRequiredMixin, View):
+class DeletePageView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_admin or request.user.has_perm('content_manager'):
@@ -2150,7 +2150,7 @@ class DeletePageView(LoginRequiredMixin, ContentManagerRequiredMixin, View):
         raise Http404("Oops! Unable to delete the page")
 
 
-class ChangePageStatusView(LoginRequiredMixin, ContentManagerRequiredMixin, View):
+class ChangePageStatusView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         page = get_object_or_404(Page, pk=kwargs.get('pk'))
