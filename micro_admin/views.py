@@ -1939,7 +1939,7 @@ class AddMenuView(LoginRequiredMixin, CreateView):
         menu_count = Menu.objects.filter(parent=new_menu.parent).count()
         new_menu.lvl = menu_count + 1
         if new_menu.url[-1] != '/':
-            new_menu.url = new_menu.url+'/'
+            new_menu.url = new_menu.url + '/'
 
         new_menu.save()
         return JsonResponse({
@@ -1979,7 +1979,9 @@ class UpdateMenuView(LoginRequiredMixin, UpdateView):
                 if updated_menu.parent.id == updated_menu.id:
                     data = {'error': True, 'response': {
                         'parent': 'You can not choose the same as parent'}}
-                    return HttpResponse(json.dumps(data), content_type='application/json; charset=utf-8')
+                    return HttpResponse(
+                        json.dumps(data),
+                        content_type='application/json; charset=utf-8')
             except Exception:
                 pass
 
@@ -1989,11 +1991,13 @@ class UpdateMenuView(LoginRequiredMixin, UpdateView):
             lvlmax = Menu.objects.filter(
                 parent=current_parent).aggregate(Max('lvl'))['lvl__max']
             if lvlmax != 1:
-                for i in Menu.objects.filter(parent=current_parent, lvl__gt=current_menu.lvl, lvl__lte=lvlmax):
-                    i.lvl = i.lvl-1
+                for i in Menu.objects.filter(parent=current_parent,
+                                             lvl__gt=current_menu.lvl,
+                                             lvl__lte=lvlmax):
+                    i.lvl = i.lvl - 1
                     i.save()
         if updated_menu.url[-1] != '/':
-            updated_menu.url = updated_menu.url+'/'
+            updated_menu.url = updated_menu.url + '/'
 
         if self.request.POST.get('status', ''):
             updated_menu.status = 'on'
@@ -2035,7 +2039,8 @@ class MenuOrderView(LoginRequiredMixin, View):
         curr_link = get_object_or_404(Menu, pk=kwargs.get('pk'))
         link_parent = curr_link.parent
         if self.request.GET.get('mode') == 'down':
-            lvlmax = Menu.objects.filter(parent=kwargs.get('pk')).aggregate(Max('lvl'))['lvl__max']
+            lvlmax = Menu.objects.filter(
+                parent=kwargs.get('pk')).aggregate(Max('lvl'))['lvl__max']
             if lvlmax == curr_link.lvl:
                 data = {'error': True, 'message': 'You cant move down.'}
             count = Menu.objects.all().count()
@@ -2043,9 +2048,10 @@ class MenuOrderView(LoginRequiredMixin, View):
                 data = {'error': True, 'message': 'You cant move down.'}
             else:
                 try:
-                    down_link = Menu.objects.get(parent=link_parent, lvl=curr_link.lvl+1)
-                    curr_link.lvl = curr_link.lvl+1
-                    down_link.lvl = down_link.lvl-1
+                    down_link = Menu.objects.get(
+                        parent=link_parent, lvl=curr_link.lvl + 1)
+                    curr_link.lvl = curr_link.lvl + 1
+                    down_link.lvl = down_link.lvl - 1
                     curr_link.save()
                     down_link.save()
                 except ObjectDoesNotExist:
@@ -2057,12 +2063,14 @@ class MenuOrderView(LoginRequiredMixin, View):
                 data = {'error': True, 'message': 'You cant move up.'}
             else:
                 try:
-                    up_link = Menu.objects.get(parent=link_parent, lvl=curr_link.lvl-1)
-                    curr_link.lvl = curr_link.lvl-1
-                    up_link.lvl = up_link.lvl+1
+                    up_link = Menu.objects.get(
+                        parent=link_parent, lvl=curr_link.lvl - 1)
+                    curr_link.lvl = curr_link.lvl - 1
+                    up_link.lvl = up_link.lvl + 1
                     curr_link.save()
                     up_link.save()
                 except ObjectDoesNotExist:
                     pass
                 data = {'error': False}
-        return HttpResponse(json.dumps(data), content_type='application/json; charset=utf-8')
+        return HttpResponse(
+            json.dumps(data), content_type='application/json; charset=utf-8')
