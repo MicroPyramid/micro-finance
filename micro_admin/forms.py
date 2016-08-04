@@ -1,7 +1,7 @@
 from django import forms
 from micro_admin.models import (
     Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits, GroupMeetings,
-    ClientBranchTransfer, Menu)
+    ClientBranchTransfer, Menu, Page)
 
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
@@ -368,3 +368,10 @@ class MenuForm(forms.ModelForm):
     class Meta:
         model = Menu
         exclude = ('lvl',)
+
+
+class PageForm(forms.ModelForm):
+
+    class Meta:
+        model = Page
+        exclude = ('slug', 'category',)

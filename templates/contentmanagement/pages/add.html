@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+<li>Page Add</li>
+{% endblock %}
+{% block stage %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel margin-top-set" style="width:60%">
+    <div class="panel-heading">New Page</div>
+    <div class="panel-body pb-pad">
+      <form  id="pageform" class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-3 control-label">Title</label>
+          <div class="col-sm-9">
+            <input type="Text" class="form-control" id="title" name="title"  value="{{current_page.title}}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail3" class="col-sm-3 control-label">Slug</label>
+          <div class="col-sm-9">
+            <input type="Text" class="form-control" id="slug" name="slug" value="{{current_page.slug}}">
+          </div>
+        </div>
+       
+      <div class="form-group">
+        <label for="inputEmail3" class="col-sm-3 control-label">Meta Description</label>
+        <div class="col-sm-9">
+        <textarea class="form-control" rows="4" id="meta_description" name="meta_description" >{{current_page.meta_description}}</textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputEmail3" class="col-sm-3 control-label">Keywords</label>
+        <div class="col-sm-9">
+        <textarea class="form-control" rows="4" id="keywords" name="keywords">{{current_page.keywords}}</textarea>
+        </div>
+      </div>
+        <div class="form-group">
+         <label for="inputEmail3" class="col-sm-3 control-label">Page Content</label>
+        <div class="col-sm-9">
+
+        <div class="control-group">
+          <div class="controls" id="content">
+            <input type="hidden" name="content">
+            <textarea class="input-xlarge form-control" id="textareacontents" name="textareacontents" rows="10" placeholder="HTML code of this email">{{current_page.content|safe}}</textarea>
+          </div>
+        </div>
+        </div>
+      </div>
+        
+        <div class="form-group">
+        <div class="col-sm-7">
+        <input type="checkbox" name="is_active" value="True" {% if current_page.is_active %}checked{% endif %}> <label>Active</label>
+        </div>
+        </div>
+        <div class="form-group btns" style="margin-top: -10px;">
+          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+<script src="//cdn.ckeditor.com/4.4.5/standard/ckeditor.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+  CKEDITOR.config.allowedContent = true;
+  var editor = CKEDITOR.replace('textareacontents');
+
+  $ = jQuery;
+  $("form#pageform").submit(function(e) {
+    e.preventDefault();
+    //var htmldata = CKEDITOR.instances.Editor.document.getBody().getHtml();
+    console.log(CKEDITOR.instances.textareacontents.getData());
+    $("input[name='content']").val(CKEDITOR.instances.textareacontents.getData());
+    $.post(".", $("form#pageform").serialize(), function(msg) {
+      if (msg.error) {
+        $('p.failure').remove();
+        for (var key in msg.errors){
+          $('#'+key).after('<span class="error" style="height:11px;color:red;">'+msg.errors[key]+'</span>');
+        }
+      } else {
+        window.location = '{% url "micro_admin:list_page" %}';
+      }
+    }, 'json');
+  });
+
+    $('.cancel-btn').click(function (e) {
+      window.location = "."
+    });
+  });
+</script>
+{% endblock %}

@@ -1,8 +1,5 @@
 from django import template
 from micro_admin.models import *
-from django.db.models import Max
-from datetime import datetime
-from django.template import Context, loader, Template
 
 
 register = template.Library()

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Pages List</li>
+{% endblock %}
+{% block stage %}
+{% load recurse %}
+<!--content goes below-->
+<div class="container">
+  <!--form div starts below-->
+  <div class="panel panel-default my-panel-bprofile margin-top-set">
+    <div class="panel-heading">Page
+    <span style='text-align:right;' ><a style="color:black;"href="{% url 'micro_admin:add_page' %}">Add</a></span>
+    </div>
+    <div class="panel-body pb-table">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr class="head-row-tb">
+              <th>No.</th>
+              <th>Title</th>
+              <th>Slug</th>
+              <th>URL</th>
+              <th>Status</th>
+              <th>Edit/Delete</th>
+            </tr>
+          </thead>
+          <tbody class="body-row-tb">
+            {% for page in pages_list %}
+            <tr>
+            <td class="txt_center">{{forloop.counter}}</td>
+              <td>{{page.title}}</td>
+              <td class="sec-col">{{page.slug}}</td>
+              <td class="sec-col"><a style="color:blue;" href="/{{page.slug}}/" target="_blank">https://{{HTTP_HOST}}/{{page.slug}}/</a></td>
+              <td class="txt_center"><a href="{% url 'micro_admin:changepagestatus' pk=page.id %}" class="on_off">
+                {% if page.is_active %}
+                <i class="fa fa-circle icon-squa green pad-lt"></i>
+                {% else %}
+                <i class="fa fa-circle icon-squa red pad-lt"></i>
+                {% endif %}
+                </a>
+              </td>
+                <td class="ed"><a href="{% url 'micro_admin:edit_page' pk=page.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+                <a class="delete_page" href="{% url 'micro_admin:delete_page' pk=page.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+<!--content ends above-->
+</div>
+<!--wrapper ends above-->
+<script type="text/javascript">
+  $ = jQuery;
+  $(document).ready(function() {
+  $(".delete_page").click(function(e){
+    e.preventDefault();
+     if(confirm("You want to delete this Page ?")){
+        window.location = $(this).attr("href")
+      }
+  })
+  });
+
+</script>
+{% endblock %}
