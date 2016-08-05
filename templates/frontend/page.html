@@ -1,0 +1,38 @@
+{% extends 'frontend/base.html' %}
+{% load recurse %}
+{% load loans_tags %}
+{% block menu %}
+{% get_menus as menu_list %}
+<ul class="col-lg-10 col-sm-12 col-md-12 nav navbar-nav navbar-right">
+	{% recurse menu.active_children with menu_list as menu %}
+	{% loop %}
+	<li {% if menu.active_children %}class="dropdown"{% endif %}><a {% if menu.active_children %}href="{{menu.url}}" class="dropdown-toggle" data-toggle="dropdown" {% else %}href="{{menu.url}}"{% endif %}>{{menu.title}}</a><ul class="dropdown-menu" role="menu">
+	  {% child %}
+	  </ul>
+	</li>
+	{% endloop %}
+
+	{% endrecurse %}
+</ul>
+{% endblock %}
+{% block meta-description %}
+  <meta property="og:title"  content="{{ page.title|capfirst }}"/>
+  
+  <meta property="og:description" content="{{ page.meta_description }} - MicroFinance." />
+
+  <meta name="description" content="{{ page.meta_description }} - MicroFinance." />
+
+  <meta name="keywords" content="{{ page.keywords }}" />
+
+{% endblock %}
+{% block stage %}
+<div class="container">
+  <!--form div starts below-->
+  <div class="margin-top-set" style="padding: 11px;">
+    <div class="panel-body pb-pad">
+     {{ page.content | safe }}
+    </div>
+  </div>
+  <!--form div ends above-->
+</div>
+{% endblock %}

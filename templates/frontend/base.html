@@ -1,0 +1,100 @@
+{% load compress %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MicroFinance</title>
+    {% block meta-description %}
+    {% endblock %}
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.min.css" />
+    <link href='http://fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/start/jquery-ui.css" />
+    <link type="text/css" href="https://select2.github.io/dist/css/select2.min.css" rel="stylesheet">
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <!-- your style sheet-->
+    {% compress css %}
+      <link type="text/css" rel="stylesheet" href="/static/css/mf.css" />
+      <link type="text/css" rel="stylesheet" href="/static/css/mf_res.css" />
+      <link type="text/css" rel="stylesheet" href="/static/css/mf_mob.css" />
+    {% endcompress %}
+    <!--your style sheet-->
+  </head>
+  <body>
+    <!--wrapper starts below-->
+    <div class="wrapper">
+      <!--container starts  below-->
+      <div class="container">
+        <!--slide-menu-->
+        <div class="menu-outer">
+          <div class="menu-icon">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+        <a class="menu-close" onClick="return true">
+          <div class="menu-icon">
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </a>
+        <!--slide menu ends above-->
+      </div>
+      <!--container ends above-->
+      <!--nav bar starts below-->
+      <header>
+        <div class="container">
+          <!--nav bar-->
+          <div class="menuu">
+            <div class="bs-example box-menu">
+              <nav class="navbar navbar-default" role="navigation">
+                <div class="container-fluid">
+                  <!-- Brand and toggle get grouped for better mobile display -->
+                  <div class="navbar-header" id="nav-md">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <span class="logo-span">
+                      <a class="navbar-brand logo_nav" href="/">
+                        <h5>Micro Finance</h5>
+                      </a>
+                    </span>
+                  </div>
+                  <!-- Collect the nav links, forms, and other content for toggling -->
+                  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    {% block menu %}
+                    {% endblock %}
+                  </div>
+                  <!-- /.navbar-collapse -->
+                </div>
+                <!-- /.container-fluid -->
+              </nav>
+            </div>
+          </div>
+
+          <!--nav bar ends-->
+        </div>
+        <!--nav bar ends above-->
+      </header>
+      {% block basebreadcrumb %}
+      {% endblock basebreadcrumb %}
+      <!--content goes below-->
+      {% block stage %}
+      {% endblock %}
+      <!--content ends above-->
+    </div>
+    <!--wrapper ends above-->
+    {% compress js %}
+      <script src="/static/js/mf_script.js"></script>
+    {% endcompress %}
+  </body>
+</html>

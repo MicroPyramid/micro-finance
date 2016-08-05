@@ -33,6 +33,8 @@ INSTALLED_APPS = (
     'celery',
     'djcelery',
     'kombu.transport.django',
+    'simple_pagination',
+    'django_blog_it.django_blog_it',
 )
 
 MIDDLEWARE_CLASSES = (
