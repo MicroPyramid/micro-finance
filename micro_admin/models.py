@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permission
+from django.template.defaultfilters import slugify
 
 
 GENDER_TYPES = (
@@ -150,11 +151,20 @@ class User(AbstractBaseUser):
 
             return bool(user_perm)
 
+    @property
+    def has_content_manager_access(self):
+        if self.is_active and self.is_admin:
+            return True
+        elif self.user_permissions.get(codename='content_manager'):
+            return True
+        else:
+            return False
+
     class Meta:
         permissions = (
             ("branch_manager",
              "Can manage all accounts under his/her branch."),
-            ("content_managing",
+            ("content_manager",
              "Can add, edit, delete content."),
 
         )
@@ -487,3 +497,36 @@ class Menu(models.Model):
             return True
         return False
 
+
+class Page(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    slug = models.SlugField()
+    is_active = models.BooleanField(default=True)
+    meta_description = models.TextField()
+    keywords = models.TextField()
+
+    def save(self, *args, **kwargs):
+        tempslug = slugify(self.title)
+        if self.id:
+            existed_page = Page.objects.get(pk=self.id)
+            if existed_page.title != self.title:
+                self.slug = create_slug(tempslug)
+        else:
+            self.slug = create_slug(tempslug)
+
+        super(Page, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.title
+
+
+def create_slug(tempslug):
+    slugcount = 0
+    while True:
+        try:
+            Page.objects.get(slug=tempslug)
+            slugcount = slugcount + 1
+            tempslug = tempslug + '-' + str(slugcount)
+        except ObjectDoesNotExist:
+            return tempslug

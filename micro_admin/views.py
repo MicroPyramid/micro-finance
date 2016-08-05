@@ -27,12 +27,12 @@ from django.db.models import Sum
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES, ClientBranchTransfer, Menu)
+    RecurringDeposits, USER_ROLES, ClientBranchTransfer, Menu, Page)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
     ReceiptForm, FixedDepositForm, PaymentForm,
-    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, MenuForm)
-from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
+    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, MenuForm, PageForm)
+from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
 from django.db.models.aggregates import Max
 
 
@@ -234,7 +234,7 @@ class ClientInactiveView(LoginRequiredMixin, View):
                 client.save()
         return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
-
+from django.contrib.auth.models import Permission, ContentType
 # ------------------------------------------- #
 # User Model views
 class CreateUserView(LoginRequiredMixin, CreateView):
@@ -245,10 +245,19 @@ class CreateUserView(LoginRequiredMixin, CreateView):
         context = super(CreateUserView, self).get_context_data(**kwargs)
         context['branches'] = Branch.objects.all()
         context['userroles'] = dict(USER_ROLES).keys()
+        contenttype = ContentType.objects.get_for_model(self.request.user)
+        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager", 'content_manager'])
+        context['permissions'] = permissions
         return context
 
     def form_valid(self, form):
         user = form.save()
+        if len(self.request.POST.getlist("user_permissions")):
+            user.user_permissions.add(
+                *self.request.POST.getlist("user_permissions"))
+        if self.request.POST.get("user_roles") == "BranchManager":
+            if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
+                user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
         return JsonResponse({
             "error": False,
             "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
@@ -269,10 +278,21 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
         context = super(UpdateUserView, self).get_context_data(**kwargs)
         context['branch'] = Branch.objects.all()
         context['userroles'] = dict(USER_ROLES).keys()
+        contenttype = ContentType.objects.get_for_model(self.request.user)
+        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager", 'content_manager'])
+        context['permissions'] = permissions
         return context
 
     def form_valid(self, form):
         user = form.save()
+        if len(self.request.POST.getlist("user_permissions")):
+            user.user_permissions.clear()
+            user.user_permissions.add(
+                *self.request.POST.getlist("user_permissions"))
+        if self.request.POST.get("user_roles") == "BranchManager":
+            if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
+                user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
+
         return JsonResponse({
             "error": False,
             "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
@@ -1958,7 +1978,7 @@ class MenuListView(LoginRequiredMixin, ListView):
         return Menu.objects.filter(parent=None).order_by('lvl')
 
 
-class UpdateMenuView(LoginRequiredMixin, UpdateView):
+class UpdateMenuView(LoginRequiredMixin, ContentManagerRequiredMixin, UpdateView):
     pk_url_kwarg = 'pk'
     model = Menu
     form_class = MenuForm
@@ -2014,7 +2034,7 @@ class UpdateMenuView(LoginRequiredMixin, UpdateView):
 class DeleteMenuView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_admin:
+        if request.user.is_admin or request.user.has_perm('content_manager'):
             menu = get_object_or_404(Menu, id=kwargs.get('pk'))
             menu.delete()
             return HttpResponseRedirect(reverse('micro_admin:list_menu'))
@@ -2074,3 +2094,69 @@ class MenuOrderView(LoginRequiredMixin, View):
                 data = {'error': False}
         return HttpResponse(
             json.dumps(data), content_type='application/json; charset=utf-8')
+
+
+class PageListView(LoginRequiredMixin, ListView):
+    model = Page
+    template_name = "contentmanagement/pages/list.html"
+    context_object_name = 'pages_list'
+
+    def get_queryset(self):
+        return Page.objects.all().order_by('id')
+
+    def get_context_data(self, **kwargs):
+        context = super(PageListView, self).get_context_data(**kwargs)
+        context['HTTP_HOST'] = self.request.META.get('HTTP_HOST')
+        return context
+
+
+class AddPageView(LoginRequiredMixin, CreateView):
+    form_class = PageForm
+    template_name = "contentmanagement/pages/add.html"
+
+    def form_valid(self, form):
+        form.save()
+        return JsonResponse({
+            "error": False})
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
+
+
+class UpdatePageView(LoginRequiredMixin, ContentManagerRequiredMixin, UpdateView):
+    pk_url_kwarg = 'pk'
+    model = Page
+    form_class = PageForm
+    context_object_name = 'current_page'
+    template_name = "contentmanagement/pages/add.html"
+
+    def form_valid(self, form):
+        form.save()
+        return JsonResponse({
+            "error": False
+        })
+
+    def form_invalid(self, form):
+        return JsonResponse({"error": True, "errors": form.errors})
+
+
+class DeletePageView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_admin or request.user.has_perm('content_manager'):
+            page = get_object_or_404(Page, id=kwargs.get('pk'))
+            page.delete()
+            return HttpResponseRedirect(reverse('micro_admin:list_page'))
+        raise Http404("Oops! Unable to delete the page")
+
+
+class ChangePageStatusView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        page = get_object_or_404(Page, pk=kwargs.get('pk'))
+        if page.is_active:
+            page.is_active = False
+        else:
+            page.is_active = True
+        page.save()
+        return HttpResponseRedirect(reverse('micro_admin:list_page'))

@@ -81,6 +81,16 @@
               <input type="text" class="text-box wid-form" id="mobile" name="mobile" value="{{selecteduser.mobile}}">
             </div>
           </div>
+           <div class="form-group">
+            <label for="inputEmail3" class="col-sm-4 control-label">Permissions</label>
+            <div class="col-sm-8">
+              <select class="js-example-basic-multiple" id="user_permissions" name="user_permissions" multiple='multiple'>  
+              {% for permission in permissions %}
+                <option value="{{ permission.id }}" {% if permission in selecteduser.user_permissions.all%}selected{% endif %}>{{permission.name}}</option>
+              {% endfor %}
+              </select>
+            </div>
+          </div>
         </div>
         <!--div 1 of fomr ends above-->
         <!--div 2 of form starts below-->
@@ -145,8 +155,10 @@
   <!--form div ends above-->
 </div>
 <!--content ends above-->
+<script type="text/javascript" src="https://select2.github.io/dist/js/select2.full.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
+    $(".js-example-basic-multiple").select2();
     $('#edituserform').submit(function(e) {
       e.preventDefault();
       $("span.error").remove();
