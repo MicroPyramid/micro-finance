@@ -291,19 +291,19 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
 
-        response = self.client.get('/')
+        response = self.client.get('/dashboard/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'index.html')
 
-        response = self.client.get('/branch/create/')
+        response = self.client.get(reverse('micro_admin:createbranch'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'branch/create.html')
 
-        response = self.client.get('/client/create/')
+        response = self.client.get(reverse('micro_admin:createclient'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'client/create.html')
 
-        response = self.client.get('/user/create/')
+        response = self.client.get(reverse('micro_admin:createuser'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user/create.html')
 
@@ -311,31 +311,36 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/create.html')
 
-        response = self.client.get(
-            '/branch/edit/' + str(self.branch.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:editbranch",
+            kwargs={"pk": self.branch.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'branch/edit.html')
 
-        response = self.client.get(
-            '/user/edit/' + str(self.user.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:edituser",
+            kwargs={"pk": self.user.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user/edit.html')
 
-        response = self.client.get(
-            '/branch/profile/' + str(self.branch.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:branchprofile",
+            kwargs={"pk": self.branch.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'branch/view.html')
 
-        response = self.client.get(
-            '/user/profile/' + str(self.user.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:userprofile",
+            kwargs={"pk": self.user.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user/profile.html')
 
-        response = self.client.get('/users/list/')
+        response = self.client.get(reverse(
+            "micro_admin:userslist"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user/list.html')
-
-        response = self.client.get('/branch/view/')
+        response = self.client.get(reverse(
+            "micro_admin:viewbranch"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'branch/list.html')
 
@@ -343,31 +348,34 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'group/list.html')
 
-        response = self.client.get('/clients/list/')
+        response = self.client.get(reverse('micro_admin:viewclient'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'client/list.html')
 
-        response = self.client.get(
-            '/branch/delete/' + str(self.branch2.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:deletebranch",
+            kwargs={"pk": self.branch2.id}))
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get('/userchangepassword/')
+        response = self.client.get(reverse('micro_admin:userchangepassword'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'user_change_password.html')
 
-        response = self.client.get('/daybookpdfdownload/2014-10-10/')
+        response = self.client.get(reverse(
+            "micro_admin:daybookpdfdownload",
+            kwargs={"date": "2014-10-10"}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'pdf_daybook.html')
 
-        response = self.client.get('/generalledgerpdfdownload/')
+        response = self.client.get(reverse('micro_admin:generalledgerpdfdownload'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'pdfgeneral_ledger.html')
 
-        response = self.client.get('/paymentslist/')
+        response = self.client.get(reverse('micro_admin:paymentslist'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'list_of_payments.html')
 
-        response = self.client.get('/recurringdeposits/')
+        response = self.client.get(reverse('micro_admin:recurringdeposits'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response,
@@ -381,7 +389,7 @@ class Admin_Views_test(TestCase):
         #         response = self.client.post('/recurringdeposits/', {"nominee_date_of_birth": "2/2/2010", "nominee_gender": "F", "client_name": "Micro111", "client_account_no": 123, "nominee_firstname": 'john', "nominee_lastname": 'johny', "nominee_occupation": 'devoloper', "reccuring_deposit_number": 12344, "deposited_date": '10/10/2014', "recurring_deposit_amount": 500, "recurring_deposit_period": 20, "recurring_deposit_interest_rate": 20, "relationship_with_nominee": 'friend', "nominee_signature": signature, "nominee_photo": photo, "client": str(self.member1.id)}, format='multipart/form-data')
         #         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/recurringdeposits/', {
+        response = self.client.post(reverse('micro_admin:recurringdeposits'), {
             "client_name": "Micro", "client_account_no": 123,
             "nominee_date_of_birth": "", "nominee_gender": "",
             "nominee_firstname": '', "nominee_lastname": '',
@@ -402,7 +410,7 @@ class Admin_Views_test(TestCase):
         #         response = self.client.post('/fixeddeposits/', {"client_name": "Micro44", "client_account_no": 123, "nominee_firstname": 'john', "nominee_lastname": 'kumar', "nominee_gender": "F", "nominee_date_of_birth": "1/2/2015", "nominee_occupation": 'Big data analyst', "fixed_deposit_number": 12, "deposited_date": '10/10/2014', "fixed_deposit_amount": 12, "fixed_deposit_period": 10, "fixed_deposit_interest_rate": 3, "relationship_with_nominee": 'friend', "nominee_photo": photo, "nominee_signature": signature})
         #         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/fixeddeposits/', {
+        response = self.client.post(reverse('micro_admin:fixeddeposits'), {
             "client_name": "Micro", "client_account_no": 123,
             "nominee_firstname": '', "nominee_lastname": '',
             "nominee_gender": "", "nominee_date_of_birth": "",
@@ -423,21 +431,22 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jag', password='jag')
         self.assertTrue(user_login)
 
-        response = self.client.post('/branch/create/', {
+        response = self.client.post(reverse("micro_admin:createbranch"), {
             'name': 'andhra', 'opening_date': '12/10/2014', 'country': 'ind',
             'state': 'AP', 'district': 'Nellore', 'city': 'Nellore',
             'area': 'circle', 'phone_number': 944454651165, 'pincode': 502286})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            '/branch/edit/' + str(self.branch1.id) + '/',
+        response = self.client.post(reverse(
+            "micro_admin:editbranch",
+            kwargs={"pk": self.branch1.id}),
             {'name': 'andhra', 'opening_date': '12/10/2014', 'country': 'ind',
              'state': 'AP', 'district': 'Nellore', 'city': 'Nellore',
              'area': 'circle', 'phone_number': 944454651165,
              'pincode': 502286})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/client/create/', {
+        response = self.client.post(reverse('micro_admin:createclient'), {
             "first_name": "Micro", "last_name": "Pyramid",
             "created_by": self.staff.username, "date_of_birth": '10/10/2014',
             "joined_date": "10/10/2014", "branch": self.branch.id,
@@ -447,7 +456,7 @@ class Admin_Views_test(TestCase):
             "area": 'rfc', "mobile": 944454651165, "pincode": 502286})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/user/create/', {
+        response = self.client.post(reverse("micro_admin:createuser"), {
             'email': 'jag1221@gmail.com', 'first_name': 'jag123223',
             'gender': 'M', 'branch': self.branch.id,
             'user_roles': 'BranchManager', 'username': 'jagadeesh121',
@@ -460,23 +469,27 @@ class Admin_Views_test(TestCase):
             "activation_date": '10/10/2014', "branch": self.branch.id})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            '/branch/edit/' + str(self.branch1.id) + '/',
+        response = self.client.post(reverse(
+            "micro_admin:editbranch",
+            kwargs={"pk": self.branch1.id}),
             {'name': 'andhra', 'opening_date': '12/10/2014', 'country': 'ind',
              'state': 'AP', 'district': 'Nellore', 'city': 'Nellore',
              'area': 'circle', 'phone_number': 944454651165,
              'pincode': 502286})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/user/edit/' + str(self.user.id) + '/', {
+        response = self.client.post(reverse(
+            "micro_admin:editbranch",
+            kwargs={"pk": self.branch.id}), {
             'email': 'jag@gmail.com', 'first_name': 'jagadeesh',
             'gender': 'M', 'branch': self.branch.id,
             'user_roles': 'BranchManager',
             'username': 'jagadeesh', 'password': 'jag123'})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(
-            '/client/edit/' + str(self.member1.id) + '/',
+        response = self.client.post(reverse(
+            "micro_admin:editclient",
+            kwargs={"pk": self.member1.id}),
             {"first_name": "Micro", "last_name": "Pyramid",
              "date_of_birth": '10/10/2014', "joined_date": "10/10/2014",
              "branch": self.branch.id, "account_number": 123,
@@ -497,14 +510,16 @@ class Admin_Views_test(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(
-            '/receiptsdeposit/',
+            reverse("micro_admin:receiptsdeposit"),
             {"date": '10/10/2014', 'name': self.user.first_name,
              'account_number': 123, "branch": self.branch.id,
              "receipt_number": 12345, 'loan_account_no': 123,
              'sharecapital_amount': 200, 'savingsdeposit_thrift_amount': 200})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/daybookpdfdownload/2014-10-10/')
+        response = self.client.get(reverse(
+            "micro_admin:daybookpdfdownload",
+            kwargs={"date": "2014-10-10"}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(reverse(
@@ -517,12 +532,14 @@ class Admin_Views_test(TestCase):
              "loanpurpose_description": 'Hospitality'})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(
-            '/client/profile/' + str(self.member1.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:clientprofile",
+            kwargs={'pk': self.member1.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(
-            '/client/profile/update/' + str(self.member1.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:updateclientprofile",
+            kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('client/update-profile.html')
 
@@ -533,16 +550,16 @@ class Admin_Views_test(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/users/list/')
+        response = self.client.get(reverse("micro_admin:userslist"))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/branch/view/')
+        response = self.client.get(reverse("micro_admin:viewbranch"))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(reverse('micro_admin:groupslist'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clients/list/')
+        response = self.client.get(reverse("micro_admin:viewclient"))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
@@ -693,7 +710,7 @@ class Admin_Views_test(TestCase):
                     kwargs={'loanaccount_id': self.clientloan.id}))
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get('/receiptslist/')
+        response = self.client.get(reverse("micro_admin:receiptslist"))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
@@ -704,52 +721,61 @@ class Admin_Views_test(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/generalledger/')
+        response = self.client.get(reverse("micro_admin:generalledger"))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/fixeddeposits/')
+        response = self.client.get(reverse("micro_admin:fixeddeposits"))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientfixeddepositsprofile/' +
-                                   str(self.fixed_deposit.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:clientfixeddepositsprofile", kwargs={
+                'fixed_deposit_id': self.fixed_deposit.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/viewclientfixeddeposits/')
+        response = self.client.get(reverse(
+            "micro_admin:viewclientfixeddeposits"))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/viewdaybook/')
+        response = self.client.get(reverse("micro_admin:viewdaybook"))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/viewdaybook/', {'date': '10/10/2014'})
+        response = self.client.post(reverse(
+            "micro_admin:viewdaybook"), {'date': '10/10/2014'})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/viewparticularclientfixeddeposits/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:viewparticularclientfixeddeposits", kwargs={
+                'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/payslip/')
+        response = self.client.get(reverse('micro_admin:payslip'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(reverse("loans:grouploanaccountslist",
-                                           kwargs={'group_id': self.group1.id}))
+        response = self.client.get(reverse(
+            "loans:grouploanaccountslist",
+            kwargs={'group_id': self.group1.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(reverse("loans:clientloanaccountslist",
-                                           kwargs={'client_id': self.member1.id}))
+        response = self.client.get(reverse(
+            "loans:clientloanaccountslist",
+            kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/paymentslist/')
+        response = self.client.get(reverse('micro_admin:paymentslist'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/clientrecurringdepositsprofile/' +
-                                   str(self.recurring_deposit.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:clientrecurringdepositsprofile", kwargs={
+                'recurring_deposit_id': self.recurring_deposit.id}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/viewclientrecurringdeposits/')
+        response = self.client.get(reverse(
+            'micro_admin:viewclientrecurringdeposits'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/viewparticularclientrecurringdeposits/' +
-                                   str(self.member1.id) + '/')
+        response = self.client.get(reverse(
+            "micro_admin:viewparticularclientrecurringdeposits",
+            kwargs={'client_id': self.member1.id}))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(
@@ -770,10 +796,12 @@ class Admin_Views_test(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/daybookpdfdownload/2014-10-10/')
+        response = self.client.get(reverse(
+            "micro_admin:daybookpdfdownload",
+            kwargs={"date": "2014-10-10"}))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/generalledgerpdfdownload/')
+        response = self.client.get(reverse('micro_admin:generalledgerpdfdownload'))
         self.assertEqual(response.status_code, 200)
 
         # response = self.client.get('/userchangepassword/1/')
@@ -782,41 +810,41 @@ class Admin_Views_test(TestCase):
     #     response = self.client.post('/userchangepassword/1/', {'current_password': 'jag123', 'new_password': '123123', 'confirm_new_password': '123123'})
     #     self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/getmemberloanaccounts/',
+        response = self.client.post(reverse("micro_admin:getmemberloanaccounts"),
                                     {'account_number': 123})
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post('/getloandemands/',
+        response = self.client.post(reverse("micro_admin:getloandemands"),
                                     {'loan_account_no': 'GL1'})
         self.assertEqual(response.status_code, 200)
 
     def test_user_logout(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get("/logout/")
+        response = self.client.get(reverse('micro_admin:logout'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login/',
+        self.assertRedirects(response, reverse('micro_admin:login'),
                              status_code=302, target_status_code=200)
 
     def test_user_logout_without_login(self):
-        response = self.client.get("/logout/")
+        response = self.client.get(reverse('micro_admin:logout'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response, '')
 
     def test_user_login_view(self):
-        response = self.client.post("/login/", {
+        response = self.client.post(reverse('micro_admin:login'), {
             'username': 'jagadeesh', 'password': 'jag123'})
         self.assertEqual(response.status_code, 200)
 
     def test_user_login_wrong_input(self):
-        response = self.client.post("/login/", {
+        response = self.client.post(reverse('micro_admin:login'), {
             'username': 'jagadeesh', 'password': ''})
         self.assertEqual(response.status_code, 200)
 
     def test_create_branch_invalid_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/branch/create/', {
+        response = self.client.post(reverse("micro_admin:createbranch"), {
             'name': '', 'opening_date': '', 'country': '', 'state': '',
             'district': '', 'city': '', 'area': '', 'phone_number': '',
             'pincode': ''})
@@ -825,7 +853,7 @@ class Admin_Views_test(TestCase):
     def test_create_client_invalid_post_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/client/create/', {
+        response = self.client.post(reverse("micro_admin:createclient"), {
             "first_name": "", "last_name": "", "date_of_birth": '',
             "joined_date": "", "branch": "", "account_number": "",
             "gender": "", "client_role": "", "occupation": "",
@@ -1095,7 +1123,7 @@ class Admin_Views_test(TestCase):
     def test_receipts_deposit(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/receiptsdeposit/')
+        response = self.client.get(reverse("micro_admin:receiptsdeposit"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "receiptsform.html")
 
@@ -1113,14 +1141,16 @@ class Admin_Views_test(TestCase):
     def test_general_ledger(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/generalledger/', {"date": '2015-2-20'})
+        response = self.client.get(reverse(
+            "micro_admin:generalledger"), {"date": '2015-2-20'})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "generalledger.html")
 
     def test_day_book(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.post('/viewdaybook/', {"date": '2/20/2015'})
+        response = self.client.post(reverse(
+            "micro_admin:viewdaybook"), {"date": '2/20/2015'})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "day_book.html")
 
@@ -1128,43 +1158,47 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 25, "payment_type": 'OtherCharges',
-                          "amount": 0, "interest": '', "total_amount": 0,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 25, "payment_type": 'OtherCharges',
+             "amount": 0, "interest": '', "total_amount": 0,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_invalid_data(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"date": "", "branch": "", "voucher_number": "",
-                          "payment_type": "", "amount": "", "interest": "",
-                          "total_amount": "", "totalamount_in_words": ""})
+            reverse("micro_admin:payslip"),
+            {"date": "", "branch": "", "voucher_number": "",
+             "payment_type": "", "amount": "", "interest": "",
+             "total_amount": "", "totalamount_in_words": ""})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data1(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 36,
-                          "payment_type": 'TravellingAllowance',
-                          "amount": 500, "interest": '',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 36,
+             "payment_type": 'TravellingAllowance',
+             "amount": 500, "interest": '',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data2(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 2,
-                          "payment_type": 'TravellingAllowance',
-                          "amount": 500, "interest": '',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 2,
+             "payment_type": 'TravellingAllowance',
+             "amount": 500, "interest": '',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Please enter Employee Username
 
@@ -1172,12 +1206,13 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"staff_username": 'user', "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 3,
-                          "payment_type": 'TravellingAllowance',
-                          "amount": 500, "interest": '',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"staff_username": 'user', "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 3,
+             "payment_type": 'TravellingAllowance',
+             "amount": 500, "interest": '',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Entered Employee Username is incorrect
 
@@ -1188,12 +1223,13 @@ class Admin_Views_test(TestCase):
             username='user1', password='user1', email="user1@mp.com",
             branch=self.branch,)
         response = self.client.post(
-            '/payslip/', {"staff_username": 'user1', "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 4,
-                          "payment_type": 'TravellingAllowance',
-                          "amount": 500, "interest": '',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"staff_username": 'user1', "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 4,
+             "payment_type": 'TravellingAllowance',
+             "amount": 500, "interest": '',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # False
 
@@ -1205,13 +1241,14 @@ class Admin_Views_test(TestCase):
                             email="user1@mp.com",
                             branch=self.branch,)
         response = self.client.post(
-            '/payslip/', {"staff_username": 'user1',
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 5,
-                          "payment_type": 'TravellingAllowance',
-                          "amount": 500, "interest": '2',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"staff_username": 'user1',
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 5,
+             "payment_type": 'TravellingAllowance',
+             "amount": 500, "interest": '2',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # "Interest must be empty for TA and Payment of salary Voucher."
 
@@ -1222,13 +1259,14 @@ class Admin_Views_test(TestCase):
             username='user1', password='user1', email="user1@mp.com",
             branch=self.branch,)
         response = self.client.post(
-            '/payslip/', {"staff_username": 'user1', "date": '2/20/2015',
-                          "branch": self.branch.id,
-                          "voucher_number": 6,
-                          "payment_type": 'TravellingAllowance',
-                          "amount": 50, "interest": '',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"staff_username": 'user1', "date": '2/20/2015',
+             "branch": self.branch.id,
+             "voucher_number": 6,
+             "payment_type": 'TravellingAllowance',
+             "amount": 50, "interest": '',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Entered total amount is not equal to amount.
 
@@ -1236,46 +1274,50 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 7,
-                          "payment_type": 'PrintingCharges',
-                          "amount": 500, "interest": '',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 7,
+             "payment_type": 'PrintingCharges',
+             "amount": 500, "interest": '',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data8(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 8,
-                          "payment_type": 'PrintingCharges',
-                          "amount": 50, "interest": '',
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 8,
+             "payment_type": 'PrintingCharges',
+             "amount": 50, "interest": '',
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data9(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 9,
-                          "payment_type": 'PrintingCharges',
-                          "amount": 50, "interest": 1, "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 9,
+             "payment_type": 'PrintingCharges',
+             "amount": 50, "interest": 1, "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_10(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"client_name": "", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 10,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 50, "interest": 1, "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"client_name": "", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 10,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 50, "interest": 1, "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Please enter the Member First Name
 
@@ -1283,13 +1325,14 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"client_name": "Micro1",
-                          "client_account_number": '', "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 11,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 50, "interest": 1,
-                          "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"client_name": "Micro1",
+             "client_account_number": '', "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 11,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 50, "interest": 1,
+             "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Please enter the Member Account number
 
@@ -1297,13 +1340,14 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"client_name": "Micro1",
-                          "client_account_number": '1234',
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 12,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 50, "interest": 1, "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"client_name": "Micro1",
+             "client_account_number": '1234',
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 12,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 50, "interest": 1, "total_amount": 500,
+              "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Please enter the Group name of the Member.
 
@@ -1311,13 +1355,14 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"client_name": "Micro12",
-                          "client_account_number": '12345',
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 13,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 50, "interest": 1, "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"client_name": "Micro12",
+             "client_account_number": '12345',
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 13,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 50, "interest": 1, "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Member does not exists with this First Name and A/C Number. Please enter correct details.
 
@@ -1332,13 +1377,14 @@ class Admin_Views_test(TestCase):
             annual_income=2000, country='Ind', state='AP', district='Nellore',
             city='Nellore', area='rfc')
         response = self.client.post(
-            '/payslip/', {"client_name": "Micro12",
-                          "client_account_number": '12345',
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 14,
-                          "payment_type": 'SavingsWithdrawal', "amount": 50,
-                          "interest": 1, "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"client_name": "Micro12",
+             "client_account_number": '12345',
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 14,
+             "payment_type": 'SavingsWithdrawal', "amount": 50,
+             "interest": 1, "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Member does not have Savings Account to withdraw amount.
 
@@ -1346,13 +1392,14 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"client_name": "Micro1",
-                          "client_account_number": '1234',
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 15,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 500, "interest": 1, "total_amount": 500,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"client_name": "Micro1",
+             "client_account_number": '1234',
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 15,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 500, "interest": 1, "total_amount": 500,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Member Savings Account does not have sufficient balance.
 
@@ -1360,12 +1407,13 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "", "client_name": "Micro1",
-                          "client_account_number": 1234, "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 16,
-                          "payment_type": 'SavingsWithdrawal', "amount": 50,
-                          "interest": '', "total_amount": 50,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "", "client_name": "Micro1",
+             "client_account_number": 1234, "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 16,
+             "payment_type": 'SavingsWithdrawal', "amount": 50,
+             "interest": '', "total_amount": 50,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Please enter the Group name of the Member.
 
@@ -1373,12 +1421,13 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "client_name": "Micro",
-                          "client_account_number": 123, "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 17,
-                          "payment_type": 'SavingsWithdrawal', "amount": 50,
-                          "interest": '', "total_amount": 50,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "client_name": "Micro",
+             "client_account_number": 123, "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 17,
+             "payment_type": 'SavingsWithdrawal', "amount": 50,
+             "interest": '', "total_amount": 50,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Member does not belong to the entered Group Name.
 
@@ -1386,14 +1435,15 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": 3,
-                          "client_name": "Micro1",
-                          "client_account_number": 1234,
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 18,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 50, "interest": '', "total_amount": 50,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": 3,
+             "client_name": "Micro1",
+             "client_account_number": 1234,
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 18,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 50, "interest": '', "total_amount": 50,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
         # Entered Group A/C Number is incorrect.
 
@@ -1401,163 +1451,176 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": 2,
-                          "client_name": "Micro1",
-                          "client_account_number": 1234,
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 19,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 50, "interest": '', "total_amount": 50,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": 2,
+             "client_name": "Micro1",
+             "client_account_number": 1234,
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 19,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 50, "interest": '', "total_amount": 50,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_20(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2",
-                          "group_account_number": 2, "client_name": "Micro1",
-                          "client_account_number": 1234, "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 20,
-                          "payment_type": 'SavingsWithdrawal', "amount": 50,
-                          "interest": '', "total_amount": 51,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2",
+             "group_account_number": 2, "client_name": "Micro1",
+             "client_account_number": 1234, "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 20,
+             "payment_type": 'SavingsWithdrawal', "amount": 50,
+             "interest": '', "total_amount": 51,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_21(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": 2,
-                          "client_name": "Micro1",
-                          "client_account_number": 1234, "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 21,
-                          "payment_type": 'SavingsWithdrawal', "amount": 50,
-                          "interest": 1, "total_amount": 51,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": 2,
+             "client_name": "Micro1",
+             "client_account_number": 1234, "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 21,
+             "payment_type": 'SavingsWithdrawal', "amount": 50,
+             "interest": 1, "total_amount": 51,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_22(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": 2,
-                          "client_name": "Micro1",
-                          "client_account_number": 1234,
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 22,
-                          "payment_type": 'SavingsWithdrawal',
-                          "amount": 50, "interest": 1, "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": 2,
+             "client_name": "Micro1",
+             "client_account_number": 1234,
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 22,
+             "payment_type": 'SavingsWithdrawal',
+             "amount": 50, "interest": 1, "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_23(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"client_name": "Micro1",
-                          "client_account_number": 1234,
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 23, "payment_type": 'Loans',
-                          "amount": 50, "interest": 1, "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"client_name": "Micro1",
+             "client_account_number": 1234,
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 23, "payment_type": 'Loans',
+             "amount": 50, "interest": 1, "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_24(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": 2,
-                          "client_name": "Micro1",
-                          "client_account_number": 1234, "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 23,
-                          "payment_type": 'Loans', "amount": 50,
-                          "interest": "", "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": 2,
+             "client_name": "Micro1",
+             "client_account_number": 1234, "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 23,
+             "payment_type": 'Loans', "amount": 50,
+             "interest": "", "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_25(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 24,
-                          "payment_type": 'Loans', "amount": 50,
-                          "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 24,
+             "payment_type": 'Loans', "amount": 50,
+             "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_26(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2",
-                          "group_account_number": "",
-                          "date": '2/20/2015', "branch": self.branch.id,
-                          "voucher_number": 25, "payment_type": 'Loans',
-                          "amount": 50, "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2",
+             "group_account_number": "",
+             "date": '2/20/2015', "branch": self.branch.id,
+             "voucher_number": 25, "payment_type": 'Loans',
+             "amount": 50, "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_27(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group3",
-                          "group_account_number": "3", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 26,
-                          "payment_type": 'Loans', "amount": 50,
-                          "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group3",
+             "group_account_number": "3", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 26,
+             "payment_type": 'Loans', "amount": 50,
+             "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_28(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2",
-                          "group_account_number": "2", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 26,
-                          "payment_type": 'Loans', "amount": 50,
-                          "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2",
+             "group_account_number": "2", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 26,
+             "payment_type": 'Loans', "amount": 50,
+             "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_29(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2",
-                          "group_account_number": "2",
-                          "group_loan_account_no": "GL2", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 27,
-                          "payment_type": 'Loans', "amount": 50,
-                          "total_amount": 52,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2",
+             "group_account_number": "2",
+             "group_loan_account_no": "GL2", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 27,
+             "payment_type": 'Loans', "amount": 50,
+             "total_amount": 52,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_30(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": "2",
-                          "group_loan_account_no": "GL2", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 27,
-                          "payment_type": 'Loans', "amount": 50,
-                          "total_amount": 50,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": "2",
+             "group_loan_account_no": "GL2", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 27,
+             "payment_type": 'Loans', "amount": 50,
+             "total_amount": 50,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_31(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": "2",
-                          "group_loan_account_no": "GL2", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 27,
-                          "payment_type": 'Loans', "amount": 12000,
-                          "total_amount": 12000,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": "2",
+             "group_loan_account_no": "GL2", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 27,
+             "payment_type": 'Loans', "amount": 12000,
+             "total_amount": 12000,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_32(self):
@@ -1574,46 +1637,50 @@ class Admin_Views_test(TestCase):
             interest_charged=20, total_loan_balance=12000,
             principle_repayment=1000)
         response = self.client.post(
-            '/payslip/', {"group_name": "group4", "group_account_number": "4",
-                          "group_loan_account_no": "GL4", "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 27,
-                          "payment_type": 'Loans', "amount": 12000,
-                          "total_amount": 12000,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group4", "group_account_number": "4",
+             "group_loan_account_no": "GL4", "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 27,
+             "payment_type": 'Loans', "amount": 12000,
+             "total_amount": 12000,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_payslip_post_data_33(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
         response = self.client.post(
-            '/payslip/', {"group_name": "group2", "group_account_number": "",
-                          "client_name": "Micro1",
-                          "client_account_number": 1234, "date": '2/20/2015',
-                          "branch": self.branch.id, "voucher_number": 18,
-                          "payment_type": 'SavingsWithdrawal', "amount": 50,
-                          "interest": '', "total_amount": 50,
-                          "totalamount_in_words": '1 rupee'})
+            reverse("micro_admin:payslip"),
+            {"group_name": "group2", "group_account_number": "",
+             "client_name": "Micro1",
+             "client_account_number": 1234, "date": '2/20/2015',
+             "branch": self.branch.id, "voucher_number": 18,
+             "payment_type": 'SavingsWithdrawal', "amount": 50,
+             "interest": '', "total_amount": 50,
+             "totalamount_in_words": '1 rupee'})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_invalid_data(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"date": "", "name": "", "account_number": "",
-                                  "branch": self.branch.id,
-                                  "receipt_number": ""})
+            reverse("micro_admin:receiptsdeposit"),
+            {"date": "", "name": "", "account_number": "",
+             "branch": self.branch.id,
+             "receipt_number": ""})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data1(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 0,
-                                  "sharecapital_amount": 100,
-                                  "date": "2/2/2015",
-                                  "name": "Micro", "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": "2"})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 0,
+             "sharecapital_amount": 100,
+             "date": "2/2/2015",
+             "name": "Micro", "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": "2"})
         self.assertEqual(response.status_code, 200)
         # False
 
@@ -1621,19 +1688,20 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 0,
-                                  "entrancefee_amount": 1000,
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 3})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 0,
+             "entrancefee_amount": 1000,
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 3})
         self.assertEqual(response.status_code, 200)
         # False
 
     def test_receipts_deposit_post_data3(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"loaninterest_amount": 0,
                                      "membershipfee_amount": 110,
                                      "date": "2/2/2015",
@@ -1648,11 +1716,12 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 0,
-                                  "bookfee_amount": 10, "date": "2/2/2015",
-                                  "name": "Micro", "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 0,
+             "bookfee_amount": 10, "date": "2/2/2015",
+             "name": "Micro", "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # False
 
@@ -1660,11 +1729,12 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 0,
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": "1235",
-                                  "branch": self.branch.id,
-                                  "receipt_number": "2"})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 0,
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": "1235",
+             "branch": self.branch.id,
+             "receipt_number": "2"})
         self.assertEqual(response.status_code, 200)
         # No Client exists with this First Name and Account number.
 
@@ -1672,13 +1742,14 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 10,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 0,
+             "loanprocessingfee_amount": 10,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # Please enter the Member Loan Account Number to pay the Loan processing fee.
 
@@ -1686,16 +1757,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # False
 
@@ -1703,16 +1775,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": "",
-                                  "group_loan_account_no": "GL1",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": "",
+             "group_loan_account_no": "GL1",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # Please enter the Group Name and Account Number.
 
@@ -1720,17 +1793,18 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group2",
-                                  "group_account_number": "2",
-                                  "group_loan_account_no": "GL1",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group2",
+             "group_account_number": "2",
+             "group_loan_account_no": "GL1",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # Member does not belong to this group.
 
@@ -1738,17 +1812,18 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 3,
-                                  "group_loan_account_no": "GL1",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 3,
+             "group_loan_account_no": "GL1",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # No Group exists with this name.
 
@@ -1756,16 +1831,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL3",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015",
-                                  "name": "Micro", "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL3",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015",
+             "name": "Micro", "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # Loan does not exists with this Loan Account Number for this Group.
 
@@ -1773,13 +1849,14 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loan_account_no": "CL3",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loan_account_no": "CL3",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # Loan does not exists with this Loan Account Number for this Member.
 
@@ -1787,16 +1864,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015",
-                                  "name": "Micro", "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"), 
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015",
+             "name": "Micro", "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # Please enter the group loan account number.
 
@@ -1821,17 +1899,18 @@ class Admin_Views_test(TestCase):
                                    total_loan_balance=12000,
                                    principle_repayment=1000)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "",
-                                  "loaninterest_amount": 0,
-                                  "loanprocessingfee_amount": 1000,
-                                  "date": "2/2/2015",
-                                  "name": "Micro4",
-                                  "account_number": "4",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5,
-                                  "loan_account_no": "CL4"})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "",
+             "loaninterest_amount": 0,
+             "loanprocessingfee_amount": 1000,
+             "date": "2/2/2015",
+             "name": "Micro4",
+             "account_number": "4",
+             "branch": self.branch.id,
+             "receipt_number": 5,
+             "loan_account_no": "CL4"})
         self.assertEqual(response.status_code, 200)
         # Member has not been assigned to any group.
 
@@ -1839,16 +1918,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100,
-                                  "group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 5})
+            reverse("micro_admin:receiptsdeposit"),
+            {"savingsdeposit_thrift_amount": 100,
+             "group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 5})
         self.assertEqual(response.status_code, 200)
         # False
 
@@ -1877,15 +1957,16 @@ class Admin_Views_test(TestCase):
         self.g3.clients.add(self.group_client1)
         self.g3.save()
         response = self.client.post(
-            "/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100,
-                                  "group_name": "group3",
-                                  "group_account_number": 3,
-                                  "loaninterest_amount": 0,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 6})
+            reverse("micro_admin:receiptsdeposit"),
+            {"savingsdeposit_thrift_amount": 100,
+             "group_name": "group3",
+             "group_account_number": 3,
+             "loaninterest_amount": 0,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 6})
         self.assertEqual(response.status_code, 200)
         # "Member does not belong to this Group.Please check Group Name and Account Number.
 
@@ -1912,7 +1993,7 @@ class Admin_Views_test(TestCase):
         self.g4.clients.add(self.group_client2)
         self.g4.save()
         response = self.client.post(
-            "/receiptsdeposit/",
+            reverse("micro_admin:receiptsdeposit"),
             {"savingsdeposit_thrift_amount": 100,
              "group_name": "group4", "group_account_number": 4,
              "group_loan_account_no": "", "loan_account_no": "CL1",
@@ -1934,15 +2015,16 @@ class Admin_Views_test(TestCase):
             city='Nellore', area='rfc')
         self.group1.clients.add(self.group_client3)
         response = self.client.post(
-            "/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100,
-                                  "group_name": "group1",
-                                  "group_account_number": 1,
-                                  "loaninterest_amount": 0,
-                                  "date": "2/2/2015",
-                                  "name": "Micro6",
-                                  "account_number": "6",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 11})
+            reverse("micro_admin:receiptsdeposit"),
+            {"savingsdeposit_thrift_amount": 100,
+             "group_name": "group1",
+             "group_account_number": 1,
+             "loaninterest_amount": 0,
+             "date": "2/2/2015",
+             "name": "Micro6",
+             "account_number": "6",
+             "branch": self.branch.id,
+             "receipt_number": 11})
         self.assertEqual(response.status_code, 200)
         # Member does not have savings account to make thrift deposit.
 
@@ -1950,17 +2032,18 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100,
-                                  "group_name": "group5",
-                                  "group_account_number": 5,
-                                  "group_loan_account_no": "",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 8})
+            reverse("micro_admin:receiptsdeposit"),
+            {"savingsdeposit_thrift_amount": 100,
+             "group_name": "group5",
+             "group_account_number": 5,
+             "group_loan_account_no": "",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 8})
         self.assertEqual(response.status_code, 200)
         # No Group exists with this Name and Account Number.
 
@@ -1968,17 +2051,18 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"savingsdeposit_thrift_amount": 100,
-                                  "group_name": "",
-                                  "group_account_number": "",
-                                  "group_loan_account_no": "",
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 9})
+            reverse("micro_admin:receiptsdeposit"),
+            {"savingsdeposit_thrift_amount": 100,
+             "group_name": "",
+             "group_account_number": "",
+             "group_loan_account_no": "",
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 9})
         self.assertEqual(response.status_code, 200)
         # Please enter Group Name and Account Number.
 
@@ -1986,14 +2070,15 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"recurringdeposit_amount": 100,
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 12})
+            reverse("micro_admin:receiptsdeposit"),
+            {"recurringdeposit_amount": 100,
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 12})
         self.assertEqual(response.status_code, 200)
         # False
 
@@ -2010,21 +2095,22 @@ class Admin_Views_test(TestCase):
             city='Nellore', area='rfc')
 
         response = self.client.post(
-            "/receiptsdeposit/", {"recurringdeposit_amount": 100,
-                                  "loan_account_no": "CL1",
-                                  "loaninterest_amount": 0,
-                                  "date": "2/2/2015",
-                                  "name": "Micro7",
-                                  "account_number": "7",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 13})
+            reverse("micro_admin:receiptsdeposit"),
+            {"recurringdeposit_amount": 100,
+             "loan_account_no": "CL1",
+             "loaninterest_amount": 0,
+             "date": "2/2/2015",
+             "name": "Micro7",
+             "account_number": "7",
+             "branch": self.branch.id,
+             "receipt_number": 13})
         self.assertEqual(response.status_code, 200)
         # Member does not have savings account.
 
     def test_receipts_deposit_post_data23(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"loaninterest_amount": 0,
                                      "insurance_amount": 10,
                                      "date": "2/2/2015",
@@ -2039,14 +2125,15 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 100,
-                                  "loan_account_no": "",
-                                  "insurance_amount": 10,
-                                  "date": "2/2/2015",
-                                  "name": "Micro1",
-                                  "account_number": "1234",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 15})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 100,
+             "loan_account_no": "",
+             "insurance_amount": 10,
+             "date": "2/2/2015",
+             "name": "Micro1",
+             "account_number": "1234",
+             "branch": self.branch.id,
+             "receipt_number": 15})
         self.assertEqual(response.status_code, 200)
         # Please enter the the Member Loan A/C Number.
 
@@ -2054,14 +2141,15 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 100,
-                                  "loan_account_no": "CL1",
-                                  "insurance_amount": 10,
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": "123",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 16})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 100,
+             "loan_account_no": "CL1",
+             "insurance_amount": 10,
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": "123",
+             "branch": self.branch.id,
+             "receipt_number": 16})
         self.assertEqual(response.status_code, 200)
         # Please enter the the Group Loan A/C Number.
 
@@ -2069,20 +2157,21 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"loaninterest_amount": 100,
-                                  "loan_account_no": "CL2",
-                                  "insurance_amount": 10,
-                                  "date": "2/2/2015",
-                                  "name": "Micro1",
-                                  "account_number": "1234",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 17})
+            reverse("micro_admin:receiptsdeposit"),
+            {"loaninterest_amount": 100,
+             "loan_account_no": "CL2",
+             "insurance_amount": 10,
+             "date": "2/2/2015",
+             "name": "Micro1",
+             "account_number": "1234",
+             "branch": self.branch.id,
+             "receipt_number": 17})
         self.assertEqual(response.status_code, 200)
         # "Member does not have any Loan to pay the Loan interest amount.
 
     # def test_receipts_deposit_post_data27(self):
     #     user_login = self.client.login(username="jagadeesh", password="jag123")
-    #     response = self.client.post("/receiptsdeposit/", {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loaninterest_amount": 100, "loan_account_no": "CL1", "insurance_amount": 10, "date": "2/2/2015", "name": "Micro", "account_number": "123", "branch": self.branch.id, "receipt_number": 18})
+    #     response = self.client.post(reverse("micro_admin:receiptsdeposit"), {"group_name": "group1", "group_account_number": 1, "group_loan_account_no": "GL1", "loaninterest_amount": 100, "loan_account_no": "CL1", "insurance_amount": 10, "date": "2/2/2015", "name": "Micro", "account_number": "123", "branch": self.branch.id, "receipt_number": 18})
     #     self.assertEqual(response.status_code, 200)
         #
         # self.assertTrue('"error": false' in response.content)
@@ -2111,7 +2200,7 @@ class Admin_Views_test(TestCase):
             branch=self.branch)
         self.g4.clients.add(self.group_client2)
         self.g4.save()
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "group5",
                                      "group_account_number": 4,
                                      "group_loan_account_no": "GL1",
@@ -2134,7 +2223,7 @@ class Admin_Views_test(TestCase):
                                        account_number='4',
                                        activation_date='2014-1-1',
                                        branch=self.branch)
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "group5",
                                      "group_account_number": 4,
                                      "group_loan_account_no": "GL1",
@@ -2157,7 +2246,7 @@ class Admin_Views_test(TestCase):
                                        account_number='4',
                                        activation_date='2014-1-1',
                                        branch=self.branch)
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "group5",
                                      "group_account_number": 11,
                                      "group_loan_account_no": "GL1",
@@ -2180,7 +2269,7 @@ class Admin_Views_test(TestCase):
                                        account_number='4',
                                        activation_date='2014-1-1',
                                        branch=self.branch)
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "",
                                      "group_account_number": "",
                                      "group_loan_account_no": "GL1",
@@ -2218,24 +2307,25 @@ class Admin_Views_test(TestCase):
             name='group5', created_by=self.staff, account_number='4',
             activation_date='2014-1-1', branch=self.branch)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group5",
-                                  "group_account_number": 4,
-                                  "group_loan_account_no": "GL1",
-                                  "loaninterest_amount": 100,
-                                  "loan_account_no": "CL5",
-                                  "insurance_amount": 10,
-                                  "date": "2/2/2015",
-                                  "name": "Micro5",
-                                  "account_number": "5",
-                                  "branch": self.branch.id,
-                                  "receipt_number": 23})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group5",
+             "group_account_number": 4,
+             "group_loan_account_no": "GL1",
+             "loaninterest_amount": 100,
+             "loan_account_no": "CL5",
+             "insurance_amount": 10,
+             "date": "2/2/2015",
+             "name": "Micro5",
+             "account_number": "5",
+             "branch": self.branch.id,
+             "receipt_number": 23})
         self.assertEqual(response.status_code, 200)
         # Member has not been assigned to any group._loaninterest_amount
 
     def test_receipts_deposit_post_data33(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"loanprinciple_amount": 100,
                                      "loan_account_no": "CL1",
                                      "date": "2/2/2015",
@@ -2250,7 +2340,7 @@ class Admin_Views_test(TestCase):
     def test_receipts_deposit_post_data34(self):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"loanprinciple_amount": 100,
                                      "loan_account_no": "CL5",
                                      "date": "2/2/2015",
@@ -2284,16 +2374,17 @@ class Admin_Views_test(TestCase):
             activation_date='2014-1-1', branch=self.branch)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group5",
-                                  "group_account_number": 4,
-                                  "loanprinciple_amount": 100,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "loaninterest_amount": 0,
-                                  "name": "Micro5",
-                                  "account_number": 5,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 26})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group5",
+             "group_account_number": 4,
+             "loanprinciple_amount": 100,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "loaninterest_amount": 0,
+             "name": "Micro5",
+             "account_number": 5,
+             "branch": self.branch.id,
+             "receipt_number": 26})
         self.assertEqual(response.status_code, 200)
         # Member has not been assigned to any group.
 
@@ -2301,16 +2392,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "",
-                                  "group_account_number": "",
-                                  "loanprinciple_amount": 100,
-                                  "loan_account_no": "CL1",
-                                  "date": "2/2/2015",
-                                  "loaninterest_amount": 0,
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 27})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "",
+             "group_account_number": "",
+             "loanprinciple_amount": 100,
+             "loan_account_no": "CL1",
+             "date": "2/2/2015",
+             "loaninterest_amount": 0,
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 27})
         self.assertEqual(response.status_code, 200)
         # Please enter the Group Name and Account Number.
 
@@ -2318,16 +2410,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "g1",
-                                  "group_account_number": "1",
-                                  "loanprinciple_amount": 100,
-                                  "loan_account_no": "CL1",
-                                  "date": "2/2/2015",
-                                  "loaninterest_amount": 0,
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 28})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "g1",
+             "group_account_number": "1",
+             "loanprinciple_amount": 100,
+             "loan_account_no": "CL1",
+             "date": "2/2/2015",
+             "loaninterest_amount": 0,
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 28})
         self.assertEqual(response.status_code, 200)
         # Group does not exists with this Name and Account Number.
 
@@ -2335,16 +2428,17 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "loanprinciple_amount": 100,
-                                  "loan_account_no": "CL1",
-                                  "date": "2/2/2015",
-                                  "loaninterest_amount": 0,
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 29})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "loanprinciple_amount": 100,
+             "loan_account_no": "CL1",
+             "date": "2/2/2015",
+             "loaninterest_amount": 0,
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 29})
         self.assertEqual(response.status_code, 200)
         # Please enter the group loan account number.
 
@@ -2352,17 +2446,18 @@ class Admin_Views_test(TestCase):
         user_login = self.client.login(username="jagadeesh", password="jag123")
         self.assertTrue(user_login)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 100,
-                                  "loan_account_no": "CL1",
-                                  "date": "2/2/2015",
-                                  "loaninterest_amount": 0,
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 30})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 100,
+             "loan_account_no": "CL1",
+             "date": "2/2/2015",
+             "loaninterest_amount": 0,
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 30})
         self.assertEqual(response.status_code, 200)
         # Loan Payment has not yet done.
 
@@ -2372,17 +2467,18 @@ class Admin_Views_test(TestCase):
         self.grouploan.loan_issued_date = '2015-2-2'
         self.grouploan.save()
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 13000,
-                                  "loan_account_no": "CL1",
-                                  "date": "2/2/2015",
-                                  "loaninterest_amount": 0,
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 31})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 13000,
+             "loan_account_no": "CL1",
+             "date": "2/2/2015",
+             "loaninterest_amount": 0,
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 31})
         self.assertEqual(response.status_code, 200)
         # Amount is greater than loan balance.
 
@@ -2427,7 +2523,7 @@ class Admin_Views_test(TestCase):
         #                            principle_repayment=0,
         #                            loan_issued_date="2015-2-2")
 
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "group6",
                                      "group_account_number": 6,
                                      "group_loan_account_no": "GL6",
@@ -2457,7 +2553,7 @@ class Admin_Views_test(TestCase):
             total_loan_balance=0, principle_repayment=0
         )
 
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "group1",
                                      "group_account_number": 1,
                                      "group_loan_account_no": "GL1",
@@ -2487,17 +2583,18 @@ class Admin_Views_test(TestCase):
         )
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 100,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "loaninterest_amount": 100,
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 34})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 100,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "loaninterest_amount": 100,
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 34})
         self.assertEqual(response.status_code, 200)
         # Entered interest amount is greater than interest charged.
 
@@ -2517,17 +2614,18 @@ class Admin_Views_test(TestCase):
         )
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 13000,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 35})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 13000,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 35})
         self.assertEqual(response.status_code, 200)
         # Amount is greater than issued loan amount. Transaction can't be done.
 
@@ -2547,17 +2645,18 @@ class Admin_Views_test(TestCase):
         )
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 1000,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 36})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 1000,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 36})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data46(self):
@@ -2577,17 +2676,18 @@ class Admin_Views_test(TestCase):
         )
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 37})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 37})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data47(self):
@@ -2606,17 +2706,18 @@ class Admin_Views_test(TestCase):
         )
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 38})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 38})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data48(self):
@@ -2636,17 +2737,18 @@ class Admin_Views_test(TestCase):
         )
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 39})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 39})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data49(self):
@@ -2665,7 +2767,7 @@ class Admin_Views_test(TestCase):
             principle_repayment=100
         )
 
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "group1",
                                      "group_account_number": 1,
                                      "group_loan_account_no": "GL1",
@@ -2695,7 +2797,7 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0
         )
 
-        response = self.client.post("/receiptsdeposit/",
+        response = self.client.post(reverse("micro_admin:receiptsdeposit"),
                                     {"group_name": "group1",
                                      "group_account_number": 1,
                                      "group_loan_account_no": "GL1",
@@ -2725,15 +2827,16 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL5", "date": "2/2/2015",
-                                  "name": "Micro", "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 42})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL5", "date": "2/2/2015",
+             "name": "Micro", "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 42})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data52(self):
@@ -2751,16 +2854,17 @@ class Admin_Views_test(TestCase):
             principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 10,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015",
-                                  "name": "Micro", "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 41})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 10,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015",
+             "name": "Micro", "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 41})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data53(self):
@@ -2778,15 +2882,16 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 10,
-                                  "loan_account_no": "CL5", "date": "2/2/2015",
-                                  "name": "Micro", "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 42})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 10,
+             "loan_account_no": "CL5", "date": "2/2/2015",
+             "name": "Micro", "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 42})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data_53(self):
@@ -2804,15 +2909,16 @@ class Admin_Views_test(TestCase):
             principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 10,
-                                  "loan_account_no": "CL5", "date": "2/2/2015",
-                                  "name": "Micro", "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 43})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 10,
+             "loan_account_no": "CL5", "date": "2/2/2015",
+             "name": "Micro", "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 43})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data54(self):
@@ -2830,16 +2936,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=100)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 10,
-                                  "loaninterest_amount": 10,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 44})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 10,
+             "loaninterest_amount": 10,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 44})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data55(self):
@@ -2856,16 +2963,17 @@ class Admin_Views_test(TestCase):
             loanpurpose_description='Home Loan', interest_charged=14,
             principle_repayment=0)
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 14,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 45})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 14,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 45})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data56(self):
@@ -2883,16 +2991,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 10,
-                                  "loan_account_no": "CL5",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 46})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 10,
+             "loan_account_no": "CL5",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 46})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data64(self):
@@ -2911,16 +3020,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL6",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 54})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL6",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 54})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data65(self):
@@ -2939,16 +3049,17 @@ class Admin_Views_test(TestCase):
             principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 10,
-                                  "loan_account_no": "CL6",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 55})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 10,
+             "loan_account_no": "CL6",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 55})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data66(self):
@@ -2967,15 +3078,16 @@ class Admin_Views_test(TestCase):
             principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 12000,
-                                  "loaninterest_amount": 10,
-                                  "loan_account_no": "CL7", "date": "2/2/2015",
-                                  "name": "Micro", "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 56})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 12000,
+             "loaninterest_amount": 10,
+             "loan_account_no": "CL7", "date": "2/2/2015",
+             "name": "Micro", "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 56})
         self.assertEqual(response.status_code, 200)
 
     def test_receipts_deposit_post_data57(self):
@@ -2991,16 +3103,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL6",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 47})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL6",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 47})
         self.assertEqual(response.status_code, 200)
         # Member Loan / Group Loan is under pending for approval.
 
@@ -3020,16 +3133,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL7",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 48})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL7",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 48})
         self.assertEqual(response.status_code, 200)
         # Member Loan has been Rejected.
 
@@ -3048,16 +3162,17 @@ class Admin_Views_test(TestCase):
             principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL8",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 49})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL8",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 49})
         self.assertEqual(response.status_code, 200)
         # Member Loan has been Closed.
 
@@ -3077,17 +3192,18 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL9",
-                                  "date": "2/2/2015",
-                                  "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 50})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL9",
+             "date": "2/2/2015",
+             "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 50})
         self.assertEqual(response.status_code, 200)
         # Group Loan is under pending for approval.
 
@@ -3108,16 +3224,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL10",
-                                  "date": "2/2/2015",
-                                  "name": "Micro", "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 51})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL10",
+             "date": "2/2/2015",
+             "name": "Micro", "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 51})
         self.assertEqual(response.status_code, 200)
         # Group Loan is under pending for approval.
 
@@ -3138,16 +3255,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL11",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 52})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL11",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 52})
         self.assertEqual(response.status_code, 200)
         # Group Loan has been Rejected.
 
@@ -3167,16 +3285,17 @@ class Admin_Views_test(TestCase):
             interest_charged=12, principle_repayment=0)
 
         response = self.client.post(
-            "/receiptsdeposit/", {"group_name": "group1",
-                                  "group_account_number": 1,
-                                  "group_loan_account_no": "GL1",
-                                  "loanprinciple_amount": 0,
-                                  "loaninterest_amount": 12,
-                                  "loan_account_no": "CL12",
-                                  "date": "2/2/2015", "name": "Micro",
-                                  "account_number": 123,
-                                  "branch": self.branch.id,
-                                  "receipt_number": 53})
+            reverse("micro_admin:receiptsdeposit"),
+            {"group_name": "group1",
+             "group_account_number": 1,
+             "group_loan_account_no": "GL1",
+             "loanprinciple_amount": 0,
+             "loaninterest_amount": 12,
+             "loan_account_no": "CL12",
+             "date": "2/2/2015", "name": "Micro",
+             "account_number": 123,
+             "branch": self.branch.id,
+             "receipt_number": 53})
         self.assertEqual(response.status_code, 200)
         # Group Loan has been Closed.
 
@@ -3296,7 +3415,7 @@ class Admin_Views_test(TestCase):
             interest_charged=20, total_loan_balance=12000,
             principle_repayment=1000)
         response = self.client.post(
-            '/getloandemands/', {'loan_account_no': 'GL3'})
+            reverse("micro_admin:getloandemands"), {'loan_account_no': 'GL3'})
         self.assertEqual(response.status_code, 200)
 
     def test_getloan_demands1(self):
@@ -3310,13 +3429,13 @@ class Admin_Views_test(TestCase):
             annual_interest_rate=2, loanpurpose_description='Home Loan',
             interest_charged=0, total_loan_balance=0, principle_repayment=0)
         response = self.client.post(
-            '/getloandemands/', {'loan_account_no': 'GL3'})
+            reverse("micro_admin:getloandemands"), {'loan_account_no': 'GL3'})
         self.assertEqual(response.status_code, 200)
 
     def test_getmemberloanaccounts(self):
         user_login = self.client.login(username='jagadeesh', password='jag123')
         self.assertTrue(user_login)
-        response = self.client.get('/getmemberloanaccounts/')
+        response = self.client.get(reverse("micro_admin:getmemberloanaccounts"))
         self.assertEqual(response.status_code, 200)
 
     def test_getmemberloanaccounts1(self):
@@ -3330,7 +3449,8 @@ class Admin_Views_test(TestCase):
             annual_income=2000, country='Ind', state='AP', district='Nellore',
             city='Nellore', area='rfc')
         response = self.client.post(
-            '/getmemberloanaccounts/', {'account_number': 10})
+            reverse("micro_admin:getmemberloanaccounts"),
+            {'account_number': 10})
         self.assertEqual(response.status_code, 200)
         # No Member exists with this Account Number.
 
@@ -3345,5 +3465,6 @@ class Admin_Views_test(TestCase):
             annual_income=2000, country='Ind', state='AP',
             district='Nellore', city='Nellore', area='rfc')
         response = self.client.post(
-            '/getmemberloanaccounts/', {'account_number': 11})
+            reverse("micro_admin:getmemberloanaccounts"),
+            {'account_number': 11})
         self.assertEqual(response.status_code, 200)
