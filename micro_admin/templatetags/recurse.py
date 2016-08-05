@@ -68,3 +68,4 @@ def do_recurse(parser, token):
 
     return RecurseNode(var, name, child, nodeList)
 do_recurse = register.tag('recurse', do_recurse)
+
