@@ -6,7 +6,7 @@ from front_end.views import FrontIndexView, PageView
 
 
 urlpatterns = [
-	url(r'^$', FrontIndexView.as_view(), name='microfinance_front_index'),
+    url(r'^$', FrontIndexView.as_view(), name='microfinance_front_index'),
     url(r'^dashboard/', include('micro_admin.urls', namespace='micro_admin')),
     url(r'^dashboard/', include('savings.urls', namespace='savings')),
     url(r'^dashboard/', include('loans.urls', namespace='loans')),
@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^blogs/', include(django_blog_it_urls)),
 
-	url(r'^(?P<slug>[-\w]+)/$', PageView.as_view()),
+    url(r'^(?P<slug>[-\w]+)/$', PageView.as_view()),
 ]
 
 if settings.DEBUG:
