@@ -47,13 +47,13 @@
       $(document).ready(function(){
       $('.login-btn').click(function(e) {
         e.preventDefault();
-        $.post('/login/', $('#loginform').serialize(), function(data) {
+        $.post('{% url 'micro_admin:login' %}', $('#loginform').serialize(), function(data) {
           if (data.error){
             $("p.error").remove();
             $("#error").prepend("<p class='error'>"+data.errors+"</p>");
           }
           else{
-            window.location = '/login/' ;
+            window.location = '/dashboard/' ;
           }
         },"json");
       });
