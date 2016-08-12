@@ -1,13 +1,8 @@
 from celery import task
-from micro_admin.models import *
+from micro_admin.models import SavingsAccount
 from decimal import Decimal as d
 from datetime import datetime
 import calendar
-
-
-@task()
-def add(x, y):
-    return x + y
 
 
 @task()
