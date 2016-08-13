@@ -849,7 +849,7 @@ class PaymentForm(forms.ModelForm):
 
                 if (
                     self.cleaned_data.get('group_name') or self.cleaned_data.get('group_account_number') or
-                    (self.cleaned_data.get('grou[_name') and self.cleaned_data.get('group_account_number'))
+                    (self.cleaned_data.get('group_name') and self.cleaned_data.get('group_account_number'))
                 ):
                     raise forms.ValidationError(
                         "Please Choose either Group or Client but not both. "
