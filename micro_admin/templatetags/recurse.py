@@ -1,5 +1,4 @@
 from django import template
-from micro_admin.models import *
 
 
 register = template.Library()
@@ -67,5 +66,5 @@ def do_recurse(parser, token):
             break
 
     return RecurseNode(var, name, child, nodeList)
-do_recurse = register.tag('recurse', do_recurse)
 
+do_recurse = register.tag('recurse', do_recurse)

@@ -5,10 +5,10 @@ from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDema
     GetFixedDepositsPaidForm, GetRecurringDepositsPaidForm, ClientDepositsAccountsForm
 from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount, Group, Client, FixedDeposits, RecurringDeposits
 import decimal
-from django.db.models import Q
+# from django.db.models import Q
 from datetime import datetime
 import calendar
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from .utils import send_email_template
 from django.conf import settings
 
@@ -307,7 +307,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
 
         return loan_account
 
-    def get_context_data(self, *args,  **kwargs):
+    def get_context_data(self, *args, **kwargs):
         context = super(Receipts_Deposit, self).get_context_data(*args, **kwargs)
 
         if self.request.method == "GET":

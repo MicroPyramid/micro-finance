@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from core.views import Receipts_Deposit, ClientLoanAccountsView, GetLoanDemandsView, PaySlipCreateView, get_group_loan_accounts, \
-	get_member_loan_accounts, GetFixedDepositAccountsView, GetRecurringDepositAccountsView, ClientDepositAccountsView, \
-	GetFixedDepositPaidAccountsView, GetRecurringDepositPaidAccountsView
+    get_member_loan_accounts, GetFixedDepositAccountsView, GetRecurringDepositAccountsView, ClientDepositAccountsView, \
+    GetFixedDepositPaidAccountsView, GetRecurringDepositPaidAccountsView
 
 urlpatterns = [
     url(r'^receiptsdeposit/$', Receipts_Deposit.as_view(), name="receiptsdeposit"),

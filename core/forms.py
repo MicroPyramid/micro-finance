@@ -1,3 +1,5 @@
+from micro_admin.models import (User, Client, Receipts, Payments, LoanAccount, Group,
+                                SavingsAccount, FixedDeposits, RecurringDeposits)
 from django import forms
 from django.core.validators import MinValueValidator
 from django.forms.utils import ErrorList
@@ -8,8 +10,6 @@ from django.conf import settings
 from core.utils import send_email_template
 
 d = decimal.Decimal
-
-from micro_admin.models import User, Client, Receipts, Payments, LoanAccount, Group, SavingsAccount, FixedDeposits, RecurringDeposits
 
 
 class ClientLoanAccountsForm(forms.Form):
@@ -182,18 +182,18 @@ class ReceiptForm(forms.ModelForm):
                     errors.append("Loan has been cleared sucessfully.")
                     raise forms.ValidationError(errors)
                 else:
-                    if not ((self.cleaned_data.get("loanprinciple_amount", 0)) <= (loan_account.total_loan_balance)):
+                    if not ((self.cleaned_data.get("loanprinciple_amount", 0) or d('0.00')) <= (loan_account.total_loan_balance)):
                         errors = self._errors.setdefault("message1", ErrorList())
                         errors.append("Amount is greater than loan balance.")
                         raise forms.ValidationError(errors)
                     else:
-                        if (self.cleaned_data.get("loaninterest_amount", 0)) > (loan_account.interest_charged):
+                        if (self.cleaned_data.get("loaninterest_amount", 0) or d('0.00')) > (loan_account.interest_charged):
                             errors = self._errors.setdefault("message1", ErrorList())
                             errors.append("Entered interest amount is greater than interest charged.")
                             raise forms.ValidationError(errors)
-                        elif((self.cleaned_data.get("loaninterest_amount", 0)) >
+                        elif((self.cleaned_data.get("loaninterest_amount", 0) or d('0.00')) >
                                 (loan_account.loan_amount) or
-                                (self.cleaned_data.get("loanprinciple_amount", 0)) >
+                                (self.cleaned_data.get("loanprinciple_amount", 0) or d('0.00')) >
                                 (loan_account.loan_amount)):
                             errors = self._errors.setdefault("message1", ErrorList())
                             errors.append("Amount is greater than issued loan amount. Transaction can't be done.")
@@ -266,13 +266,16 @@ class ReceiptForm(forms.ModelForm):
                 errors = self._errors.setdefault("message1", ErrorList())
                 errors.append("Loan does not exists with this Loan Account Number for this Member.")
                 raise forms.ValidationError(errors)
-        elif (self.cleaned_data.get("loanprinciple_amount") or
-              self.cleaned_data.get("loanprocessingfee_amount") or
-              self.cleaned_data.get("loaninterest_amount")) and\
-                not (loan_account_no or group_loan_account_no):
-                errors = self._errors.setdefault("message1", ErrorList())
-                errors.append("Please select personal/group loan account number")
-                raise forms.ValidationError(errors)
+        elif (
+            (
+                self.cleaned_data.get("loanprinciple_amount") or
+                self.cleaned_data.get("loanprocessingfee_amount") or
+                self.cleaned_data.get("loaninterest_amount")
+            ) and not (loan_account_no or group_loan_account_no)
+        ):
+            errors = self._errors.setdefault("message1", ErrorList())
+            errors.append("Please select personal/group loan account number")
+            raise forms.ValidationError(errors)
         # client group
         self.client_group = self.client.group_set.first()
         group_name = self.cleaned_data.get("group_name")
@@ -280,9 +283,9 @@ class ReceiptForm(forms.ModelForm):
         if group_name and group_account_number:
             self.group = Group.objects.filter(name__iexact=group_name, clients=self.client, account_number=group_account_number).last()
             if not self.group:
-                    errors = self._errors.setdefault("message1", ErrorList())
-                    errors.append("No Group exists with given client, name and account number.")
-                    raise forms.ValidationError(errors)
+                errors = self._errors.setdefault("message1", ErrorList())
+                errors.append("No Group exists with given client, name and account number.")
+                raise forms.ValidationError(errors)
         elif group_name or group_account_number:
             errors = self._errors.setdefault("message1", ErrorList())
             errors.append("Please enter both Group Name and Account Number.")
@@ -352,8 +355,14 @@ class ReceiptForm(forms.ModelForm):
                 if savings_account:
                     if recurring_deposit_account.status == 'Opened':
                         if self.cleaned_data.get('recurringdeposit_amount') >= 0:
-                            if int(recurring_deposit_account.number_of_payments) <= int(recurring_deposit_account.recurring_deposit_period):
-                                if d(recurring_deposit_account.recurring_deposit_amount) != d(self.cleaned_data.get('recurringdeposit_amount')):
+                            if (
+                                int(recurring_deposit_account.number_of_payments) <= int(
+                                    recurring_deposit_account.recurring_deposit_period)
+                            ):
+                                if (
+                                    d(recurring_deposit_account.recurring_deposit_amount) != d(
+                                        self.cleaned_data.get('recurringdeposit_amount'))
+                                ):
                                     errors = self._errors.setdefault('message1', ErrorList())
                                     errors.append('Entered recurring amount is not equal to the actual amount.')
                                     raise forms.ValidationError(errors)
@@ -400,9 +409,7 @@ class ClientDepositsAccountsForm(forms.Form):
 
 
 class GetFixedDepositsPaidForm(forms.Form):
-
     fixed_deposit_account_no = forms.CharField(max_length=100, required=False)
-
 
     def __init__(self, *args, **kwargs):
         self.client = kwargs['initial'].pop('client', None)
@@ -519,7 +526,9 @@ class PaymentForm(forms.ModelForm):
                 if not self.cleaned_data.get("client_account_number"):
                     raise forms.ValidationError("Please enter the Member Account number")
                 if self.cleaned_data.get("client_name") and self.cleaned_data.get('client_account_number'):
-                    client_filter = Client.objects.filter(first_name__iexact=self.cleaned_data.get("client_name"), account_number=self.cleaned_data.get("client_account_number"))
+                    client_filter = Client.objects.filter(
+                        first_name__iexact=self.cleaned_data.get("client_name"),
+                        account_number=self.cleaned_data.get("client_account_number"))
                     if client_filter:
                         client = client_filter.first()
                         savings_account = SavingsAccount.objects.filter(client=client)
@@ -536,13 +545,18 @@ class PaymentForm(forms.ModelForm):
                                                 if self.cleaned_data.get("group_name"):
                                                     if self.cleaned_data.get("group_name").lower() == client_group.name.lower():
                                                         if self.cleaned_data.get("group_account_number"):
-                                                            if self.cleaned_data.get("group_account_number") == client_group.account_number:
+                                                            if self.cleaned_data.get("group_account_number") == \
+                                                                    client_group.account_number:
                                                                 if not self.cleaned_data.get("interest"):
-                                                                    if d(self.cleaned_data.get("total_amount")) != d(self.cleaned_data.get("amount")):
-                                                                        raise forms.ValidationError("Entered total amount is not equal to amount.")
+                                                                    if d(self.cleaned_data.get("total_amount")) != \
+                                                                            d(self.cleaned_data.get("amount")):
+                                                                        raise forms.ValidationError(
+                                                                            "Entered total amount is not equal to amount.")
 
                                                                 elif self.cleaned_data.get("interest"):
-                                                                    if d(self.cleaned_data.get("total_amount")) != d(d(self.cleaned_data.get("amount")) + d(self.cleaned_data.get("interest"))):
+                                                                    if d(self.cleaned_data.get("total_amount")) != \
+                                                                            d(d(self.cleaned_data.get("amount")) +
+                                                                                d(self.cleaned_data.get("interest"))):
                                                                         raise forms.ValidationError("Entered total amount is incorrect.")
 
                                                                 else:
@@ -564,11 +578,13 @@ class PaymentForm(forms.ModelForm):
                                                 raise forms.ValidationError("Group Savings A/C does not have sufficient balance.")
 
                                         else:
-                                            raise forms.ValidationError("The Group which the Member belongs to does not have Savings Account.")
+                                            raise forms.ValidationError(
+                                                "The Group which the Member belongs to does not have Savings Account.")
 
                                     else:
                                         if self.cleaned_data.get("group_name") or self.cleaned_data.get("group_account_number"):
-                                            raise forms.ValidationError("Member does not assigned to any Group. Please clear Group details")
+                                            raise forms.ValidationError(
+                                                "Member does not assigned to any Group. Please clear Group details")
 
                                         else:
                                             if not self.cleaned_data.get("interest"):
@@ -576,7 +592,8 @@ class PaymentForm(forms.ModelForm):
                                                     raise forms.ValidationError("Entered total amount is not equal to amount.")
 
                                             elif self.cleaned_data.get("interest"):
-                                                if d(self.cleaned_data.get("total_amount")) != d(d(self.cleaned_data.get("amount")) + d(self.cleaned_data.get("interest"))):
+                                                if d(self.cleaned_data.get("total_amount")) != \
+                                                        d(d(self.cleaned_data.get("amount")) + d(self.cleaned_data.get("interest"))):
                                                     raise forms.ValidationError("Entered total amount is incorrect.")
 
                                 elif d(savings_account.savings_balance) < d(self.cleaned_data.get("amount")):
@@ -584,7 +601,8 @@ class PaymentForm(forms.ModelForm):
                         else:
                             raise forms.ValidationError("Member does not have Savings Account to withdraw amount.")
                     else:
-                        raise forms.ValidationError("Member does not exists with this First Name and A/C Number. Please enter correct details.")
+                        raise forms.ValidationError(
+                            "Member does not exists with this First Name and A/C Number. Please enter correct details.")
             elif self.cleaned_data.get("group_name") and not self.cleaned_data.get('client_name'):
                 if self.cleaned_data.get("group_account_number"):
                     group_filter = Group.objects.filter(
@@ -598,11 +616,12 @@ class PaymentForm(forms.ModelForm):
                             if d(group_savings_account.savings_balance) >= d(self.cleaned_data.get("amount")):
                                 client_group = group.clients.all()
                                 savings_accounts_filter = SavingsAccount.objects.filter(client__in=[client for client in client_group])
-                                deduct_amount = d(self.cleaned_data.get('amount'))/d(len(savings_accounts_filter))
+                                deduct_amount = d(self.cleaned_data.get('amount')) / d(len(savings_accounts_filter))
                                 if savings_accounts_filter:
                                     for savings_account in savings_accounts_filter:
                                         if (savings_account.savings_balance) <= d(deduct_amount):
-                                            raise forms.ValidationError('The deduction amount higher than the group member savings account.')
+                                            raise forms.ValidationError(
+                                                'The deduction amount higher than the group member savings account.')
                             else:
                                 raise forms.ValidationError('Entered amount is higher than the savings amount.')
                         else:
@@ -615,13 +634,18 @@ class PaymentForm(forms.ModelForm):
         elif self.cleaned_data.get('payment_type') == 'FixedWithdrawal':
             if not self.cleaned_data.get('client_name'):
                 raise forms.ValidationError('Please enter the Member First Name')
-            if self.cleaned_data.get('group_name') or self.cleaned_data.get('group_name') and self.cleaned_data.get('group_account_number'):
+            if (
+                self.cleaned_data.get('group_name') or self.cleaned_data.get('group_name') and
+                self.cleaned_data.get('group_account_number')
+            ):
                 raise forms.ValidationError("Don't include group details while processing FixedWithdrawal")
             elif self.cleaned_data.get('client_name'):
                 if not self.cleaned_data.get("client_account_number"):
                     raise forms.ValidationError("Please enter the Member Account number")
                 if self.cleaned_data.get("client_name") and self.cleaned_data.get('client_account_number'):
-                    client_filter = Client.objects.filter(first_name__iexact=self.cleaned_data.get("client_name"), account_number=self.cleaned_data.get("client_account_number"))
+                    client_filter = Client.objects.filter(
+                        first_name__iexact=self.cleaned_data.get("client_name"),
+                        account_number=self.cleaned_data.get("client_account_number"))
                     if client_filter:
                         self.client = client_filter.first()
                         if self.cleaned_data.get("fixed_deposit_account_no"):
@@ -656,20 +680,26 @@ class PaymentForm(forms.ModelForm):
                                             raise forms.ValidationError("Entered amount is not equals to the Member Fixed Deposit amount.")
                                     if self.cleaned_data.get("interest"):
                                         if round(d(fixed_deposit_interest_charged), 6) > round(d(self.cleaned_data.get("interest")), 6):
-                                            raise forms.ValidationError("Entered interest amount is less than the Member Fixed Deposit interest amount.")
+                                            raise forms.ValidationError(
+                                                "Entered interest amount is less than the Member Fixed Deposit interest amount.")
                                         elif round(d(fixed_deposit_interest_charged), 6) < round(d(self.cleaned_data.get("interest")), 6):
-                                            raise forms.ValidationError("Entered interest amount is greater than the Member Fixed Deposit interest amount.")
+                                            raise forms.ValidationError(
+                                                "Entered interest amount is greater than the Member Fixed Deposit interest amount.")
                                         elif round(d(fixed_deposit_interest_charged), 6) != round(d(self.cleaned_data.get("interest")), 6):
-                                            raise forms.ValidationError("Entered interest amount is not equals to the Member Fixed Deposit interest amount.")
+                                            raise forms.ValidationError(
+                                                "Entered interest amount is not equals to the Member Fixed Deposit interest amount.")
                                     else:
                                         raise forms.ValidationError("Interest Amount field is required for Fixed Deposit Wirthdrawl.")
                                     if self.cleaned_data.get('total_amount'):
                                         if round(d(total_amount), 6) > round(d(self.cleaned_data.get("total_amount")), 6):
-                                            raise forms.ValidationError("Entered total amount is less than the Member Fixed Deposit total amount.")
+                                            raise forms.ValidationError(
+                                                "Entered total amount is less than the Member Fixed Deposit total amount.")
                                         elif round(d(total_amount), 6) < round(d(self.cleaned_data.get("total_amount")), 6):
-                                            raise forms.ValidationError("Entered total amount is greater than the Member Fixed Deposit total amount.")
+                                            raise forms.ValidationError(
+                                                "Entered total amount is greater than the Member Fixed Deposit total amount.")
                                         elif round(d(total_amount), 6) != round(d(self.cleaned_data.get("total_amount")), 6):
-                                            raise forms.ValidationError("Entered total amount is not equals to the Member Fixed Deposit total amount.")
+                                            raise forms.ValidationError(
+                                                "Entered total amount is not equals to the Member Fixed Deposit total amount.")
                             else:
                                 errors = self._errors.setdefault("message1", ErrorList())
                                 errors.append("No Fixed Deposit Accounts found with given a/c number")
@@ -677,18 +707,24 @@ class PaymentForm(forms.ModelForm):
                         else:
                             raise forms.ValidationError("Member does not have Fixed Deposit Account to withdraw amount.")
                     else:
-                        raise forms.ValidationError("Member does not exists with this First Name and A/C Number. Please enter correct details.")
+                        raise forms.ValidationError(
+                            "Member does not exists with this First Name and A/C Number. Please enter correct details.")
 
         elif self.cleaned_data.get('payment_type') == 'RecurringWithdrawal':
             if not self.cleaned_data.get('client_name'):
                 raise forms.ValidationError('Please enter the Member First Name')
-            if self.cleaned_data.get('group_name') or self.cleaned_data.get('group_name') and self.cleaned_data.get('group_account_number'):
+            if (
+                self.cleaned_data.get('group_name') or self.cleaned_data.get('group_name') and
+                self.cleaned_data.get('group_account_number')
+            ):
                 raise forms.ValidationError("Don't include group details while processing RecurringWithdrawal")
             elif self.cleaned_data.get('client_name'):
                 if not self.cleaned_data.get("client_account_number"):
                     raise forms.ValidationError("Please enter the Member Account number")
                 if self.cleaned_data.get("client_name") and self.cleaned_data.get('client_account_number'):
-                    client_filter = Client.objects.filter(first_name__iexact=self.cleaned_data.get("client_name"), account_number=self.cleaned_data.get("client_account_number"))
+                    client_filter = Client.objects.filter(
+                        first_name__iexact=self.cleaned_data.get("client_name"),
+                        account_number=self.cleaned_data.get("client_account_number"))
                     if client_filter:
                         self.client = client_filter.first()
                         if self.cleaned_data.get("recurring_deposit_account_no"):
@@ -715,27 +751,40 @@ class PaymentForm(forms.ModelForm):
                                     total_amount = recurring_deposit_amount + recurring_deposit_interest_charged
                                     if self.cleaned_data.get("amount"):
                                         if d(recurring_deposit_amount) > d(self.cleaned_data.get("amount")):
-                                            raise forms.ValidationError("Entered amount is less than the Member Recurring Deposit amount.")
+                                            raise forms.ValidationError(
+                                                "Entered amount is less than the Member Recurring Deposit amount.")
                                         elif d(recurring_deposit_amount) < d(self.cleaned_data.get("amount")):
-                                            raise forms.ValidationError("Entered amount is greater than the Member Recurring Deposit amount.")
+                                            raise forms.ValidationError(
+                                                "Entered amount is greater than the Member Recurring Deposit amount.")
                                         elif d(recurring_deposit_amount) != d(self.cleaned_data.get("amount")):
-                                            raise forms.ValidationError("Entered amount is not equals to the Member Recurring Deposit amount.")
+                                            raise forms.ValidationError(
+                                                "Entered amount is not equals to the Member Recurring Deposit amount.")
                                     if self.cleaned_data.get("interest"):
-                                        if round(d(recurring_deposit_interest_charged), 6) < round(d(self.cleaned_data.get("interest")), 6):
-                                            raise forms.ValidationError("Entered interest amount is greater than the Member Recurring Deposit interest amount.")
-                                        elif round(d(recurring_deposit_interest_charged), 6) > round(d(self.cleaned_data.get("interest")), 6):
-                                            raise forms.ValidationError("Entered interest amount is less than the Member Recurring Deposit interest amount.")
-                                        elif round(d(recurring_deposit_interest_charged), 6) != round(d(self.cleaned_data.get("interest")), 6):
-                                            raise forms.ValidationError("Entered interest amount is not equals to the Member Recurring Deposit interest amount.")
+                                        if round(d(recurring_deposit_interest_charged), 6) < \
+                                                round(d(self.cleaned_data.get("interest")), 6):
+                                            raise forms.ValidationError(
+                                                "Entered interest amount is greater than the Member Recurring Deposit interest amount.")
+                                        elif round(d(recurring_deposit_interest_charged), 6) > \
+                                                round(d(self.cleaned_data.get("interest")), 6):
+                                            raise forms.ValidationError(
+                                                "Entered interest amount is less than the Member Recurring Deposit interest amount.")
+                                        elif round(d(recurring_deposit_interest_charged), 6) != \
+                                                round(d(self.cleaned_data.get("interest")), 6):
+                                            raise forms.ValidationError(
+                                                "Entered interest amount is not equals to the Member Recurring Deposit interest amount.")
                                     else:
-                                        raise forms.ValidationError("This Interest Amount field is required for Recurring Deposit Wirthdrawl.")
+                                        raise forms.ValidationError(
+                                            "This Interest Amount field is required for Recurring Deposit Wirthdrawl.")
                                     if self.cleaned_data.get('total_amount'):
                                         if round(d(total_amount), 6) < round(d(self.cleaned_data.get("total_amount")), 6):
-                                            raise forms.ValidationError("Entered total amount is greater than the Member Recurring Deposit total amount.")
+                                            raise forms.ValidationError(
+                                                "Entered total amount is greater than the Member Recurring Deposit total amount.")
                                         elif round(d(total_amount), 6) > round(d(self.cleaned_data.get("total_amount")), 6):
-                                            raise forms.ValidationError("Entered total amount is less than the Member Recurring Deposit total amount.")
+                                            raise forms.ValidationError(
+                                                "Entered total amount is less than the Member Recurring Deposit total amount.")
                                         elif round(d(total_amount), 6) != round(d(self.cleaned_data.get("total_amount")), 6):
-                                            raise forms.ValidationError("Entered total amount is not equals to the Member Recurring Deposit total amount.")
+                                            raise forms.ValidationError(
+                                                "Entered total amount is not equals to the Member Recurring Deposit total amount.")
 
                             else:
                                 errors = self._errors.setdefault("message1", ErrorList())
@@ -744,7 +793,8 @@ class PaymentForm(forms.ModelForm):
                         else:
                             raise forms.ValidationError("Member does not have Recurring Deposits Account to withdraw amount.")
                     else:
-                        raise forms.ValidationError("Member does not exists with this First Name and A/C Number. Please enter correct details.")
+                        raise forms.ValidationError(
+                            "Member does not exists with this First Name and A/C Number. Please enter correct details.")
 
         elif self.cleaned_data.get("payment_type") == "Loans":
             if self.cleaned_data.get("interest"):
@@ -755,8 +805,12 @@ class PaymentForm(forms.ModelForm):
 
             elif self.cleaned_data.get("group_name"):
 
-                if self.cleaned_data.get('client_name') or self.cleaned_data.get('client_account_number') or (self.cleaned_data.get('client_name') and self.cleaned_data.get('client_account_number')):
-                    raise forms.ValidationError("Please Choose either Group or Client but not both. Please clear the Client details to proceed with Group and vice versa.")
+                if (
+                    self.cleaned_data.get('client_name') or self.cleaned_data.get('client_account_number') or
+                    (self.cleaned_data.get('client_name') and self.cleaned_data.get('client_account_number'))
+                ):
+                    raise forms.ValidationError("Please Choose either Group or Client but not both. "
+                                                "Please clear the Client details to proceed with Group and vice versa.")
 
                 if not self.cleaned_data.get("group_account_number"):
                     raise forms.ValidationError("Please enter Group Account Number.")
@@ -793,9 +847,13 @@ class PaymentForm(forms.ModelForm):
                         raise forms.ValidationError("Group does not exists with this Name and A/C Number. Please enter correct details.")
             elif self.cleaned_data.get("client_name"):
 
-                if self.cleaned_data.get('group_name') or self.cleaned_data.get('group_account_number') or (self.cleaned_data.get('grou[_name') and self.cleaned_data.get('group_account_number')):
-                    raise forms.ValidationError("Please Choose either Group or Client but not both. Please clear the Group details to proceed with Client and vice versa.")
-
+                if (
+                    self.cleaned_data.get('group_name') or self.cleaned_data.get('group_account_number') or
+                    (self.cleaned_data.get('group_name') and self.cleaned_data.get('group_account_number'))
+                ):
+                    raise forms.ValidationError(
+                        "Please Choose either Group or Client but not both. "
+                        "Please clear the Group details to proceed with Client and vice versa.")
 
                 if not self.cleaned_data.get("client_account_number"):
                     raise forms.ValidationError("Please enter Client Account Number.")
@@ -825,13 +883,17 @@ class PaymentForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super(PaymentForm, self).save(commit=False)
         if not instance.id:
-            if self.cleaned_data.get("payment_type") == "TravellingAllowance" or self.cleaned_data.get("payment_type") == "Paymentofsalary":
+            if (
+                self.cleaned_data.get("payment_type") == "TravellingAllowance" or
+                self.cleaned_data.get("payment_type") == "Paymentofsalary"
+            ):
                 staff = User.objects.get(username__iexact=self.cleaned_data.get("staff_username"))
                 instance.staff = staff
             elif self.cleaned_data.get("payment_type") == "SavingsWithdrawal":
                 if self.cleaned_data.get("client_name") and self.cleaned_data.get('client_account_number'):
-                    client = Client.objects.filter(first_name__iexact=self.cleaned_data.get("client_name"), \
-                                                account_number=self.cleaned_data.get("client_account_number")).first()
+                    client = Client.objects.filter(
+                        first_name__iexact=self.cleaned_data.get("client_name"),
+                        account_number=self.cleaned_data.get("client_account_number")).first()
                     if client:
                         savings_account = SavingsAccount.objects.filter(client=client).first()
                         if savings_account:
@@ -875,9 +937,10 @@ class PaymentForm(forms.ModelForm):
                                 if group_savings_account:
                                     if d(group_savings_account.savings_balance) >= d(self.cleaned_data.get("amount")):
                                         client_group = group.clients.all()
-                                        savings_accounts_filter = SavingsAccount.objects.filter(client__in=[client for client in client_group])
+                                        savings_accounts_filter = SavingsAccount.objects.filter(
+                                            client__in=[client for client in client_group])
                                         instance.group = group
-                                        deduct_amount = d(self.cleaned_data.get('amount'))/d(len(savings_accounts_filter))
+                                        deduct_amount = d(self.cleaned_data.get('amount')) / d(len(savings_accounts_filter))
                                         for savings_account in savings_accounts_filter:
                                             savings_account.savings_balance -= d(deduct_amount)
                                             savings_account.total_withdrawals += d(deduct_amount)
