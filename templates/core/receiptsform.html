@@ -462,7 +462,7 @@
         }
         else {
           alert("Receipt added sucessfully");
-          window.location = '/receiptslist/';
+          window.location = "{% url 'micro_admin:receiptslist' %}";
         }
       }, "json");
     });
