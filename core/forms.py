@@ -182,18 +182,18 @@ class ReceiptForm(forms.ModelForm):
                     errors.append("Loan has been cleared sucessfully.")
                     raise forms.ValidationError(errors)
                 else:
-                    if not ((self.cleaned_data.get("loanprinciple_amount", 0)) <= (loan_account.total_loan_balance)):
+                    if not ((self.cleaned_data.get("loanprinciple_amount", 0) or d('0.00')) <= (loan_account.total_loan_balance)):
                         errors = self._errors.setdefault("message1", ErrorList())
                         errors.append("Amount is greater than loan balance.")
                         raise forms.ValidationError(errors)
                     else:
-                        if (self.cleaned_data.get("loaninterest_amount", 0)) > (loan_account.interest_charged):
+                        if (self.cleaned_data.get("loaninterest_amount", 0) or d('0.00')) > (loan_account.interest_charged):
                             errors = self._errors.setdefault("message1", ErrorList())
                             errors.append("Entered interest amount is greater than interest charged.")
                             raise forms.ValidationError(errors)
-                        elif((self.cleaned_data.get("loaninterest_amount", 0)) >
+                        elif((self.cleaned_data.get("loaninterest_amount", 0) or d('0.00')) >
                                 (loan_account.loan_amount) or
-                                (self.cleaned_data.get("loanprinciple_amount", 0)) >
+                                (self.cleaned_data.get("loanprinciple_amount", 0) or d('0.00')) >
                                 (loan_account.loan_amount)):
                             errors = self._errors.setdefault("message1", ErrorList())
                             errors.append("Amount is greater than issued loan amount. Transaction can't be done.")

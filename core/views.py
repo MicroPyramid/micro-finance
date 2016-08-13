@@ -307,7 +307,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
 
         return loan_account
 
-    def get_context_data(self, *args,  **kwargs):
+    def get_context_data(self, *args, **kwargs):
         context = super(Receipts_Deposit, self).get_context_data(*args, **kwargs)
 
         if self.request.method == "GET":
