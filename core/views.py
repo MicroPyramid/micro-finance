@@ -332,6 +332,9 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                 (form.cleaned_data.get("entrancefee_amount", 0))
         if form.cleaned_data.get("membershipfee_amount"):
             self.client.membershipfee_amount += \
+                (form.cleaned_data.get("membershipfee_amount", 0))
+        if form.cleaned_data.get("bookfee_amount"):
+            self.client.bookfee_amount += \
                 (form.cleaned_data.get("bookfee_amount", 0))
 
         if form.loan_account:
