@@ -303,7 +303,7 @@
   $(document).ready(function() {
     $('#createreceiptform').submit(function(e) {
       e.preventDefault();
-      $.post('{% url "micro_admin:receiptsdeposit" %}', $('#createreceiptform').serialize(), function(data) {
+      $.post('{% url "core:receiptsdeposit" %}', $('#createreceiptform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
           if (data.message1) {

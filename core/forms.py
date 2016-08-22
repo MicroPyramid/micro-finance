@@ -191,6 +191,10 @@ class ReceiptForm(forms.ModelForm):
                             errors = self._errors.setdefault("message1", ErrorList())
                             errors.append("Entered interest amount is greater than interest charged.")
                             raise forms.ValidationError(errors)
+                        elif (self.cleaned_data.get("loanprinciple_amount", 0) or d('0.00')) > (loan_account.principle_repayment):
+                            errors = self._errors.setdefault("message1", ErrorList())
+                            errors.append("Entered principle amount is greater than demand amount.")
+                            raise forms.ValidationError(errors)
                         elif((self.cleaned_data.get("loaninterest_amount", 0) or d('0.00')) >
                                 (loan_account.loan_amount) or
                                 (self.cleaned_data.get("loanprinciple_amount", 0) or d('0.00')) >
