@@ -11,7 +11,7 @@ import calendar
 # from django.shortcuts import get_object_or_404
 from .utils import send_email_template
 from django.conf import settings
-
+from django.db.models import Q
 d = decimal.Decimal
 
 
@@ -23,9 +23,8 @@ class ClientLoanAccountsView(LoginRequiredMixin, FormView):
         if form.client:
             loan_accounts_filter = LoanAccount.objects.filter(
                 client=form.client,
-                total_loan_balance__gt=0,
                 status='Approved'
-            ).exclude(loan_issued_by__isnull=True,
+            ).filter(Q(total_loan_balance__gt=0) | Q(interest_charged__gt=0)).exclude(loan_issued_by__isnull=True,
                       loan_issued_date__isnull=True)
             member_loan_has_payments = []
             for loan in loan_accounts_filter:
@@ -139,172 +138,274 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
     form_class = ReceiptForm
 
     def loan_valid(self, form, loan_account):
-            # now
         if loan_account.status == "Approved":
             if loan_account.loan_issued_date:
                 if d(loan_account.total_loan_balance) or d(loan_account.interest_charged) or d(loan_account.loan_repayment_amount) or d(loan_account.principle_repayment):
                     if form.cleaned_data.get("loanprinciple_amount") or form.cleaned_data.get("loaninterest_amount"):
-                        if d(form.cleaned_data.get("loanprinciple_amount")) <= d(loan_account.total_loan_balance):
-                            # loan_account.total_loan_amount_repaid += d(form.cleaned_data.get("loanprinciple_amount"))
-                            # loan_account.total_interest_repaid += d(form.cleaned_data.get("loaninterest_amount", 0))
-                            # loan_account.total_loan_paid = d(d(loan_account.total_loan_amount_repaid) + d(loan_account.total_interest_repaid))
-                            # loan_account.total_loan_balance -= d(form.cleaned_data.get("loanprinciple_amount"))
-                            # loan_account.no_of_repayments_completed += loan_account.loan_repayment_every
-                            if d(loan_account.total_loan_amount_repaid) == d(loan_account.loan_amount) and d(loan_account.total_loan_balance) == d(0):
-                                if (form.cleaned_data.get("loaninterest_amount")) == \
-                                   (loan_account.interest_charged):
-                                    if (form.cleaned_data.get("loanprinciple_amount")) ==\
-                                       (loan_account.principle_repayment):
-                                        loan_account.loan_repayment_amount = 0
-                                        loan_account.principle_repayment = 0
-                                        loan_account.interest_charged = 0
-                                    elif (form.cleaned_data.get("loanprinciple_amount")) <\
-                                            (loan_account.principle_repayment):
-                                        balance_principle = (loan_account.principle_repayment) -\
-                                            (form.cleaned_data.get("loanprinciple_amount"))
-                                        loan_account.principle_repayment = balance_principle
-                                        loan_account.loan_repayment_amount = balance_principle
-                                        loan_account.interest_charged = 0
-                                else:
-                                    if form.cleaned_data.get("loaninterest_amount"):
-                                        if form.cleaned_data.get("loaninterest_amount") < loan_account.interest_charged:
-                                            if form.cleaned_data.get("loanprinciple_amount") == loan_account.principle_repayment:
-                                                balance_interest = loan_account.interest_charged -\
-                                                    form.cleaned_data.get("loaninterest_amount")
-                                                loan_account.interest_charged = balance_interest
-                                                loan_account.loan_repayment_amount = balance_interest
-                                                loan_account.principle_repayment = 0
-                                            if form.cleaned_data.get("loanprinciple_amount"):
-                                                if form.cleaned_data.get("loanprinciple_amount") < \
-                                                        loan_account.principle_repayment:
-                                                    balance_principle = loan_account.principle_repayment -\
-                                                        form.cleaned_data.get("loanprinciple_amount")
-                                                    loan_account.principle_repayment = d(balance_principle)
-                                                    balance_interest = loan_account.interest_charged -\
-                                                        form.cleaned_data.get("loaninterest_amount")
-                                                    loan_account.interest_charged = d(balance_interest)
-                                                    loan_account.loan_repayment_amount = d(balance_principle) +\
-                                                        d(balance_interest)
-
-                            elif loan_account.total_loan_amount_repaid < loan_account.loan_amount and loan_account.total_loan_balance:
-                                if int(loan_account.no_of_repayments_completed) >= int(loan_account.loan_repayment_period):
-                                    if form.cleaned_data.get("loaninterest_amount") ==\
-                                            loan_account.interest_charged:
-                                        if loan_account.interest_type == "Flat":
-                                            loan_account.interest_charged = (
-                                                (loan_account.loan_amount * (
-                                                    loan_account.annual_interest_rate / 12)) / 100)
-                                        elif loan_account.interest_type == "Declining":
-                                            loan_account.interest_charged = (
-                                                ((loan_account.total_loan_balance * (
-                                                    loan_account.annual_interest_rate / 12)) / 100))
-                                    elif form.cleaned_data.get("loaninterest_amount") < loan_account.interest_charged:
+                        if d(loan_account.total_loan_amount_repaid) == d(loan_account.loan_amount) and d(loan_account.total_loan_balance) == d(0):
+                            if (form.cleaned_data.get("loaninterest_amount")) == \
+                               (loan_account.interest_charged):
+                                if (form.cleaned_data.get("loanprinciple_amount")) ==\
+                                   (loan_account.principle_repayment):
+                                    loan_account.loan_repayment_amount = 0
+                                    loan_account.principle_repayment = 0
+                                    loan_account.interest_charged = 0
+                                elif (form.cleaned_data.get("loanprinciple_amount")) < (loan_account.principle_repayment):
+                                    balance_principle = (loan_account.principle_repayment) -\
+                                        (form.cleaned_data.get("loanprinciple_amount"))
+                                    loan_account.principle_repayment = balance_principle
+                                    loan_account.loan_repayment_amount = balance_principle
+                                    loan_account.interest_charged = 0
+                            else:
+                                if form.cleaned_data.get("loaninterest_amount") < loan_account.interest_charged:
+                                    if form.cleaned_data.get("loanprinciple_amount") == loan_account.principle_repayment:
                                         balance_interest = loan_account.interest_charged -\
                                             form.cleaned_data.get("loaninterest_amount")
-                                        if loan_account.interest_type == "Flat":
-                                            interest_charged = (
-                                                ((loan_account.loan_amount * (
-                                                    loan_account.annual_interest_rate / 12)) / 100))
-                                        elif loan_account.interest_type == "Declining":
-                                            interest_charged = ((((loan_account.total_loan_balance) * (
-                                                (loan_account.annual_interest_rate) / 12)) / 100))
-                                        loan_account.interest_charged = (balance_interest + interest_charged)
+                                        loan_account.interest_charged = balance_interest
+                                        loan_account.loan_repayment_amount = balance_interest
+                                        loan_account.principle_repayment = 0
+                                    # if form.cleaned_data.get("loanprinciple_amount"):
+                                    #     print ('enterecewrw')
+                                    #     if form.cleaned_data.get("loanprinciple_amount") < \
+                                    #             loan_account.principle_repayment:
+                                    #         print ("akkl")
+                                    #         balance_principle = loan_account.principle_repayment -\
+                                    #             form.cleaned_data.get("loanprinciple_amount")
+                                    #         loan_account.principle_repayment = d(balance_principle)
+                                    #         balance_interest = loan_account.interest_charged -\
+                                    #             form.cleaned_data.get("loaninterest_amount")
+                                    #         loan_account.interest_charged = d(balance_interest)
+                                    #         loan_account.loan_repayment_amount = d(balance_principle) +\
+                                    #             d(balance_interest)
 
-                                    if form.cleaned_data.get("loanprinciple_amount") == \
-                                            loan_account.principle_repayment:
-                                        loan_account.principle_repayment = \
-                                            loan_account.total_loan_balance
-                                        loan_account.loan_repayment_amount = \
-                                            ((loan_account.total_loan_balance) +
-                                                (loan_account.interest_charged))
-                                    elif form.cleaned_data.get("loanprinciple_amount") <\
-                                            (loan_account.principle_repayment):
-                                        balance_principle = (((loan_account.loan_repayment_amount) -
-                                                              (loan_account.interest_charged)) -
-                                                             (form.cleaned_data.get("loanprinciple_amount")))
-                                        loan_account.principle_repayment =\
-                                            ((loan_account.total_loan_balance) + (balance_principle))
+                        elif loan_account.total_loan_amount_repaid < loan_account.loan_amount and loan_account.total_loan_balance:
+                            if int(loan_account.no_of_repayments_completed) >= int(loan_account.loan_repayment_period):
+                                if form.cleaned_data.get("loaninterest_amount") ==\
+                                        loan_account.interest_charged:
+                                    if loan_account.interest_type == "Flat":
+                                        loan_account.interest_charged = (
+                                            (loan_account.loan_amount * (
+                                                loan_account.annual_interest_rate / 12)) / 100)
+                                    elif loan_account.interest_type == "Declining":
+                                        loan_account.interest_charged = (
+                                            ((loan_account.total_loan_balance * (
+                                                loan_account.annual_interest_rate / 12)) / 100))
+                                elif form.cleaned_data.get("loaninterest_amount") < loan_account.interest_charged:
+                                    balance_interest = loan_account.interest_charged -\
+                                        form.cleaned_data.get("loaninterest_amount")
+                                    if loan_account.interest_type == "Flat":
+                                        interest_charged = (
+                                            ((loan_account.loan_amount * (
+                                                loan_account.annual_interest_rate / 12)) / 100))
+                                    elif loan_account.interest_type == "Declining":
+                                        interest_charged = ((((loan_account.total_loan_balance) * (
+                                            (loan_account.annual_interest_rate) / 12)) / 100))
+                                    loan_account.interest_charged = (balance_interest + interest_charged)
+
+                                if form.cleaned_data.get("loanprinciple_amount") == \
+                                        loan_account.principle_repayment:
+                                    loan_account.principle_repayment = \
+                                        loan_account.total_loan_balance
+                                    loan_account.loan_repayment_amount = \
+                                        ((loan_account.total_loan_balance) +
+                                            (loan_account.interest_charged))
+                                elif form.cleaned_data.get("loanprinciple_amount") <\
+                                        (loan_account.principle_repayment):
+                                    principle_repayable = (
+                                    (loan_account.loan_amount) / (loan_account.loan_repayment_period))
+                                    lastmonth_bal = ((
+                                        ((int(loan_account.loan_repayment_every) *
+                                            (principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
+                                    balance_principle = d(d(d(loan_account.loan_repayment_amount) - d(loan_account.interest_charged)) - d(form.cleaned_data.get("loanprinciple_amount")))
+                                    loan_account.principle_repayment =\
+                                        ((loan_account.total_loan_balance))
+                                    loan_account.loan_repayment_amount = (
+                                        (loan_account.total_loan_balance) +
+                                        (loan_account.interest_charged))
+
+                            elif int(loan_account.no_of_repayments_completed) < int(loan_account.loan_repayment_period):
+                                principle_repayable = (
+                                    (loan_account.loan_amount) / (loan_account.loan_repayment_period))
+                                if loan_account.interest_type == "Flat":
+                                    if (form.cleaned_data.get("loaninterest_amount")) ==\
+                                            (loan_account.interest_charged):
+                                        interest_charged = (
+                                            int(loan_account.loan_repayment_every) * (
+                                                ((loan_account.loan_amount) * (
+                                                    (loan_account.annual_interest_rate) / 12)) / 100))
+
+                                        lastmonth_interest_bal = ((
+                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
+                                        if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
+                                            loan_account.interest_charged = loan_account.interest_charged
+                                        else:
+                                            loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+
+                                    elif (form.cleaned_data.get("loaninterest_amount")) <\
+                                            (loan_account.interest_charged):
+                                        balance_interest = \
+                                            d(loan_account.interest_charged) -\
+                                            d(form.cleaned_data.get("loaninterest_amount"))
+
+                                        interest_charged = (
+                                            int(loan_account.loan_repayment_every) * (
+                                                ((loan_account.loan_amount) * (
+                                                    (loan_account.annual_interest_rate) / 12)) / 100))
+
+                                        lastmonth_interest_bal = ((
+                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
+                                        
+                                        loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+
+                                    elif (form.cleaned_data.get("loaninterest_amount")) >\
+                                            (loan_account.interest_charged):
+                                        interest_charged = (
+                                            int(loan_account.loan_repayment_every) * (
+                                                ((loan_account.loan_amount) * (
+                                                    (loan_account.annual_interest_rate) / 12)) / 100))
+
+                                        lastmonth_interest_bal = ((
+                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
+                                        if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
+                                            loan_account.interest_charged = loan_account.interest_charged
+                                        else:
+                                            loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+
+                                elif loan_account.interest_type == "Declining":
+                                    if (form.cleaned_data.get("loaninterest_amount")) ==\
+                                            (loan_account.interest_charged):
+                                        interest_charged = (
+                                            int(loan_account.loan_repayment_every) * (
+                                                ((loan_account.total_loan_balance) * (
+                                                    (loan_account.annual_interest_rate) / 12)) / 100))
+                                        lastmonth_interest_bal = ((
+                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
+                                        
+                                        if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
+                                            loan_account.interest_charged = loan_account.interest_charged
+                                        else:
+                                            loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+
+                                    elif (form.cleaned_data.get("loaninterest_amount")) <\
+                                            (loan_account.interest_charged):
+                                        balance_interest = (loan_account.interest_charged) -\
+                                            (form.cleaned_data.get("loaninterest_amount"))
+                                        interest_charged = (int(loan_account.loan_repayment_every) *
+                                                            (((loan_account.total_loan_balance) * (
+                                                                (loan_account.annual_interest_rate) / 12)) / 100))
+
+                                        lastmonth_interest_bal = ((
+                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
+                                        
+                                        loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+
+                                    elif (form.cleaned_data.get("loaninterest_amount")) >\
+                                            (loan_account.interest_charged):
+                                        interest_charged = (
+                                            int(loan_account.loan_repayment_every) * (
+                                                ((loan_account.total_loan_balance) * (
+                                                    (loan_account.annual_interest_rate) / 12)) / 100))
+
+                                        lastmonth_interest_bal = ((
+                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
+                                        if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
+                                            loan_account.interest_charged = loan_account.interest_charged
+                                        else:
+                                            loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+                                            
+                                lastmonth_bal = ((
+                                        ((int(loan_account.loan_repayment_every) *
+                                            (principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
+                                if (form.cleaned_data.get("loanprinciple_amount")) == (
+                                        (int(loan_account.loan_repayment_every) * (
+                                            principle_repayable))):
+                                    
+                                    if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
+                                        loan_account.principle_repayment = (
+                                            loan_account.total_loan_balance)
                                         loan_account.loan_repayment_amount = (
                                             (loan_account.total_loan_balance) +
-                                            (loan_account.interest_charged) +
-                                            (balance_principle))
-
-                                elif int(loan_account.no_of_repayments_completed) < int(loan_account.loan_repayment_period):
-                                    principle_repayable = (
-                                        (loan_account.loan_amount) / (loan_account.loan_repayment_period))
-                                    if loan_account.interest_type == "Flat":
-                                        if (form.cleaned_data.get("loaninterest_amount")) ==\
-                                                (loan_account.interest_charged):
-                                            loan_account.interest_charged = (
-                                                int(loan_account.loan_repayment_every) * (
-                                                    ((loan_account.loan_amount) *
-                                                        ((loan_account.annual_interest_rate) / 12)) / 100))
-                                        elif form.cleaned_data.get("loaninterest_amount") and (form.cleaned_data.get("loaninterest_amount")) <\
-                                                (loan_account.interest_charged):
-                                            balance_interest = \
-                                                d(loan_account.interest_charged) -\
-                                                d(form.cleaned_data.get("loaninterest_amount"))
-                                            interest_charged = (
-                                                int(loan_account.loan_repayment_every) * (
-                                                    ((loan_account.loan_amount) * (
-                                                        (loan_account.annual_interest_rate) / 12)) / 100))
-                                            loan_account.interest_charged = d(balance_interest + interest_charged)
-
-                                    elif loan_account.interest_type == "Declining":
-                                        if (form.cleaned_data.get("loaninterest_amount")) ==\
-                                                (loan_account.interest_charged):
-                                            loan_account.interest_charged = (
-                                                int(loan_account.loan_repayment_every) * (
-                                                    ((loan_account.total_loan_balance) * (
-                                                        (loan_account.annual_interest_rate) / 12)) / 100))
-                                        elif (form.cleaned_data.get("loaninterest_amount")) <\
-                                                (loan_account.interest_charged):
-                                            balance_interest = (loan_account.interest_charged) -\
-                                                (form.cleaned_data.get("loaninterest_amount"))
-                                            interest_charged = (int(loan_account.loan_repayment_every) *
-                                                                (((loan_account.total_loan_balance) * (
-                                                                    (loan_account.annual_interest_rate) / 12)) / 100))
-                                            loan_account.interest_charged = (balance_interest + interest_charged)
-
-                                    if (form.cleaned_data.get("loanprinciple_amount")) == (
-                                            (int(loan_account.loan_repayment_every) * (
-                                                principle_repayable))):
-                                        if (loan_account.total_loan_balance) <\
-                                            ((int(loan_account.loan_repayment_every) * (
-                                                principle_repayable))):
-                                            loan_account.principle_repayment = (
-                                                loan_account.total_loan_balance)
-                                            loan_account.loan_repayment_amount = (
-                                                (loan_account.total_loan_balance) +
-                                                (loan_account.interest_charged))
-                                        else:
-                                            loan_account.principle_repayment = (
-                                                int(loan_account.loan_repayment_every) *
-                                                ((loan_account.loan_amount) /
-                                                    (loan_account.loan_repayment_period)))
-                                            loan_account.loan_repayment_amount = (
-                                                (loan_account.principle_repayment) +
-                                                (loan_account.interest_charged))
-                                    elif (form.cleaned_data.get("loanprinciple_amount")) <\
-                                            ((int(loan_account.loan_repayment_every) * (principle_repayable))):
-                                        balance_principle = (
+                                            (loan_account.interest_charged))
+                                    
+                                    elif (loan_account.total_loan_balance) <\
+                                        ((int(loan_account.loan_repayment_every) * (
+                                            principle_repayable))):
+                                        loan_account.principle_repayment = (
+                                            loan_account.total_loan_balance)
+                                        loan_account.loan_repayment_amount = (
+                                            (loan_account.total_loan_balance) +
+                                            (loan_account.interest_charged))
+                                    else:
+                                        loan_account.principle_repayment = (
+                                            int(loan_account.loan_repayment_every) *
+                                            ((loan_account.loan_amount) /
+                                                (loan_account.loan_repayment_period))) + (lastmonth_bal)
+                                        loan_account.loan_repayment_amount = (
+                                            (loan_account.principle_repayment) +
+                                            (loan_account.interest_charged))
+                                
+                                elif (form.cleaned_data.get("loanprinciple_amount")) <\
+                                        ((int(loan_account.loan_repayment_every) * (principle_repayable))):
+                                    balance_principle = (
+                                        ((int(loan_account.loan_repayment_every) *
+                                            (principle_repayable))) - (form.cleaned_data.get("loanprinciple_amount")))
+                                    lastmonth_bal = ((
+                                        ((int(loan_account.loan_repayment_every) *
+                                            (principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
+                                    if (int(loan_account.no_of_repayments_completed)+1 == int(loan_account.loan_repayment_period)):
+                                        loan_account.principle_repayment = (
+                                            loan_account.total_loan_balance)
+                                        loan_account.loan_repayment_amount = (
+                                            (loan_account.total_loan_balance) +
+                                            (loan_account.interest_charged))
+                                    elif (loan_account.total_loan_balance) <\
                                             ((int(loan_account.loan_repayment_every) *
-                                                (principle_repayable))) - (form.cleaned_data.get("loanprinciple_amount")))
-                                        if (loan_account.total_loan_balance) <\
-                                                ((int(loan_account.loan_repayment_every) *
-                                                    (principle_repayable))):
-                                            loan_account.principle_repayment = (loan_account.total_loan_balance)
-                                            loan_account.loan_repayment_amount = (
-                                                (loan_account.total_loan_balance) + (loan_account.interest_charged))
-                                        else:
-                                            loan_account.principle_repayment = (
-                                                (int(loan_account.loan_repayment_every) *
-                                                    (principle_repayable)) + (balance_principle))
-                                            loan_account.loan_repayment_amount = (
-                                                (int(loan_account.loan_repayment_every) *
-                                                    (principle_repayable)) +
-                                                (loan_account.interest_charged) + (balance_principle))
-
+                                                (principle_repayable))):
+                                        loan_account.principle_repayment = (loan_account.total_loan_balance)
+                                        loan_account.loan_repayment_amount = (
+                                            (loan_account.total_loan_balance) + (loan_account.interest_charged))
+                                    else:
+                                        loan_account.principle_repayment = (
+                                            (int(loan_account.loan_repayment_every) *
+                                                (principle_repayable)) + (lastmonth_bal))
+                                        loan_account.loan_repayment_amount = (
+                                            (int(loan_account.loan_repayment_every) *
+                                                (principle_repayable)) +
+                                            (loan_account.interest_charged))
+                                
+                                elif (form.cleaned_data.get("loanprinciple_amount")) >\
+                                        ((int(loan_account.loan_repayment_every) * (principle_repayable))):
+                                    balance_principle = ((form.cleaned_data.get("loanprinciple_amount")) - 
+                                        ((int(loan_account.loan_repayment_every) *
+                                            (principle_repayable))))
+                                    if (int(loan_account.no_of_repayments_completed)+1 == int(loan_account.loan_repayment_period)):
+                                        loan_account.principle_repayment = (
+                                            loan_account.total_loan_balance)
+                                        loan_account.loan_repayment_amount = (
+                                            (loan_account.total_loan_balance) +
+                                            (loan_account.interest_charged))
+                                    elif (form.cleaned_data.get("loanprinciple_amount") == loan_account.principle_repayment):
+                                        loan_account.principle_repayment = (
+                                            (int(loan_account.loan_repayment_every) *
+                                                (principle_repayable)))
+                                        loan_account.loan_repayment_amount = (
+                                            (int(loan_account.loan_repayment_every) *
+                                                (principle_repayable)) +
+                                            (loan_account.interest_charged))
+                                    elif (loan_account.total_loan_balance) <\
+                                            ((int(loan_account.loan_repayment_every) *
+                                                (principle_repayable))):
+                                        loan_account.principle_repayment = (loan_account.total_loan_balance)
+                                        loan_account.loan_repayment_amount = (
+                                            (loan_account.total_loan_balance) + (loan_account.interest_charged))
+                                    else:
+                                        loan_account.principle_repayment = (
+                                            (int(loan_account.loan_repayment_every) *
+                                                (principle_repayable)) + (lastmonth_bal))
+                                        loan_account.loan_repayment_amount = (
+                                            (int(loan_account.loan_repayment_every) *
+                                                (principle_repayable)) +
+                                            (loan_account.interest_charged))
         return loan_account
 
     def get_context_data(self, *args, **kwargs):
@@ -496,7 +597,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
             receipt.save()
             self.client.save()
             if form.loan_account:
-                if d(self.loan_account.total_loan_amount_repaid) == d(self.loan_account.loan_amount) and d(self.loan_account.total_loan_balance) == d(0):
+                if d(self.loan_account.total_loan_amount_repaid) == d(self.loan_account.loan_amount) and d(self.loan_account.total_loan_balance) == d(0) and d(self.loan_account.interest_charged) == d(0):
                     self.loan_account.status = "Closed"
                     if self.loan_account.client:
                         if self.loan_account.client.email and self.loan_account.client.email.strip():
