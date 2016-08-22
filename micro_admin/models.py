@@ -327,6 +327,32 @@ class LoanAccount(models.Model):
         return self.account_no
 
 
+class GroupMemberLoanAccount(models.Model):
+    group_loan_account = models.ForeignKey(LoanAccount)
+    client = models.ForeignKey(Client)
+    loan_amount = models.DecimalField(max_digits=19, decimal_places=6)
+    loan_repayment_period = models.IntegerField()
+    loan_repayment_every = models.IntegerField()
+    loan_repayment_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
+    total_loan_amount_repaid = models.DecimalField(max_digits=19,
+                                                   decimal_places=6,
+                                                   default=0)
+    interest_charged = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    total_interest_repaid = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    total_loan_paid = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    total_loan_balance = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    loanprocessingfee_amount = models.DecimalField(
+        max_digits=19, decimal_places=6, default=0)
+    no_of_repayments_completed = models.IntegerField(default=0)
+    principle_repayment = models.DecimalField(
+        max_digits=19, decimal_places=6, null=True, blank=True)
+
+
 class FixedDeposits(models.Model):
     client = models.ForeignKey(Client)
     deposited_date = models.DateField()
