@@ -1,5 +1,5 @@
 from micro_admin.models import (User, Client, Receipts, Payments, LoanAccount, Group,
-                                SavingsAccount, FixedDeposits, RecurringDeposits)
+                                SavingsAccount, FixedDeposits, RecurringDeposits, GroupMemberLoanAccount)
 from django import forms
 from django.core.validators import MinValueValidator
 from django.forms.utils import ErrorList
@@ -42,6 +42,7 @@ class GetLoanDemandsForm(forms.Form):
 
     loan_account_no = forms.CharField(max_length=100, required=False)
     group_loan_account_no = forms.CharField(max_length=100, required=False)
+    name = forms.CharField(max_length=100, required=False)
 
     def clean(self):
         if not (self.cleaned_data.get("loan_account_no") or self.cleaned_data.get("group_loan_account_no")):
@@ -55,7 +56,8 @@ class GetLoanDemandsForm(forms.Form):
         if self.cleaned_data.get("loan_account_no"):
             self.loan_account = LoanAccount.objects.filter(account_no=self.cleaned_data.get("loan_account_no")).last()
         elif self.cleaned_data.get("group_loan_account_no"):
-            self.loan_account = LoanAccount.objects.filter(account_no=self.cleaned_data.get("group_loan_account_no")).last()
+            self.group_loan_account = LoanAccount.objects.filter(account_no=self.cleaned_data.get("group_loan_account_no")).last()
+            self.loan_account = GroupMemberLoanAccount.objects.get(client__first_name=self.cleaned_data.get("name"), group_loan_account=self.group_loan_account)
         if not self.loan_account:
             errors = self._errors.setdefault("message1", ErrorList())
             errors.append("Account not found with given a/c number")
@@ -210,7 +212,10 @@ class ReceiptForm(forms.ModelForm):
                             loan_account.total_loan_paid = (loan_account.total_loan_amount_repaid + loan_account.total_interest_repaid)
                             if self.cleaned_data.get("loanprinciple_amount", 0):
                                 loan_account.total_loan_balance -= (self.cleaned_data.get("loanprinciple_amount", 0))
-                            if not loan_account.group:
+                            try:
+                                if not loan_account.group:
+                                    loan_account.no_of_repayments_completed += loan_account.loan_repayment_every
+                            except:
                                 loan_account.no_of_repayments_completed += loan_account.loan_repayment_every
                             if ((loan_account.total_loan_amount_repaid == loan_account.loan_amount) and
                                     loan_account.total_loan_balance == 0):
@@ -234,6 +239,7 @@ class ReceiptForm(forms.ModelForm):
         self.group_savings_account = None
         self.group_loan_account = None
         self.group = None
+        self.group_member_loan_account = None
         name = self.cleaned_data.get("name")
         account_number = self.cleaned_data.get("account_number")
         if name and account_number:
@@ -322,7 +328,21 @@ class ReceiptForm(forms.ModelForm):
             if self.loan_account:
                 self.verify_loan(self.loan_account)
             elif self.group_loan_account:
-                self.verify_loan(self.group_loan_account)
+                self.group_member_loan_account = GroupMemberLoanAccount.objects.filter(group_loan_account=self.group_loan_account, client=self.client).first()
+                if self.group_member_loan_account:
+                    if self.group_member_loan_account.status == "Approved":
+                        self.verify_loan(self.group_member_loan_account)
+                        self.group_loan_account.no_of_repayments_completed = 0
+                        self.group_loan_account.total_loan_balance -= self.cleaned_data.get("loanprinciple_amount", 0)
+                        self.group_loan_account.save()
+                    else:
+                        errors = self._errors.setdefault("message1", ErrorList())
+                        errors.append("Group Loan is not yet Approved.")
+                        raise forms.ValidationError(errors)
+                else:
+                    errors = self._errors.setdefault("message1", ErrorList())
+                    errors.append("Member in this group does not exists.")
+                    raise forms.ValidationError(errors)
         if self.cleaned_data.get('fixed_deposit_account_no'):
             fixed_deposit_account = FixedDeposits.objects.filter(
                 fixed_deposit_number=self.cleaned_data.get('fixed_deposit_account_no')

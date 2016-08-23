@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.template import Context
-from micro_admin.models import User, Group, Client, LoanAccount, Receipts
+from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount
 from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
 from core.utils import send_email_template, unique_random_number
@@ -406,7 +406,7 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
         )
         loan_account.total_loan_balance = d(d(loan_account.loan_amount))
         loan_account.save()
-
+        loan_amount = (loan_account.loan_amount) / self.group.clients.all().count()
         for client in self.group.clients.all():
             if client.email and client.email.strip():
                 send_email_template(
@@ -420,6 +420,37 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
                         "link_prefix": settings.SITE_URL,
                     },
                 )
+            group_member = GroupMemberLoanAccount.objects.create(
+                account_no=loan_account.account_no,
+                client=client, loan_amount=loan_amount,
+                group_loan_account=loan_account, loan_repayment_period=loan_account.loan_repayment_period,
+                loan_repayment_every=loan_account.loan_repayment_every,
+                total_loan_balance=d(loan_amount), status=loan_account.status,
+                annual_interest_rate=loan_account.annual_interest_rate,
+                interest_type=loan_account.interest_type
+                )
+            interest_charged = d(
+                (
+                    d(group_member.loan_amount) * (
+                        d(loan_account.annual_interest_rate) / 12)
+                ) / 100
+            )
+
+            group_member.principle_repayment = d(
+                int(group_member.loan_repayment_every) *
+                (
+                    d(group_member.loan_amount) / d(
+                        group_member.loan_repayment_period)
+                )
+            )
+            group_member.interest_charged = d(
+                int(group_member.loan_repayment_every) * d(interest_charged))
+            group_member.loan_repayment_amount = d(
+                d(group_member.principle_repayment) + d(
+                    group_member.interest_charged)
+            )
+            group_member.save()
+
         return JsonResponse({"error": False, "loanaccount_id": loan_account.id})
 
     def form_invalid(self, form):
@@ -512,6 +543,10 @@ class ChangeLoanAccountStatus(LoginRequiredMixin, View):
                                 )
 
                     elif self.object.group:
+                        group_member_loans = GroupMemberLoanAccount.objects.filter(group_loan_account=self.object)
+                        group_member_loans.update(status=self.object.status)
+                        group_member_loans.update(loan_issued_date=self.object.loan_issued_date)
+                        group_member_loans.update(interest_type=self.object.interest_type)
                         for client in self.object.group.clients.all():
                             if client.email and client.email.strip():
                                 send_email_template(
@@ -548,6 +583,8 @@ class IssueLoan(LoginRequiredMixin, View):
             loan_account.save()
 
         if loan_account.group:
+            group_members = GroupMemberLoanAccount.objects.filter(group_loan_account=loan_account)
+            group_members.update(loan_issued_date=datetime.datetime.now())
             url = reverse("loans:grouploanaccount", kwargs={"pk": loan_account.id})
         elif loan_account.client:
             url = reverse("loans:clientloanaccount", kwargs={'pk': loan_account.id})
