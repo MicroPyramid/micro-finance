@@ -338,18 +338,18 @@
 <script type="text/javascript">
   $('#memberloanaccountselect, #grouploanaccountselect').change(function() {
     if ($(this).attr("id") == "grouploanaccountselect"){
-      $("#memberloanaccountselect").val("");
-      $('#demand_loanprinciple').val('');
-      $('#demand_loaninterest').val('');
-      $('#loanprinciple_amount').val('');
-      $('#loaninterest_amount').val('');
+      $("#memberloanaccountselect").val("0");
+      $('#demand_loanprinciple').val('0');
+      $('#demand_loaninterest').val('0');
+      $('#loanprinciple_amount').val('0');
+      $('#loaninterest_amount').val('0');
     }
     else if ($(this).attr("id") == "memberloanaccountselect"){
-      $("#grouploanaccountselect").val("");
-      $('#demand_loanprinciple').val('');
-      $('#demand_loaninterest').val('');
-      $('#loanprinciple_amount').val('');
-      $('#loaninterest_amount').val('');
+      $("#grouploanaccountselect").val("0");
+      $('#demand_loanprinciple').val('0');
+      $('#demand_loaninterest').val('0');
+      $('#loanprinciple_amount').val('0');
+      $('#loaninterest_amount').val('0');
     }
     if(!$(this).val()){
       return false;
