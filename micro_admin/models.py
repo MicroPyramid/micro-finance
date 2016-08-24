@@ -328,6 +328,7 @@ class LoanAccount(models.Model):
 
 
 class GroupMemberLoanAccount(models.Model):
+    account_no = models.CharField(max_length=50)
     group_loan_account = models.ForeignKey(LoanAccount)
     client = models.ForeignKey(Client)
     loan_amount = models.DecimalField(max_digits=19, decimal_places=6)
@@ -351,6 +352,10 @@ class GroupMemberLoanAccount(models.Model):
     no_of_repayments_completed = models.IntegerField(default=0)
     principle_repayment = models.DecimalField(
         max_digits=19, decimal_places=6, null=True, blank=True)
+    status = models.CharField(choices=ACCOUNT_STATUS, max_length=20)
+    loan_issued_date = models.DateField(null=True, blank=True)
+    interest_type = models.CharField(choices=INTEREST_TYPES, max_length=20)
+    annual_interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
 
 
 class FixedDeposits(models.Model):

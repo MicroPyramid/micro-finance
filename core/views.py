@@ -3,7 +3,7 @@ from django.views.generic import(CreateView, FormView,)
 from .mixins import LoginRequiredMixin
 from .forms import ReceiptForm, PaymentForm, ClientLoanAccountsForm, GetLoanDemandsForm, GetFixedDepositsForm, GetRecurringDepositsForm, \
     GetFixedDepositsPaidForm, GetRecurringDepositsPaidForm, ClientDepositsAccountsForm
-from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount, Group, Client, FixedDeposits, RecurringDeposits
+from micro_admin.models import Branch, Receipts, PAYMENT_TYPES, Payments, LoanAccount, Group, Client, FixedDeposits, RecurringDeposits, GroupMemberLoanAccount
 import decimal
 # from django.db.models import Q
 from datetime import datetime
@@ -36,18 +36,19 @@ class ClientLoanAccountsView(LoginRequiredMixin, FormView):
             groups = form.client.group_set.all()
             default_group = groups.first()
             if default_group:
-                group_accounts_filter = LoanAccount.objects.filter(
+                group_accounts_filter1 = LoanAccount.objects.filter(
                     group=default_group,
                     status='Approved'
                 ).exclude(loan_issued_by__isnull=True,
                           loan_issued_date__isnull=True)
+                group_accounts_filter = GroupMemberLoanAccount.objects.filter(group_loan_account__in=group_accounts_filter1, client=form.client, status="Approved")
                 group_loan_has_payments = []
                 for loan in group_accounts_filter:
-                    payments = Payments.objects.filter(group=default_group, loan_account=loan)
+                    payments = Payments.objects.filter(group=default_group, loan_account=loan.group_loan_account)
                     if payments:
-                        group_loan_has_payments.append(loan.id)
+                        group_loan_has_payments.append(loan.group_loan_account.id)
                 group_accounts = group_accounts_filter.filter(
-                    id__in=[int(x) for x in group_loan_has_payments]).values_list("account_no", "loan_amount")
+                    group_loan_account__in=[int(x) for x in group_loan_has_payments]).values_list("account_no", "loan_amount")
             else:
                 group_accounts = []
             fixed_deposit_accounts = FixedDeposits.objects.filter(
@@ -165,10 +166,8 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                         loan_account.loan_repayment_amount = balance_interest
                                         loan_account.principle_repayment = 0
                                     # if form.cleaned_data.get("loanprinciple_amount"):
-                                    #     print ('enterecewrw')
                                     #     if form.cleaned_data.get("loanprinciple_amount") < \
                                     #             loan_account.principle_repayment:
-                                    #         print ("akkl")
                                     #         balance_principle = loan_account.principle_repayment -\
                                     #             form.cleaned_data.get("loanprinciple_amount")
                                     #         loan_account.principle_repayment = d(balance_principle)
@@ -298,7 +297,6 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                 if (form.cleaned_data.get("loanprinciple_amount")) == (
                                         (int(loan_account.loan_repayment_every) * (
                                             principle_repayable))):
-                                    
                                     if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
                                         loan_account.principle_repayment = (
                                             loan_account.total_loan_balance)
@@ -348,8 +346,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                             (int(loan_account.loan_repayment_every) *
                                                 (principle_repayable)) + (lastmonth_bal))
                                         loan_account.loan_repayment_amount = (
-                                            (int(loan_account.loan_repayment_every) *
-                                                (principle_repayable)) +
+                                            (loan_account.principle_repayment) +
                                             (loan_account.interest_charged))
                                 
                                 elif (form.cleaned_data.get("loanprinciple_amount")) >\
@@ -368,8 +365,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                             (int(loan_account.loan_repayment_every) *
                                                 (principle_repayable)))
                                         loan_account.loan_repayment_amount = (
-                                            (int(loan_account.loan_repayment_every) *
-                                                (principle_repayable)) +
+                                            (loan_account.principle_repayment) +
                                             (loan_account.interest_charged))
                                     elif (loan_account.total_loan_balance) <\
                                             ((int(loan_account.loan_repayment_every) *
@@ -382,8 +378,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                             (int(loan_account.loan_repayment_every) *
                                                 (principle_repayable)) + (lastmonth_bal))
                                         loan_account.loan_repayment_amount = (
-                                            (int(loan_account.loan_repayment_every) *
-                                                (principle_repayable)) +
+                                            (loan_account.principle_repayment) +
                                             (loan_account.interest_charged))
         return loan_account
 
@@ -505,8 +500,8 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
             if form.loan_account:
                 self.loan_account = self.loan_valid(form, self.loan_account)
             elif form.group_loan_account:
-                self.group_loan_account = self.loan_valid(form, self.group_loan_account)
-
+                self.group_member_loan_account = form.group_member_loan_account
+                self.group_loan_account = self.loan_valid(form, self.group_member_loan_account)
         if form.cleaned_data.get("sharecapital_amount") or\
                 form.cleaned_data.get("entrancefee_amount") or\
                 form.cleaned_data.get("membershipfee_amount") or\
@@ -564,13 +559,13 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                 if form.loan_account:
                     receipt.member_loan_account = self.loan_account
                 if form.group_loan_account:
-                    receipt.group_loan_account = self.group_loan_account
+                    receipt.group_loan_account = form.group_loan_account
             if form.cleaned_data.get("loaninterest_amount") != 0:
                 receipt.loaninterest_amount = form.cleaned_data.get("loaninterest_amount")
                 if form.loan_account:
                     receipt.member_loan_account = self.loan_account
                 if form.group_loan_account:
-                    receipt.group_loan_account = self.group_loan_account
+                    receipt.group_loan_account = form.group_loan_account
             if form.loan_account:
                 receipt.demand_loanprinciple_amount_atinstant = self.var_demand_loanprinciple_amount_atinstant
                 receipt.demand_loaninterest_amount_atinstant = self.var_demand_loaninterest_amount_atinstant
@@ -596,23 +591,33 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                             )
                 self.loan_account.save()
             if form.group_loan_account:
-                if d(self.group_loan_account.total_loan_amount_repaid) == d(self.group_loan_account.loan_amount) and d(self.group_loan_account.total_loan_balance) == d(0):
+                if d(self.group_loan_account.total_loan_amount_repaid) == d(self.group_loan_account.loan_amount) and d(self.group_loan_account.total_loan_balance) == d(0) and d(self.group_loan_account.interest_charged) == d(0):
                     self.group_loan_account.status = "Closed"
-                    if self.group_loan_account.group:
-                        for client in self.group_loan_account.group.clients.all():
+                self.group_loan_account.save()
+                group_member_loan_account = GroupMemberLoanAccount.objects.filter(group_loan_account=form.group_loan_account)
+                if group_member_loan_account:
+                    count = 0
+                    for group_member in group_member_loan_account:
+                        if group_member.status == "Closed":
+                            count += 1
+                    if count == group_member_loan_account.count():
+                        group_loan = LoanAccount.objects.get(id=form.group_loan_account.id)
+                        group_loan.status = "Closed"
+                        group_loan.interest_charged = 0
+                        group_loan.save()
+                        for client in group_loan.group.clients.all():
                             if client.email and client.email.strip():
                                 send_email_template(
                                     subject="Group Loan (ID: %s) application has been Closed."
-                                            % self.group_loan_account.account_no,
+                                            % group_loan.account_no,
                                     template_name="emails/group/loan_closed.html",
                                     receipient=client.email,
                                     ctx={
                                         "client": client,
-                                        "loan_account": self.group_loan_account,
+                                        "loan_account": group_loan,
                                         "link_prefix": settings.SITE_URL,
                                     },
                                 )
-                self.group_loan_account.save()
             if form.savings_account:
                 self.savings_account.save()
             if form.group_savings_account:
@@ -641,6 +646,12 @@ class PaySlipCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         pay_slip = form.save()
+        loan_account = LoanAccount.objects.get(id=pay_slip.loan_account.id)
+        loan_account.loan_issued_date = pay_slip.date
+        loan_account.save()
+        group_members = GroupMemberLoanAccount.objects.filter(group_loan_account=pay_slip.loan_account)
+        if group_members:
+            group_members.update(loan_issued_date=pay_slip.date)
         data = {"error": False, 'pay_slip': pay_slip.id}
         return JsonResponse(data)
 
