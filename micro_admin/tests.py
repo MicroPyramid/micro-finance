@@ -902,12 +902,7 @@ class Admin_Views_test(TestCase):
                     kwargs={'group_id': self.group1.id,
                             'client_id': self.member1.id})
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(
-            response,
-            reverse('micro_admin:groupprofile',
-                    kwargs={'group_id': self.group1.id}),
-            status_code=302, target_status_code=200)
+        self.assertEqual(response.status_code, 404)
 
     # def test_create_client_invalid_post_data(self):
     #     user_login = self.client.login(username='jagadeesh', password='jag123')
