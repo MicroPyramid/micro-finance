@@ -330,6 +330,7 @@ class ReceiptForm(forms.ModelForm):
             if fixed_deposit_account:
                 savings_account = SavingsAccount.objects.filter(client=fixed_deposit_account.client)
                 if savings_account:
+                    self.savings_account = savings_account.last()
                     if fixed_deposit_account.status == 'Opened':
                         if self.cleaned_data.get('fixeddeposit_amount') >= 0:
                             if d(fixed_deposit_account.fixed_deposit_amount) != d(self.cleaned_data.get('fixeddeposit_amount')):
@@ -357,6 +358,7 @@ class ReceiptForm(forms.ModelForm):
             if recurring_deposit_account:
                 savings_account = SavingsAccount.objects.filter(client=recurring_deposit_account.client)
                 if savings_account:
+                    self.savings_account = savings_account.last()
                     if recurring_deposit_account.status == 'Opened':
                         if self.cleaned_data.get('recurringdeposit_amount') >= 0:
                             if (
