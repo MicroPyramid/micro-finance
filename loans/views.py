@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.template import Context
-from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount
+from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount, LoanRepaymentEvery
 from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
 from core.utils import send_email_template, unique_random_number
@@ -32,6 +32,7 @@ class ClientLoanApplicationView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ClientLoanApplicationView, self).get_context_data(**kwargs)
         context["account_no"] = unique_random_number(LoanAccount)
+        context["loan_repayment_every"] = LoanRepaymentEvery.objects.all()
         context["client"] = self.client
         return context
 
@@ -380,78 +381,81 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         loan_account = form.save(commit=False)
-        loan_account.status = "Applied"
-        loan_account.created_by = User.objects.get(username=self.request.user)
-        loan_account.group = self.group
+        if len(self.group.clients.all()):
+            loan_account.status = "Applied"
+            loan_account.created_by = User.objects.get(username=self.request.user)
+            loan_account.group = self.group
 
-        interest_charged = d(
-            (
-                d(loan_account.loan_amount) * (
-                    d(loan_account.annual_interest_rate) / 12)
-            ) / 100
-        )
-
-        loan_account.principle_repayment = d(
-            int(loan_account.loan_repayment_every) *
-            (
-                d(loan_account.loan_amount) / d(
-                    loan_account.loan_repayment_period)
-            )
-        )
-        loan_account.interest_charged = d(
-            int(loan_account.loan_repayment_every) * d(interest_charged))
-        loan_account.loan_repayment_amount = d(
-            d(loan_account.principle_repayment) + d(
-                loan_account.interest_charged)
-        )
-        loan_account.total_loan_balance = d(d(loan_account.loan_amount))
-        loan_account.save()
-        loan_amount = (loan_account.loan_amount) / self.group.clients.all().count()
-        for client in self.group.clients.all():
-            if client.email and client.email.strip():
-                send_email_template(
-                    subject="Group Loan (ID: %s) application has been Received."
-                            % loan_account.account_no,
-                    template_name="emails/group/loan_applied.html",
-                    receipient=client.email,
-                    ctx={
-                        "client": client,
-                        "loan_account": loan_account,
-                        "link_prefix": settings.SITE_URL,
-                    },
-                )
-            group_member = GroupMemberLoanAccount.objects.create(
-                account_no=loan_account.account_no,
-                client=client, loan_amount=loan_amount,
-                group_loan_account=loan_account, loan_repayment_period=loan_account.loan_repayment_period,
-                loan_repayment_every=loan_account.loan_repayment_every,
-                total_loan_balance=d(loan_amount), status=loan_account.status,
-                annual_interest_rate=loan_account.annual_interest_rate,
-                interest_type=loan_account.interest_type
-                )
             interest_charged = d(
                 (
-                    d(group_member.loan_amount) * (
+                    d(loan_account.loan_amount) * (
                         d(loan_account.annual_interest_rate) / 12)
                 ) / 100
             )
 
-            group_member.principle_repayment = d(
-                int(group_member.loan_repayment_every) *
+            loan_account.principle_repayment = d(
+                int(loan_account.loan_repayment_every) *
                 (
-                    d(group_member.loan_amount) / d(
-                        group_member.loan_repayment_period)
+                    d(loan_account.loan_amount) / d(
+                        loan_account.loan_repayment_period)
                 )
             )
-            group_member.interest_charged = d(
-                int(group_member.loan_repayment_every) * d(interest_charged))
-            group_member.loan_repayment_amount = d(
-                d(group_member.principle_repayment) + d(
-                    group_member.interest_charged)
+            loan_account.interest_charged = d(
+                int(loan_account.loan_repayment_every) * d(interest_charged))
+            loan_account.loan_repayment_amount = d(
+                d(loan_account.principle_repayment) + d(
+                    loan_account.interest_charged)
             )
-            group_member.save()
+            loan_account.total_loan_balance = d(d(loan_account.loan_amount))
+            loan_account.save()
+            loan_amount = (loan_account.loan_amount) / self.group.clients.all().count()
+            for client in self.group.clients.all():
+                if client.email and client.email.strip():
+                    send_email_template(
+                        subject="Group Loan (ID: %s) application has been Received."
+                                % loan_account.account_no,
+                        template_name="emails/group/loan_applied.html",
+                        receipient=client.email,
+                        ctx={
+                            "client": client,
+                            "loan_account": loan_account,
+                            "link_prefix": settings.SITE_URL,
+                        },
+                    )
+                group_member = GroupMemberLoanAccount.objects.create(
+                    account_no=loan_account.account_no,
+                    client=client, loan_amount=loan_amount,
+                    group_loan_account=loan_account, loan_repayment_period=loan_account.loan_repayment_period,
+                    loan_repayment_every=loan_account.loan_repayment_every,
+                    total_loan_balance=d(loan_amount), status=loan_account.status,
+                    annual_interest_rate=loan_account.annual_interest_rate,
+                    interest_type=loan_account.interest_type
+                    )
+                interest_charged = d(
+                    (
+                        d(group_member.loan_amount) * (
+                            d(loan_account.annual_interest_rate) / 12)
+                    ) / 100
+                )
 
-        return JsonResponse({"error": False, "loanaccount_id": loan_account.id})
+                group_member.principle_repayment = d(
+                    int(group_member.loan_repayment_every) *
+                    (
+                        d(group_member.loan_amount) / d(
+                            group_member.loan_repayment_period)
+                    )
+                )
+                group_member.interest_charged = d(
+                    int(group_member.loan_repayment_every) * d(interest_charged))
+                group_member.loan_repayment_amount = d(
+                    d(group_member.principle_repayment) + d(
+                        group_member.interest_charged)
+                )
+                group_member.save()
+
+            return JsonResponse({"error": False, "loanaccount_id": loan_account.id})
+        else:
+            return JsonResponse({"error": True, "error_message": "Group does not contains any members."})
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "message": form.errors})
@@ -479,8 +483,18 @@ class GroupLoanAccount(LoginRequiredMixin, DetailView):
     template_name = "group/loan/account.html"
 
     def get_context_data(self, **kwargs):
+        total_loan_amount_repaid = 0
+        total_interest_repaid = 0
         context = super(GroupLoanAccount, self).get_context_data(**kwargs)
         context['group'] = self.object.group
+        group_members = GroupMemberLoanAccount.objects.filter(group_loan_account=self.object)
+        context['group_members'] = group_members
+        for member in group_members:
+            total_loan_amount_repaid += member.total_loan_amount_repaid
+            total_interest_repaid += member.total_interest_repaid
+        context['total_loan_amount_repaid'] = total_loan_amount_repaid
+        context['total_interest_repaid'] = total_interest_repaid
+        context['total_loan_paid'] = total_loan_amount_repaid + total_interest_repaid
         return context
 
 
@@ -495,9 +509,6 @@ class GroupLoanDepositsListView(LoginRequiredMixin, ListView):
         queryset = self.model.objects.filter(
             group=self.group,
             group_loan_account=self.loan_account
-        ).exclude(
-            demand_loanprinciple_amount_atinstant=0,
-            demand_loaninterest_amount_atinstant=0
         )
         return queryset
 

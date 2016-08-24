@@ -286,6 +286,10 @@ class SavingsAccount(models.Model):
         return self.account_no
 
 
+class LoanRepaymentEvery(models.Model):
+    value = models.IntegerField()
+
+
 class LoanAccount(models.Model):
     account_no = models.CharField(max_length=50, unique=True)
     interest_type = models.CharField(choices=INTEREST_TYPES, max_length=20)
