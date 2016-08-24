@@ -441,9 +441,9 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                    or (self.group_loan_account.loan_repayment_amount)\
                    or (self.group_loan_account.principle_repayment):
                     self.var_demand_loanprinciple_amount_atinstant = \
-                        (self.group_loan_account.principle_repayment)
+                        (form.group_member_loan_account.principle_repayment)
                     self.var_demand_loaninterest_amount_atinstant = \
-                        (self.group_loan_account.interest_charged)
+                        (form.group_member_loan_account.interest_charged)
 
         if form.savings_account:
             self.savings_account = form.savings_account
@@ -570,6 +570,10 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                 receipt.demand_loanprinciple_amount_atinstant = self.var_demand_loanprinciple_amount_atinstant
                 receipt.demand_loaninterest_amount_atinstant = self.var_demand_loaninterest_amount_atinstant
                 receipt.principle_loan_balance_atinstant = self.loan_account.total_loan_balance
+            if form.group_loan_account:
+                receipt.demand_loanprinciple_amount_atinstant = self.var_demand_loanprinciple_amount_atinstant
+                receipt.demand_loaninterest_amount_atinstant = self.var_demand_loaninterest_amount_atinstant
+                receipt.principle_loan_balance_atinstant = self.group_loan_account.total_loan_balance
             # save data
             receipt.save()
             self.client.save()

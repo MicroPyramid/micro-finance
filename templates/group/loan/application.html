@@ -83,9 +83,14 @@
       $.post('.', $('#grouploanapplicationform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
+          if (data.message){
           $.each(data.message, function( key, value ) {
             $('#'+key).after("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
           });
+        }
+          if(data.error && data.error_message){
+            $("#account_no").after("<span class='error' style='height:11px;color:red;'>" + data.error_message + "</span>")
+          }
         }
         else {
           alert("Group Loan Application submitted sucessfully");

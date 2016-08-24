@@ -27,7 +27,7 @@ from django.db.models import Sum
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES, ClientBranchTransfer, Menu, Page)
+    RecurringDeposits, USER_ROLES, ClientBranchTransfer, Menu, Page, GroupMemberLoanAccount)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
     ReceiptForm, FixedDepositForm, PaymentForm,
@@ -222,7 +222,7 @@ class ClientsListView(LoginRequiredMixin, ListView):
 class ClientInactiveView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        client = get_object_or_404(Client, id=kwargs.get('client_id'))
+        client = get_object_or_404(Client, id=kwargs.get('pk'))
         if (
             request.user.is_admin or (
                 request.user.has_perm("branch_manager") and
@@ -230,8 +230,16 @@ class ClientInactiveView(LoginRequiredMixin, View):
             )
         ):
             if client.is_active:
-                client.is_active = False
-                client.save()
+                count = 0
+                loans = LoanAccount.objects.filter(client=client)
+                for loan in loans:
+                    if loan.status == "Closed":
+                        count += 1
+                if count == loans.count():
+                    client.is_active = False
+                    client.save()
+                else:
+                    raise Http404("Oops! Member is involved in loan, Unable to delete.")
         return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
 from django.contrib.auth.models import Permission, ContentType
@@ -497,10 +505,14 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
             group = self.object
 
         client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
-        group.clients.remove(client)
-        client.status = "UnAssigned"
-        client.save()
-        return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+        group_loan_account = LoanAccount.objects.get(group=group)
+        if GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
+            group.clients.remove(client)
+            client.status = "UnAssigned"
+            client.save()
+            return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+        else:
+            raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
 
 
 class GroupMeetingsListView(LoginRequiredMixin, ListView):
