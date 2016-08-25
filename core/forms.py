@@ -522,6 +522,9 @@ class PaymentForm(forms.ModelForm):
         if not (self.cleaned_data.get("amount") != 0 and self.cleaned_data.get("total_amount") != 0):
             raise forms.ValidationError("Voucher can't be generated with amount/total amount zero")
 
+        if not (self.cleaned_data.get("amount") and self.cleaned_data.get("total_amount")):
+            return
+
         if self.cleaned_data.get("payment_type") == "TravellingAllowance" or self.cleaned_data.get("payment_type") == "Paymentofsalary":
             if not self.cleaned_data.get("staff_username"):
                 raise forms.ValidationError("Please enter Employee Username")
