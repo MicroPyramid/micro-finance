@@ -906,6 +906,11 @@ class PaymentForm(forms.ModelForm):
                 staff = User.objects.get(username__iexact=self.cleaned_data.get("staff_username"))
                 instance.staff = staff
             elif self.cleaned_data.get("payment_type") == "SavingsWithdrawal":
+                total_amount = d(self.cleaned_data.get("amount"))
+                if self.cleaned_data.get("interest"):
+                    instance.interest = self.cleaned_data.get("interest")
+                    total_amount += self.cleaned_data.get("interest")
+
                 if self.cleaned_data.get("client_name") and self.cleaned_data.get('client_account_number'):
                     client = Client.objects.filter(
                         first_name__iexact=self.cleaned_data.get("client_name"),
@@ -917,17 +922,10 @@ class PaymentForm(forms.ModelForm):
                             if client_group:
                                 group_savings_account = SavingsAccount.objects.filter(group=client_group).first()
                                 if group_savings_account:
-                                    if self.cleaned_data.get("group_name"):
-                                        if self.cleaned_data.get("group_name").lower() == client_group.name.lower():
-                                            if self.cleaned_data.get("group_account_number"):
-                                                if self.cleaned_data.get("group_account_number") == client_group.account_number:
-                                                    instance.client = client
-                                                    instance.group = client_group
-                                    else:
-                                        instance.client = client
-                                        instance.group = client_group
-                                    if self.cleaned_data.get('interest'):
-                                        instance.interest = self.cleaned_data.get('interest')
+                                    instance.client = client
+                                    instance.group = client_group
+
+                                    # Deduct the balance from saving accounts.
                                     savings_account.savings_balance -= d(self.cleaned_data.get("amount"))
                                     savings_account.total_withdrawals += d(self.cleaned_data.get("amount"))
                                     savings_account.save()
@@ -937,8 +935,7 @@ class PaymentForm(forms.ModelForm):
                                     group_savings_account.save()
                             else:
                                 instance.client = client
-                                if self.cleaned_data.get("interest"):
-                                    instance.interest = self.cleaned_data.get("interest")
+
                                 savings_account.savings_balance -= d(self.cleaned_data.get("amount"))
                                 savings_account.total_withdrawals += d(self.cleaned_data.get("amount"))
                                 savings_account.save()
@@ -955,14 +952,13 @@ class PaymentForm(forms.ModelForm):
                                         client_group = group.clients.all()
                                         savings_accounts_filter = SavingsAccount.objects.filter(
                                             client__in=[client for client in client_group])
-                                        instance.group = group
-                                        deduct_amount = d(self.cleaned_data.get('amount')) / d(len(savings_accounts_filter))
-                                        for savings_account in savings_accounts_filter:
-                                            savings_account.savings_balance -= d(deduct_amount)
-                                            savings_account.total_withdrawals += d(deduct_amount)
-                                            savings_account.save()
-                                    if self.cleaned_data.get('interest'):
-                                        instance.interest = self.cleaned_data.get('interest')
+                                        if savings_accounts_filter:
+                                            deduct_amount = d(self.cleaned_data.get('amount')) / d(len(savings_accounts_filter))
+                                            for savings_account in savings_accounts_filter:
+                                                savings_account.savings_balance -= d(deduct_amount)
+                                                savings_account.total_withdrawals += d(deduct_amount)
+                                                savings_account.save()
+
                                     instance.group = group
 
                                     group_savings_account.savings_balance -= d(self.cleaned_data.get("amount"))
