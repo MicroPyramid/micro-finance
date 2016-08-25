@@ -119,9 +119,6 @@
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Loan Issued On :</label><span class="col-lg-6 col-sm-6 col-xs-6 mar-top">
           {{ loanaccount.loan_issued_date }}
-          {% if user.is_admin and not loanaccount.loan_issued_date %}
-          <a href="{% url 'loans:issueloan' loanaccount.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
-          {% endif %}
           </span>
         </div>
         <div class="form-group">
@@ -134,7 +131,7 @@
           <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Interest Charged :</label><span class="col-lg-6 col-sm-6 col-xs-6 mar-top" style="color:#337ab7;">{{ loanaccount.interest_charged }}/-</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">No. of Repayments Completed :</label><span class="col-lg-6 col-sm-6 col-xs-6 mar-top">{{ loanaccount.no_of_repayments_completed }}</span>
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">No. of Repayments Completed :</label><span class="col-lg-6 col-sm-6 col-xs-6 mar-top">{{ no_of_repayments_completed }}</span>
         </div>
         <div class="form-group">
           <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label"> Total Interest Repaid :</label><span class="col-lg-6 col-sm-6 col-xs-6 mar-top">{{ loanaccount.total_interest_repaid }}/-</span>
