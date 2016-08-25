@@ -477,6 +477,9 @@ class Receipts(models.Model):
     def __unicode__(self):
         return self.receipt_number
 
+    def __str__(self):
+        return self.receipt_number
+
 
 class Payments(models.Model):
     date = models.DateField()
