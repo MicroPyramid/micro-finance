@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.template import Context
-from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount, LoanRepaymentEvery
+from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount, LoanRepaymentEvery, Payments
 from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
 from core.utils import send_email_template, unique_random_number
@@ -98,6 +98,11 @@ class ClientLoanAccount(LoginRequiredMixin, DetailView):
     model = LoanAccount
     pk = 'pk'
     template_name = "client/loan/account.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientLoanAccount, self).get_context_data(**kwargs)
+        context["loan_disbursements"] = Payments.objects.filter(loan_account=self.object)
+        return context
 
 
 class ClientLoanDepositsListView(LoginRequiredMixin, ListView):

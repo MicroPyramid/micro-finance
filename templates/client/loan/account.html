@@ -148,6 +148,38 @@
   </div>
   <!--panel body ends below crct-->
 </div>
+<!-- Loan Disbursements-->
+<div class="panel panel-default wrap-cp-div">
+  <div class="panel-heading min-ht-res-60" style="background: #03A9F4;">
+    <h3 class="panel-title">Loan Disbursements</h3>
+  </div>
+  <div class="panel-body pb-table">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr class="head-row-tb">
+            <th>S.No</th>
+            <th>Date</th>
+            <th>Vocher Number</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody class="body-row-tb">
+          {% for each in loan_disbursements %}
+            <tr>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td>{{ each.date }}</td>
+              <td>{{ each.voucher_number}}</td>
+              <td>{{ each.total_amount|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- /Loan Disbursements-->
+
 <script type="text/javascript">
   $(document).ready(function() {
     $('.change-loan-account-status').click(function(e) {
