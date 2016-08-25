@@ -494,6 +494,7 @@ class GroupLoanAccount(LoginRequiredMixin, DetailView):
         total_interest_repaid = 0
         context = super(GroupLoanAccount, self).get_context_data(**kwargs)
         context['group'] = self.object.group
+        context["loan_disbursements"] = Payments.objects.filter(loan_account=self.object)
         group_members = GroupMemberLoanAccount.objects.filter(group_loan_account=self.object)
         context['group_members'] = group_members
         for member in group_members:
