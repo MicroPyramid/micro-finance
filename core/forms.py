@@ -488,9 +488,7 @@ class GetRecurringDepositsPaidForm(forms.Form):
         return self.cleaned_data
 
 
-# partially done
 class PaymentForm(forms.ModelForm):
-
     date = forms.DateField(input_formats=["%m/%d/%Y"], required=True)
     # group
     group_name = forms.CharField(max_length=100, required=False)
@@ -523,6 +521,7 @@ class PaymentForm(forms.ModelForm):
     def clean(self):
         if not (self.cleaned_data.get("amount") != 0 and self.cleaned_data.get("total_amount") != 0):
             raise forms.ValidationError("Voucher can't be generated with amount/total amount zero")
+
         if self.cleaned_data.get("payment_type") == "TravellingAllowance" or self.cleaned_data.get("payment_type") == "Paymentofsalary":
             if not self.cleaned_data.get("staff_username"):
                 raise forms.ValidationError("Please enter Employee Username")
@@ -532,21 +531,17 @@ class PaymentForm(forms.ModelForm):
                     raise forms.ValidationError("Entered Employee Username is incorrect")
                 if self.cleaned_data.get("interest"):
                     raise forms.ValidationError("Interest must be empty for TA and Payment of salary Voucher.")
-
         elif self.cleaned_data.get("payment_type") == "PrintingCharges" or \
                 self.cleaned_data.get("payment_type") == "StationaryCharges" or \
                 self.cleaned_data.get("payment_type") == "OtherCharges":
             if self.cleaned_data.get("interest"):
                 raise forms.ValidationError("Interest must be empty for Charges Voucher.")
-
             else:
                 if not (self.cleaned_data.get("total_amount") == self.cleaned_data.get("amount")):
                     raise forms.ValidationError("Entered total amount is not equal to amount.")
-
         elif self.cleaned_data.get("payment_type") == "SavingsWithdrawal":
             if not (self.cleaned_data.get("client_name") or self.cleaned_data.get('group_name')):
                 raise forms.ValidationError("Please enter the Member First Name or Group Name")
-
             elif self.cleaned_data.get("client_name"):
                 if not self.cleaned_data.get("client_account_number"):
                     raise forms.ValidationError("Please enter the Member Account number")
@@ -655,7 +650,6 @@ class PaymentForm(forms.ModelForm):
                         raise forms.ValidationError("Group with given details doesn't exist.")
                 else:
                     raise forms.ValidationError("Please provide the group A/C number to proceed with Group Savings WithDrawal.")
-
         elif self.cleaned_data.get('payment_type') == 'FixedWithdrawal':
             if not self.cleaned_data.get('client_name'):
                 raise forms.ValidationError('Please enter the Member First Name')
@@ -734,7 +728,6 @@ class PaymentForm(forms.ModelForm):
                     else:
                         raise forms.ValidationError(
                             "Member does not exists with this First Name and A/C Number. Please enter correct details.")
-
         elif self.cleaned_data.get('payment_type') == 'RecurringWithdrawal':
             if not self.cleaned_data.get('client_name'):
                 raise forms.ValidationError('Please enter the Member First Name')
@@ -820,14 +813,12 @@ class PaymentForm(forms.ModelForm):
                     else:
                         raise forms.ValidationError(
                             "Member does not exists with this First Name and A/C Number. Please enter correct details.")
-
         elif self.cleaned_data.get("payment_type") == "Loans":
             if self.cleaned_data.get("interest"):
                 raise forms.ValidationError("Interest amount must be empty while issuing Loans.")
 
             if not (self.cleaned_data.get("group_name") or self.cleaned_data.get("client_name")):
                 raise forms.ValidationError("Please enter Group Name or Client Name.")
-
             elif self.cleaned_data.get("group_name"):
 
                 if (
@@ -862,8 +853,7 @@ class PaymentForm(forms.ModelForm):
                                             else:
                                                 raise forms.ValidationError("Group does not contain members inorder to issue Loan.")
                                         else:
-                                            raise forms.ValidationError("Amount is less than applied loan amount.")
-
+                                            raise forms.ValidationError("Amount is not equal to the applied loan amount.")
                                     else:
                                         raise forms.ValidationError("Entered total amount is not equal to amount.")
                             else:
@@ -871,7 +861,6 @@ class PaymentForm(forms.ModelForm):
                     else:
                         raise forms.ValidationError("Group does not exists with this Name and A/C Number. Please enter correct details.")
             elif self.cleaned_data.get("client_name"):
-
                 if (
                     self.cleaned_data.get('group_name') or self.cleaned_data.get('group_account_number') or
                     (self.cleaned_data.get('group_name') and self.cleaned_data.get('group_account_number'))
