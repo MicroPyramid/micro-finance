@@ -99,6 +99,11 @@ class ClientLoanAccount(LoginRequiredMixin, DetailView):
     pk = 'pk'
     template_name = "client/loan/account.html"
 
+    def get_context_data(self, **kwargs):
+        context = super(ClientLoanAccount, self).get_context_data(**kwargs)
+        context["no_of_repayments_completed"] = int((self.object.no_of_repayments_completed)/(self.object.loan_repayment_every))
+        return context
+
 
 class ClientLoanDepositsListView(LoginRequiredMixin, ListView):
     model = Receipts
@@ -376,6 +381,7 @@ class GroupLoanApplicationView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(GroupLoanApplicationView, self).get_context_data(**kwargs)
         context["account_no"] = unique_random_number(LoanAccount)
+        context["loan_repayment_every"] = LoanRepaymentEvery.objects.all()
         context["group"] = self.group
         return context
 

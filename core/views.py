@@ -182,22 +182,22 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                 if form.cleaned_data.get("loaninterest_amount") ==\
                                         loan_account.interest_charged:
                                     if loan_account.interest_type == "Flat":
-                                        loan_account.interest_charged = (
+                                        loan_account.interest_charged = (int(loan_account.loan_repayment_every) *
                                             (loan_account.loan_amount * (
                                                 loan_account.annual_interest_rate / 12)) / 100)
                                     elif loan_account.interest_type == "Declining":
-                                        loan_account.interest_charged = (
+                                        loan_account.interest_charged = (int(loan_account.loan_repayment_every) *
                                             ((loan_account.total_loan_balance * (
                                                 loan_account.annual_interest_rate / 12)) / 100))
                                 elif form.cleaned_data.get("loaninterest_amount") < loan_account.interest_charged:
                                     balance_interest = loan_account.interest_charged -\
                                         form.cleaned_data.get("loaninterest_amount")
                                     if loan_account.interest_type == "Flat":
-                                        interest_charged = (
+                                        interest_charged = (int(loan_account.loan_repayment_every) *
                                             ((loan_account.loan_amount * (
                                                 loan_account.annual_interest_rate / 12)) / 100))
                                     elif loan_account.interest_type == "Declining":
-                                        interest_charged = ((((loan_account.total_loan_balance) * (
+                                        interest_charged = ((int(loan_account.loan_repayment_every) * ((loan_account.total_loan_balance) * (
                                             (loan_account.annual_interest_rate) / 12)) / 100))
                                     loan_account.interest_charged = (balance_interest + interest_charged)
 
@@ -213,7 +213,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                     principle_repayable = (
                                     (loan_account.loan_amount) / (loan_account.loan_repayment_period))
                                     lastmonth_bal = ((
-                                        ((int(loan_account.loan_repayment_every) *
+                                        ((
                                             (principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
                                     balance_principle = d(d(d(loan_account.loan_repayment_amount) - d(loan_account.interest_charged)) - d(form.cleaned_data.get("loanprinciple_amount")))
                                     loan_account.principle_repayment =\
@@ -232,13 +232,11 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                             int(loan_account.loan_repayment_every) * (
                                                 ((loan_account.loan_amount) * (
                                                     (loan_account.annual_interest_rate) / 12)) / 100))
+                                        balance_interest = \
+                                            d(loan_account.interest_charged) -\
+                                            d(form.cleaned_data.get("loaninterest_amount"))
 
-                                        lastmonth_interest_bal = ((
-                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
-                                        if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
-                                            loan_account.interest_charged = loan_account.interest_charged
-                                        else:
-                                            loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+                                        loan_account.interest_charged = d(balance_interest + interest_charged)
 
                                     elif (form.cleaned_data.get("loaninterest_amount")) <\
                                             (loan_account.interest_charged):
@@ -251,10 +249,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                                 ((loan_account.loan_amount) * (
                                                     (loan_account.annual_interest_rate) / 12)) / 100))
 
-                                        lastmonth_interest_bal = ((
-                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
-                                        
-                                        loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+                                        loan_account.interest_charged = d(balance_interest + interest_charged)
 
                                     elif (form.cleaned_data.get("loaninterest_amount")) >\
                                             (loan_account.interest_charged):
@@ -263,12 +258,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                                 ((loan_account.loan_amount) * (
                                                     (loan_account.annual_interest_rate) / 12)) / 100))
 
-                                        lastmonth_interest_bal = ((
-                                            (int(interest_charged)) * (loan_account.no_of_repayments_completed))) - (loan_account.total_interest_repaid)
-                                        if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
-                                            loan_account.interest_charged = loan_account.interest_charged
-                                        else:
-                                            loan_account.interest_charged = d(lastmonth_interest_bal + interest_charged)
+                                        loan_account.interest_charged = d(balance_interest + interest_charged)
 
                                 elif loan_account.interest_type == "Declining":
                                     if (form.cleaned_data.get("loaninterest_amount")) <=\
@@ -292,12 +282,11 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                         loan_account.interest_charged = d(balance_interest + interest_charged)
                                             
                                 lastmonth_bal = ((
-                                        ((int(loan_account.loan_repayment_every) *
-                                            (principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
+                                        (((principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
                                 if (form.cleaned_data.get("loanprinciple_amount")) == (
                                         (int(loan_account.loan_repayment_every) * (
                                             principle_repayable))):
-                                    if ((int(loan_account.no_of_repayments_completed)+1) == int(loan_account.loan_repayment_period)):
+                                    if ((int(loan_account.no_of_repayments_completed)+int(loan_account.loan_repayment_every)) == int(loan_account.loan_repayment_period)):
                                         loan_account.principle_repayment = (
                                             loan_account.total_loan_balance)
                                         loan_account.loan_repayment_amount = (
@@ -327,9 +316,8 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                         ((int(loan_account.loan_repayment_every) *
                                             (principle_repayable))) - (form.cleaned_data.get("loanprinciple_amount")))
                                     lastmonth_bal = ((
-                                        ((int(loan_account.loan_repayment_every) *
-                                            (principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
-                                    if (int(loan_account.no_of_repayments_completed)+1 == int(loan_account.loan_repayment_period)):
+                                        (((principle_repayable))) * (loan_account.no_of_repayments_completed))) - (loan_account.total_loan_amount_repaid)
+                                    if (int(loan_account.no_of_repayments_completed)+int(loan_account.loan_repayment_every) == int(loan_account.loan_repayment_period)):
                                         loan_account.principle_repayment = (
                                             loan_account.total_loan_balance)
                                         loan_account.loan_repayment_amount = (
@@ -354,7 +342,7 @@ class Receipts_Deposit(LoginRequiredMixin, CreateView):
                                     balance_principle = ((form.cleaned_data.get("loanprinciple_amount")) - 
                                         ((int(loan_account.loan_repayment_every) *
                                             (principle_repayable))))
-                                    if (int(loan_account.no_of_repayments_completed)+1 == int(loan_account.loan_repayment_period)):
+                                    if (int(loan_account.no_of_repayments_completed)+int(loan_account.loan_repayment_every) == int(loan_account.loan_repayment_period)):
                                         loan_account.principle_repayment = (
                                             loan_account.total_loan_balance)
                                         loan_account.loan_repayment_amount = (
@@ -671,7 +659,7 @@ def get_group_loan_accounts(request):
             account_number=group_account_number)
         if group_filter:
             group = group_filter.first()
-            loan_accounts = LoanAccount.objects.filter(group=group, status='Approved')
+            loan_accounts = LoanAccount.objects.filter(group=group, status='Approved', loan_issued_date__isnull=True)
             # if loan_accounts:
             #     for account in loan_accounts:
             #         loan_accounts_data[account.id] = account.account_no
