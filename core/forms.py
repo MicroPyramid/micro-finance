@@ -526,7 +526,6 @@ class PaymentForm(forms.ModelForm):
         if self.cleaned_data.get("payment_type") == "TravellingAllowance" or self.cleaned_data.get("payment_type") == "Paymentofsalary":
             if not self.cleaned_data.get("staff_username"):
                 raise forms.ValidationError("Please enter Employee Username")
-
             else:
                 self.staff = User.objects.filter(username__iexact=self.cleaned_data.get("staff_username")).first()
                 if not self.staff:
@@ -898,11 +897,13 @@ class PaymentForm(forms.ModelForm):
                                 if (self.cleaned_data.get("total_amount") and self.cleaned_data.get("amount")):
                                     if d(self.cleaned_data.get("total_amount")) == d(self.cleaned_data.get("amount")):
                                         if d(loan_account.loan_amount) != d(self.cleaned_data.get("total_amount")):
-                                            raise forms.ValidationError("Amount is less than applied loan amount.")
+                                            raise forms.ValidationError("Amount is not equal to the applied loan amount.")
                                     else:
                                         raise forms.ValidationError("Entered total amount is not equal to amount.")
                             else:
                                 raise forms.ValidationError("Client does not have any Loan with this Loan A/C Number.")
+                    else:
+                        raise forms.ValidationError("No Member exists with this First Name and A/C number. Please enter correct details.")
 
         return self.cleaned_data
 
