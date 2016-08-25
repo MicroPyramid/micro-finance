@@ -926,18 +926,18 @@ class PaymentForm(forms.ModelForm):
                                     instance.group = client_group
 
                                     # Deduct the balance from saving accounts.
-                                    savings_account.savings_balance -= d(self.cleaned_data.get("amount"))
-                                    savings_account.total_withdrawals += d(self.cleaned_data.get("amount"))
+                                    savings_account.savings_balance -= total_amount
+                                    savings_account.total_withdrawals += total_amount
                                     savings_account.save()
 
-                                    group_savings_account.savings_balance -= d(self.cleaned_data.get("amount"))
-                                    group_savings_account.total_withdrawals += d(self.cleaned_data.get("amount"))
+                                    group_savings_account.savings_balance -= total_amount
+                                    group_savings_account.total_withdrawals += total_amount
                                     group_savings_account.save()
                             else:
                                 instance.client = client
 
-                                savings_account.savings_balance -= d(self.cleaned_data.get("amount"))
-                                savings_account.total_withdrawals += d(self.cleaned_data.get("amount"))
+                                savings_account.savings_balance -= total_amount
+                                savings_account.total_withdrawals += total_amount
                                 savings_account.save()
                 else:
                     if self.cleaned_data.get("group_name"):
@@ -948,12 +948,12 @@ class PaymentForm(forms.ModelForm):
                             if group:
                                 group_savings_account = SavingsAccount.objects.filter(group=group).first()
                                 if group_savings_account:
-                                    if d(group_savings_account.savings_balance) >= d(self.cleaned_data.get("amount")):
+                                    if d(group_savings_account.savings_balance) >= total_amount:
                                         client_group = group.clients.all()
                                         savings_accounts_filter = SavingsAccount.objects.filter(
                                             client__in=[client for client in client_group])
                                         if savings_accounts_filter:
-                                            deduct_amount = d(self.cleaned_data.get('amount')) / d(len(savings_accounts_filter))
+                                            deduct_amount = total_amount / d(len(savings_accounts_filter))
                                             for savings_account in savings_accounts_filter:
                                                 savings_account.savings_balance -= d(deduct_amount)
                                                 savings_account.total_withdrawals += d(deduct_amount)
@@ -961,8 +961,8 @@ class PaymentForm(forms.ModelForm):
 
                                     instance.group = group
 
-                                    group_savings_account.savings_balance -= d(self.cleaned_data.get("amount"))
-                                    group_savings_account.total_withdrawals += d(self.cleaned_data.get("amount"))
+                                    group_savings_account.savings_balance -= total_amount
+                                    group_savings_account.total_withdrawals += total_amount
                                     group_savings_account.save()
 
             elif self.cleaned_data.get("payment_type") == "Loans":
