@@ -32,7 +32,7 @@
   </div>
   {% endif %}
 </div>
-<div class="panel panel-default panel-hdg">
+<div class="panel panel-default panel-hdg mar-btm-20">
 <div class="panel-heading min-ht-res-60">
   <h3 class="panel-title">
     {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
@@ -123,7 +123,6 @@
   </form>
 </div>
 <div class="panel-body">
-<form class="form-horizontal" role="form">
       <!--div 1 of fomr ends above-->
       <br clear="all" />
       <h3 class="panel-title">
@@ -154,11 +153,47 @@
                 <td>{{ group_member.total_loan_amount_repaid }}</td>
                 <td>{{ group_member.total_interest_repaid }}</td>
                 <td>{{ group_member.total_loan_balance }}</td>
+                </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
       </div>
+</div>
+</div>
+{% if loan_disbursements %}
+<!-- Loan Disbursements-->
+<div class="panel panel-default panel-hdg mar-btm-20">
+  <div class="panel-heading min-ht-res-60" style="background: #03A9F4;">
+    <h3 class="panel-title">Loan Disbursements</h3>
+  </div>
+  <div class="panel-body pb-table">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr class="head-row-tb">
+            <th>S.No</th>
+            <th>Date</th>
+            <th>Vocher Number</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody class="body-row-tb">
+          {% for each in loan_disbursements %}
+            <tr>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td>{{ each.date }}</td>
+              <td>{{ each.voucher_number}}</td>
+              <td>{{ each.total_amount|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- /Loan Disbursements-->
+{% endif %}
 </div>
 <!--panel body ends below crct-->
 <!--content ends above-->

@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.template import Context
-from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount, LoanRepaymentEvery
+from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount, LoanRepaymentEvery, Payments
 from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
 from core.utils import send_email_template, unique_random_number
@@ -101,6 +101,7 @@ class ClientLoanAccount(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ClientLoanAccount, self).get_context_data(**kwargs)
+        context["loan_disbursements"] = Payments.objects.filter(loan_account=self.object)
         context["no_of_repayments_completed"] = int((self.object.no_of_repayments_completed)/(self.object.loan_repayment_every))
         return context
 
@@ -493,6 +494,7 @@ class GroupLoanAccount(LoginRequiredMixin, DetailView):
         total_interest_repaid = 0
         context = super(GroupLoanAccount, self).get_context_data(**kwargs)
         context['group'] = self.object.group
+        context["loan_disbursements"] = Payments.objects.filter(loan_account=self.object)
         group_members = GroupMemberLoanAccount.objects.filter(group_loan_account=self.object)
         context['group_members'] = group_members
         for member in group_members:

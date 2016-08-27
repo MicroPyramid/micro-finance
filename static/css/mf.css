@@ -944,4 +944,21 @@ table tr th {
 .mar-left-30 {
   margin-left: 30% !important;
 }
+.mar-btm-20{
+  margin-bottom: 20px;
+}
 /*panel headings span*/
+.mem-drop, .acc-drop, .sav-drop, .loan-drop, .more-drop {
+   display: block;
+}
+
+@media (min-width: 768px){
+  .navbar-nav > li > a {
+      padding: 15px 8px;
+  }
+  .navbar-default .navbar-nav > li > a {
+    font-size: 14px;
+  }
+}
+
+

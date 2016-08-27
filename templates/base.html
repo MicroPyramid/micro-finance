@@ -127,6 +127,15 @@
                           <li><a href="{% url 'micro_admin:viewdaybook' %}"><i class="fa fa-book padd"></i>Day Book</a></li>
                         </ul>
                       </li>
+                      {% if request.user.has_content_manager_access %}
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'micro_admin:list_menu' %}">Menu</a></li>
+                          <li><a href="{% url 'micro_admin:list_page' %}">Pages</a></li>
+                        </ul>
+                      </li>
+                      {% endif %}
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{ request.user.username|capfirst }} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -137,15 +146,6 @@
                           <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>Logout</a></li>
                         </ul>
                       </li>
-                      {% if request.user.has_content_manager_access %}
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Content Management<span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:list_menu' %}">Menu</a></li>
-                          <li><a href="{% url 'micro_admin:list_page' %}">Pages</a></li>
-                        </ul>
-                      </li>
-                      {% endif %}
                     </ul>
                   </div>
                   <!-- /.navbar-collapse -->

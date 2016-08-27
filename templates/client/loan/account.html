@@ -117,8 +117,16 @@
           {% if loanaccount.status == "Approved" %}&nbsp; on&nbsp; {{ loanaccount.approved_date }}{% endif %}</span>
         </div>
         <div class="form-group">
-          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Loan Issued On :</label><span class="col-lg-6 col-sm-6 col-xs-6 mar-top">
-          {{ loanaccount.loan_issued_date }}
+          <label for="inputEmail3" class="col-lg-6 col-sm-6 col-xs-6 control-label">Loan Issued On :</label>
+            <span class="col-lg-6 col-sm-6 col-xs-6 mar-top">
+              {% if loanaccount.loan_issued_date %}
+                {{ loanaccount.loan_issued_date }}
+              {% else %}
+                -
+              {% endif %}
+              <!-- {% if user.is_admin and not loanaccount.loan_issued_date %}
+              <a href="{% url 'loans:issueloan' loanaccount.id %}" style="text-decoration:none; color:#fff; margin-left:3px;" title="Issue Loan"><i class="fa fa-pencil-square-o trash-icon"></i></a>
+              {% endif %} -->
           </span>
         </div>
         <div class="form-group">
@@ -145,6 +153,39 @@
   </div>
   <!--panel body ends below crct-->
 </div>
+{% if loan_disbursements %}
+<!-- Loan Disbursements-->
+<div class="panel panel-default wrap-cp-div">
+  <div class="panel-heading min-ht-res-60" style="background: #03A9F4;">
+    <h3 class="panel-title">Loan Disbursements</h3>
+  </div>
+  <div class="panel-body pb-table">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr class="head-row-tb">
+            <th>S.No</th>
+            <th>Date</th>
+            <th>Vocher Number</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody class="body-row-tb">
+          {% for each in loan_disbursements %}
+            <tr>
+              <td><b>{{ forloop.counter }}</b></td>
+              <td>{{ each.date }}</td>
+              <td>{{ each.voucher_number}}</td>
+              <td>{{ each.total_amount|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- /Loan Disbursements-->
+{% endif %}
 <script type="text/javascript">
   $(document).ready(function() {
     $('.change-loan-account-status').click(function(e) {

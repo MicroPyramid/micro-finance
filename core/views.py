@@ -638,12 +638,13 @@ class PaySlipCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         pay_slip = form.save()
-        loan_account = LoanAccount.objects.get(id=pay_slip.loan_account.id)
-        loan_account.loan_issued_date = pay_slip.date
-        loan_account.save()
-        group_members = GroupMemberLoanAccount.objects.filter(group_loan_account=pay_slip.loan_account)
-        if group_members:
-            group_members.update(loan_issued_date=pay_slip.date)
+        if pay_slip.loan_account:
+            loan_account = LoanAccount.objects.get(id=pay_slip.loan_account.id)
+            loan_account.loan_issued_date = pay_slip.date
+            loan_account.save()
+            group_members = GroupMemberLoanAccount.objects.filter(group_loan_account=pay_slip.loan_account)
+            if group_members:
+                group_members.update(loan_issued_date=pay_slip.date)
         data = {"error": False, 'pay_slip': pay_slip.id}
         return JsonResponse(data)
 
