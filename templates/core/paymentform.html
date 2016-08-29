@@ -44,8 +44,10 @@
           <div class="col-sm-8">
             <select class="text-box wid-form" name="payment_type">
               <option>Select Voucher Type</option>
-              {% for voucher_type in voucher_types %}
-              <option value="{{ voucher_type }}">{{ voucher_type }}</option>
+              {% for key, value in voucher_types %}
+              {% if not key == "RecurringWithdrawal" %}
+              <option value="{{ key }}">{{ value }}</option>
+              {% endif %}
               {% endfor%}
             </select>
             <p id="payment_type"></p>

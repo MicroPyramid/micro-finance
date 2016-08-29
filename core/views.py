@@ -628,7 +628,7 @@ class PaySlipCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(PaySlipCreateView, self).get_context_data(**kwargs)
         context['branches'] = Branch.objects.all()
-        context['voucher_types'] = dict(PAYMENT_TYPES).keys()
+        context['voucher_types'] = PAYMENT_TYPES
         return context
 
     def get_form_kwargs(self):
@@ -685,7 +685,7 @@ def get_member_loan_accounts(request):
             account_number=client_account_number)
         if member_filter:
             client = member_filter.first()
-            loan_accounts = LoanAccount.objects.filter(client=client, status='Approved')
+            loan_accounts = LoanAccount.objects.filter(client=client, status='Approved', loan_issued_date__isnull=True)
             # if loan_accounts:
             #     for account in loan_accounts:
             #         loan_accounts_data[account.id] = account.account_no

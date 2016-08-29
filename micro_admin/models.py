@@ -65,8 +65,8 @@ PAYMENT_TYPES = (
     ('StationaryCharges', 'StationaryCharges'),
     ('OtherCharges', 'OtherCharges'),
     ('SavingsWithdrawal', 'SavingsWithdrawal'),
-    ('FixedWithdrawal', 'FixedWithdrawal'),
-    ('RecurringWithdrawal', 'RecurringWithdrawal'),
+    ('FixedWithdrawal', 'Fixed Deposit Withdrawal'),
+    ('RecurringWithdrawal', 'Recurring Deposit Withdrawal'),
 )
 
 
