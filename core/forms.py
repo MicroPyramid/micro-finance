@@ -352,15 +352,24 @@ class ReceiptForm(forms.ModelForm):
                 if savings_account:
                     self.savings_account = savings_account.last()
                     if fixed_deposit_account.status == 'Opened':
-                        if self.cleaned_data.get('fixeddeposit_amount') >= 0:
-                            if d(fixed_deposit_account.fixed_deposit_amount) != d(self.cleaned_data.get('fixeddeposit_amount')):
-                                errors = self._errors.setdefault('message1', ErrorList())
-                                errors.append('Entered fixed amount is not equal to the actual amount.')
+                        if not Receipts.objects.filter(fixed_deposit_account=fixed_deposit_account).exists():
+                            if self.cleaned_data.get('fixeddeposit_amount') >= 0:
+                                if d(fixed_deposit_account.fixed_deposit_amount) != d(self.cleaned_data.get('fixeddeposit_amount')):
+                                    errors = self._errors.setdefault('message1', ErrorList())
+                                    errors.append('Entered fixed amount is not equal to the actual amount.')
+                                    raise forms.ValidationError(errors)
+                            else:
+                                errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
+                                errors.append('Please enter the Fixed amount for the Fixed Deposit A/C.')
                                 raise forms.ValidationError(errors)
                         else:
                             errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
-                            errors.append('Please enter the Fixed amount for the Fixed Deposit A/C.')
+                            errors.append('This Amount is already deposited.')
                             raise forms.ValidationError(errors)
+                    else:
+                        errors = self._errors.setdefault('fixeddeposit_amount', ErrorList())
+                        errors.append('This Amount is already deposited.')
+                        raise forms.ValidationError(errors)
                 else:
                     errors = self._errors.setdefault('fixed_deposit_account_no', ErrorList())
                     errors.append('Please Create a Savings A/C first to store the Fixed amount for the Fixed Deposit A/C.')
@@ -822,19 +831,25 @@ class PaymentForm(forms.ModelForm):
                             loan_account_filter = LoanAccount.objects.filter(id=self.cleaned_data.get("group_loan_account_no"))
                             if loan_account_filter:
                                 loan_account = loan_account_filter.first()
-                                if (self.cleaned_data.get("total_amount") and self.cleaned_data.get("amount")):
-                                    if d(self.cleaned_data.get("total_amount")) == d(self.cleaned_data.get("amount")):
-                                        if d(loan_account.loan_amount) == d(self.cleaned_data.get("total_amount")):
-                                            clients_list = group.clients.all()
-                                            if clients_list:
-                                                if len(clients_list) == 0:
-                                                    raise forms.ValidationError("Group does not contain members inorder to issue Loan.")
+                                if not Payments.objects.filter(loan_account=loan_account, group=group):
+                                    if loan_account.status == "Approved":
+                                        if (self.cleaned_data.get("total_amount") and self.cleaned_data.get("amount")):
+                                            if d(self.cleaned_data.get("total_amount")) == d(self.cleaned_data.get("amount")):
+                                                if d(loan_account.loan_amount) == d(self.cleaned_data.get("total_amount")):
+                                                    clients_list = group.clients.all()
+                                                    if clients_list:
+                                                        if len(clients_list) == 0:
+                                                            raise forms.ValidationError("Group does not contain members inorder to issue Loan.")
+                                                    else:
+                                                        raise forms.ValidationError("Group does not contain members inorder to issue Loan.")
+                                                else:
+                                                    raise forms.ValidationError("Amount is not equal to the applied loan amount.")
                                             else:
-                                                raise forms.ValidationError("Group does not contain members inorder to issue Loan.")
-                                        else:
-                                            raise forms.ValidationError("Amount is not equal to the applied loan amount.")
+                                                raise forms.ValidationError("Entered total amount is not equal to amount.")
                                     else:
-                                        raise forms.ValidationError("Entered total amount is not equal to amount.")
+                                        raise forms.ValidationError("Group Loan Account is not yet Approved.")
+                                else:
+                                    raise forms.ValidationError("Group Loan Account is already Issued.")
                             else:
                                 raise forms.ValidationError("Group does not have any Loan with this Loan A/C Number.")
                     else:
@@ -862,12 +877,18 @@ class PaymentForm(forms.ModelForm):
                             loan_account_filter = LoanAccount.objects.filter(id=self.cleaned_data.get("member_loan_account_no"))
                             if loan_account_filter:
                                 loan_account = loan_account_filter.first()
-                                if (self.cleaned_data.get("total_amount") and self.cleaned_data.get("amount")):
-                                    if d(self.cleaned_data.get("total_amount")) == d(self.cleaned_data.get("amount")):
-                                        if d(loan_account.loan_amount) != d(self.cleaned_data.get("total_amount")):
-                                            raise forms.ValidationError("Amount is not equal to the applied loan amount.")
+                                if not Payments.objects.filter(loan_account=loan_account, client=client):
+                                    if loan_account.status == "Approved":
+                                        if (self.cleaned_data.get("total_amount") and self.cleaned_data.get("amount")):
+                                            if d(self.cleaned_data.get("total_amount")) == d(self.cleaned_data.get("amount")):
+                                                if d(loan_account.loan_amount) != d(self.cleaned_data.get("total_amount")):
+                                                    raise forms.ValidationError("Amount is not equal to the applied loan amount.")
+                                            else:
+                                                raise forms.ValidationError("Entered total amount is not equal to amount.")
                                     else:
-                                        raise forms.ValidationError("Entered total amount is not equal to amount.")
+                                        raise forms.ValidationError("Loan account is not yet approved")
+                                else:
+                                    raise forms.ValidationError("Loan account is already issued.")
                             else:
                                 raise forms.ValidationError("Client does not have any Loan with this Loan A/C Number.")
                     else:
