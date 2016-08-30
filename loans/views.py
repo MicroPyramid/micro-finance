@@ -185,13 +185,10 @@ class ClientLedgerCSVDownload(LoginRequiredMixin, View):
                 smart_str(u"Recepit No"),
                 smart_str(u"Demand Principal"),
                 smart_str(u"Demand Interest"),
-                smart_str(u"Demand Peenal Interest"),
                 smart_str(u"Collecton Principal"),
                 smart_str(u"Collecton Interest"),
-                smart_str(u"Collecton Peenal Interest"),
                 smart_str(u"Balance Principal"),
                 smart_str(u"Balance Interest"),
-                smart_str(u"Balance Peenal Interest"),
                 smart_str(u"Loan Outstanding"),
             ])
             for receipt in receipts_list:
@@ -224,13 +221,10 @@ class ClientLedgerCSVDownload(LoginRequiredMixin, View):
                     smart_str(receipt.receipt_number),
                     smart_str(receipt.demand_loanprinciple_amount_atinstant),
                     smart_str(receipt.demand_loaninterest_amount_atinstant),
-                    smart_str("0"),
                     smart_str(receipt.loanprinciple_amount),
                     smart_str(receipt.loaninterest_amount),
-                    smart_str("0"),
                     smart_str(balance_principle),
                     smart_str(balance_interest),
-                    smart_str("0"),
                     smart_str(receipt.principle_loan_balance_atinstant),
                 ])
             return response
@@ -265,13 +259,10 @@ class ClientLedgerExcelDownload(LoginRequiredMixin, View):
                 (u"Receipt Number", 1000),
                 (u"Demand Principal", 2000),
                 (u"Demand Interest", 2000),
-                (u"Demand Peenal Interest", 2000),
                 (u"Collection Principal", 2000),
                 (u"Collection Interest", 2000),
-                (u"Collection Peenal Interest", 2000),
                 (u"Balance Principal", 2000),
                 (u"Balance Interest", 2000),
-                (u"Balance Peenal Interest", 2000),
                 (u"Loan Outstanding", 2000),
             ]
 
@@ -317,13 +308,10 @@ class ClientLedgerExcelDownload(LoginRequiredMixin, View):
                     receipt.receipt_number,
                     receipt.demand_loanprinciple_amount_atinstant,
                     receipt.demand_loaninterest_amount_atinstant,
-                    0,
                     receipt.loanprinciple_amount,
                     receipt.loaninterest_amount,
-                    0,
                     balance_principle,
                     balance_interest,
-                    0,
                     receipt.principle_loan_balance_atinstant,
                 ]
                 for col_num in range(len(row)):
