@@ -292,19 +292,32 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        user = form.save()
-        if len(self.request.POST.getlist("user_permissions")):
-            user.user_permissions.clear()
-            user.user_permissions.add(
-                *self.request.POST.getlist("user_permissions"))
-        if self.request.POST.get("user_roles") == "BranchManager":
-            if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
-                user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
+        selected_user = User.objects.get(id=self.kwargs.get('pk'))
+        if not (
+           self.request.user.is_admin or self.request.user == selected_user or
+           (
+               self.request.user.has_perm("branch_manager") and
+               self.request.user.branch == selected_user.branch
+           )):
+            return JsonResponse({
+                "error": True,
+                "message": "You are unbale to Edit this staff details.",
+                "success_url": reverse('micro_admin:userslist')
+            })
+        else:
+            user = form.save()
+            if len(self.request.POST.getlist("user_permissions")):
+                user.user_permissions.clear()
+                user.user_permissions.add(
+                    *self.request.POST.getlist("user_permissions"))
+            if self.request.POST.get("user_roles") == "BranchManager":
+                if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
+                    user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
 
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
-        })
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
+            })
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "errors": form.errors})
@@ -505,14 +518,19 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
             group = self.object
 
         client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
-        group_loan_account = LoanAccount.objects.get(group=group)
-        if GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
-            group.clients.remove(client)
-            client.status = "UnAssigned"
-            client.save()
-            return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
-        else:
-            raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
+        group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
+        count = 0
+        for group_loan_account in group_loan_accounts:
+            if GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
+                count += 1
+                if count == group_loan_accounts:
+
+                    group.clients.remove(client)
+                    client.status = "UnAssigned"
+                    client.save()
+                    return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+            else:
+                raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
 
 
 class GroupMeetingsListView(LoginRequiredMixin, ListView):
