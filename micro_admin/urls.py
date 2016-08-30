@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^clients/list/$', ClientsListView.as_view(), name='viewclient'),
     url(r'^client/profile/(?P<pk>\d+)/$', ClienProfileView.as_view(), name='clientprofile'),
     url(r'^client/delete/(?P<pk>\d+)/$', ClientInactiveView.as_view(), name='deleteclient'),
-    url(r'^client/profile/update/(?P<client_id>\d+)/$', update_clientprofile, name='updateclientprofile'),
+    url(r'^client/profile/update/(?P<pk>\d+)/$', UpdateClientProfileView.as_view(), name='updateclientprofile'),
     # ------------------------------------------- #
     # Group
     url(r'^group/create/$', CreateGroupView.as_view(), name='creategroup'),
