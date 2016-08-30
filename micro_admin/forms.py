@@ -9,6 +9,14 @@ import decimal
 d = decimal.Decimal
 
 
+class UpdateClientProfileForm(forms.Form):
+    photo = forms.FileField()
+    signature = forms.FileField()
+
+    def __init__(self, instance, *args, **kwargs):
+        super(UpdateClientProfileForm, self).__init__(*args, **kwargs)
+        
+
 class BranchForm(forms.ModelForm):
 
     class Meta:

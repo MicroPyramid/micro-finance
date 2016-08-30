@@ -31,8 +31,8 @@ from micro_admin.models import (
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
     ReceiptForm, FixedDepositForm, PaymentForm,
-    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, MenuForm, PageForm)
-from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
+    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, MenuForm, PageForm, UpdateClientProfileForm)
+from micro_admin.mixins import UserPermissionRequiredMixin, BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
 from django.db.models.aggregates import Max
 
 
@@ -100,6 +100,14 @@ class UpdateBranchView(LoginRequiredMixin, UpdateView):
     form_class = BranchForm
     template_name = "branch/edit.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        # Checking the permissions
+        if not self.request.user.is_admin:
+            return HttpResponseRedirect(reverse("micro_admin:viewbranch"))
+
+        return super(UpdateBranchView, self).dispatch(
+            request, *args, **kwargs)
+
     def form_valid(self, form):
         branch = form.save()
         return JsonResponse({
@@ -164,7 +172,7 @@ class ClienProfileView(LoginRequiredMixin, DetailView):
     template_name = "client/profile.html"
 
 
-class UpdateClientView(LoginRequiredMixin, UpdateView):
+class UpdateClientView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
     pk = 'pk'
     model = Client
     form_class = ClientForm
@@ -195,23 +203,30 @@ class UpdateClientView(LoginRequiredMixin, UpdateView):
         return JsonResponse({"error": True, "errors": form.errors})
 
 
-@login_required
-def update_clientprofile(request, client_id):
-    client = get_object_or_404(Client, id=client_id)
-    if not (request.user.is_admin or request.user.branch == client.branch):
-        return HttpResponseRedirect(reverse('micro_admin:clientprofile', kwargs={'pk': client_id}))
+class UpdateClientProfileView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
+    pk = 'pk'
+    model = Client
+    form_class = UpdateClientProfileForm
+    template_name = "client/update-profile.html"
 
-    if request.method == "GET":
-        return render(request, "client/update-profile.html", {"client": client})
-    else:
-        if (
-            request.FILES and request.FILES.get("photo") and
-            request.FILES.get("signature")
-        ):
-            client.photo = request.FILES.get("photo")
-            client.signature = request.FILES.get("signature")
-            client.save()
-        return HttpResponseRedirect(reverse('micro_admin:clientprofile', kwargs={'pk': client_id}))
+    def get_context_data(self, **kwargs):
+        context = super(UpdateClientProfileView, self).get_context_data(**kwargs)
+        context['photo'] = str(self.object.photo).split('/')[-1] if self.object.photo else None
+        context['signature'] = str(self.object.signature).split('/')[-1] if self.object.signature else None
+        return context
+
+    def form_valid(self, form):
+        self.object.photo = self.request.FILES.get("photo")
+        self.object.signature = self.request.FILES.get("signature")
+        self.object.save()
+        return JsonResponse({
+            "error": False,
+            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": self.object.id})
+        })
+
+    def form_invalid(self, form):
+        data = {"error": True, "errors": form.errors}
+        return JsonResponse(data)
 
 
 class ClientsListView(LoginRequiredMixin, ListView):
@@ -219,27 +234,24 @@ class ClientsListView(LoginRequiredMixin, ListView):
     template_name = "client/list.html"
 
 
-class ClientInactiveView(LoginRequiredMixin, View):
+class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
+
+    def get_object(self):
+        return get_object_or_404(Client, id=self.kwargs.get('pk'))
 
     def get(self, request, *args, **kwargs):
-        client = get_object_or_404(Client, id=kwargs.get('pk'))
-        if (
-            request.user.is_admin or (
-                request.user.has_perm("branch_manager") and
-                request.user.branch == client.branch
-            )
-        ):
-            if client.is_active:
-                count = 0
-                loans = LoanAccount.objects.filter(client=client)
-                for loan in loans:
-                    if loan.status == "Closed":
-                        count += 1
-                if count == loans.count():
-                    client.is_active = False
-                    client.save()
-                else:
-                    raise Http404("Oops! Member is involved in loan, Unable to delete.")
+        client = self.get_object()
+        if client.is_active:
+            count = 0
+            loans = LoanAccount.objects.filter(client=client)
+            for loan in loans:
+                if loan.status == "Closed":
+                    count += 1
+            if count == loans.count():
+                client.is_active = False
+                client.save()
+            else:
+                raise Http404("Oops! Member is involved in loan, Unable to delete.")
         return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
 from django.contrib.auth.models import Permission, ContentType
