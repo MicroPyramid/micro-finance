@@ -5,9 +5,9 @@ register = template.Library()
 
 @register.filter
 def demand_collections_difference(demand, collection):
-    if demand and collection:
-        if decimal.Decimal(demand) > decimal.Decimal(collection):
-            diff = decimal.Decimal(decimal.Decimal(demand) - decimal.Decimal(collection))
-            return diff
-    else:
-        return 0
+    if demand is None:
+        demand = 0
+    if collection is None:
+        collection = 0
+    diff = decimal.Decimal(decimal.Decimal(demand) - decimal.Decimal(collection))
+    return diff

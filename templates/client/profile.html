@@ -28,8 +28,8 @@
     <div class="clr-div" style ="width:100%">
       <div class="img-div">
         <h3>{{ client.last_name|capfirst }} {{ client.first_name|capfirst }}</h3>
-        <img src="/{{ client.photo }}" alt="Member Photo" /><br /><br />
-        <img src="/{{client.signature}}"  class="sig-div" style="" alt="Member Signature" />
+        <img src="{% if client.photo %}/{{ client.photo }}{% else %}/static/images/default_user.png{% endif %}" alt="Member Photo" /><br /><br />
+        <img src="{% if client.signature %}/{{client.signature}}{% else %}/static/images/signature.png{% endif %}"  class="sig-div" style="" alt="Member Signature" />
         <br clear="all" />
       </div>
       <div class="details-div">

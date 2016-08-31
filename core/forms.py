@@ -520,6 +520,19 @@ class PaymentForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super(PaymentForm, self).__init__(*args, **kwargs)
 
+    def clean_date(self):
+        datestring_format = datetime.datetime.strptime(self.data.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
+        if self.data.get("payment_type") == "Loans":
+            loan = None
+            if self.data.get("member_loan_account_no"):
+                loan = LoanAccount.objects.filter(id=self.data.get("member_loan_account_no")).first()
+            elif self.data.get("group_loan_account_no"):
+                loan = LoanAccount.objects.filter(id=self.data.get("group_loan_account_no")).first()
+            if loan:
+                if str(datestring_format) < str(loan.opening_date):
+                    raise forms.ValidationError("Payment date should be greater than Loan Application date")
+        return self.cleaned_data.get("date")
+
     def clean_voucher_number(self):
         voucher_number = self.cleaned_data.get("voucher_number")
         is_voucher_number_exist = Payments.objects.filter(voucher_number=voucher_number)
