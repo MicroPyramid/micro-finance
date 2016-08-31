@@ -67,9 +67,13 @@
                 {% else %}
                 <td><i class="fa fa-square red padd"></i>InActive</td>
                 {% endif %}
+                <td class="anchr-trash">
+                {% if client.is_active %}
                 {% if user.is_admin %}
-                <td class="anchr-trash"><a href="{% url 'micro_admin:removemember' group.id client.id %}"><i class="fa fa-trash-o trash-icon"></i></a></td>
+                <a href="{% url 'micro_admin:removemember' group.id client.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
                 {% endif %}
+                {% endif %}
+                </td>
               </tr>
               {% endfor %}
             </tbody>

@@ -15,7 +15,7 @@ install:
 # command to run tests
 script:
   - python manage.py test
-  - coverage run --source=micro_admin manage.py test
+  - coverage run --source=micro_admin,core manage.py test
 
 after_success:
   coveralls

@@ -41,14 +41,16 @@
               </td>
               <td>{{ client.client_role }}</td>
               {% if client.is_active %}
-              <td><i class="fa fa-circle green pad-lt"></i></td>
+              <td><a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-circle green pad-lt"></i></a></td>
               {% else %}
-              <td><i class="fa fa-circle red pad-lt"></i></td>
+              <td><a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-circle red pad-lt"></i></a></td>
               {% endif %}
               <td class="ed">
                 <a href="{% url 'micro_admin:editclient' client.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+                {% if client.is_active %}
                 {% if user.is_admin or user.user_roles == "BranchManager" %}
                 <a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+                {% endif %}
                 {% endif %}
               </td>
             </tr>
