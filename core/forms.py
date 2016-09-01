@@ -762,7 +762,7 @@ class PaymentForm(forms.ModelForm):
                                     #     recurring_deposit.recurring_deposit_period)
                                     # total_amount = \
                                     #     recurring_deposit_amount + recurring_deposit_interest_charged
-                                    current_date = datetime.now().date()
+                                    current_date = datetime.datetime.now().date()
                                     year_days = 366 if calendar.isleap(current_date.year) else 365
                                     interest_charged = (recurring_deposit_amount * recurring_deposit.recurring_deposit_interest_rate) / (d(year_days) * 100)
                                     days_to_calculate = (current_date - recurring_deposit.deposited_date).days

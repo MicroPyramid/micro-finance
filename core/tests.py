@@ -21,6 +21,14 @@ class Modelform_test(TestCase):
             annual_income=2000, country='Ind', state='AP', district='Nellore',
             city='Nellore', area='rfc')
 
+        self.client1 = Client.objects.create(
+            first_name="client", last_name="MicroPyramid", created_by=self.user,
+            date_of_birth='2014-10-10', joined_date="2014-10-10",
+            branch=self.branch, account_number=2, gender="F",
+            client_role="FirstLeader", occupation="Teacher",
+            annual_income=2000, country='Ind', state='AP', district='Nellore',
+            city='Nellore', area='rfc')
+
         self.memberloan = LoanAccount.objects.create(
             account_no='CL1', interest_type='Flat', client=self.client,
             created_by=self.user, status="Approved", loan_amount=12000,
@@ -34,6 +42,12 @@ class Modelform_test(TestCase):
             activation_date='2014-1-1', branch=self.branch)
         self.group1.clients.add(self.client)
         self.group1.save()
+
+        self.group2 = Group.objects.create(
+            name='group2', created_by=self.user, account_number='1234',
+            activation_date='2014-1-1', branch=self.branch)
+        self.group2.clients.add(self.client1)
+        self.group2.save()
 
         self.grouploan = LoanAccount.objects.create(
             account_no='GL1', interest_type='Flat', group=self.group1,
@@ -64,6 +78,28 @@ class Modelform_test(TestCase):
             nominee_lastname='ku', nominee_gender='M',
             relationship_with_nominee='friend',
             nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        self.payments = Payments.objects.create(
+            date="2015-2-20", staff=self.user, branch=self.branch,
+            client=self.client, payment_type="OtherCharges", voucher_number=1,
+            amount=100, total_amount=101, interest=1,
+            totalamount_in_words="hundred", loan_account=self.memberloan)
+        self.client_savings_account = SavingsAccount.objects.create(
+            account_no='CS1', client=self.client, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
+
+        self.group1_savings_account = SavingsAccount.objects.create(
+            account_no='GS1', group=self.group1, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
+
+        self.fixed_deposits123 = FixedDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1', status='Opened',
+            fixed_deposit_number='f2221', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=3,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2016-08-30', nominee_occupation='teacher')
         
         self.temp_file = NamedTemporaryFile(delete=False, suffix='.jpg',)
 
@@ -211,6 +247,603 @@ class Modelform_test(TestCase):
             relationship_with_nominee='friend',
             nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
         form = GetRecurringDepositsPaidForm(data={'recurring_deposit_account_no': self.recurring_deposit22.reccuring_deposit_number}, initial={'client': self.client})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm(self):
+        form = PaymentForm(data={
+            "date": '10/10/2014', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 500,
+            "interest": 3, "total_amount": 5000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'member_loan_account_no': self.memberloan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm1(self):
+        form = PaymentForm(data={
+            "date": '10/10/2014', "branch": self.branch.id,
+            "voucher_number": self.payments.voucher_number, "payment_type": 'Loans', "amount": 0,
+            "interest": 3, "total_amount": 0,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm2(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Paymentofsalary', "amount": 100,
+            "interest": 3, "total_amount": 100,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': None, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm3(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'TravellingAllowance', "amount": 1000,
+            "interest": 3, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm4(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'TravellingAllowance', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': 'qq', 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm5(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'PrintingCharges', "amount": 1000,
+            "interest": 3, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm6(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'PrintingCharges', "amount": 1000,
+            "interest": None, "total_amount": 100,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm7(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 100,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm8(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": '100', "total_amount": 100,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm9(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm10(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm11(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertTrue(form.is_valid())
+
+    def test_PaymentForm12(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': 'fgx', 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm13(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client1.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm14(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': '4567890'})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm15(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm16(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id, 'group_name': 'fguj',
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm17(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm19(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 100,
+            "interest": None, "total_amount": 100,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number})
+        self.assertTrue(form.is_valid())
+
+    def test_PaymentForm18(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id, 'group_name': 'gfdd',
+            'group_account_number': '67'})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm20(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm21(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm22(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm23(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm24(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': 'fghj', 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm25(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'fixed_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm26(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'fixed_deposit_account_no': self.fixed_deposit.fixed_deposit_number})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm27(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'fixed_deposit_account_no': '45'})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm28(self):
+        self.fixed_deposits1 = FixedDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1', status='Opened',
+            fixed_deposit_number='f123', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=3,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-10-10', nominee_occupation='teacher')
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'FixedWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'fixed_deposit_account_no': self.fixed_deposits1.fixed_deposit_number})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm29(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm30(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': self.group1.name,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm31(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm51(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm52(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': 'dfghj', 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm32(self):
+        self.recurring_deposit1 = RecurringDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1',
+            reccuring_deposit_number='r11', status='Opened',
+            recurring_deposit_amount=1200, recurring_deposit_period=200,
+            recurring_deposit_interest_rate=3, nominee_firstname='ra',
+            nominee_lastname='ku', nominee_gender='M',
+            relationship_with_nominee='friend', number_of_payments=0,
+            nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': self.recurring_deposit1.reccuring_deposit_number})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm33(self):
+        self.recurring_deposit1 = RecurringDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1',
+            reccuring_deposit_number='r12', status='Opened',
+            recurring_deposit_amount=1200, recurring_deposit_period=200,
+            recurring_deposit_interest_rate=3, nominee_firstname='ra',
+            nominee_lastname='ku', nominee_gender='M',
+            relationship_with_nominee='friend', number_of_payments=1,
+            nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': self.recurring_deposit1.reccuring_deposit_number})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm34(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": 12, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm35(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm36(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': self.group1.name,
+            'group_account_number': None, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm37(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': self.group1.name,
+            'group_account_number': None, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm38(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm39(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': 'fghj',
+            'group_account_number': self.group1.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm40(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': '345678', 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm41(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm42(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 12000,
+            "interest": None, "total_amount": 12000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number, 'recurring_deposit_account_no': None})
+        self.assertTrue(form.is_valid())
+
+    def test_PaymentForm43(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 1200,
+            "interest": None, "total_amount": 120000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': self.grouploan.id, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm44(self):
+        self.group3 = Group.objects.create(
+            name='group3', created_by=self.user, account_number='1231',
+            activation_date='2014-1-1', branch=self.branch)
+
+        self.grouploan1 = LoanAccount.objects.create(
+            account_no='GL11', interest_type='Flat', group=self.group3,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            interest_charged=20, total_loan_balance=12000,
+            principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2016-9-1')
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 12000,
+            "interest": None, "total_amount": 12000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': self.grouploan1.id, 'group_name': self.group3.name,
+            'group_account_number': self.group3.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm45(self):
+        self.group4 = Group.objects.create(
+            name='group4', created_by=self.user, account_number='4',
+            activation_date='2014-1-1', branch=self.branch)
+
+        self.grouploan4 = LoanAccount.objects.create(
+            account_no='GL122', interest_type='Flat', group=self.group4,
+            created_by=self.user, status="Applied", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            interest_charged=20, total_loan_balance=12000,
+            principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2016-9-1')
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 12000,
+            "interest": None, "total_amount": 12000,
+            "totalamount_in_words": '1 rupee', 'client_name': None, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': self.grouploan4.id, 'group_name': self.group4.name,
+            'group_account_number': self.group4.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm46(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': self.group1.name,
+            'group_account_number': self.group1.account_number, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm47(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': None,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm48(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm49(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': 'ghjk', 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': None})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm50(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 12000,
+            "interest": None, "total_amount": 12000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'member_loan_account_no': '545'})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm55(self):
+        self.client4 = Client.objects.create(
+            first_name="client4", last_name="MicroPyramid", created_by=self.user,
+            date_of_birth='2014-10-10', joined_date="2014-10-10",
+            branch=self.branch, account_number=4, gender="F",
+            client_role="FirstLeader", occupation="Teacher",
+            annual_income=2000, country='Ind', state='AP', district='Nellore',
+            city='Nellore', area='rfc')
+
+        self.memberloan4 = LoanAccount.objects.create(
+            account_no='CL4', interest_type='Flat', client=self.client4,
+            created_by=self.user, status="Applied", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            interest_charged=20, total_loan_balance=12000,
+            principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2014-1-1')
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client4.first_name, 'client_account_number': self.client4.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'member_loan_account_no': self.memberloan4.id})
+        self.assertFalse(form.is_valid())
+
+    def test_PaymentForm56(self):
+        form = PaymentForm(data={
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'Loans', "amount": 1000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.client.first_name, 'client_account_number': self.client.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'member_loan_account_no': self.memberloan.id})
         self.assertFalse(form.is_valid())
 
 
