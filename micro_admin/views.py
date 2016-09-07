@@ -34,6 +34,8 @@ from micro_admin.forms import (
     ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, MenuForm, PageForm, UpdateClientProfileForm)
 from micro_admin.mixins import UserPermissionRequiredMixin, BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
 from django.db.models.aggregates import Max
+from django.contrib.auth.models import Permission, ContentType
+
 
 
 d = decimal.Decimal
@@ -136,7 +138,9 @@ class BranchInactiveView(LoginRequiredMixin, View):
             branch = get_object_or_404(Branch, id=kwargs.get('pk'))
             if branch.is_active:
                 branch.is_active = False
-                branch.save()
+            else:
+                branch.is_active = True
+            branch.save()
         return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
 # --------------------------------------------------- #
 
@@ -244,7 +248,6 @@ class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
         if client.is_active:
             count = 0
             loans = LoanAccount.objects.filter(client=client)
-            print (loans)
             for loan in loans:
                 if loan.status == "Closed":
                     count += 1
@@ -258,7 +261,6 @@ class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
             client.save()
         return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
-from django.contrib.auth.models import Permission, ContentType
 # ------------------------------------------- #
 # User Model views
 class CreateUserView(LoginRequiredMixin, CreateView):
@@ -364,11 +366,11 @@ class UserInactiveView(LoginRequiredMixin, View):
             (request.user.has_perm("branch_manager") and
              request.user.branch == user.branch)
         ):
-            if request.user == user or not user.is_active:
-                pass
-            else:
+            if user.is_active:
                 user.is_active = False
-                user.save()
+            else:
+                user.is_active = True
+            user.save()
         return HttpResponseRedirect(reverse('micro_admin:userslist'))
 # ------------------------------------------------- #
 

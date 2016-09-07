@@ -244,15 +244,6 @@ class SavingsAccountForm(forms.ModelForm):
                   "annual_interest_rate"]
 
 
-class ClientLoanAccountForm(forms.ModelForm):
-
-    class Meta:
-        model = LoanAccount
-        fields = ["account_no", "loan_amount", "interest_type",
-                  "loan_repayment_period", "loan_repayment_every",
-                  "annual_interest_rate", "loanpurpose_description"]
-
-
 class LoanAccountForm(forms.ModelForm):
 
     class Meta:
@@ -260,6 +251,13 @@ class LoanAccountForm(forms.ModelForm):
         fields = ["account_no", "interest_type", "loan_amount",
                   "loan_repayment_period", "loan_repayment_every",
                   "annual_interest_rate", "loanpurpose_description"]
+
+    def clean_loan_repayment_period(self):
+        if self.data.get("loan_repayment_period") and self.data.get("loan_repayment_every"):
+            if int(self.data.get("loan_repayment_period")) > int(self.data.get("loan_repayment_every")):
+                return self.data.get("loan_repayment_period")
+            else:
+                raise forms.ValidationError("Loan Repayment Period should be greater than Loan Repayment Every")
 
 
 class ReceiptForm(forms.ModelForm):
