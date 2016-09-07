@@ -113,14 +113,6 @@ class Modelform_test(TestCase):
             "annual_interest_rate": 3})
         self.assertTrue(form.is_valid())
 
-    def test_LoanAccountForm1(self):
-        form = LoanAccountForm(data={
-            "account_no": 123, "interest_type": 'Flat', "loan_amount": 1000,
-            "loan_repayment_period": 10, "loan_repayment_every": 10,
-            "annual_interest_rate": 3,
-            "loanpurpose_description": 'self finance'})
-        self.assertTrue(form.is_valid())
-
     def test_ReceiptForm(self):
         form = ReceiptForm(data={
             "date": '10/10/2014', "branch": self.branch.id,
