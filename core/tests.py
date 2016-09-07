@@ -865,6 +865,14 @@ class Core_Views_test(TestCase):
             annual_income=2000, country='Ind', state='AP', district='Nellore',
             city='Nellore', area='rfc')
 
+        self.member1 = Client.objects.create(
+            first_name="Member12", last_name="microPyramid", created_by=self.user,
+            date_of_birth='2014-10-10', joined_date="2014-10-10",
+            branch=self.branch, account_number=2, gender="F",
+            client_role="FirstLeader", occupation="Teacher",
+            annual_income=2000, country='Ind', state='AP', district='Nellore',
+            city='Nellore', area='rfc')
+
         self.memberloan = LoanAccount.objects.create(
             account_no='CL1', interest_type='Flat', client=self.member,
             created_by=self.user, status="Approved", loan_amount=12000,
@@ -1055,4 +1063,142 @@ class Core_Views_test(TestCase):
             {'fixed_deposit_account_no': None})
         self.assertEqual(response.status_code, 200)
 
-    
+    def test_paymentview_invalid(self):
+        self.recurring_deposit1 = RecurringDeposits.objects.create(
+            client=self.member, deposited_date='2014-1-1',
+            reccuring_deposit_number='r441', status='Opened',
+            recurring_deposit_amount=1200, recurring_deposit_period=200,
+            recurring_deposit_interest_rate=3, nominee_firstname='ra',
+            nominee_lastname='ku', nominee_gender='M',
+            relationship_with_nominee='friend', number_of_payments=0,
+            nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 375, "payment_type": 'RecurringWithdrawal', "amount": 10000,
+            "interest": None, "total_amount": 1000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.member.first_name, 'client_account_number': self.member.account_number,
+            'staff_username': None, 'group_loan_account_no': None, 'group_name': None,
+            'group_account_number': None, 'recurring_deposit_account_no': self.recurring_deposit1.reccuring_deposit_number})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid1(self):
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'TravellingAllowance', "amount": 1000,
+            "total_amount": 1000, "totalamount_in_words": '1 rupee', 'client_name': self.member.first_name, 'client_account_number': 1,
+            'staff_username': self.user.username, 'group_loan_account_no': self.grouploan.id})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid2(self):
+        self.member_savings_account = SavingsAccount.objects.create(
+            account_no='CS321', client=self.member1, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 897, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": 3, "total_amount": 1003,
+            "totalamount_in_words": '1 rupee', 'client_name': self.member1.first_name, 'client_account_number': self.member1.account_number,
+            'staff_username': self.user.username})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid3(self):
+        self.group_savings_account = SavingsAccount.objects.create(
+            account_no='CS321', group=self.group1, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
+        self.member_savings_account = SavingsAccount.objects.create(
+            account_no='CS987', client=self.member, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 897, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": 3, "total_amount": 1003,
+            "totalamount_in_words": '1 rupee', 'client_name': self.member.first_name, 'client_account_number': self.member.account_number,
+            'staff_username': self.user.username})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid4(self):
+        self.group_savings_account = SavingsAccount.objects.create(
+            account_no='CS321', group=self.group1, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
+        self.member_savings_account = SavingsAccount.objects.create(
+            account_no='CS987', client=self.member, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 897, "payment_type": 'SavingsWithdrawal', "amount": 1000,
+            "interest": 3, "total_amount": 1003,
+            "totalamount_in_words": '1 rupee', 'group_name': self.group1.name,
+            'staff_username': self.user.username, 'group_account_number': self.group1.account_number})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid5(self):
+        self.grouploan1 = LoanAccount.objects.create(
+            account_no='GL98', interest_type='Flat', group=self.group1,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            interest_charged=20, total_loan_balance=12000,
+            principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2016-9-1')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 232, "payment_type": 'Loans', "amount": 12000,
+            "total_amount": 12000,
+            "totalamount_in_words": '1 rupee', 'group_name': self.group1.name,
+            'staff_username': self.user.username, 'group_account_number': self.group1.account_number,
+            'group_loan_account_no': self.grouploan1.id})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid6(self):
+        self.memberloan8 = LoanAccount.objects.create(
+            account_no='CL11213', interest_type='Flat', client=self.member,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            interest_charged=20, total_loan_balance=12000,
+            principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2016-9-1')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 232, "payment_type": 'Loans', "amount": 12000,
+            "total_amount": 12000,
+            "totalamount_in_words": '1 rupee', 'client_name': self.member.first_name,
+            'staff_username': self.user.username, 'client_account_number': self.member.account_number,
+            'member_loan_account_no': self.memberloan8.id})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid7(self):
+        self.fixed_deposit52 = FixedDeposits.objects.create(
+            client=self.member, deposited_date='2016-8-7', status='Opened',
+            fixed_deposit_number='f52', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=1,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-10-10', nominee_occupation='teacher')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 753, "payment_type": 'FixedWithdrawal', "amount": 1200,
+            "interest": 1.016393, "total_amount": 1201.016393,
+            "totalamount_in_words": '1 rupee', 'client_name': self.member.first_name, 'client_account_number': self.member.account_number,
+            'staff_username': self.user.username, 'fixed_deposit_account_no': self.fixed_deposit52.fixed_deposit_number})
+        self.assertEqual(response.status_code, 200)
+
+    def test_paymentview_valid8(self):
+        self.recurring_deposit1 = RecurringDeposits.objects.create(
+            client=self.member, deposited_date='2016-8-7',
+            reccuring_deposit_number='r161', status='Opened',
+            recurring_deposit_amount=1200, recurring_deposit_period=12,
+            recurring_deposit_interest_rate=1, nominee_firstname='ra',
+            nominee_lastname='ku', nominee_gender='M', number_of_payments=1,
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        response = self.client.post(reverse("core:payslip"), {
+            "date": '10/10/2016', "branch": self.branch.id,
+            "voucher_number": 1231, "payment_type": 'RecurringWithdrawal', "amount": 1200,
+            "interest": 1.016393, "total_amount": 1201.016393,
+            "totalamount_in_words": '1 rupee', 'client_name': self.member.first_name, 'client_account_number': self.member.account_number,
+            'staff_username': None, 'recurring_deposit_account_no': self.recurring_deposit1.reccuring_deposit_number})
+        self.assertEqual(response.status_code, 200)
