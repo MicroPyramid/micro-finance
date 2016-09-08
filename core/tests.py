@@ -846,6 +846,452 @@ class Modelform_test(TestCase):
             'group_account_number': None, 'member_loan_account_no': self.memberloan.id})
         self.assertFalse(form.is_valid())
 
+    # Receipts Form Tests
+    def test_ReceiptForm1(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': "", "branch": self.branch.id,
+             "receipt_number": 1})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm2(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': 111, "branch": self.branch.id,
+             "receipt_number": 2})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm3(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id,
+             "receipt_number": 2, 'sharecapital_amount': ""})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm4(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id,
+             "receipt_number": 2, 'loan_account_no': '129', 'sharecapital_amount': "22"})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm5(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'loan_account_no': "", 'sharecapital_amount': "22"})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm6(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': "",
+             "receipt_number": 2, 'group_name': self.group1.name, 'group_account_number': "555", 'sharecapital_amount': "22"})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm7(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': "",
+             "receipt_number": 2, 'group_name': "", 'group_account_number': "555", 'sharecapital_amount': "22"})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm8(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': "",
+             "receipt_number": 2, 'group_name': self.group1.name, 'group_loan_account_no': "12875", 'sharecapital_amount': "22",
+             "group_account_number": self.group1.account_number})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm9(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': "",
+             "receipt_number": 2, 'group_name': self.group1.name, 'group_loan_account_no': self.grouploan.account_no, 'sharecapital_amount': "22",
+             "group_account_number": self.group1.account_number, 'loan_account_no': self.memberloan.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm10(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client1.first_name,
+             'account_number': self.client1.account_number, "branch": self.branch.id, 'loanprinciple_amount': "",
+             "receipt_number": 2, 'sharecapital_amount': "22", 'savingsdeposit_thrift_amount': 100
+             })
+        self.assertFalse(form.is_valid())
+
+    # def test_ReceiptForm11(self):
+    #     form = ReceiptForm(data={
+    #          "date": '10/10/2014', 'name': self.client1.first_name,
+    #          'account_number': self.client1.account_number, "branch": self.branch.id, 'loanprinciple_amount': "",
+    #          "receipt_number": 2, 'sharecapital_amount': "22", 'savingsdeposit_thrift_amount': 100
+    #          })
+    #     self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm12(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Applied", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            interest_charged=20, total_loan_balance=12000,
+            principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2014-1-1')
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", "loaninterest_amount": 10, 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm13(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            interest_charged=20, total_loan_balance=12000,
+            principle_repayment=1000, loan_issued_by=self.user)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", "loaninterest_amount": 10, 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm14(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1')
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", "loaninterest_amount": 10, 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm15(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            total_loan_balance=100)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", "loaninterest_amount": 10, 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no, 'loanprinciple_amount': 1000})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm16(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            total_loan_balance=100, interest_charged=2)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", "loaninterest_amount": 10, 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no, 'loanprinciple_amount': 1})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm17(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=2, principle_repayment=12,
+            total_loan_balance=5000)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm18(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=20000, principle_repayment=14000,
+            total_loan_balance=5000)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no, 'loaninterest_amount': 13000})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm19(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=20000, principle_repayment=14000,
+            total_loan_balance=5000)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no, 'loaninterest_amount': 1})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm20(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Rejected", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=20000, principle_repayment=14000,
+            total_loan_balance=5000)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no, 'loaninterest_amount': 1})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm21(self):
+        self.memberloan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', client=self.client,
+            created_by=self.user, status="Closed", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=20000, principle_repayment=14000,
+            total_loan_balance=5000)
+
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             "loan_account_no": self.memberloan12.account_no, 'loaninterest_amount': 1})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm22(self):
+        self.grouploan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', group=self.group1,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=20000, principle_repayment=14000,
+            total_loan_balance=5000)
+        self.group1memberloan = GroupMemberLoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat',
+            status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2,
+            interest_charged=20, total_loan_balance=12000,
+            group_loan_account=self.grouploan12, client=self.client)
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             'loaninterest_amount': 1, 'group_name': self.group1.name, 'group_account_number': self.group1.account_number,
+             'group_loan_account_no': self.grouploan12.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm23(self):
+        self.grouploan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', group=self.group1,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=20000, principle_repayment=14000,
+            total_loan_balance=5000)
+        self.group1memberloan = GroupMemberLoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat',
+            status="Applied", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2,
+            interest_charged=20, total_loan_balance=12000,
+            group_loan_account=self.grouploan12, client=self.client)
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             'loaninterest_amount': 1, 'group_name': self.group1.name, 'group_account_number': self.group1.account_number,
+             'group_loan_account_no': self.grouploan12.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm24(self):
+        self.grouploan12 = LoanAccount.objects.create(
+            account_no='CL112', interest_type='Flat', group=self.group1,
+            created_by=self.user, status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loanpurpose_description='Home Loan',
+            loan_issued_by=self.user, loan_issued_date='2014-1-1',
+            interest_charged=20000, principle_repayment=14000,
+            total_loan_balance=5000)
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'group_loan_account_no': 'jg',
+             'loaninterest_amount': 1, 'group_name': self.group1.name, 'group_account_number': self.group1.account_number,
+             'group_loan_account_no': self.grouploan12.account_no})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm25(self):
+        self.fixed_deposit = FixedDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1', status='Opened',
+            fixed_deposit_number='f116', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=3,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-10-10', nominee_occupation='teacher')
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'fixed_deposit_account_no': self.fixed_deposit.fixed_deposit_number,
+             "loan_account_no": self.memberloan.account_no, 'fixeddeposit_amount': 1000})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm26(self):
+        self.fixed_deposit = FixedDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1', status='Opened',
+            fixed_deposit_number='f116', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=3,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-10-10', nominee_occupation='teacher')
+        self.receipt1 = Receipts.objects.create(
+            fixed_deposit_account=self.fixed_deposit, branch=self.branch,
+            receipt_number="5", client=self.client, date="2014-1-1", staff=self.user)
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'fixed_deposit_account_no': self.fixed_deposit.fixed_deposit_number,
+             "loan_account_no": self.memberloan.account_no, 'fixeddeposit_amount': 1000})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm27(self):
+        self.fixed_deposit = FixedDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1', status='Closed',
+            fixed_deposit_number='f116', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=3,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-10-10', nominee_occupation='teacher')
+        
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client.first_name,
+             'account_number': self.client.account_number, "branch": self.branch.id, 'loanprinciple_amount': 1000,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'fixed_deposit_account_no': self.fixed_deposit.fixed_deposit_number,
+             "loan_account_no": self.memberloan.account_no, 'fixeddeposit_amount': 1000})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm28(self):
+        self.client1 = Client.objects.create(
+            first_name="client1", last_name="MicroPyramid", created_by=self.user,
+            date_of_birth='2014-10-10', joined_date="2014-10-10",
+            branch=self.branch, account_number=1231, gender="F",
+            client_role="FirstLeader", occupation="Teacher",
+            annual_income=2000, country='Ind', state='AP', district='Nellore',
+            city='Nellore', area='rfc')
+        self.fixed_deposit = FixedDeposits.objects.create(
+            client=self.client1, deposited_date='2014-1-1', status='Opened',
+            fixed_deposit_number='f1161', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=3,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-10-10', nominee_occupation='teacher')
+       
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client1.first_name,
+             'account_number': self.client1.account_number, "branch": self.branch.id,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'fixed_deposit_account_no': self.fixed_deposit.fixed_deposit_number,
+             "loan_account_no": '', 'fixeddeposit_amount': 1000})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm29(self):
+        self.client1 = Client.objects.create(
+            first_name="client1", last_name="MicroPyramid", created_by=self.user,
+            date_of_birth='2014-10-10', joined_date="2014-10-10",
+            branch=self.branch, account_number=1231, gender="F",
+            client_role="FirstLeader", occupation="Teacher",
+            annual_income=2000, country='Ind', state='AP', district='Nellore',
+            city='Nellore', area='rfc')
+        self.fixed_deposit = FixedDeposits.objects.create(
+            client=self.client1, deposited_date='2014-1-1', status='Opened',
+            fixed_deposit_number='f1161', fixed_deposit_amount=1200,
+            fixed_deposit_period=12, fixed_deposit_interest_rate=3,
+            nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-10-10', nominee_occupation='teacher')
+       
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client1.first_name,
+             'account_number': self.client1.account_number, "branch": self.branch.id,
+             "receipt_number": 2, 'sharecapital_amount': "22",
+             "loan_account_no": '', 'fixeddeposit_amount': 1000})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm30(self):
+        self.recurring_deposit = RecurringDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1',
+            reccuring_deposit_number='r11', status='Opened',
+            recurring_deposit_amount=1200, recurring_deposit_period=200,
+            recurring_deposit_interest_rate=3, nominee_firstname='ra',
+            nominee_lastname='ku', nominee_gender='M',
+            relationship_with_nominee='friend',
+            nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client1.first_name,
+             'account_number': self.client1.account_number, "branch": self.branch.id,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'recurring_deposit_account_no': self.recurring_deposit.reccuring_deposit_number,
+             "loan_account_no": '', 'recurringdeposit_amount': 0})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm31(self):
+        self.recurring_deposit = RecurringDeposits.objects.create(
+            client=self.client, deposited_date='2014-1-1',
+            reccuring_deposit_number='r11', status='Opened',
+            recurring_deposit_amount=1200, recurring_deposit_period=20,
+            recurring_deposit_interest_rate=3, nominee_firstname='ra',
+            nominee_lastname='ku', nominee_gender='M',
+            relationship_with_nominee='friend', number_of_payments=200,
+            nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client1.first_name,
+             'account_number': self.client1.account_number, "branch": self.branch.id,
+             "receipt_number": 2, 'sharecapital_amount': "22", 'recurring_deposit_account_no': self.recurring_deposit.reccuring_deposit_number,
+             "loan_account_no": '', 'recurringdeposit_amount': 0})
+        self.assertFalse(form.is_valid())
+
+    def test_ReceiptForm32(self):
+        form = ReceiptForm(data={
+             "date": '10/10/2014', 'name': self.client1.first_name,
+             'account_number': self.client1.account_number, "branch": self.branch.id,
+             "receipt_number": 2, 'sharecapital_amount': "22",
+             "loan_account_no": '', 'recurringdeposit_amount': 10})
+        self.assertFalse(form.is_valid())
+
 
 class Core_Views_test(TestCase):
 
@@ -872,6 +1318,11 @@ class Core_Views_test(TestCase):
             client_role="FirstLeader", occupation="Teacher",
             annual_income=2000, country='Ind', state='AP', district='Nellore',
             city='Nellore', area='rfc')
+
+        self.member_savings_account = SavingsAccount.objects.create(
+            account_no='CS112', client=self.member, opening_date='2014-1-1',
+            min_required_balance=0, savings_balance=10000,
+            annual_interest_rate=1, created_by=self.user, status='Approved')
 
         self.memberloan = LoanAccount.objects.create(
             account_no='CL1', interest_type='Flat', client=self.member,
@@ -908,6 +1359,14 @@ class Core_Views_test(TestCase):
             interest_charged=20, total_loan_balance=12000,
             principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2016-9-1')
 
+        self.group1memberloan = GroupMemberLoanAccount.objects.create(
+            account_no='GL1', interest_type='Flat',
+            status="Approved", loan_amount=12000,
+            loan_repayment_period=12, loan_repayment_every=1,
+            annual_interest_rate=2, loan_issued_date='2016-9-1',
+            interest_charged=20, total_loan_balance=12000, principle_repayment=1000,
+            group_loan_account=self.grouploan, client=self.member)
+
         self.grouploan1 = LoanAccount.objects.create(
             account_no='GL2', interest_type='Flat', group=self.group1,
             created_by=self.user, status="Approved", loan_amount=12000,
@@ -916,13 +1375,6 @@ class Core_Views_test(TestCase):
             interest_charged=20, total_loan_balance=12000,
             principle_repayment=1000, loan_issued_date=None)
 
-        self.group1memberloan = GroupMemberLoanAccount.objects.create(
-            account_no='GL1', interest_type='Flat',
-            status="Approved", loan_amount=12000,
-            loan_repayment_period=12, loan_repayment_every=1,
-            annual_interest_rate=2,
-            interest_charged=20, total_loan_balance=12000,
-            group_loan_account=self.grouploan, client=self.member)
         self.grouploanpayments = Payments.objects.create(
             date="2015-2-20", staff=self.user, branch=self.branch,
             group=self.group1, payment_type="OtherCharges", voucher_number=2,
@@ -943,6 +1395,10 @@ class Core_Views_test(TestCase):
             nominee_lastname='ku', nominee_gender='M',
             relationship_with_nominee='friend',
             nominee_date_of_birth='2014-1-1', nominee_occupation='Teacher')
+        self.group_savings_account = SavingsAccount.objects.create(
+                account_no='GS112', group=self.group1, opening_date='2014-1-1',
+                min_required_balance=0, savings_balance=10000,
+                annual_interest_rate=1, created_by=self.user, status='Approved')
 
     def test_getmemberloanaccounts1(self):
         response = self.client.post(
@@ -1172,7 +1628,7 @@ class Core_Views_test(TestCase):
 
     def test_paymentview_valid7(self):
         self.fixed_deposit52 = FixedDeposits.objects.create(
-            client=self.member, deposited_date='2016-8-7', status='Opened',
+            client=self.member, deposited_date='2016-8-8', status='Opened',
             fixed_deposit_number='f52', fixed_deposit_amount=1200,
             fixed_deposit_period=12, fixed_deposit_interest_rate=1,
             nominee_firstname='r', nominee_lastname='k', nominee_gender='M',
@@ -1188,7 +1644,7 @@ class Core_Views_test(TestCase):
 
     def test_paymentview_valid8(self):
         self.recurring_deposit1 = RecurringDeposits.objects.create(
-            client=self.member, deposited_date='2016-8-7',
+            client=self.member, deposited_date='2016-8-8',
             reccuring_deposit_number='r161', status='Opened',
             recurring_deposit_amount=1200, recurring_deposit_period=12,
             recurring_deposit_interest_rate=1, nominee_firstname='ra',
@@ -1202,3 +1658,105 @@ class Core_Views_test(TestCase):
             "totalamount_in_words": '1 rupee', 'client_name': self.member.first_name, 'client_account_number': self.member.account_number,
             'staff_username': None, 'recurring_deposit_account_no': self.recurring_deposit1.reccuring_deposit_number})
         self.assertEqual(response.status_code, 200)
+
+    # Receipts Views Tests
+    def test_receiptsView1(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '10/10/2014', 'name': self.member.first_name,
+             'account_number': "", "branch": self.branch.id,
+             "receipt_number": 1})
+        self.assertEqual(response.status_code, 200)
+
+    def test_receiptsView2(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '2014-10-10', 'name': self.member.first_name,
+             'account_number': 1, "branch": self.branch.id,
+             "receipt_number": 1, 'sharecapital_amount': 100, 'entrancefee_amount': 100,
+             "membershipfee_amount": 99, "bookfee_amount": 155})
+        self.assertEqual(response.status_code, 200)
+
+    def test_receiptsView3(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '2014-10-10', 'name': self.member.first_name,
+             'account_number': 1, "branch": self.branch.id,
+             "receipt_number": 1, 'loan_account_no': self.memberloan.account_no,
+             'loanprocessingfee_amount': 100})
+        self.assertEqual(response.status_code, 200)
+
+    # def test_receiptsView4(self):
+    #     self.grouploan1 = LoanAccount.objects.create(
+    #         account_no='GL112', interest_type='Flat', group=self.group1,
+    #         created_by=self.user, status="Approved", loan_amount=12000,
+    #         loan_repayment_period=12, loan_repayment_every=1,
+    #         annual_interest_rate=2, loanpurpose_description='Home Loan',
+    #         interest_charged=20, total_loan_balance=12000,
+    #         principle_repayment=1000, loan_issued_by=self.user, loan_issued_date='2016-9-1')
+    #     self.group1memberloan = GroupMemberLoanAccount.objects.create(
+    #         account_no='GL112', interest_type='Flat',
+    #         status="Approved", loan_amount=12000, principle_repayment=100,
+    #         loan_repayment_period=12, loan_repayment_every=1,
+    #         annual_interest_rate=2, loan_issued_date="2016-9-1",
+    #         interest_charged=20, total_loan_balance=12000,
+    #         group_loan_account=self.grouploan1, client=self.member)
+    #     response = self.client.post(reverse("core:receiptsdeposit"), {
+    #          "date": '2014-10-10', 'name': self.member.first_name,
+    #          'account_number': 1, "branch": self.branch.id,
+    #          "receipt_number": 1, 'group_name': self.group1.name, 'group_loan_account_no': self.grouploan1.account_no,
+    #          'loanprocessingfee_amount': 100, 'group_account_number': self.group1.account_number,
+    #          "loanprinciple_amount": 100, "loaninterest_amount": 1})
+    #     self.assertEqual(response.status_code, 200)
+    
+    def test_receiptsView4(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '2014-10-10', 'name': self.member.first_name,
+             'account_number': 1, "branch": self.branch.id,
+             "receipt_number": 1, 'savingsdeposit_thrift_amount': 100,
+             'loanprocessingfee_amount': ""})
+        self.assertEqual(response.status_code, 200)
+
+    def test_receiptsView5(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '2014-10-10', 'name': self.member.first_name,
+             'account_number': 1, "branch": self.branch.id,
+             "receipt_number": 1, 'savingsdeposit_thrift_amount': "",
+             'recurringdeposit_amount': "1200", 'recurring_deposit_account_no': self.recurring_deposit.reccuring_deposit_number})
+        self.assertEqual(response.status_code, 200)
+
+    def test_receiptsView6(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '2014-10-10', 'name': self.member.first_name,
+             'account_number': 1, "branch": self.branch.id, "fixeddeposit_amount": 1200,
+             "receipt_number": 1, 'savingsdeposit_thrift_amount': "",
+             'fixed_deposit_account_no': self.fixed_deposit11.fixed_deposit_number})
+        self.assertEqual(response.status_code, 200)
+
+    def test_receiptsView7(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '2014-10-10', 'name': self.member.first_name,
+             'account_number': 1, "branch": self.branch.id,
+             "receipt_number": 1, 'savingsdeposit_thrift_amount': "100",
+             "group_name": self.group1.name, "group_account_number": self.group1.account_number
+             })
+        self.assertEqual(response.status_code, 200)
+
+    def test_receiptsView8(self):
+        response = self.client.post(reverse("core:receiptsdeposit"), {
+             "date": '2014-10-10', 'name': self.member.first_name,
+             'account_number': 1, "branch": self.branch.id,
+             "receipt_number": 1, 'insurance_amount': "100"})
+        self.assertEqual(response.status_code, 200)
+
+    # def test_receiptsView9(self):
+    #     self.group1memberloan = GroupMemberLoanAccount.objects.create(
+    #         account_no='GL1', interest_type='Flat',
+    #         status="Approved", loan_amount=12000,
+    #         loan_repayment_period=12, loan_repayment_every=1,
+    #         annual_interest_rate=2, loan_issued_date='2016-9-1',
+    #         interest_charged=20, total_loan_balance=12000, principle_repayment=1000,
+    #         group_loan_account=self.grouploan, client=self.member)
+    #     response = self.client.post(reverse("core:receiptsdeposit"), {
+    #          "date": '2014-10-10', 'name': self.member.first_name,
+    #          'account_number': 1, "branch": self.branch.id, 'loanprinciple_amount': "100",
+    #          "receipt_number": 10, 'insurance_amount': "", "group_name": self.group1.name, 'group_account_number': self.group1.account_number,
+    #          "group_loan_account_no": self.grouploan.account_no})
+    #     self.assertEqual(response.status_code, 200)

@@ -269,7 +269,6 @@ class ReceiptForm(forms.ModelForm):
         # client loan a/c
         loan_account_no = self.cleaned_data.get("loan_account_no")
         group_loan_account_no = self.cleaned_data.get("group_loan_account_no")
-
         if loan_account_no:
             self.loan_account = LoanAccount.objects.filter(client=self.client, account_no=loan_account_no).last()
             if not self.loan_account:
