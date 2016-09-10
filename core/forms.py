@@ -478,7 +478,6 @@ class GetRecurringDepositsPaidForm(forms.Form):
         super(GetRecurringDepositsPaidForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-
         if self.cleaned_data.get("recurring_deposit_account_no"):
             self.recurring_deposit_account = RecurringDeposits.objects.filter(
                 client=self.client,
@@ -1072,3 +1071,4 @@ class PaymentForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
