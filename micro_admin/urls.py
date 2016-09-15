@@ -48,7 +48,7 @@ urlpatterns = [
     url(r'^group/(?P<group_id>\d+)/meetings/add/$', GroupMeetingsAddView.as_view(), name='addgroupmeeting'),
 
     # Receipts(create, list)
-    url(r'^receiptsdeposit/$', receipts_deposit, name="receiptsdeposit"),
+    # url(r'^receiptsdeposit/$', receipts_deposit, name="receiptsdeposit"),
     url(r'^receiptslist/$', ReceiptsList.as_view(), name="receiptslist"),
 
     url(r'^generalledger/$', GeneralLedger.as_view(), name="generalledger"),
@@ -59,7 +59,7 @@ urlpatterns = [
     # Day Book
     url(r'^viewdaybook/$', DayBookView.as_view(), name="viewdaybook"),
     url(r'^viewparticularclientfixeddeposits/(?P<client_id>\d+)/$', ViewParticularClientFixedDeposits.as_view(), name="viewparticularclientfixeddeposits"),
-    url(r'^payslip/$', pay_slip, name="payslip"),
+    # url(r'^payslip/$', pay_slip, name="payslip"),
     url(r'^paymentslist/$', PaymentsList.as_view(), name="paymentslist"),
     url(r'^recurringdeposits/$', RecurringDepositsView.as_view(), name="recurringdeposits"),
     url(r'^clientrecurringdepositsprofile/(?P<recurring_deposit_id>\d+)/$', ClientRecurringDepositsProfile.as_view(), name="clientrecurringdepositsprofile"),
@@ -68,8 +68,6 @@ urlpatterns = [
     url(r'^generalledgerpdfdownload/$', GeneralLedgerPdfDownload.as_view(), name="generalledgerpdfdownload"),
     url(r'^daybookpdfdownload/(?P<date>\d{4}-\d{2}-\d{2})/$', DayBookPdfDownload.as_view(), name="daybookpdfdownload"),
     url(r'^userchangepassword/$', UserChangePassword.as_view(), name="userchangepassword"),
-    url(r'^getmemberloanaccounts/$', getmember_loanaccounts, name="getmemberloanaccounts"),
-    url(r'^getloandemands/$', getloan_demands, name="getloandemands"),
 
     # Content Management Menu
     url(r'^content-management/menu/add/$', AddMenuView.as_view(), name="add_menu"),

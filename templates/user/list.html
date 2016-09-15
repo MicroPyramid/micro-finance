@@ -30,12 +30,12 @@
               <td>{{ userobject.user_roles }}</td>
               <td><a href="{% url 'micro_admin:branchprofile' userobject.branch.id %}" style="color:#337ab7">{{ userobject.branch.name|capfirst }}</a></td>
               {% if userobject.is_active %}
-              <td><i class="fa fa-circle green pad-lt"></i></td>
+              <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle green pad-lt"></i></a></td>
               {% else %}
-              <td><i class="fa fa-circle red pad-lt"></i></td>
+              <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle red pad-lt"></i></a></td>
               {% endif %}
               {% if user.is_admin or user.user_roles == "BranchManager" %}
-                <td><a href="{% url 'micro_admin:edituser' userobject.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-trash-o trash-icon"></i></a></td>
+                <td><a href="{% url 'micro_admin:edituser' userobject.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>{% if userobject.is_active %}<a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-trash-o trash-icon"></i></a>{% endif %}</td>
               {% endif %}
             </tr>
             {% endfor %}

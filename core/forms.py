@@ -269,7 +269,6 @@ class ReceiptForm(forms.ModelForm):
         # client loan a/c
         loan_account_no = self.cleaned_data.get("loan_account_no")
         group_loan_account_no = self.cleaned_data.get("group_loan_account_no")
-
         if loan_account_no:
             self.loan_account = LoanAccount.objects.filter(client=self.client, account_no=loan_account_no).last()
             if not self.loan_account:
@@ -479,7 +478,6 @@ class GetRecurringDepositsPaidForm(forms.Form):
         super(GetRecurringDepositsPaidForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-
         if self.cleaned_data.get("recurring_deposit_account_no"):
             self.recurring_deposit_account = RecurringDeposits.objects.filter(
                 client=self.client,
@@ -762,7 +760,7 @@ class PaymentForm(forms.ModelForm):
                                     #     recurring_deposit.recurring_deposit_period)
                                     # total_amount = \
                                     #     recurring_deposit_amount + recurring_deposit_interest_charged
-                                    current_date = datetime.now().date()
+                                    current_date = datetime.datetime.now().date()
                                     year_days = 366 if calendar.isleap(current_date.year) else 365
                                     interest_charged = (recurring_deposit_amount * recurring_deposit.recurring_deposit_interest_rate) / (d(year_days) * 100)
                                     days_to_calculate = (current_date - recurring_deposit.deposited_date).days
@@ -1073,3 +1071,4 @@ class PaymentForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+

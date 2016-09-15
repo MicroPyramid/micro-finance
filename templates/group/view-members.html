@@ -50,8 +50,10 @@
                 {% endif %}
                 <td>{{ client.client_role }}</td>
                 <td><a href="{% url 'micro_admin:branchprofile' client.branch.id %}">{{ client.branch.name|capfirst }}</a></td>
+                {% if client.is_active %}
                 {% if user.is_admin %}
                 <td class="anchr-trash"><a href="{% url 'micro_admin:removemember' group.id client.id %}" title="Remove Member"><i class="fa fa-trash-o trash-icon"></i></a></td>
+                {% endif %}
                 {% endif %}
               </tr>
               {% endfor %}
