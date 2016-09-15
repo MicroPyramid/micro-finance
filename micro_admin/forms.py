@@ -1,7 +1,7 @@
 from django import forms
 from micro_admin.models import (
     Branch, User, Group, Client, SavingsAccount, LoanAccount, FixedDeposits, Receipts, Payments, RecurringDeposits, GroupMeetings,
-    ClientBranchTransfer, Menu, Page)
+    ClientBranchTransfer)
 # from django.core.exceptions import ObjectDoesNotExist
 # import datetime
 import decimal
@@ -360,17 +360,3 @@ class GroupMeetingsForm(forms.ModelForm):
     class Meta:
         model = GroupMeetings
         fields = ["meeting_date", "meeting_time"]
-
-
-class MenuForm(forms.ModelForm):
-
-    class Meta:
-        model = Menu
-        exclude = ('lvl',)
-
-
-class PageForm(forms.ModelForm):
-
-    class Meta:
-        model = Page
-        exclude = ('slug',)

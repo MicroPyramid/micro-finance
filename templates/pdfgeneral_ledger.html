@@ -1,59 +1,10 @@
 <html>
-  <head>
-    <style type="text/css">
-      html, body, table, caption, tbody, tfoot, thead, tr, th, td {
-      font-family: "Times New Roman";
-      }
-      table{
-      text-align:center;
-      padding:3px 0px 0px 0px;
-      width:100%;
-      height:100%;
-      border:1;
-      }
-      @page {
-      size: a4 portrait;
-      border: 0pt solid white;
-      @frame header_frame {
-      -pdf-frame-content: header_content;
-      left: 50pt; width: 512pt; top: 20pt; height: 20pt;
-      border: 0pt solid white;
-      }
-      @frame content_frame {
-      left: 50pt; width: 512pt; top: 60pt; height: 632pt;
-      border: 0pt solid white;
-      }
-      @frame footer_frame {
-      -pdf-frame-content: footer_content;
-      left: 50pt; width: 512pt; top: 800pt; height: 20pt;
-      border: 0pt solid white;
-      }
-      }
-    </style>
-    <link rel="stylesheet" href="/static/css/mf_slidebar.css" />
-    <link rel="stylesheet" href="/static/css/mf.css" />
-    <link rel="stylesheet" href="/static/css/mf_res.css" />
-    <link rel="stylesheet" href="/static/css/mf_mob.css" />
-  </head>
   <body>
     <div id="header_content">
       <h2>General Ledger</h2>
     </div>
     <br clear="all" />
     {% include "generalledgertable.html" %}
-    <br clear="all" />
-    <div id="footer_content">
-      <table>
-        <tr>
-          <td style="text-align:left;">
-            Page
-            <pdf:pagenumber>
-            <!-- of <pdf:pagecount> -->
-          </td>
-          <td style="text-align:right;">MicroFinance</td>
-        </tr>
-      </table>
-    </div>
   </body>
   <script src="/static/js/mf_script.js"></script>
 </html>

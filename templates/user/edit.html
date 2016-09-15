@@ -162,7 +162,9 @@
     $('#edituserform').submit(function(e) {
       e.preventDefault();
       $("span.error").remove();
-      $.post('/dashboard/user/edit/'+$('#user_id').val()+'/', $('#edituserform').serialize(), function(data) {
+      user_id = $('#user_id').val()
+      url = '{% url "micro_admin:edituser" 1 %}'.replace(1, user_id)
+      $.post(url, $('#edituserform').serialize(), function(data) {
         if (data.error == false) {
           window.location = data.success_url;
         }

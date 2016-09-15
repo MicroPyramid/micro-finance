@@ -68,20 +68,5 @@ urlpatterns = [
     url(r'^generalledgerpdfdownload/$', GeneralLedgerPdfDownload.as_view(), name="generalledgerpdfdownload"),
     url(r'^daybookpdfdownload/(?P<date>\d{4}-\d{2}-\d{2})/$', DayBookPdfDownload.as_view(), name="daybookpdfdownload"),
     url(r'^userchangepassword/$', UserChangePassword.as_view(), name="userchangepassword"),
-
-    # Content Management Menu
-    url(r'^content-management/menu/add/$', AddMenuView.as_view(), name="add_menu"),
-    url(r'^content-management/menu/list/$', MenuListView.as_view(), name='list_menu'),
-    url(r'^content-management/menu/edit/(?P<pk>\d+)/$', UpdateMenuView.as_view(), name='edit_menu'),
-    url(r'^content-management/menu/delete/(?P<pk>\d+)/$', DeleteMenuView.as_view(), name='delete_menu'),
-    url(r'^content-management/menu/change-status/(?P<pk>\d+)/$', ChangeMenuStatusView.as_view(), name='changemenustatus'),
-    url(r'^content-management/menu/change-order/(?P<pk>\d+)/$', MenuOrderView.as_view(), name='menu_order'),
-
-    # Pages
-    url(r'^content-management/pages/list/$', PageListView.as_view(), name='list_page'),
-    url(r'^content-management/pages/add/$', AddPageView.as_view(), name="add_page"),
-    url(r'^content-management/pages/edit/(?P<pk>\d+)/$', UpdatePageView.as_view(), name='edit_page'),
-    url(r'^content-management/pages/delete/(?P<pk>\d+)/$', DeletePageView.as_view(), name='delete_page'),
-    url(r'^content-management/pages/change-status/(?P<pk>\d+)/$', ChangePageStatusView.as_view(), name='changepagestatus'),
 ]
 
