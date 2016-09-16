@@ -1,0 +1,27 @@
+      @media print{
+            html, body, table, caption, tbody, tfoot, thead, tr, th, td {
+            font-family: "Times New Roman";
+            background: none;
+            }
+            table{
+            text-align:center;
+            padding:3px 0px 0px 0px;
+            width:80% !important;
+            max-width:80% !important;
+            height:100%;
+            border:none !important;
+            }
+            @page {
+            size: a4 portrait;
+            border: 0pt solid white;
+            @frame header_frame {
+            -pdf-frame-content: header_content;
+            left: 50pt; width: 512pt; top: 20pt; height: 20pt;
+            border: 0pt solid white;
+            }
+            @frame content_frame {
+            left: 50pt; width: 512pt; top: 60pt; height: 632pt;
+            border: 0pt solid white;
+            }
+            }
+}

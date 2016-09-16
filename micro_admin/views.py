@@ -27,11 +27,11 @@ from django.db.models import Sum
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
     LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES, ClientBranchTransfer, Menu, Page, GroupMemberLoanAccount)
+    RecurringDeposits, USER_ROLES, ClientBranchTransfer, GroupMemberLoanAccount)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
     ReceiptForm, FixedDepositForm, PaymentForm,
-    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, MenuForm, PageForm, UpdateClientProfileForm)
+    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, UpdateClientProfileForm)
 from micro_admin.mixins import UserPermissionRequiredMixin, BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
 from django.db.models.aggregates import Max
 from django.contrib.auth.models import Permission, ContentType
@@ -272,7 +272,7 @@ class CreateUserView(LoginRequiredMixin, CreateView):
         context['branches'] = Branch.objects.all()
         context['userroles'] = dict(USER_ROLES).keys()
         contenttype = ContentType.objects.get_for_model(self.request.user)
-        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager", 'content_manager'])
+        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
         context['permissions'] = permissions
         return context
 
@@ -305,7 +305,7 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
         context['branch'] = Branch.objects.all()
         context['userroles'] = dict(USER_ROLES).keys()
         contenttype = ContentType.objects.get_for_model(self.request.user)
-        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager", 'content_manager'])
+        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
         context['permissions'] = permissions
         return context
 
@@ -324,10 +324,9 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
             })
         else:
             user = form.save()
-            if len(self.request.POST.getlist("user_permissions")):
-                user.user_permissions.clear()
-                user.user_permissions.add(
-                    *self.request.POST.getlist("user_permissions"))
+            user.user_permissions.clear()
+            user.user_permissions.add(
+                *self.request.POST.getlist("user_permissions"))
             if self.request.POST.get("user_roles") == "BranchManager":
                 if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
                     user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
@@ -538,17 +537,23 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
         client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
         group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
         count = 0
-        for group_loan_account in group_loan_accounts:
-            if GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
-                count += 1
-                if count == group_loan_accounts:
+        if group_loan_accounts:
+            for group_loan_account in group_loan_accounts:
+                if GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
+                    count += 1
+                    if count == group_loan_accounts:
 
-                    group.clients.remove(client)
-                    client.status = "UnAssigned"
-                    client.save()
-                    return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
-            else:
-                raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
+                        group.clients.remove(client)
+                        client.status = "UnAssigned"
+                        client.save()
+                        return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+                else:
+                    raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
+        else:
+            group.clients.remove(client)
+            client.status = "UnAssigned"
+            client.save()
+            return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
 
 
 class GroupMeetingsListView(LoginRequiredMixin, ListView):
@@ -1071,12 +1076,14 @@ class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         general_ledger_list = general_ledger_function()
+        print (general_ledger_list)
         try:
-            # template = get_template("pdfgeneral_ledger.html")
+            from django.template.loader import get_template
+            template = get_template("pdfgeneral_ledger.html")
             context = Context(
                 {'pagesize': 'A4', "list": general_ledger_list,
                  "mediaroot": settings.MEDIA_ROOT})
-            return render(request, 'pdfgeneral_ledger.html', context)
+            # return render(request, 'pdfgeneral_ledger.html', context)
             # html = template.render(context)
             # result = StringIO.StringIO()
             # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
@@ -1085,6 +1092,31 @@ class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
             #                         content_type='application/pdf')
             # else:
             #     return HttpResponse('We had some errors')
+            # html = template.render(context)
+            # import pdfkit
+
+            # pdfkit.from_string(html, 'out.pdf')
+            # pdf = open("out.pdf")
+            # response = HttpResponse(pdf.read(), content_type='application/pdf')
+            # response['Content-Disposition'] = 'attachment; filename=General Ledger.pdf'
+            # pdf.close()
+            # os.remove("out.pdf")
+            # return response
+            from weasyprint import HTML, CSS
+            html_template = get_template("pdfgeneral_ledger.html")
+            context = Context({
+               'pagesize': 'A4',
+               "list": general_ledger_list,
+               "mediaroot": settings.MEDIA_ROOT
+               })
+            rendered_html = html_template.render(context).encode(encoding="UTF-8")
+            pdf_file = HTML(string=rendered_html).write_pdf(stylesheets=[CSS(settings.COMPRESS_ROOT + '/css/mf.css'), CSS(settings.COMPRESS_ROOT + '/css/pdf_stylesheet.css')])
+
+            http_response = HttpResponse(pdf_file, content_type='application/pdf')
+            http_response['Content-Disposition'] = 'filename="report.pdf"'
+
+            return http_response
+
         except Exception as err:
             errmsg = "%s" % (err)
             return HttpResponse(errmsg)
@@ -1166,223 +1198,3 @@ class UserChangePassword(LoginRequiredMixin, FormView):
 
     def form_invalid(self, form):
         return JsonResponse({"error": True, "errors": form.errors})
-
-
-class AddMenuView(LoginRequiredMixin, CreateView):
-    form_class = MenuForm
-    template_name = "contentmanagement/menu/add.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(AddMenuView, self).get_context_data(**kwargs)
-        context['parent'] = Menu.objects.filter(parent=None).order_by('lvl')
-        return context
-
-    def form_valid(self, form):
-        new_menu = form.save(commit=False)
-        if new_menu.status:
-            new_menu.status = 'on'
-
-        menu_count = Menu.objects.filter(parent=new_menu.parent).count()
-        new_menu.lvl = menu_count + 1
-        if new_menu.url[-1] != '/':
-            new_menu.url = new_menu.url + '/'
-
-        new_menu.save()
-        return JsonResponse({
-            "error": False})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class MenuListView(LoginRequiredMixin, ListView):
-    model = Menu
-    template_name = "contentmanagement/menu/list.html"
-    context_object_name = 'menu_list'
-
-    def get_queryset(self):
-        return Menu.objects.filter(parent=None).order_by('lvl')
-
-
-class UpdateMenuView(LoginRequiredMixin, ContentManagerRequiredMixin, UpdateView):
-    pk_url_kwarg = 'pk'
-    model = Menu
-    form_class = MenuForm
-    context_object_name = 'current_menu'
-    template_name = "contentmanagement/menu/edit.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(UpdateMenuView, self).get_context_data(**kwargs)
-        context['parent'] = Menu.objects.filter(parent=None).order_by('lvl')
-        return context
-
-    def form_valid(self, form):
-        current_menu = get_object_or_404(Menu, pk=self.kwargs.get('pk'))
-        current_parent = current_menu.parent
-        updated_menu = form.save(commit=False)
-        if updated_menu.parent != current_parent:
-            try:
-                if updated_menu.parent.id == updated_menu.id:
-                    data = {'error': True, 'response': {
-                        'parent': 'You can not choose the same as parent'}}
-                    return HttpResponse(
-                        json.dumps(data),
-                        content_type='application/json; charset=utf-8')
-            except Exception:
-                pass
-
-            lnk_count = Menu.objects.filter(
-                parent=updated_menu.parent).count()
-            updated_menu.lvl = lnk_count + 1
-            lvlmax = Menu.objects.filter(
-                parent=current_parent).aggregate(Max('lvl'))['lvl__max']
-            if lvlmax != 1:
-                for i in Menu.objects.filter(parent=current_parent,
-                                             lvl__gt=current_menu.lvl,
-                                             lvl__lte=lvlmax):
-                    i.lvl = i.lvl - 1
-                    i.save()
-        if updated_menu.url[-1] != '/':
-            updated_menu.url = updated_menu.url + '/'
-
-        if self.request.POST.get('status', ''):
-            updated_menu.status = 'on'
-
-        updated_menu.save()
-        return JsonResponse({
-            "error": False
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class DeleteMenuView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_admin or request.user.has_perm('content_manager'):
-            menu = get_object_or_404(Menu, id=kwargs.get('pk'))
-            menu.delete()
-            return HttpResponseRedirect(reverse('micro_admin:list_menu'))
-        raise Http404("Oops! Unable to delete the menu")
-
-
-class ChangeMenuStatusView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        menu = get_object_or_404(Menu, pk=kwargs.get('pk'))
-        if menu.status == "on":
-            menu.status = "off"
-        else:
-            menu.status = "on"
-        menu.save()
-        return HttpResponseRedirect(reverse('micro_admin:list_menu'))
-
-
-class MenuOrderView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        curr_link = get_object_or_404(Menu, pk=kwargs.get('pk'))
-        link_parent = curr_link.parent
-        if self.request.GET.get('mode') == 'down':
-            lvlmax = Menu.objects.filter(
-                parent=kwargs.get('pk')).aggregate(Max('lvl'))['lvl__max']
-            if lvlmax == curr_link.lvl:
-                data = {'error': True, 'message': 'You cant move down.'}
-            count = Menu.objects.all().count()
-            if count == curr_link.lvl:
-                data = {'error': True, 'message': 'You cant move down.'}
-            else:
-                try:
-                    down_link = Menu.objects.get(
-                        parent=link_parent, lvl=curr_link.lvl + 1)
-                    curr_link.lvl = curr_link.lvl + 1
-                    down_link.lvl = down_link.lvl - 1
-                    curr_link.save()
-                    down_link.save()
-                except ObjectDoesNotExist:
-                    pass
-                data = {'error': False}
-        else:
-            count = Menu.objects.all().count()
-            if curr_link.lvl == 1:
-                data = {'error': True, 'message': 'You cant move up.'}
-            else:
-                try:
-                    up_link = Menu.objects.get(
-                        parent=link_parent, lvl=curr_link.lvl - 1)
-                    curr_link.lvl = curr_link.lvl - 1
-                    up_link.lvl = up_link.lvl + 1
-                    curr_link.save()
-                    up_link.save()
-                except ObjectDoesNotExist:
-                    pass
-                data = {'error': False}
-        return HttpResponse(
-            json.dumps(data), content_type='application/json; charset=utf-8')
-
-
-class PageListView(LoginRequiredMixin, ListView):
-    model = Page
-    template_name = "contentmanagement/pages/list.html"
-    context_object_name = 'pages_list'
-
-    def get_queryset(self):
-        return Page.objects.all().order_by('id')
-
-    def get_context_data(self, **kwargs):
-        context = super(PageListView, self).get_context_data(**kwargs)
-        context['HTTP_HOST'] = self.request.META.get('HTTP_HOST')
-        return context
-
-
-class AddPageView(LoginRequiredMixin, CreateView):
-    form_class = PageForm
-    template_name = "contentmanagement/pages/add.html"
-
-    def form_valid(self, form):
-        form.save()
-        return JsonResponse({
-            "error": False})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class UpdatePageView(LoginRequiredMixin, ContentManagerRequiredMixin, UpdateView):
-    pk_url_kwarg = 'pk'
-    model = Page
-    form_class = PageForm
-    context_object_name = 'current_page'
-    template_name = "contentmanagement/pages/add.html"
-
-    def form_valid(self, form):
-        form.save()
-        return JsonResponse({
-            "error": False
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class DeletePageView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_admin or request.user.has_perm('content_manager'):
-            page = get_object_or_404(Page, id=kwargs.get('pk'))
-            page.delete()
-            return HttpResponseRedirect(reverse('micro_admin:list_page'))
-        raise Http404("Oops! Unable to delete the page")
-
-
-class ChangePageStatusView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        page = get_object_or_404(Page, pk=kwargs.get('pk'))
-        if page.is_active:
-            page.is_active = False
-        else:
-            page.is_active = True
-        page.save()
-        return HttpResponseRedirect(reverse('micro_admin:list_page'))

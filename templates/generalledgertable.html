@@ -23,7 +23,9 @@
         {% for row in list %}
         <tr>
           <td><b>{{ forloop.counter }}</b></td>
+          {% if not pagesize %}
           <td><a href="{% url 'micro_admin:viewdaybook' %}?date={{row.date|date:'Y-m-d'}}" style="color:#337ab7;">{{ row.date }}</a></td>
+          {% endif %}
           <td>{% if row.sum_sharecapital_amount %}{{ row.sum_sharecapital_amount|floatformat:2}}{% else %}-{% endif %}</td>
           <td>{% if row.sum_entrancefee_amount %}{{ row.sum_entrancefee_amount|floatformat:2}}{% else %}-{% endif %}</td>
           <td>{% if row.sum_membershipfee_amount %}{{ row.sum_membershipfee_amount|floatformat:2 }}{% else %}-{% endif %}</td>
