@@ -538,6 +538,8 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
 
         client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
         group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
+        group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
+        client_savings_account = SavingsAccount.objects.filter(client=client).last()
         count = 0
         if group_loan_accounts:
             for group_loan_account in group_loan_accounts:
@@ -551,6 +553,14 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
                         return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
                 else:
                     raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
+        elif group_savings_account and client_savings_account:
+            if  client_savings_account.savings_balance == 0:
+                group.clients.remove(client)
+                client.status = "UnAssigned"
+                client.save()
+                return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+            else:
+                raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
         else:
             group.clients.remove(client)
             client.status = "UnAssigned"
