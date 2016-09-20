@@ -247,48 +247,27 @@ class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         client = self.get_object()
-        if client.is_active and not client.group_set.all():
+        if client.is_active:
             count = 0
             loans = LoanAccount.objects.filter(client=client)
             savings_account = SavingsAccount.objects.filter(client=client).last()
-            for loan in loans:
-                if loan.status == "Closed":
-                    count += 1
-                    if count == group_loan_accounts:
-                        client.is_active = False
-                        client.save()
-                        return HttpResponseRedirect(reverse("micro_admin:viewclient"))
-                    else:
-                        raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
-            if savings_account and savings_account.savings_balance == 0:
-                client.is_active = False
-                client.save()
-                return HttpResponseRedirect(reverse("micro_admin:viewclient"))
-            else:
-                raise Http404("Oops! Member is involved in Savings Account, Unable to delete.")
-        elif client.is_active and client.group_set.all():
-            group = client.group_set.all().last()
-            group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
-            group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
-            client_savings_account = SavingsAccount.objects.filter(client=client).last()
-            count = 0
-            if group_loan_accounts:
-                for group_loan_account in group_loan_accounts:
-                    if GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
-                        count += 1
-                        if count == group_loan_accounts:
-                            client.is_active = False
-                            client.save()
-                            return HttpResponseRedirect(reverse("micro_admin:viewclient"))
-                    else:
-                        raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
-            elif group_savings_account and client_savings_account:
-                if  client_savings_account.savings_balance == 0:
+            if loans or savings_account:
+                if loans:
+                    for loan in loans:
+                        if loan.status == "Closed":
+                            count += 1
+                            if count == group_loan_accounts:
+                                client.is_active = False
+                                client.save()
+                                return HttpResponseRedirect(reverse("micro_admin:viewclient"))
+                        else:
+                            raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
+                if savings_account and savings_account.savings_balance == 0:
                     client.is_active = False
                     client.save()
                     return HttpResponseRedirect(reverse("micro_admin:viewclient"))
                 else:
-                    raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
+                    raise Http404("Oops! Member is involved in Savings Account, Unable to delete.")
             else:
                 client.is_active = False
                 client.save()
@@ -588,8 +567,8 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
                         return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
                 else:
                     raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
-        elif group_savings_account and client_savings_account:
-            if  client_savings_account.savings_balance == 0:
+        if group_savings_account and client_savings_account:
+            if client_savings_account.savings_balance == 0:
                 group.clients.remove(client)
                 client.status = "UnAssigned"
                 client.save()
