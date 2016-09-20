@@ -35,6 +35,8 @@ from micro_admin.forms import (
 from micro_admin.mixins import UserPermissionRequiredMixin, BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
 from django.db.models.aggregates import Max
 from django.contrib.auth.models import Permission, ContentType
+from weasyprint import HTML, CSS
+from django.template.loader import get_template
 
 
 
@@ -248,14 +250,28 @@ class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
         if client.is_active:
             count = 0
             loans = LoanAccount.objects.filter(client=client)
-            for loan in loans:
-                if loan.status == "Closed":
-                    count += 1
-            if count == loans.count():
+            savings_account = SavingsAccount.objects.filter(client=client).last()
+            if loans or savings_account:
+                if loans:
+                    for loan in loans:
+                        if loan.status == "Closed":
+                            count += 1
+                            if count == group_loan_accounts:
+                                client.is_active = False
+                                client.save()
+                                return HttpResponseRedirect(reverse("micro_admin:viewclient"))
+                        else:
+                            raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
+                if savings_account and savings_account.savings_balance == 0:
+                    client.is_active = False
+                    client.save()
+                    return HttpResponseRedirect(reverse("micro_admin:viewclient"))
+                else:
+                    raise Http404("Oops! Member is involved in Savings Account, Unable to delete.")
+            else:
                 client.is_active = False
                 client.save()
-            else:
-                raise Http404("Oops! Member is involved in loan, Unable to delete.")
+                return HttpResponseRedirect(reverse("micro_admin:viewclient"))
         else:
             client.is_active = True
             client.save()
@@ -536,6 +552,8 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
 
         client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
         group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
+        group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
+        client_savings_account = SavingsAccount.objects.filter(client=client).last()
         count = 0
         if group_loan_accounts:
             for group_loan_account in group_loan_accounts:
@@ -549,6 +567,14 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
                         return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
                 else:
                     raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
+        if group_savings_account and client_savings_account:
+            if client_savings_account.savings_balance == 0:
+                group.clients.remove(client)
+                client.status = "UnAssigned"
+                client.save()
+                return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+            else:
+                raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
         else:
             group.clients.remove(client)
             client.status = "UnAssigned"
@@ -1078,7 +1104,6 @@ class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
         general_ledger_list = general_ledger_function()
         print (general_ledger_list)
         try:
-            from django.template.loader import get_template
             template = get_template("pdfgeneral_ledger.html")
             context = Context(
                 {'pagesize': 'A4', "list": general_ledger_list,
@@ -1102,7 +1127,6 @@ class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
             # pdf.close()
             # os.remove("out.pdf")
             # return response
-            from weasyprint import HTML, CSS
             html_template = get_template("pdfgeneral_ledger.html")
             context = Context({
                'pagesize': 'A4',
@@ -1141,7 +1165,9 @@ class DayBookPdfDownload(LoginRequiredMixin, View):
         try:
             # template = get_template("pdf_daybook.html")
             context = Context(
-                {"receipts_list": receipts_list, "total_payments": total_payments,
+                {'pagesize': 'A4',
+                 "mediaroot": settings.MEDIA_ROOT,
+                 "receipts_list": receipts_list, "total_payments": total_payments,
                  "loans_list": loans_list, "selected_date": selected_date,
                  "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
                  "dict_payments": dict_payments, "dict": total_dict,
@@ -1167,7 +1193,7 @@ class DayBookPdfDownload(LoginRequiredMixin, View):
                     loanprocessingfee_amount_sum_list
                  }
             )
-            return render(request, 'pdf_daybook.html', context)
+            # return render(request, 'pdf_daybook.html', context)
             # html = template.render(context)
             # result = StringIO.StringIO()
             # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
@@ -1176,6 +1202,23 @@ class DayBookPdfDownload(LoginRequiredMixin, View):
             #                         content_type='application/pdf')
             # else:
             #     return HttpResponse('We had some errors')
+            html_template = get_template("pdf_daybook.html")
+            # context = Context({
+            #    'pagesize': 'A4',
+            #    "list": general_ledger_list,
+            #    "mediaroot": settings.MEDIA_ROOT
+            #    })
+            rendered_html = html_template.render(context).encode(encoding="UTF-8")
+            pdf_file = HTML(string=rendered_html).write_pdf(stylesheets=[CSS(settings.COMPRESS_ROOT + '/css/mf.css'), CSS(settings.COMPRESS_ROOT + '/css/pdf_stylesheet.css')])
+
+            http_response = HttpResponse(pdf_file, content_type='application/pdf')
+            http_response['Content-Disposition'] = 'filename="report.pdf"'
+
+            return http_response
+
+        except Exception as err:
+            errmsg = "%s" % (err)
+            return HttpResponse(errmsg)
         except Exception as err:
             errmsg = "%s" % (err)
             return HttpResponse(errmsg)
