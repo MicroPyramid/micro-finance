@@ -251,31 +251,32 @@ class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
             count = 0
             loans = LoanAccount.objects.filter(client=client)
             savings_account = SavingsAccount.objects.filter(client=client).last()
-            if loans or savings_account or (loans and savings_account):
+            if (loans and savings_account) or savings_account or loans:
                 if loans and savings_account:
                     if savings_account and savings_account.savings_balance != 0:
                         raise Http404("Oops! Member is involved in savings, Unable to delete.")
-                    elif loans and loans.count() != loans.filter(status='Closed').count():
+                    # elif loans and loans.count() != loans.filter(status='Closed').count():
+                    elif loans and loans.count() != loans.filter(total_loan_balance=0).count():
                         raise Http404("Oops! Member is involved in loan, Unable to delete.")
                     else:
                         client.is_active = False
                         client.save()
                         # return HttpResponseRedirect(reverse("micro_admin:viewclient")
-                elif loans:
-                    for loan in loans:
-                        if loan.status == "Closed":
-                            count += 1
-                            if count == loans.count():
-                                client.is_active = False
-                                client.save()
-                        else:
-                            raise Http404("Oops! Member is involved in loan, Unable to delete.")
                 elif savings_account:
                     if savings_account.savings_balance != 0:
                         raise Http404("Oops! Member is involved in savings, Unable to delete.")
                     else:
                         client.is_active = False
                         client.save()
+                elif loans:
+                    for loan in loans:
+                        if loan.total_loan_balance == 0:
+                            count += 1
+                            if count == loans.count():
+                                client.is_active = False
+                                client.save()
+                        else:
+                            raise Http404("Oops! Member is involved in loan, Unable to delete.")
                 else:
                     client.is_active = True
                     client.save()
@@ -559,11 +560,11 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
         group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
         client_savings_account = SavingsAccount.objects.filter(client=client).last()
         count = 0
-        if group_loan_accounts or (group_savings_account and client_savings_account) or (group_loan_accounts or (group_savings_account and client_savings_account)):
+        if (group_loan_accounts and (group_savings_account and client_savings_account)) or (group_savings_account and client_savings_account) or group_loan_accounts:
             if group_loan_accounts and (client_savings_account and client_savings_account):
                 if client_savings_account.savings_balance != 0:
                     raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
-                elif group_loan_accounts and group_loan_accounts.count() != GroupMemberLoanAccount.objects.filter(group_loan_account__in=group_loan_accounts, client=client, status="Closed").count():
+                elif group_loan_accounts and group_loan_accounts.count() != GroupMemberLoanAccount.objects.filter(group_loan_account__in=group_loan_accounts, client=client, total_loan_balance=0).count():
                     raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
                 else:
                     group.clients.remove(client)
@@ -579,7 +580,8 @@ class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, Upd
                 #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
             elif group_loan_accounts:
                 for group_loan_account in group_loan_accounts:
-                    if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
+                    # if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
+                    if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, total_loan_balance=0).exists():
                         raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
                     else:
                         count += 1
