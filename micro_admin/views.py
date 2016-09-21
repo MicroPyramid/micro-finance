@@ -280,6 +280,9 @@ class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
                 else:
                     client.is_active = True
                     client.save()
+            else:
+                client.is_active = False
+                client.save()
         return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
 # ------------------------------------------- #
