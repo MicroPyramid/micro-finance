@@ -5,3 +5,4 @@ libxslt1-dev
 libffi-dev
 libcairo2-dev
 libpq-dev
+libjpeg8-dev
