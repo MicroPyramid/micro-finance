@@ -27,4 +27,6 @@ How to deploy?
 * do necessary changes to settings.py
 * configure nginx with uwsgi for production on server or you can run inside virtualenv for development purposes.
 
+Visit our Django Web Development page `Here`_
 
+.. _Here: https://micropyramid.com/django-development-services/
