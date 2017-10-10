@@ -24,8 +24,7 @@ class ClientLoanAccountsView(LoginRequiredMixin, FormView):
             loan_accounts_filter = LoanAccount.objects.filter(
                 client=form.client,
                 status='Approved'
-            ).filter(Q(total_loan_balance__gt=0) | Q(interest_charged__gt=0)).exclude(loan_issued_by__isnull=True,
-                      loan_issued_date__isnull=True)
+            ).filter(Q(total_loan_balance__gt=0) | Q(interest_charged__gt=0)).exclude(loan_issued_by__isnull=True, loan_issued_date__isnull=True)
             member_loan_has_payments = []
             for loan in loan_accounts_filter:
                 payments = Payments.objects.filter(client=form.client, loan_account=loan)

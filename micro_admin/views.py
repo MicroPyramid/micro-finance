@@ -1,4 +1,3 @@
-import json
 import datetime
 import decimal
 # import csv
@@ -7,10 +6,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth import login, authenticate, logout
 # from django.views.generic.detail import BaseDetailView
-from django.contrib.auth.decorators import login_required
 # from django.utils.encoding import smart_str
 from django.template import Context
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, UpdateView, View
 from django.views.generic import ListView, DetailView, RedirectView, FormView
@@ -39,7 +36,6 @@ from weasyprint import HTML, CSS
 from django.template.loader import get_template
 
 
-
 d = decimal.Decimal
 
 
@@ -48,7 +44,7 @@ class IndexView(View):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated():
             return render(request, "index.html", {"user": request.user})
-        return render(request, "login.html")
+        return render(request, "login.html", {})
 
 
 class LoginView(View):
