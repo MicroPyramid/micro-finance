@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permission
-from django.template.defaultfilters import slugify
 
 
 GENDER_TYPES = (
@@ -183,16 +182,11 @@ class Client(models.Model):
     is_active = models.BooleanField(default=True)
     branch = models.ForeignKey(Branch)
     status = models.CharField(max_length=50, default="UnAssigned", null=True)
-    sharecapital_amount = models.DecimalField(
-        max_digits=19, decimal_places=6, default=0)
-    entrancefee_amount = models.DecimalField(
-        max_digits=19, decimal_places=6, default=0)
-    membershipfee_amount = models.DecimalField(
-        max_digits=19, decimal_places=6, default=0)
-    bookfee_amount = models.DecimalField(
-        max_digits=19, decimal_places=6, default=0)
-    insurance_amount = models.DecimalField(
-        max_digits=19, decimal_places=6, default=0)
+    sharecapital_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    entrancefee_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    membershipfee_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    bookfee_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
+    insurance_amount = models.DecimalField(max_digits=19, decimal_places=6, default=0)
 
     def __unicode__(self):
         return self.first_name + ' ' + self.last_name
