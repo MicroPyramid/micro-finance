@@ -15,7 +15,7 @@ class UpdateClientProfileForm(forms.Form):
 
     def __init__(self, instance, *args, **kwargs):
         super(UpdateClientProfileForm, self).__init__(*args, **kwargs)
-        
+
 
 class BranchForm(forms.ModelForm):
 
