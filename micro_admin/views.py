@@ -23,18 +23,16 @@ from django.db.models import Sum
 
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
-    LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES, ClientBranchTransfer, GroupMemberLoanAccount)
+    LoanAccount, Receipts, FixedDeposits, Payments,
+    RecurringDeposits, USER_ROLES, GroupMemberLoanAccount)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
-    ReceiptForm, FixedDepositForm, PaymentForm,
-    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, UpdateClientProfileForm)
-from micro_admin.mixins import UserPermissionRequiredMixin, BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
-from django.db.models.aggregates import Max
+    FixedDepositForm, ReccuringDepositForm, ChangePasswordForm,
+    GroupMeetingsForm, UpdateClientProfileForm)
+from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
 from django.contrib.auth.models import Permission, ContentType
 from weasyprint import HTML, CSS
 from django.template.loader import get_template
-
 
 d = decimal.Decimal
 
