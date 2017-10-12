@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, render
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.views.generic import CreateView, UpdateView, DetailView, ListView
@@ -14,51 +14,31 @@ d = decimal.Decimal
 
 
 # Client Savings
-class ClientSavingsApplicationView(LoginRequiredMixin, CreateView):
-    model = SavingsAccount
-    form_class = SavingsAccountForm
-    template_name = "client/savings/application.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
-        if SavingsAccount.objects.filter(client=self.client).exists():
-            return HttpResponseRedirect(reverse("savings:clientsavingsaccount",
-                                                kwargs={'client_id': self.client.id}))
-        return super(ClientSavingsApplicationView, self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(ClientSavingsApplicationView, self).get_context_data(**kwargs)
-        context["client"] = self.client
-        context["account_no"] = unique_random_number(SavingsAccount)
-        return context
-
-    def form_valid(self, form):
-        obj_sav_acc = form.save(commit=False)
-        obj_sav_acc.status = "Applied"
-        obj_sav_acc.created_by = self.request.user
-        obj_sav_acc.client = self.client
-        obj_sav_acc.save()
-        return JsonResponse({"error": False, "client_id": self.client.id})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+def client_savings_application_view(request, client_id):
+    client = get_object_or_404(Client, id=client_id)
+    form = SavingsAccountForm()
+    if SavingsAccount.objects.filter(client=client).exists():
+        return HttpResponseRedirect(reverse(request, "savings:clientsavingsaccount", {'client_id': client.id}))
+    if request.method == 'POST':
+        form = SavingsAccountForm(request.POST)
+        if form.is_valid():
+            obj_sav_acc = form.save(commit=False)
+            obj_sav_acc.status = "Applied"
+            obj_sav_acc.created_by = request.user
+            obj_sav_acc.client = client
+            obj_sav_acc.save()
+            return JsonResponse({"error": False, "client_id": client.id})
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+    else:
+        account_no = unique_random_number(SavingsAccount)
+        return render(request, "client/savings/application.html", {'client': client, 'account_no': account_no})
 
 
-class ClientSavingsAccountView(LoginRequiredMixin, DetailView):
-    model = SavingsAccount
-    context_object_name = "savingsaccount"
-    template_name = "client/savings/account.html"
-
-    def get_object(self):
-        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        self.object = get_object_or_404(SavingsAccount, client=self.client)
-        return self.object
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        context["client"] = self.client
-        return self.render_to_response(context)
+def client_savings_accountview(request, client_id):
+    client = get_object_or_404(Client, id=client_id)
+    account_object = get_object_or_404(SavingsAccount, client=client)
+    return render(request, "client/savings/account.html", {'client': client, 'account_object': account_object})
 
 
 class ClientSavingsDepositsListView(LoginRequiredMixin, ListView):
