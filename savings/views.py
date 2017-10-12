@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, JsonResponse, render
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.views.generic import CreateView, UpdateView, DetailView, ListView
 from micro_admin.models import Group, Client, SavingsAccount, Receipts, Payments
@@ -35,7 +35,7 @@ def client_savings_application_view(request, client_id):
         return render(request, "client/savings/application.html", {'client': client, 'account_no': account_no})
 
 
-def client_savings_accountview(request, client_id):
+def client_savings_account_view(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     account_object = get_object_or_404(SavingsAccount, client=client)
     return render(request, "client/savings/account.html", {'client': client, 'account_object': account_object})

@@ -3,8 +3,8 @@ from savings.views import *
 
 urlpatterns = [
     # Client Savings
-    url(r'^client/(?P<client_id>\d+)/savings/application/$', ClientSavingsApplicationView.as_view(), name='clientsavingsapplication'),
-    url(r'^client/(?P<client_id>\d+)/savings/account/view/$', ClientSavingsAccountView.as_view(), name='clientsavingsaccount'),
+    url(r'^client/(?P<client_id>\d+)/savings/application/$', client_savings_application_view, name='clientsavingsapplication'),
+    url(r'^client/(?P<client_id>\d+)/savings/account/view/$', client_savings_account_view, name='clientsavingsaccount'),
     url(r'^client/(?P<client_id>\d+)/savings/deposits/list/$', ClientSavingsDepositsListView.as_view(), name='listofclientsavingsdeposits'),
     url(r'^client/(?P<client_id>\d+)/savings/withdrawals/list/$', ClientSavingsWithdrawalsListView.as_view(), name='listofclientsavingswithdrawals'),
 
