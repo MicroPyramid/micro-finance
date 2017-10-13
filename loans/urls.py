@@ -19,8 +19,9 @@ urlpatterns = [
         r'^client/(?P<client_id>\d+)/loan/(?P<loanaccount_id>\d+)/ledger/download/pdf/$', client_ledger_pdf_download,
         name="clientledgerpdfdownload"),
     url(r'^group/(?P<group_id>\d+)/loan/apply/$', group_loan_application, name='grouploanapplication'),
+    url(r'^group/(?P<group_id>\d+)/loans/list/$', group_loan_list, name="grouploanaccountslist"),
     url(r'^group/loan/(?P<pk>\d+)/view/$', group_loan_account, name='grouploanaccount'),
-    url(r'^loan/(?P<loanaccount_id>\d+)/issue/$', issue_loan, name='issueloan'),
     url(r'^group/(?P<group_id>\d+)/loan/(?P<loanaccount_id>\d+)/deposits/list/$', group_loan_deposits_list, name='viewgrouploandeposits'),
     url(r'^loan/(?P<pk>\d+)/change-status/$', change_loan_account_status, name='change_loan_account_status'),
+    url(r'^loan/(?P<loanaccount_id>\d+)/issue/$', issue_loan, name='issueloan'),
 ]
