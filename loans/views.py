@@ -288,7 +288,10 @@ def client_ledger_pdf_download(request, client_id, loanaccount_id):
         demand_loaninterest_amount_atinstant=0
     )
     try:
-        context = Context({
+        # context = Context({
+        #     'pagesize': 'A4', "receipts_list": receipts_list,
+        #     "client": client, "mediaroot": settings.MEDIA_ROOT})
+        context = dict({
             'pagesize': 'A4', "receipts_list": receipts_list,
             "client": client, "mediaroot": settings.MEDIA_ROOT})
         return render(request, 'pdfledger.html', context)
