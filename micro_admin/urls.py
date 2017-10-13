@@ -3,16 +3,16 @@ from micro_admin.views import *
 
 urlpatterns = [
 
-    url(r'^$', IndexView.as_view(), name='microadmin_index'),
-    url(r'^login/$', LoginView.as_view(), name='login'),
-    url(r'^logout/$', LogoutView.as_view(), name="logout"),
+    url(r'^$', index, name='microadmin_index'),
+    url(r'^login/$', getin, name='login'),
+    url(r'^logout/$', getout, name="logout"),
     # ------------------------------------------- #
     # Branch model urls
-    url(r'^branch/create/$', CreateBranchView.as_view(), name='createbranch'),
-    url(r'^branch/edit/(?P<pk>\d+)/$', UpdateBranchView.as_view(), name='editbranch'),
-    url(r'^branch/view/$', BranchListView.as_view(), name='viewbranch'),
-    url(r'^branch/delete/(?P<pk>\d+)/$', BranchInactiveView.as_view(), name='deletebranch'),
-    url(r'^branch/profile/(?P<pk>\d+)/$', BranchProfileView.as_view(), name='branchprofile'),
+    url(r'^branch/create/$', create_branch_view, name='createbranch'),
+    url(r'^branch/edit/(?P<pk>\d+)/$', update_branch_view, name='editbranch'),
+    url(r'^branch/view/$', branch_list_view, name='viewbranch'),
+    url(r'^branch/delete/(?P<pk>\d+)/$', branch_inactive_view, name='deletebranch'),
+    url(r'^branch/profile/(?P<pk>\d+)/$', branch_profile_view, name='branchprofile'),
     # ------------------------------------------- #
     # User model urls
     url(r'^user/edit/(?P<pk>\d+)/$', UpdateUserView.as_view(), name='edituser'),
