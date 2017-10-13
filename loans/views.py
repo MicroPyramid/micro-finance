@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.template import Context
 from micro_admin.models import User, Group, Client, LoanAccount, Receipts, GroupMemberLoanAccount, LoanRepaymentEvery, Payments
-# from django.views.generic import CreateView, DetailView, ListView, View
 from micro_admin.forms import LoanAccountForm
 from core.utils import send_email_template, unique_random_number
 from django.utils.encoding import smart_str
@@ -187,7 +186,7 @@ def client_ledger_csv_download(request, client_id, loanaccount_id):
         return HttpResponse(errmsg)
 
 
-def client_ledger_excel_download(request, loanaccount_id, client_id):
+def client_ledger_excel_download(request, client_id, loanaccount_id):
     client = get_object_or_404(Client, id=client_id)
     loanaccount = get_object_or_404(LoanAccount, id=loanaccount_id)
     receipts_list = Receipts.objects.filter(
@@ -387,8 +386,8 @@ def group_loan_application(request, group_id):
     return render(request, 'group/loan/application.html', context)
 
 
-def group_loan_list(request, client_id):
-    group = get_object_or_404(Group, id=client_id)
+def group_loan_list(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
     queryset = LoanAccount.objects.filter(group=group)
     context = {'loan_accounts_list': queryset, 'group': group}
     return render(request, 'group/loan/list_of_loan_accounts.html', context)
