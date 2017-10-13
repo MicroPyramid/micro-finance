@@ -30,22 +30,22 @@ urlpatterns = [
     url(r'^client/profile/update/(?P<pk>\d+)/$', updateclientprofileview, name='updateclientprofile'),
     # ------------------------------------------- #
     # Group
-    url(r'^group/create/$', CreateGroupView.as_view(), name='creategroup'),
-    url(r'^group/(?P<group_id>\d+)/profile/$', GroupProfileView.as_view(), name='groupprofile'),
-    url(r'^groups/list/$', GroupsListView.as_view(), name='groupslist'),
-    url(r'^group/(?P<group_id>\d+)/delete/$', GroupInactiveView.as_view(), name='deletegroup'),
+    url(r'^group/create/$', create_group_view, name='creategroup'),
+    url(r'^group/(?P<group_id>\d+)/profile/$', group_profile_view, name='groupprofile'),
+    url(r'^groups/list/$', groups_list_view, name='groupslist'),
+    url(r'^group/(?P<group_id>\d+)/delete/$', group_inactive_view, name='deletegroup'),
 
     # Group - Assign Staff
-    url(r'^group/(?P<group_id>\d+)/assign-staff/$', GroupAssignStaffView.as_view(), name='assignstaff'),
+    url(r'^group/(?P<group_id>\d+)/assign-staff/$', group_assign_staff_view, name='assignstaff'),
 
     # Group Members (add, remove, view)
-    url(r'^group/(?P<group_id>\d+)/members/add/$', GroupAddMembersView.as_view(), name='addmember'),
-    url(r'^group/(?P<group_id>\d+)/members/list/$', GroupMembersListView.as_view(), name='viewmembers'),
-    url(r'^group/(?P<group_id>\d+)/member/(?P<client_id>\d+)/remove/$', GroupRemoveMembersView.as_view(), name='removemember'),
+    url(r'^group/(?P<group_id>\d+)/members/add/$', group_add_members_view, name='addmember'),
+    url(r'^group/(?P<group_id>\d+)/members/list/$', group_members_list_view, name='viewmembers'),
+    url(r'^group/(?P<group_id>\d+)/member/(?P<client_id>\d+)/remove/$', group_remove_members_view, name='removemember'),
 
     # Group Meeting (list, add)
-    url(r'^group/(?P<group_id>\d+)/meetings/list/$', GroupMeetingsListView.as_view(), name='groupmeetings'),
-    url(r'^group/(?P<group_id>\d+)/meetings/add/$', GroupMeetingsAddView.as_view(), name='addgroupmeeting'),
+    url(r'^group/(?P<group_id>\d+)/meetings/list/$', group_meetings_list_view, name='groupmeetings'),
+    url(r'^group/(?P<group_id>\d+)/meetings/add/$', group_meetings_add_view, name='addgroupmeeting'),
 
     # Receipts(create, list)
     # url(r'^receiptsdeposit/$', receipts_deposit, name="receiptsdeposit"),
@@ -69,4 +69,3 @@ urlpatterns = [
     url(r'^daybookpdfdownload/(?P<date>\d{4}-\d{2}-\d{2})/$', DayBookPdfDownload.as_view(), name="daybookpdfdownload"),
     url(r'^userchangepassword/$', UserChangePassword.as_view(), name="userchangepassword"),
 ]
-
