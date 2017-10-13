@@ -55,27 +55,36 @@
             </tr>
             <tr class="wid-tab">
               <th>Branch</th>
-              <td>{{ selecteduser.branch.name|capfirst }}
+              {% if selecteduser.branch %}
+              <td>{{ selecteduser.branch.name|capfirst }} {% else %} Not specified {% endif %}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>Role</th>
+              {% if selecteduser.user_roles %}
               <td>{{ selecteduser.user_roles }}
+              {% else %}
+              Not specififed
+              {% endif %}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>District</th>
-              <td>{% if selecteduser.district %}{{ selecteduser.district|capfirst }}{% else %} None {% endif %}
+              <td>{% if selecteduser.district %}{{ selecteduser.district|capfirst }}{% else %} Not specified {% endif %}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>City</th>
-              <td>{% if selecteduser.city %}{{ selecteduser.city|capfirst }}{% else %} None {% endif %}
+              <td>{% if selecteduser.city %}{{ selecteduser.city|capfirst }}{% else %} Not specified {% endif %}
               </td>
             </tr>
             <tr class="wid-tab">
               <th>Mobile Number</th>
+              {% if selecteduser.mobile %}
               <td>{{ selecteduser.mobile }}
+              {% else %}
+               Not specified
+              {% endif %}
               </td>
             </tr>
           </tbody>

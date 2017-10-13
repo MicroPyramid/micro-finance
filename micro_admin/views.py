@@ -1050,10 +1050,14 @@ class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
         print (general_ledger_list)
         try:
             template = get_template("pdfgeneral_ledger.html")
-            context = Context(
+            # context = Context(
+            #     {'pagesize': 'A4', "list": general_ledger_list,
+            #      "mediaroot": settings.MEDIA_ROOT})
+            context = dict(
                 {'pagesize': 'A4', "list": general_ledger_list,
                  "mediaroot": settings.MEDIA_ROOT})
-            # return render(request, 'pdfgeneral_ledger.html', context)
+            # return render(request, 'pdfgeneral_ledg
+            # # return render(request, 'pdfgeneral_ledger.html', context)
             # html = template.render(context)
             # result = StringIO.StringIO()
             # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
@@ -1073,7 +1077,7 @@ class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
             # os.remove("out.pdf")
             # return response
             html_template = get_template("pdfgeneral_ledger.html")
-            context = Context({
+            context = dict({
                'pagesize': 'A4',
                "list": general_ledger_list,
                "mediaroot": settings.MEDIA_ROOT
@@ -1109,7 +1113,7 @@ class DayBookPdfDownload(LoginRequiredMixin, View):
 
         try:
             # template = get_template("pdf_daybook.html")
-            context = Context(
+            context = dict(
                 {'pagesize': 'A4',
                  "mediaroot": settings.MEDIA_ROOT,
                  "receipts_list": receipts_list, "total_payments": total_payments,

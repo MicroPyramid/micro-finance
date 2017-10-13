@@ -69,4 +69,3 @@ urlpatterns = [
     url(r'^daybookpdfdownload/(?P<date>\d{4}-\d{2}-\d{2})/$', DayBookPdfDownload.as_view(), name="daybookpdfdownload"),
     url(r'^userchangepassword/$', UserChangePassword.as_view(), name="userchangepassword"),
 ]
-

@@ -93,15 +93,15 @@
             $('#'+key).after("<span class='error' style='height:11px;color:red;'>" + value + "</span>");
           });
         }
-          if(data.error && data.error_message){
-            $("#account_no").after("<span class='error' style='height:11px;color:red;'>" + data.error_message + "</span>")
-          }
         }
         else {
           alert("Group Loan Application submitted sucessfully");
           url = "{% url 'loans:grouploanaccount' 1 %}".replace(1, data.loanaccount_id)
           window.location = url;
         }
+          if(data.error && data.error_message){
+            $("#account_no").after("<span class='error' style='height:11px;color:red;'>" + data.error_message + "</span>")
+          }
       }, "json");
     });
     $('.cancel-btn').click(function(e){
