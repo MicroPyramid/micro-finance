@@ -21,7 +21,8 @@ def send_email_template(subject, template_name, ctx, receipient):
         template = get_template(template_name)
     except TemplateDoesNotExist:
         template = None
-    message = template.render(Context(ctx)) if template else ''
+    # message = template.render(Context(ctx)) if template else ''
+    message = template.render(dict(ctx)) if template else ''
     if template and message:
         return send_html_email(subject, message, receipient)
     return False

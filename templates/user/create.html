@@ -156,7 +156,6 @@
 <script type="text/javascript" src="https://select2.github.io/dist/js/select2.full.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-    $(".js-example-basic-multiple").select2();
     $('#createuserform').submit(function(e) {
       e.preventDefault();
       $("span.error").remove();
@@ -175,6 +174,7 @@
           window.location = data.success_url;
         }
       }, "json");
+    $(".js-example-basic-multiple").select2();
     });
     $('.cancel-btn').click(function(e){
       $("span.error").remove();
