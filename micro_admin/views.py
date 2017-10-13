@@ -2,7 +2,7 @@ import datetime
 import decimal
 # import csv
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth import login, authenticate, logout
 # from django.views.generic.detail import BaseDetailView
@@ -37,17 +37,14 @@ from django.template.loader import get_template
 d = decimal.Decimal
 
 
-class IndexView(View):
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            return render(request, "index.html", {"user": request.user})
-        return render(request, "login.html", {})
+def index(request):
+    if request.user.is_authenticated():
+        return render(request, "index.html", {"user": request.user})
+    return render(request, "login.html", {})
 
 
-class LoginView(View):
-
-    def post(self, request):
+def getin(request):
+    if request.method == 'POST':
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(username=username, password=password)
@@ -60,84 +57,70 @@ class LoginView(View):
         else:
             data = {"error": True, "errors": "Username and Password were incorrect."}
         return JsonResponse(data)
-
-    def get(self, request):
+    else:
         if request.user.is_authenticated():
             return render(request, 'index.html', {'user': request.user})
         return render(request, "login.html")
 
 
-class LogoutView(RedirectView):
-    pattern_name = "micro_admin:login"
-
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return super(LogoutView, self).get(request, *args, **kwargs)
+def getout(request):
+    logout(request)
+    return redirect("micro_admin:login")
 
 
 # --------------------------------------------------- #
 # Branch Model class Based View #
-class CreateBranchView(LoginRequiredMixin, CreateView):
-    form_class = BranchForm
-    template_name = "branch/create.html"
-
-    def form_valid(self, form):
-        branch = form.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class UpdateBranchView(LoginRequiredMixin, UpdateView):
-    pk = 'pk'
-    model = Branch
-    form_class = BranchForm
-    template_name = "branch/edit.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        # Checking the permissions
-        if not self.request.user.is_admin:
-            return HttpResponseRedirect(reverse("micro_admin:viewbranch"))
-
-        return super(UpdateBranchView, self).dispatch(
-            request, *args, **kwargs)
-
-    def form_valid(self, form):
-        branch = form.save()
-        return JsonResponse({
-            "error": False, "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+def create_branch_view(request):
+    form = BranchForm()
+    if request.method == 'POST':
+        form = BranchForm(request.POST)
+        if form.is_valid():
+            branch = form.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:branchprofile', {"pk": branch.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "branch/create.html", {'form': form})
 
 
-class BranchProfileView(LoginRequiredMixin, DetailView):
-    model = Branch
-    pk = 'pk'
-    template_name = "branch/view.html"
+def update_branch_view(request, pk):
+    form = BranchForm()
+    if not request.user.is_admin:
+        return HttpResponseRedirect(reverse("micro_admin:viewbranch"))
+    if request.method == 'POST':
+        form = BranchForm(request.POST, id=pk)
+        if form.is_valid():
+            branch = form.save()
+            return JsonResponse({
+                "error": False, "success_url": reverse('micro_admin:branchprofile', {"pk": branch.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+
+    return render(request, "branch/edit.html", {'form': form})
 
 
-class BranchListView(LoginRequiredMixin, ListView):
-    model = Branch
-    template_name = "branch/list.html"
+def branch_profile_view(request, pk):
+    branch = get_object_or_404(Branch, id=pk)
+    return render(request, "branch/view.html", {'branch': branch})
 
 
-class BranchInactiveView(LoginRequiredMixin, View):
+def branch_list_view(request):
+    branch = Branch.objects.all()
+    return render(request, "branch/view.html", {'branch': branch})
 
-    def get(self, request, *args, **kwargs):
-        if request.user.is_admin:
-            branch = get_object_or_404(Branch, id=kwargs.get('pk'))
-            if branch.is_active:
-                branch.is_active = False
-            else:
-                branch.is_active = True
-            branch.save()
-        return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
+
+def branch_inactive_view(request, pk):
+    if request.user.is_admin:
+        branch = get_object_or_404(Branch, id=pk)
+        if branch.is_active:
+            branch.is_active = False
+        else:
+            branch.is_active = True
+        branch.save()
+    return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
 # --------------------------------------------------- #
 
 
