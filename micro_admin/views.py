@@ -126,252 +126,205 @@ def branch_inactive_view(request, pk):
 
 # --------------------------------------------------- #
 # Clinet model views
-class CreateClientView(LoginRequiredMixin, CreateView):
-    form_class = ClientForm
-    template_name = "client/create.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(CreateClientView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        context['client_roles'] = dict(CLIENT_ROLES).keys()
-        return context
-
-    def form_valid(self, form):
-        client = form.save(commit=False)
-        client.created_by = self.request.user
-        client.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+def create_client_view(request):
+    branches = Branch.objects.all()
+    form = ClientForm()
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            client = form.save(commit=False)
+            client.created_by = request.user
+            client.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:clientprofile', {"pk": client.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "client/create.html", {'branches': branches, 'client_roles': CLIENT_ROLES})
 
 
-class ClienProfileView(LoginRequiredMixin, DetailView):
-    pk = 'pk'
-    model = Client
-    template_name = "client/profile.html"
+def client_profile_view(request, pk):
+    client = get_object_or_404(Client, id=pk)
+    return render(request, "client/profile.html", {'client': client})
 
 
-class UpdateClientView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    pk = 'pk'
-    model = Client
-    form_class = ClientForm
-    template_name = "client/edit.html"
-
-    def get_form_kwargs(self):
-        kwargs = super(UpdateClientView, self).get_form_kwargs()
-        client_obj = get_object_or_404(Client, pk=self.kwargs.get('pk'))
-        kwargs.update({'user': self.request.user, 'client': client_obj})
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super(UpdateClientView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        context['client_roles'] = dict(CLIENT_ROLES).keys()
-        return context
-
-    def form_valid(self, form):
-        # if not (request.user.is_admin or request.user.branch == client.branch):
-        #     return HttpResponseRedirect(reverse('micro_admin:viewclient'))
-        client = form.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+def update_client_view(request, pk):
+    form = ClientForm()
+    branches = Branch.objects.all()
+    client_obj = get_object_or_404(Client, id=pk)
+    if request.method == 'POST':
+        form = ClientForm(request.POST, user=request.user, client=client_obj)
+        if form.is_valid():
+            client = form.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "client/edit.html", {'branches': branches, 'client_roles': CLIENT_ROLES})
 
 
-class UpdateClientProfileView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    pk = 'pk'
-    model = Client
-    form_class = UpdateClientProfileForm
-    template_name = "client/update-profile.html"
+def updateclientprofileview(request, pk):
+    form = UpdateClientProfileForm()
+    client_obj = get_object_or_404(Client, pk=pk)
+    if request.method == 'POST':
+        form = UpdateClientProfileForm(request.POST)
+        if form.is_valid():
+            client_obj.photo = request.FILES.get("photo")
+            client_obj.signature = request.FILES.get("signature")
+            client_obj.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:clientprofile', {"pk": client_obj.id})
+            })
+        else:
+            data = {"error": True, "errors": form.errors}
+            return JsonResponse(data)
 
-    def get_context_data(self, **kwargs):
-        context = super(UpdateClientProfileView, self).get_context_data(**kwargs)
-        context['photo'] = str(self.object.photo).split('/')[-1] if self.object.photo else None
-        context['signature'] = str(self.object.signature).split('/')[-1] if self.object.signature else None
-        return context
+    photo = str(client_obj.photo).split('/')[-1] if client_obj.photo else None
+    signature = str(client_obj.signature).split('/')[-1] if client_obj.signature else None
 
-    def form_valid(self, form):
-        self.object.photo = self.request.FILES.get("photo")
-        self.object.signature = self.request.FILES.get("signature")
-        self.object.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": self.object.id})
-        })
-
-    def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
-        return JsonResponse(data)
+    return render(request, "client/update-profile.html", {
+        'form': form, 'photo': photo, 'signature': signature})
 
 
-class ClientsListView(LoginRequiredMixin, ListView):
-    model = Client
-    template_name = "client/list.html"
+def clients_list_view(request):
+    client = Client.objects.all()
+    return render(request, "client/list.html", {'client': client})
 
 
-class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
-
-    def get_object(self):
-        return get_object_or_404(Client, id=self.kwargs.get('pk'))
-
-    def get(self, request, *args, **kwargs):
-        client = self.get_object()
-        if client.is_active:
-            count = 0
-            loans = LoanAccount.objects.filter(client=client)
-            savings_account = SavingsAccount.objects.filter(client=client).last()
-            if (loans and savings_account) or savings_account or loans:
-                if loans and savings_account:
-                    if savings_account and savings_account.savings_balance != 0:
-                        raise Http404("Oops! Member is involved in savings, Unable to delete.")
-                    # elif loans and loans.count() != loans.filter(status='Closed').count():
-                    elif loans and loans.count() != loans.filter(total_loan_balance=0).count():
-                        raise Http404("Oops! Member is involved in loan, Unable to delete.")
-                    else:
-                        client.is_active = False
-                        client.save()
-                        # return HttpResponseRedirect(reverse("micro_admin:viewclient")
-                elif savings_account:
-                    if savings_account.savings_balance != 0:
-                        raise Http404("Oops! Member is involved in savings, Unable to delete.")
-                    else:
-                        client.is_active = False
-                        client.save()
-                elif loans:
-                    for loan in loans:
-                        if loan.total_loan_balance == 0:
-                            count += 1
-                            if count == loans.count():
-                                client.is_active = False
-                                client.save()
-                        else:
-                            raise Http404("Oops! Member is involved in loan, Unable to delete.")
+def client_inactive_view(request, pk):
+    client = get_object_or_404(Client, id=pk)
+    if client.is_active:
+        count = 0
+        loans = LoanAccount.objects.filter(client=client)
+        savings_account = SavingsAccount.objects.filter(client=client).last()
+        if (loans and savings_account) or savings_account or loans:
+            if loans and savings_account:
+                if savings_account and savings_account.savings_balance != 0:
+                    raise Http404("Oops! Member is involved in savings, Unable to delete.")
+                # elif loans and loans.count() != loans.filter(status='Closed').count():
+                elif loans and loans.count() != loans.filter(total_loan_balance=0).count():
+                    raise Http404("Oops! Member is involved in loan, Unable to delete.")
                 else:
-                    client.is_active = True
+                    client.is_active = False
                     client.save()
+                    # return HttpResponseRedirect(reverse("micro_admin:viewclient")
+            elif savings_account:
+                if savings_account.savings_balance != 0:
+                    raise Http404("Oops! Member is involved in savings, Unable to delete.")
+                else:
+                    client.is_active = False
+                    client.save()
+            elif loans:
+                for loan in loans:
+                    if loan.total_loan_balance == 0:
+                        count += 1
+                        if count == loans.count():
+                            client.is_active = False
+                            client.save()
+                    else:
+                        raise Http404("Oops! Member is involved in loan, Unable to delete.")
             else:
-                client.is_active = False
+                client.is_active = True
                 client.save()
-        return HttpResponseRedirect(reverse("micro_admin:viewclient"))
+        else:
+            client.is_active = False
+            client.save()
+    return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
 # ------------------------------------------- #
 # User Model views
-class CreateUserView(LoginRequiredMixin, CreateView):
-    form_class = UserForm
-    template_name = "user/create.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(CreateUserView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        context['userroles'] = dict(USER_ROLES).keys()
-        contenttype = ContentType.objects.get_for_model(self.request.user)
-        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
-        context['permissions'] = permissions
-        return context
-
-    def form_valid(self, form):
-        user = form.save()
-        if len(self.request.POST.getlist("user_permissions")):
-            user.user_permissions.add(
-                *self.request.POST.getlist("user_permissions"))
-        if self.request.POST.get("user_roles") == "BranchManager":
-            if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
-                user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
 
 
-class UpdateUserView(LoginRequiredMixin, UpdateView):
-    pk_url_kwarg = 'pk'
-    model = User
-    form_class = UserForm
-    context_object_name = 'selecteduser'
-    template_name = "user/edit.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(UpdateUserView, self).get_context_data(**kwargs)
-        context['branch'] = Branch.objects.all()
-        context['userroles'] = dict(USER_ROLES).keys()
-        contenttype = ContentType.objects.get_for_model(self.request.user)
-        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
-        context['permissions'] = permissions
-        return context
-
-    def form_valid(self, form):
-        selected_user = User.objects.get(id=self.kwargs.get('pk'))
-        if not (
-           self.request.user.is_admin or self.request.user == selected_user or
-           (
-               self.request.user.has_perm("branch_manager") and
-               self.request.user.branch == selected_user.branch
-           )):
-            return JsonResponse({
-                "error": True,
-                "message": "You are unbale to Edit this staff details.",
-                "success_url": reverse('micro_admin:userslist')
-            })
-        else:
+def create_user_view(request):
+    branches = Branch.objects.all()
+    contenttype = ContentType.objects.get_for_model(request.user)
+    permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
+    form = UserForm()
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
             user = form.save()
-            user.user_permissions.clear()
-            user.user_permissions.add(
-                *self.request.POST.getlist("user_permissions"))
-            if self.request.POST.get("user_roles") == "BranchManager":
-                if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
+            if len(request.POST.getlist("user_permissions")):
+                user.user_permissions.add(
+                    *request.POST.getlist("user_permissions"))
+            if request.POST.get("user_roles") == "BranchManager":
+                if not user.user_permissions.filter(id__in=request.POST.getlist("user_permissions")).exists():
                     user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
-
             return JsonResponse({
                 "error": False,
                 "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
             })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
 
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class UserProfileView(LoginRequiredMixin, DetailView):
-    pk = 'pk'
-    model = User
-    context_object_name = 'selecteduser'
-    template_name = "user/profile.html"
+    return render(request, "user/create.html", {
+        'form': form, 'userroles': USER_ROLES, 'branches': branches, 'permissions': permissions})
 
 
-class UsersListView(LoginRequiredMixin, ListView):
-    model = User
-    template_name = "user/list.html"
-    context_object_name = 'list_of_users'
-
-    def get_queryset(self):
-        return User.objects.filter(is_admin=0)
-
-
-class UserInactiveView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        user = get_object_or_404(User, id=kwargs.get('pk'))
-        if (
-            request.user.is_admin or
-            (request.user.has_perm("branch_manager") and
-             request.user.branch == user.branch)
-        ):
-            if user.is_active:
-                user.is_active = False
+def update_user_view(request, pk):
+    branch = Branch.objects.all()
+    contenttype = ContentType.objects.get_for_model(request.user)
+    permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
+    form = UserForm()
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            selected_user = User.objects.get(id=pk)
+            if not (
+               request.user.is_admin or request.user == selected_user or
+               (
+                   request.user.has_perm("branch_manager") and
+                   request.user.branch == selected_user.branch
+               )):
+                return JsonResponse({
+                    "error": True,
+                    "message": "You are unbale to Edit this staff details.",
+                    "success_url": reverse('micro_admin:userslist')
+                })
             else:
-                user.is_active = True
-            user.save()
-        return HttpResponseRedirect(reverse('micro_admin:userslist'))
+                user = form.save()
+                user.user_permissions.clear()
+                user.user_permissions.add(*request.POST.getlist("user_permissions"))
+                if request.POST.get("user_roles") == "BranchManager":
+                    if not user.user_permissions.filter(id__in=request.POST.getlist("user_permissions")).exists():
+                        user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
+
+                return JsonResponse({
+                    "error": False,
+                    "success_url": reverse('micro_admin:userprofile', {"pk": user.id})
+                })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+
+    return render(request, "user/edit.html", {
+        'form': form, 'userroles': USER_ROLES, 'branch': branch, 'permissions': permissions})
+
+
+def user_profile_view(request, pk):
+    user = get_object_or_404(User, id=pk)
+    return render(request, "user/profile.html", {'user': user})
+
+
+def users_list_view(request):
+    user = User.objects.filter(is_admin=0)
+    return render(request, "user/list.html", {'user': user})
+
+
+def user_inactive_view(request, pk):
+    user = get_object_or_404(User, id=pk)
+    if (request.user.is_admin or (request.user.has_perm("branch_manager") and
+                                  request.user.branch == user.branch)):
+        if user.is_active:
+            user.is_active = False
+        else:
+            user.is_active = True
+        user.save()
+    return HttpResponseRedirect(reverse('micro_admin:userslist'))
+
 # ------------------------------------------------- #
 
 
@@ -387,7 +340,7 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         group = form.save(commit=False)
-        group.created_by = self.request.user
+        group.created_by = request.user
         group.save()
         return JsonResponse({
             "error": False,

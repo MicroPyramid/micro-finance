@@ -15,19 +15,19 @@ urlpatterns = [
     url(r'^branch/profile/(?P<pk>\d+)/$', branch_profile_view, name='branchprofile'),
     # ------------------------------------------- #
     # User model urls
-    url(r'^user/edit/(?P<pk>\d+)/$', UpdateUserView.as_view(), name='edituser'),
-    url(r'^user/create/$', CreateUserView.as_view(), name='createuser'),
-    url(r'^user/profile/(?P<pk>\d+)/$', UserProfileView.as_view(), name='userprofile'),
-    url(r'^users/list/$', UsersListView.as_view(), name='userslist'),
-    url(r'^user/delete/(?P<pk>\d+)/$', UserInactiveView.as_view(), name='deleteuser'),
+    url(r'^users/list/$', users_list_view, name='userslist'),
+    url(r'^user/create/$', create_user_view, name='createuser'),
+    url(r'^user/edit/(?P<pk>\d+)/$', update_user_view, name='edituser'),
+    url(r'^user/profile/(?P<pk>\d+)/$', user_profile_view, name='userprofile'),
+    url(r'^user/delete/(?P<pk>\d+)/$', user_inactive_view, name='deleteuser'),
     # ------------------------------------------- #
     # Client model urls
-    url(r'^client/create/$', CreateClientView.as_view(), name='createclient'),
-    url(r'^client/edit/(?P<pk>\d+)/$', UpdateClientView.as_view(), name='editclient'),
-    url(r'^clients/list/$', ClientsListView.as_view(), name='viewclient'),
-    url(r'^client/profile/(?P<pk>\d+)/$', ClienProfileView.as_view(), name='clientprofile'),
-    url(r'^client/delete/(?P<pk>\d+)/$', ClientInactiveView.as_view(), name='deleteclient'),
-    url(r'^client/profile/update/(?P<pk>\d+)/$', UpdateClientProfileView.as_view(), name='updateclientprofile'),
+    url(r'^clients/list/$', clients_list_view, name='viewclient'),
+    url(r'^client/create/$', create_client_view, name='createclient'),
+    url(r'^client/edit/(?P<pk>\d+)/$', update_client_view, name='editclient'),
+    url(r'^client/delete/(?P<pk>\d+)/$', client_inactive_view, name='deleteclient'),
+    url(r'^client/profile/(?P<pk>\d+)/$', client_profile_view, name='clientprofile'),
+    url(r'^client/profile/update/(?P<pk>\d+)/$', updateclientprofileview, name='updateclientprofile'),
     # ------------------------------------------- #
     # Group
     url(r'^group/create/$', CreateGroupView.as_view(), name='creategroup'),
