@@ -1,5 +1,4 @@
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-# from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.template import Context
@@ -19,6 +18,7 @@ d = decimal.Decimal
 def client_loan_application(request, client_id):
     form = LoanAccountForm()
     client = get_object_or_404(Client, id=client_id)
+    group = Group.objects.filter(clients__id__in=client_id).first()
     account_no = unique_random_number(LoanAccount)
     loan_pay = LoanRepaymentEvery.objects.all()
     if request.method == 'POST':
@@ -47,6 +47,8 @@ def client_loan_application(request, client_id):
                     loan_account.interest_charged)
             )
             loan_account.total_loan_balance = d(d(loan_account.loan_amount))
+            if group:
+                loan_account.group = group
             loan_account.save()
 
             if client.email and client.email.strip():
@@ -78,8 +80,8 @@ def client_loan_list(request, client_id):
     })
 
 
-def client_loan_account(request, loan_id):
-    loan_account = LoanAccount.objects.get(id=loan_id)
+def client_loan_account(request, pk):
+    loan_account = LoanAccount.objects.get(id=pk)
     loan_disbursements = Payments.objects.filter(loan_account=loan_account)
     no_of_repayments_completed = int((loan_account.no_of_repayments_completed) / (loan_account.loan_repayment_every))
     context = {
@@ -297,6 +299,8 @@ def client_ledger_pdf_download(request, client_id, loanaccount_id):
 
 def group_loan_application(request, group_id):
     group = get_object_or_404(Group, id=group_id)
+    account_no = unique_random_number(LoanAccount)
+    loan_repayment_every = LoanRepaymentEvery.objects.all()
     form = LoanAccountForm()
     if request.method == 'POST':
         form = LoanAccountForm(request.POST)
@@ -379,10 +383,10 @@ def group_loan_application(request, group_id):
                 return JsonResponse({"error": True, "error_message": "Group does not contains any members."})
         else:
             return JsonResponse({"error": True, "message": form.errors})
-    context = {'form': form}
-    context["account_no"] = unique_random_number(LoanAccount)
-    context["loan_repayment_every"] = LoanRepaymentEvery.objects.all()
-    context["group"] = group
+    context = {
+        'form': form, 'group': group, 'account_no': account_no,
+        'loan_repayment_every': loan_repayment_every
+    }
     return render(request, 'group/loan/application.html', context)
 
 
@@ -426,9 +430,9 @@ def group_loan_deposits_list(request, loanaccount_id, group_id):
     return render(request, 'group/loan/list_of_loan_deposits.html', context)
 
 
-def change_loan_account_status(request, loanaccount_id):
-    if request.method == 'POST':
-        loan_object = get_object_or_404(LoanAccount, id=loanaccount_id)
+def change_loan_account_status(request, pk):
+    # if request.method == 'POST':
+        loan_object = get_object_or_404(LoanAccount, id=pk)
         if loan_object:
             branch_id = loan_object.group.branch.id
         elif loan_object.client:
@@ -443,7 +447,7 @@ def change_loan_account_status(request, loanaccount_id):
                 if status in ['Closed', 'Withdrawn', 'Rejected', 'Approved']:
                     loan_object.status = request.GET.get("status")
                     loan_object.approved_date = datetime.datetime.now()
-                    loan_object.object.save()
+                    loan_object.save()
                     if loan_object.client:
                         if loan_object.status == 'Approved':
                             if loan_object.client.email and loan_object.client.email.strip():
