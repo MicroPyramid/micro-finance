@@ -328,240 +328,175 @@ def user_inactive_view(request, pk):
 # ------------------------------------------------- #
 
 
-class CreateGroupView(LoginRequiredMixin, CreateView):
-    model = Group
-    form_class = GroupForm
-    template_name = "group/create.html"
+def create_group_view(request):
+    branches = Branch.objects.all()
+    form = GroupForm()
+    if request.method == 'POST':
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            group = form.save(commit=False)
+            group.created_by = request.user
+            group.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:groupprofile', {"group_id": group.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
 
-    def get_context_data(self, **kwargs):
-        context = super(CreateGroupView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        return context
+    return render(request, "group/create.html", {'form': form, 'branches': branches})
 
-    def form_valid(self, form):
-        group = form.save(commit=False)
-        group.created_by = request.user
+
+def group_profile_view(request, group_id):
+    group_obj = Group.objects.filter(id=group_id)
+    clients_list = group_obj.clients.all()
+    group_mettings = GroupMeetings.objects.filter(group_id=group_obj.id).order_by('-id')
+    clients_count = len(clients_list)
+    latest_group_meeting = group_mettings.first() if group_mettings else None
+    return render(request, "group/profile.html", {
+        'clients_list': clients_list, 'clients_count': clients_count, 'latest_group_meeting': latest_group_meeting})
+
+
+def groups_list_view(request):
+    groups_list = Group.objects.all().prefetch_related("clients", "staff", "branch")
+
+    return render(request, "group/list.html", {'groups_list': groups_list})
+
+
+def group_inactive_view(request, group_id):
+    group = Group.objects.filter(id=group_id)
+    if (
+        LoanAccount.objects.filter(
+            group=group, status="Approved"
+        ).exclude(
+            total_loan_balance=0
+        ).count() or not group.is_active
+    ):
+        # TODO: Add message saying that, this group
+        # has pending loans or already in-active.
+        pass
+    else:
+        group.is_active = False
         group.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+    return HttpResponseRedirect(reverse('micro_admin:groupslist'))
 
 
-class GroupProfileView(LoginRequiredMixin, DetailView):
-    pk_url_kwarg = 'group_id'
-    model = Group
-    context_object_name = 'group'
-    template_name = "group/profile.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupProfileView, self).get_context_data(**kwargs)
-        clients_list = self.object.clients.all()
-        group_mettings = GroupMeetings.objects.filter(group_id=self.object.id).order_by('-id')
-
-        context["clients_list"] = clients_list
-        context["clients_count"] = len(clients_list)
-        context["latest_group_meeting"] = group_mettings.first() if group_mettings else None
-        return context
-
-
-class GroupAssignStaffView(LoginRequiredMixin, BranchAccessRequiredMixin, DetailView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-    context_object_name = 'group'
-    template_name = "group/assign_staff.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupAssignStaffView, self).get_context_data(**kwargs)
-        context["users_list"] = User.objects.filter(is_admin=0)
-        return context
-
-    def post(self, request, *args, **kwargs):
-        group = self.get_object()
+def group_assign_staff_view(request, group_id):
+    group = Group.objects.filter(id=group_id)
+    users_list = User.objects.filter(is_admin=0)
+    if request.method == 'POST':
         if request.POST.get("staff"):
             group.staff = get_object_or_404(User, id=request.POST.get("staff"))
             group.save()
             data = {
                 "error": False,
-                "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
+                "success_url": reverse('micro_admin:groupprofile', {"group_id": group.id})
             }
         else:
             data = {"error": True, "message": {"staff": "This field is required"}}
         return JsonResponse(data)
 
+    return render(request, "group/assign_staff.html", {'users_list': users_list})
 
-class GroupAddMembersView(LoginRequiredMixin, BranchAccessRequiredMixin, UpdateView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-    context_object_name = 'group'
-    form_class = AddMemberForm
-    template_name = "group/add_member.html"
 
-    def get_context_data(self, **kwargs):
-        context = super(GroupAddMembersView, self).get_context_data(**kwargs)
-        context["clients_list"] = Client.objects.filter(status="UnAssigned", is_active=1)
-        return context
+def group_add_members_view(request, group_id):
+    form = AddMemberForm()
+    clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
+    group = Group.objects.filter(id=group_id)
+    if request.method == 'POST':
+        form = AddMemberForm(request.POST)
+        if form.is_valid():
+            client_ids = request.POST.getlist("clients")
+            for client_id in client_ids:
+                try:
+                    client = Client.objects.get(id=client_id, status="UnAssigned", is_active=1)
+                except Client.DoesNotExist:
+                    continue
+                else:
+                    group.clients.add(client)
+                    group.save()
+                    client.status = "Assigned"
+                    client.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:groupprofile', {"group_id": group.id})
+            })
+        else:
+            return JsonResponse({"error": True, "message": form.errors})
 
-    def form_valid(self, form):
-        group = self.object
-        client_ids = self.request.POST.getlist("clients")
-        for client_id in client_ids:
-            try:
-                client = Client.objects.get(id=client_id, status="UnAssigned", is_active=1)
-            except Client.DoesNotExist:
-                continue
+    return render(request, "group/add_member.html", {'form': form, 'clients_list': clients_list})
+
+
+def group_members_list_view(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    clients_list = group.clients.all()
+
+    return render(request, "group/view-members.html", {'group': group, 'clients_list': clients_list})
+
+
+def group_remove_members_view(request, group_id, client_id):
+    group = Group.objects.filter(id=group_id)
+    client = get_object_or_404(Client, id=client_id)
+    group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
+    group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
+    client_savings_account = SavingsAccount.objects.filter(client=client).last()
+    count = 0
+    if (group_loan_accounts and (group_savings_account and client_savings_account)) or\
+            (group_savings_account and client_savings_account) or group_loan_accounts:
+        if group_loan_accounts and (client_savings_account and client_savings_account):
+            if client_savings_account.savings_balance != 0:
+                raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
+            elif group_loan_accounts and group_loan_accounts.count() != GroupMemberLoanAccount.objects.filter(
+                    group_loan_account__in=group_loan_accounts, client=client, total_loan_balance=0).count():
+                raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
             else:
-                group.clients.add(client)
-                group.save()
-                client.status = "Assigned"
+                group.clients.remove(client)
+                client.status = "UnAssigned"
                 client.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "message": form.errors})
-
-
-class GroupMembersListView(LoginRequiredMixin, ListView):
-    template_name = "group/view-members.html"
-    context_object_name = 'clients_list'
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupMembersListView, self).get_context_data(**kwargs)
-        context["group"] = self.group
-        return context
-
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        return self.group.clients.all()
-
-
-class GroupsListView(LoginRequiredMixin, ListView):
-    model = Group
-    template_name = "group/list.html"
-    context_object_name = 'groups_list'
-
-    def get_queryset(self):
-        query_set = super(GroupsListView, self).get_queryset()
-        return query_set.select_related("staff", "branch").prefetch_related("clients")
-
-
-class GroupInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-
-    def get(self, request, *args, **kwargs):
-        if not hasattr(self, 'object'):
-            group = self.get_object()
-        else:
-            group = self.object
-
-        if (
-            LoanAccount.objects.filter(
-                group=group, status="Approved"
-            ).exclude(
-                total_loan_balance=0
-            ).count() or not group.is_active
-        ):
-            # TODO: Add message saying that, this group
-            # has pending loans or already in-active.
-            pass
-        else:
-            group.is_active = False
-            group.save()
-        return HttpResponseRedirect(reverse('micro_admin:groupslist'))
-
-
-class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-    context_object_name = 'group'
-
-    def get(self, request, *args, **kwargs):
-        if not hasattr(self, 'object'):
-            group = self.get_object()
-        else:
-            group = self.object
-
-        client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
-        group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
-        group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
-        client_savings_account = SavingsAccount.objects.filter(client=client).last()
-        count = 0
-        if (group_loan_accounts and (group_savings_account and client_savings_account)) or (group_savings_account and client_savings_account) or group_loan_accounts:
-            if group_loan_accounts and (client_savings_account and client_savings_account):
-                if client_savings_account.savings_balance != 0:
-                    raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
-                elif group_loan_accounts and group_loan_accounts.count() != GroupMemberLoanAccount.objects.filter(group_loan_account__in=group_loan_accounts, client=client, total_loan_balance=0).count():
+        elif group_savings_account and client_savings_account:
+            if not client_savings_account.savings_balance == 0:
+                raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
+            else:
+                group.clients.remove(client)
+                client.status = "UnAssigned"
+                client.save()
+            #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+        elif group_loan_accounts:
+            for group_loan_account in group_loan_accounts:
+                # if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
+                if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, total_loan_balance=0).exists():
                     raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
                 else:
-                    group.clients.remove(client)
-                    client.status = "UnAssigned"
-                    client.save()
-            elif group_savings_account and client_savings_account:
-                if not client_savings_account.savings_balance == 0:
-                    raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
-                else:
-                    group.clients.remove(client)
-                    client.status = "UnAssigned"
-                    client.save()
-                #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
-            elif group_loan_accounts:
-                for group_loan_account in group_loan_accounts:
-                    # if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
-                    if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, total_loan_balance=0).exists():
-                        raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
-                    else:
-                        count += 1
-                        if count == group_loan_accounts:
+                    count += 1
+                    if count == group_loan_accounts:
 
-                            group.clients.remove(client)
-                            client.status = "UnAssigned"
-                            client.save()
-                        #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
-        return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+                        group.clients.remove(client)
+                        client.status = "UnAssigned"
+                        client.save()
+                    #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+    return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
 
 
-class GroupMeetingsListView(LoginRequiredMixin, ListView):
-    model = GroupMeetings
-    template_name = "group/meetings/list.html"
-    context_object_name = 'group_meetings'
+def group_meetings_list_view(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    group_meetings = GroupMeetings.objects.filter(group=group).order_by('-id')
 
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        query_set = super(GroupMeetingsListView, self).get_queryset()
-        return query_set.filter(group=self.group).order_by('-id')
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupMeetingsListView, self).get_context_data(**kwargs)
-        context["group"] = self.group
-        return context
+    return render(request, "group/meetings/list.html", {'group': group, 'group_meetings': group_meetings})
 
 
-class GroupMeetingsAddView(LoginRequiredMixin, CreateView):
-    model = GroupMeetings
-    form_class = GroupMeetingsForm
-    template_name = "group/meetings/add.html"
+def group_meetings_add_view(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    if request.method == 'POST':
+        form = GroupMeetingsForm(request.POST)
+        if form.is_valid():
+            meeting = form.save(commit=False)
+            meeting.group = group
+            meeting.save()
+            return JsonResponse({"error": False, "group_id": group.id})
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
 
-    def get_context_data(self, **kwargs):
-        context = super(GroupMeetingsAddView, self).get_context_data(**kwargs)
-        context["group"] = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        return context
-
-    def form_valid(self, form):
-        group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        meeting = form.save(commit=False)
-        meeting.group = group
-        meeting.save()
-        return JsonResponse({"error": False, "group_id": group.id})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "group/meetings/add.html", {'group': group})
 
 
 class ReceiptsList(LoginRequiredMixin, ListView):
