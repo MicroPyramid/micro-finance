@@ -40,7 +40,7 @@ d = decimal.Decimal
 def index(request):
     if request.user.is_authenticated():
         return render(request, "index.html", {"user": request.user})
-    return render(request, "login.html", {})
+    return render(request, "login.html")
 
 
 def getin(request):
@@ -108,8 +108,8 @@ def branch_profile_view(request, pk):
 
 
 def branch_list_view(request):
-    branch = Branch.objects.all()
-    return render(request, "branch/view.html", {'branch': branch})
+    branch_list = Branch.objects.all()
+    return render(request, "branch/list.html", {'branch_list': branch_list})
 
 
 def branch_inactive_view(request, pk):
@@ -191,8 +191,8 @@ def updateclientprofileview(request, pk):
 
 
 def clients_list_view(request):
-    client = Client.objects.all()
-    return render(request, "client/list.html", {'client': client})
+    client_list = Client.objects.all()
+    return render(request, "client/list.html", {'client_list': client_list})
 
 
 def client_inactive_view(request, pk):
@@ -305,13 +305,13 @@ def update_user_view(request, pk):
 
 
 def user_profile_view(request, pk):
-    user = get_object_or_404(User, id=pk)
-    return render(request, "user/profile.html", {'user': user})
+    selecteduser = get_object_or_404(User, id=pk)
+    return render(request, "user/profile.html", {'selecteduser': selecteduser})
 
 
 def users_list_view(request):
-    user = User.objects.filter(is_admin=0)
-    return render(request, "user/list.html", {'user': user})
+    list_of_users = User.objects.filter(is_admin=0)
+    return render(request, "user/list.html", {'list_of_users': list_of_users})
 
 
 def user_inactive_view(request, pk):
@@ -348,13 +348,14 @@ def create_group_view(request):
 
 
 def group_profile_view(request, group_id):
-    group_obj = Group.objects.filter(id=group_id)
+    group_obj = Group.objects.filter(id=group_id).first()
+    print(group_obj)
     clients_list = group_obj.clients.all()
     group_mettings = GroupMeetings.objects.filter(group_id=group_obj.id).order_by('-id')
     clients_count = len(clients_list)
     latest_group_meeting = group_mettings.first() if group_mettings else None
     return render(request, "group/profile.html", {
-        'clients_list': clients_list, 'clients_count': clients_count, 'latest_group_meeting': latest_group_meeting})
+        'clients_list': clients_list, 'clients_count': clients_count, 'latest_group_meeting': latest_group_meeting, 'group': group_obj})
 
 
 def groups_list_view(request):
@@ -402,7 +403,7 @@ def group_assign_staff_view(request, group_id):
 def group_add_members_view(request, group_id):
     form = AddMemberForm()
     clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
-    group = Group.objects.filter(id=group_id)
+    group = Group.objects.filter(id=group_id).first()
     if request.method == 'POST':
         form = AddMemberForm(request.POST)
         if form.is_valid():
@@ -424,7 +425,7 @@ def group_add_members_view(request, group_id):
         else:
             return JsonResponse({"error": True, "message": form.errors})
 
-    return render(request, "group/add_member.html", {'form': form, 'clients_list': clients_list})
+    return render(request, "group/add_member.html", {'form': form, 'clients_list': clients_list, 'group': group})
 
 
 def group_members_list_view(request, group_id):
