@@ -5,46 +5,102 @@
 {% block stage %}
 <!--content goes below-->
 <div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">Staff List</div>
-    <div class="panel-body pb-table">
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr class="head-row-tb">
-              <th>Staff Name</th>
-              <th>Role</th>
-              <th>Branch Name</th>
-              <th>Status</th>
-              {% if user.is_admin or user.user_roles == "BranchManager" %}
-                <th>Edit/Delete</th>
-              {% endif %}
-            </tr>
-          </thead>
-          <tbody class="body-row-tb">
-            {% for userobject in list_of_users %}
-            <tr>
-              <td><a href="{% url 'micro_admin:userprofile' userobject.id %}" style="color:#337ab7">
-              {{ userobject.first_name|capfirst }}</a></td>
-              <td>{{ userobject.user_roles }}</td>
-              <td><a href="{% url 'micro_admin:branchprofile' userobject.branch.id %}" style="color:#337ab7">{{ userobject.branch.name|capfirst }}</a></td>
-              {% if userobject.is_active %}
-              <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle green pad-lt"></i></a></td>
-              {% else %}
-              <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle red pad-lt"></i></a></td>
-              {% endif %}
-              {% if user.is_admin or user.user_roles == "BranchManager" %}
-                <td><a href="{% url 'micro_admin:edituser' userobject.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>{% if userobject.is_active %}<a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-trash-o trash-icon"></i></a>{% endif %}</td>
-              {% endif %}
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <div class="row search_list">
+    <div class="col">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search branch" aria-label="Username" aria-describedby="sizing-addon2"> <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
       </div>
     </div>
+    <div class="col">
+      <button type="button" class="pull-right branch">Create Staff</button>
+    </div>
   </div>
-  <!--form div ends above-->
+  <div class="row list_page_view">
+    <table class="table table-striped" data-tablesaw-mode="columntoggle" id="active_users">
+      <thead>
+        <tr>
+          <th width="20%" scope="col">Staff Name</th>
+          <th width="20%" scope="col">Role</th>
+          <th width="20%" scope="col">Branch Name</th>
+          <th width="20%" scope="col">Status</th>
+          {% if user.is_admin or user.user_roles == "BranchManager" %}
+            <th width="20%" scope="col">Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for userobject in list_of_users %}
+        <tr>
+          <td><a href="{% url 'micro_admin:userprofile' userobject.id %}" style="color:#337ab7">
+          {{ userobject.first_name|capfirst }}</a></td>
+          <td>{{ userobject.user_roles }}</td>
+          <td><a href="{% url 'micro_admin:branchprofile' userobject.branch.id %}" style="color:#337ab7">{{ userobject.branch.name|capfirst }}</a></td>
+          {% if userobject.is_active %}
+          <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle green"></i></a></td>
+          {% else %}
+          <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle red"></i></a></td>
+          {% endif %}
+          {% if user.is_admin or user.user_roles == "BranchManager" %}
+            <td>
+              <a href="{% url 'micro_admin:edituser' userobject.id %}"><i class="fa fa-eye" aria-hidden="true"></i></a>
+              <a href="{% url 'micro_admin:edituser' userobject.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+              {% if userobject.is_active %}
+                <a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+              {% endif %}
+            </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 <!--content ends above-->
 {% endblock %}
+
+
+<div class="container">
+  <div class="row search_list">
+    <div class="col">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search branch" aria-label="Username" aria-describedby="sizing-addon2"> <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
+      </div>
+    </div>
+    <div class="col">
+      <button type="button" class="pull-right branch">Create Branch</button>
+    </div>
+  </div>
+  <div class="row list_page_view">
+    <table class="table table-striped" data-tablesaw-mode="columntoggle" id="active_users">
+      <thead>
+        <tr>
+          <th width="20%" scope="col">Staff Name</th>
+          <th width="20%" scope="col">Role</th>
+          <th width="20%" scope="col">Branch Name</th>
+          <th width="20%" scope="col">Status</th>
+          {% if user.is_admin or user.user_roles == "BranchManager" %}
+            <th width="20%" scope="col">Edit/Delete</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for userobject in list_of_users %}
+        <tr>
+          <td><a href="{% url 'micro_admin:userprofile' userobject.id %}" style="color:#337ab7">
+          {{ userobject.first_name|capfirst }}</a></td>
+          <td>{{ userobject.user_roles }}</td>
+          <td><a href="{% url 'micro_admin:branchprofile' userobject.branch.id %}" style="color:#337ab7">{{ userobject.branch.name|capfirst }}</a></td>
+          {% if userobject.is_active %}
+          <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle green pad-lt"></i></a></td>
+          {% else %}
+          <td><a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-circle red pad-lt"></i></a></td>
+          {% endif %}
+          {% if user.is_admin or user.user_roles == "BranchManager" %}
+            <td><a href="{% url 'micro_admin:edituser' userobject.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>{% if userobject.is_active %}<a href="{% url 'micro_admin:deleteuser' userobject.id %}"><i class="fa fa-trash-o trash-icon"></i></a>{% endif %}</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
