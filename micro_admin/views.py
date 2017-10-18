@@ -68,6 +68,18 @@ def getout(request):
     return redirect("micro_admin:login")
 
 
+def transactions(request):
+    return render(request, "transactions.html")
+
+
+def deposits(request):
+    return render(request, "deposits.html")
+
+
+def accounts(request):
+    return render(request, "accounts.html")
+
+
 # --------------------------------------------------- #
 # Branch Model class Based View #
 def create_branch_view(request):
@@ -383,7 +395,7 @@ def group_inactive_view(request, group_id):
 
 
 def group_assign_staff_view(request, group_id):
-    group = Group.objects.filter(id=group_id)
+    group = Group.objects.filter(id=group_id).first()
     users_list = User.objects.filter(is_admin=0)
     if request.method == 'POST':
         if request.POST.get("staff"):
@@ -397,7 +409,7 @@ def group_assign_staff_view(request, group_id):
             data = {"error": True, "message": {"staff": "This field is required"}}
         return JsonResponse(data)
 
-    return render(request, "group/assign_staff.html", {'users_list': users_list})
+    return render(request, "group/assign_staff.html", {'users_list': users_list, 'group': group})
 
 
 def group_add_members_view(request, group_id):
