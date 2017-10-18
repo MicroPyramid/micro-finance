@@ -76,8 +76,8 @@ def deposits(request):
     return render(request, "deposits.html")
 
 
-def accounts(request):
-    return render(request, "accounts.html")
+def reports(request):
+    return render(request, "reports.html")
 
 
 # --------------------------------------------------- #
