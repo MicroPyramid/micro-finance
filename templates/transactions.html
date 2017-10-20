@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+<li>Transactions Page</li>
+{% endblock %}
+{% block stage %}
+<div class="banner">
+  <div class="banner_content">
+    <h3>Transactions</h3>
+    <div class="select_banner row">
+      <div class="col-5">
+        <button type="button" class="pull-right branch">Receipts</button>
+      </div>
+      <div class="col">
+        <span class="select_or">Or</span>
+      </div>
+      <div class="col-5">
+        <button type="button" class="pull-left branch">Payments</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock stage %}

@@ -1,173 +1,97 @@
 {% load compress %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MicroFinance</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-    <link href='http://fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/start/jquery-ui.min.css" />
-    <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <!-- your style sheet-->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Micro Finance</title>
+    <link href="https://fonts.googleapis.com/css?family=Muli:200,300,400,600,700,800,900" rel="stylesheet">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <script src="https://use.fontawesome.com/08c2e793c5.js"></script>
     {% compress css %}
-      <link type="text/css" rel="stylesheet" href="/static/css/mf.css" />
-      <link type="text/css" rel="stylesheet" href="/static/css/mf_res.css" />
-      <link type="text/css" rel="stylesheet" href="/static/css/mf_mob.css" />
+      <link href="/static/css/main.css" rel="stylesheet">
     {% endcompress %}
-    <!--your style sheet-->
   </head>
   <body>
-    <!--wrapper starts below-->
-    <div class="wrapper">
-      <!--container starts  below-->
-      <div class="container">
-        <!--slide-menu-->
-        <div class="menu-outer">
-          <div class="menu-icon">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
+    <header>
+      <div class="row nav-header">
+        <div class="col-2">
+          <div class="header-logo">
+          </div>
+          <div class="header-content">
+            <a href="#"> Micro Finance</a>
           </div>
         </div>
-        <a class="menu-close" onClick="return true">
-          <div class="menu-icon">
-            <div class="bar"></div>
-            <div class="bar"></div>
+        <div class="col">
+          <nav class="navbar navbar-expand-lg navbar-light ">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" href="#">HOME</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'micro_admin:viewbranch' %}">BRANCH</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'micro_admin:userslist' %}">STAFF</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link " href="{% url 'micro_admin:groupslist' %}">GROUP</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'micro_admin:viewclient' %}">MEMBERS</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'micro_admin:transactions' %}">TRANSACTIONS</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'micro_admin:deposits' %}">DEPOSITS</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'micro_admin:reports' %}">REPORTS</a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+        <div class="col-1">
+          <div class="notification">
+            <a href=""> <i class="fa fa-bell" aria-hidden="true"></i></a>
           </div>
-        </a>
-        <!--slide menu ends above-->
-      </div>
-      <!--container ends above-->
-      <!--nav bar starts below-->
-      <header>
-        <div class="container">
-          <!--nav bar-->
-          <div class="menuu">
-            <div class="bs-example box-menu">
-              <nav class="navbar navbar-default" role="navigation">
-                <div class="container-fluid">
-                  <!-- Brand and toggle get grouped for better mobile display -->
-                  <div class="navbar-header" id="nav-md">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    </button>
-                    <span class="logo-span">
-                      <a class="navbar-brand logo_nav" href="/">
-                        <h5>Micro Finance</h5>
-                      </a>
-                    </span>
-                  </div>
-                  <!-- Collect the nav links, forms, and other content for toggling -->
-                  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="col-lg-10 col-sm-12 col-md-12 nav navbar-nav navbar-right">
-                      <li><a href="{% url 'micro_admin:login' %}" class="menu-link home"><i class="fa fa-home padd"></i>Home</a></li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-sitemap padd"></i>Branch
-                        <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:createbranch' %}"><i class="fa fa-plus padd"></i>Create Branch</a></li>
-                          <li><a href="{% url 'micro_admin:viewbranch' %}"><i class="fa fa-eye padd"></i>View Branch</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user padd"></i>Staff
-                        <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:createuser' %}"><i class="fa fa-plus padd"></i>Create Staff</a>
-                          </li>
-                          <li><a href="{% url 'micro_admin:userslist' %}"><i class="fa fa-eye padd"></i>View Staff</a></li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-users users-icon padd"></i>Group <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:creategroup' %}"><i class="fa fa-plus padd"></i>Create Group</a></li>
-                          <li><a href="{% url 'micro_admin:groupslist' %}"><i class="fa fa-eye padd"></i>View Group</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-child mem-icon padd"></i>Member <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:createclient' %}"><i class="fa fa-plus padd"></i>Create Member</a></li>
-                          <li><a href="{% url 'micro_admin:viewclient' %}"><i class="fa fa-eye padd"></i>View Member</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-calculator padd"></i>Accounting <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:receiptslist' %}"><i class="fa fa-file-text-o padd"></i>Receipts</a></li>
-                          <li><a href="{% url 'micro_admin:paymentslist' %}"><i class="fa fa-money padd"></i>Payments</a></li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-money padd"></i>Deposits<span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:viewclientfixeddeposits' %}"><i class="fa fa-eye padd"></i>View Fixed Deposits</a></li>
-                          <li><a href="{% url 'micro_admin:viewclientrecurringdeposits' %}"><i class="fa fa-eye padd"></i>View Recurring Deposits </a></li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-file-text-o padd"></i>Reports <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:generalledger' %}"><i class="fa fa-calculator padd"></i>General Ledger</a></li>
-                          <li><a href="{% url 'micro_admin:viewdaybook' %}"><i class="fa fa-book padd"></i>Day Book</a></li>
-                        </ul>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user icon padd"></i>{{ request.user.username|capfirst }} <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="{% url 'micro_admin:userprofile' request.user.id %}"><i class="fa fa-user icon padd"></i>Profile</a></li>
-                          <li><a href="{% url 'micro_admin:userchangepassword'%}">
-                            <i class="fa fa-unlock-alt padd"></i>Change Password</a>
-                          </li>
-                          <li><a href="{% url 'micro_admin:logout' %}"><i class="fa fa-power-off icon padd"></i>Logout</a></li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </div>
-                  <!-- /.navbar-collapse -->
-                </div>
-                <!-- /.container-fluid -->
-              </nav>
+          <div class="profile">
+            <span class="profile_dropdown"><button class="profile_dropdown" 
+              type="button" id="dropdownMenu5" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle-o" aria-hidden="true"></i></button></span>
+            <div class="dropdown-menu profile_logout">
+              <a class="dropdown-item" href="{% url 'micro_admin:userprofile' request.user.id %}">Profile</a>
+              <a class="dropdown-item" href="{% url 'micro_admin:userchangepassword'%}">Change Password</a>
+              <a class="dropdown-item" href="{% url 'micro_admin:logout' %}">Logout</a>
             </div>
           </div>
-          <!--nav bar ends-->
         </div>
-        <!--nav bar ends above-->
-      </header>
-      {% block basebreadcrumb %}
+      </div>
+    </header>
+    {% block basebreadcrumb %}
       <div class="row marl bread-row">
         <div class="breadcrumbcontainer">
           <ol class="breadcrumb">
             <span>You are Here:</span> &nbsp;&nbsp;
-            <li><a href="{% url 'micro_admin:login' %}">Home</a></li>
+            <li><a href="{% url 'micro_admin:login' %}">Home</a>&nbsp;/</li> &nbsp;
             {% block breadcrumb %}
             {% endblock %}
           </ol>
         </div>
       </div>
-      {% endblock basebreadcrumb %}
-      <!--content goes below-->
-      {% block stage %}
-      {% endblock %}
-      <!--content ends above-->
-    </div>
-    <!--wrapper ends above-->
-    {% compress js %}
-      <script src="/static/js/mf_script.js"></script>
-    {% endcompress %}
+    {% endblock basebreadcrumb %}
+    {% block stage %}
+    {% endblock %}
+    {% block js %}
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    {% endblock js %}
   </body>
 </html>

@@ -3,53 +3,54 @@
 <li>Branches List</li>
 {% endblock %}
 {% block stage %}
-<!--content goes below-->
 <div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">View Branches</div>
-    <div class="panel-body pb-table">
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr class="head-row-tb">
-              <th>Branch Name</th>
-              <th>Opening Date</th>
-              <th>Phone Number</th>
-              <th>Status</th>
-              {% if user.is_admin %}
-              <th>Edit/Delete</th>
-              {% endif %}
-            </tr>
-          </thead>
-          <tbody class="body-row-tb">
-            {% for branch in branch_list %}
-            <tr>
-              <td><a href="{% url 'micro_admin:branchprofile' branch.id %}" style="color:#337ab7">{{ branch.name|capfirst }}</a></td>
-              <td>{{ branch.opening_date }}</td>
-              <td>{{ branch.phone_number }}</td>
-              {% if branch.is_active %}
-              <td><a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-circle icon-squa green pad-lt"></i></a></td>
-              {% else %}
-              <td><a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-circle icon-squa red pad-lt"></i></a></td>
-              {% endif %}
-              {% if user.is_admin %}
-              <td class="ed"> &nbsp;&nbsp;&nbsp;<a href="{% url 'micro_admin:editbranch' branch.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
-              {% if branch.is_active %}
-                <a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
-              {% endif %}
-              </td>
-              {% endif %}
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <div class="row search_list">
+    <div class="col">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search branch" aria-label="Username" aria-describedby="sizing-addon2"> <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
       </div>
     </div>
+    <div class="col">
+      <button type="button" class="pull-right branch">Create Branch</button>
+    </div>
   </div>
-  <!--form div ends above-->
+  <div class="row list_page_view">
+    <table class="table table-striped" data-tablesaw-mode="columntoggle" id="active_users">
+      <thead>
+        <tr>
+          <th width="20%" scope="col">Branch Name</th>
+          <th width="20%" scope="col">Opening Date</th>
+          <th width="20%" scope="col">Phone Number</th>
+          <th width="20%" scope="col">Status</th>
+          {% if user.is_admin %}
+          <th width="20%" scope="col">Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for branch in branch_list %}
+        <tr>
+          <td><a href="{% url 'micro_admin:branchprofile' branch.id %}" style="color:#337ab7">{{ branch.name|capfirst }}</a></td>
+          <td>{{ branch.opening_date }}</td>
+          <td>{{ branch.phone_number }}</td>
+          {% if branch.is_active %}
+          <td><a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-circle icon-squa green"></i></a></td>
+          {% else %}
+          <td><a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-circle icon-squa red"></i></a></td>
+          {% endif %}
+          {% if user.is_admin %}
+          <td>
+            <a href="{% url 'micro_admin:branchprofile' branch.id %}"><i class="fa fa-eye"></i></a>
+            <a href="{% url 'micro_admin:editbranch' branch.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+            {% if branch.is_active %}
+              <a href="{% url 'micro_admin:deletebranch' branch.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-<!--content ends above-->
-</div>
-<!--wrapper ends above-->
 {% endblock %}

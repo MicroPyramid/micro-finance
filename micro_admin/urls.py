@@ -50,7 +50,7 @@ urlpatterns = [
     # Receipts(create, list)
     url(r'^transactions/$', transactions, name="transactions"),
     url(r'^deposits/$', deposits, name="deposits"),
-    url(r'^accounts/$', accounts, name="accounts"),
+    url(r'^reports/$', reports, name="reports"),
     # url(r'^receiptsdeposit/$', receipts_deposit, name="receiptsdeposit"),
     url(r'^receiptslist/$', receipts_list, name="receiptslist"),
 
