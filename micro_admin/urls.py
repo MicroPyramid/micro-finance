@@ -48,6 +48,9 @@ urlpatterns = [
     url(r'^group/(?P<group_id>\d+)/meetings/add/$', group_meetings_add_view, name='addgroupmeeting'),
 
     # Receipts(create, list)
+    url(r'^transactions/$', transactions, name="transactions"),
+    url(r'^deposits/$', deposits, name="deposits"),
+    url(r'^accounts/$', accounts, name="accounts"),
     # url(r'^receiptsdeposit/$', receipts_deposit, name="receiptsdeposit"),
     url(r'^receiptslist/$', receipts_list, name="receiptslist"),
 
