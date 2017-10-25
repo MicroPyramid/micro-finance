@@ -129,3 +129,95 @@ body {
     display: inline-flex;
   }
 
+.testing_head {
+  margin-top: 0px;
+  width: 100%; }
+  .testing_head h3 {
+    padding-top: 30px;
+    text-align: center; }
+
+.row.group_list .detail_list {
+  margin-top: -29px;
+  padding: 9px;
+  background-color: rgba(96, 125, 139, 0.83);
+  height: 615px; }
+
+.sub-menu {
+  list-style: none;
+  padding-left: 5px; }
+  .sub-menu li {
+    list-style: none;
+    font-size: 1.3rem; }
+    .sub-menu li a {
+      font-size: 1.0rem;
+      padding: 8px;
+      display: block;
+      color: #fff; }
+      .sub-menu li a:hover {
+        text-decoration: none; }
+
+.list_header {
+  border-bottom: 1px solid #ddd; }
+
+.receipt_list {
+  background-color: #ffffff;
+  font-size: 14px;
+  color: #000;
+  margin-bottom: 0px; 
+  margin-top: -151px}
+  .receipt_list td {
+    border: none;
+    padding: 10px; }
+  .receipt_list th {
+    border: none;
+    width: 25%;
+    padding: 8px; }
+
+.testing_branch {
+  background-color: #fff;
+  height: 450px;
+  margin: 0px;
+  margin-top: 5px; }
+  .testing_branch .list_detail_view {
+    height: 50px;
+    background: #ddd;
+    margin-top: 7px; }
+    .testing_branch .list_detail_view .count_list {
+      width: 79%;
+      height: 50px;
+      float: left; }
+      .testing_branch .list_detail_view .count_list h4 {
+        font-size: 16px;
+        padding: 5px;
+        margin-bottom: 0px;
+        font-weight: 700; }
+      .testing_branch .list_detail_view .count_list p {
+        font-size: 14px;
+        padding-left: 5px;
+        margin: 0px; }
+    .testing_branch .list_detail_view .count_list_members {
+      width: 72%;
+      height: 50px;
+      float: left; }
+      .testing_branch .list_detail_view .count_list_members h4 {
+        font-size: 16px;
+        padding: 5px;
+        margin-bottom: 0px;
+        font-weight: 700; }
+      .testing_branch .list_detail_view .count_list_members p {
+        font-size: 14px;
+        padding-left: 5px;
+        margin: 0px; }
+    .testing_branch .list_detail_view .detail_list_icon i {
+      padding: 9px;
+      margin-top: 8px;
+      background: #34a5b1;
+      border-radius: 50px;
+      color: #fff; }
+
+.breadcrumb {
+  background-color: #ffffff;
+  text-align: center;
+  margin-bottom: 0px;
+  font-size: 13px;
+  padding: 5px; }
