@@ -31,7 +31,7 @@ from micro_admin.forms import (
     GroupMeetingsForm, UpdateClientProfileForm)
 from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
 from django.contrib.auth.models import Permission, ContentType
-from weasyprint import HTML, CSS
+# from weasyprint import HTML, CSS
 from django.template.loader import get_template
 
 d = decimal.Decimal
@@ -39,7 +39,18 @@ d = decimal.Decimal
 
 def index(request):
     if request.user.is_authenticated():
-        return render(request, "index.html", {"user": request.user})
+        receipts_list = Receipts.objects.all().order_by("-id")
+        payments_list = Payments.objects.all().order_by("-id")
+        fixed_deposits_list = FixedDeposits.objects.all().order_by('-id')
+        branches_count = Branch.objects.count()
+        staff_count = User.objects.count()
+        groups_count = Group.objects.count()
+        clients_count = Client.objects.count()
+        return render(request, "index.html", {"user": request.user,
+                      "receipts": receipts_list, "payments": payments_list,
+                      "fixed_deposits": fixed_deposits_list, "groups_count": groups_count,
+                      "branches_count": branches_count, "clients_count": clients_count,
+                      "staff_count": staff_count})
     return render(request, "login.html")
 
 
@@ -90,7 +101,7 @@ def create_branch_view(request):
             branch = form.save()
             return JsonResponse({
                 "error": False,
-                "success_url": reverse('micro_admin:branchprofile', {"pk": branch.id})
+                "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
             })
         else:
             return JsonResponse({"error": True, "errors": form.errors})
@@ -99,19 +110,22 @@ def create_branch_view(request):
 
 def update_branch_view(request, pk):
     form = BranchForm()
+    branch = get_object_or_404(Branch, id=pk)
     if not request.user.is_admin:
         return HttpResponseRedirect(reverse("micro_admin:viewbranch"))
     if request.method == 'POST':
-        form = BranchForm(request.POST, id=pk)
+        form = BranchForm(request.POST, instance=branch)
         if form.is_valid():
+            print('ki')
             branch = form.save()
             return JsonResponse({
-                "error": False, "success_url": reverse('micro_admin:branchprofile', {"pk": branch.id})
+                "error": False, "success_url": reverse('micro_admin:branchprofile', kwargs={'pk': branch.id})
             })
         else:
+
             return JsonResponse({"error": True, "errors": form.errors})
 
-    return render(request, "branch/edit.html", {'form': form})
+    return render(request, "branch/edit.html", {'form': form, 'branch': branch})
 
 
 def branch_profile_view(request, pk):
@@ -149,7 +163,7 @@ def create_client_view(request):
             client.save()
             return JsonResponse({
                 "error": False,
-                "success_url": reverse('micro_admin:clientprofile', {"pk": client.id})
+                "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
             })
         else:
             return JsonResponse({"error": True, "errors": form.errors})
@@ -166,7 +180,7 @@ def update_client_view(request, pk):
     branches = Branch.objects.all()
     client_obj = get_object_or_404(Client, id=pk)
     if request.method == 'POST':
-        form = ClientForm(request.POST, user=request.user, client=client_obj)
+        form = ClientForm(request.POST, user=request.user, client=client_obj, instance=client_obj)
         if form.is_valid():
             client = form.save()
             return JsonResponse({
@@ -175,7 +189,7 @@ def update_client_view(request, pk):
             })
         else:
             return JsonResponse({"error": True, "errors": form.errors})
-    return render(request, "client/edit.html", {'branches': branches, 'client_roles': CLIENT_ROLES})
+    return render(request, "client/edit.html", {'branches': branches, 'client_roles': CLIENT_ROLES, 'client':client_obj})
 
 
 def updateclientprofileview(request, pk):
@@ -282,10 +296,10 @@ def update_user_view(request, pk):
     contenttype = ContentType.objects.get_for_model(request.user)
     permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
     form = UserForm()
+    selected_user = User.objects.get(id=pk)
     if request.method == 'POST':
-        form = UserForm(request.POST)
+        form = UserForm(request.POST, instance=selected_user)
         if form.is_valid():
-            selected_user = User.objects.get(id=pk)
             if not (
                request.user.is_admin or request.user == selected_user or
                (
@@ -307,13 +321,13 @@ def update_user_view(request, pk):
 
                 return JsonResponse({
                     "error": False,
-                    "success_url": reverse('micro_admin:userprofile', {"pk": user.id})
+                    "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
                 })
         else:
             return JsonResponse({"error": True, "errors": form.errors})
 
     return render(request, "user/edit.html", {
-        'form': form, 'userroles': USER_ROLES, 'branch': branch, 'permissions': permissions})
+        'form': form, 'userroles': USER_ROLES, 'branch': branch, 'permissions': permissions, 'selecteduser': selected_user})
 
 
 def user_profile_view(request, pk):
@@ -351,7 +365,7 @@ def create_group_view(request):
             group.save()
             return JsonResponse({
                 "error": False,
-                "success_url": reverse('micro_admin:groupprofile', {"group_id": group.id})
+                "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
             })
         else:
             return JsonResponse({"error": True, "errors": form.errors})

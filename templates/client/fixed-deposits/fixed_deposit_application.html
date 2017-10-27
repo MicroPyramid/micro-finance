@@ -153,16 +153,15 @@
       </form>
     </div>
   </div>
-  <!--form div ends above-->
-</div>
-<!--content ends above-->
-
-<script>
+  {% endblock %}
+  {% block extra_js %}
+  <script>
   $(document).ready(function() {
     $('#fixeddepositapplicationform').ajaxForm({
       dataType: 'json',
-      data : $('#fixeddepositapplicationform').serialize(),
       type: "POST",
+      url:".",
+      data : $('#fixeddepositapplicationform').serialize(),
       success: function(data){
         $(".error").remove();
         if(data.error == false)
@@ -190,4 +189,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}

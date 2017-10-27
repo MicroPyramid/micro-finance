@@ -18,21 +18,21 @@ def client_savings_application_view(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     form = SavingsAccountForm()
     if SavingsAccount.objects.filter(client=client).exists():
-        return HttpResponseRedirect(reverse(request, "savings:clientsavingsaccount", {'client_id': client.id}))
+        return HttpResponseRedirect(reverse(request, "savings:clientsavingsaccount", kwargs={'client_id': client.id}))
     if request.method == 'POST':
-        form = SavingsAccountForm(request.POST)
+        form = SavingsAccountForm(request.POST, instance=client)
         if form.is_valid():
             obj_sav_acc = form.save(commit=False)
             obj_sav_acc.status = "Applied"
             obj_sav_acc.created_by = request.user
             obj_sav_acc.client = client
             obj_sav_acc.save()
-            return HttpResponseRedirect(reverse(request, "savings:clientsavingsaccount", {'client_id': client.id}))
+            return HttpResponseRedirect(reverse(request, "savings:clientsavingsaccount", kwargs={'client_id': client.id}))
         else:
             return JsonResponse({"error": True, "errors": form.errors})
     else:
         account_no = unique_random_number(SavingsAccount)
-        return render(request, "client/savings/application.html", {'client': client, 'account_no': account_no})
+        return render(request, "client/savings/application.html", kwargs={'client': client, 'account_no': account_no})
 
 
 @login_required
@@ -64,7 +64,7 @@ def group_savings_application_view(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     form = SavingsAccountForm()
     if SavingsAccount.objects.filter(group=group).exists():
-        return HttpResponseRedirect(reverse("savings:groupsavingsaccount", {'group_id': group.id}))
+        return HttpResponseRedirect(reverse("savings:groupsavingsaccount", kwargs={'group_id': group.id}))
     if request.method == 'POST':
         form = SavingsAccountForm(request.POST)
         if form.is_valid():
@@ -73,7 +73,7 @@ def group_savings_application_view(request, group_id):
             obj_sav_acc.created_by = request.user
             obj_sav_acc.group = group
             obj_sav_acc.save()
-            return HttpResponseRedirect(reverse("savings:groupsavingsaccount", {'group_id': group.id}))
+            return HttpResponseRedirect(reverse("savings:groupsavingsaccount", kwargs={'group_id': group.id}))
         else:
             return JsonResponse({"error": True, "errors": form.errors})
     else:

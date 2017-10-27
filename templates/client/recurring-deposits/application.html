@@ -4,159 +4,104 @@
 <li>Add Recurring Deposit</li>
 {% endblock %}
 {% block stage %}
-<!--content goes below-->
-<head>
-  <script src="http://malsup.github.com/jquery.form.js"></script>
-</head>
+<div style="padding: 28px;"><h3 align="center">New Recurring Deposite Application</h3></div>
 <div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel wid-panel-form margin-top-set">
-    <div class="panel-heading">
-      <h3 class="panel-title">
-      New Recurring Deposit Application
-    </div>
-    <div class="panel-body pb-pad">
-      <form id="recurringdepositapplicationform" class="form-horizontal" role="form" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">RD Account Number<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="reccuring_deposit_number" id="inputEmail3" >
-            <p id="reccuring_deposit_number"></p>
+  <form id="recurringdepositapplicationform" enctype="multipart/form-data" method="POST">
+    <div class="row deposits_list">
+      <div class="col">
+        <div class="receipt_form">
+          <div class="input-group">
+            <label class="filter_branch">R.D Account Number :
+            <input name="reccuring_deposit_number" class="locations"/></label>
+          </div>
+          <div class="input-group">
+            <label class="filter_branch"> Member Name :
+            <input name="client_name" class="locations"/></label>
+          </div>
+          <div class="input-group">
+            <label class="filter_branch"> Member A/C No :
+            <input name="client_account_no" class="locations"/></label>
+          </div>
+          <div class="input-group">
+            <label class="filter_branch">Date Of Deposite  :
+            <input name="deposited_date" class="locations"/></label>
+          </div>
+          <div class="input-group">
+            <label class="filter_branch">Deposite Amount:
+            <input name="recurring_deposit_amount" class="locations"/></label>
+          </div>
+          <div class="input-group">
+            <label class="filter_branch"> Deposite Period (<small>In Months</small>):
+            <input name="recurring_deposit_period" class="locations"/></label>
+          </div>
+          <div class="input-group">
+            <label class="filter_branch"> Interst Rate :
+            <input name="recurring_deposit_interest_rate" class="locations"/></label>
+          </div>
+          <div class="input-group">
+            <label class="filter_branch"> Relationship with nominee :
+            <input list="browsers" name="relationship_with_nominee" class="locations"/></label>
+            <datalist id="browsers">
+              <option value="Chrome"></option>
+              <option value="Firefox"></option>
+              <option value="Internet Explorer"></option>
+              <option value="Opera"></option>
+              <option value="Safari"></option>
+              <option value="Microsoft Edge"></option>
+            </datalist>
           </div>
         </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Member Name<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="client_name" id="inputEmail3" >
+      </div>
+      <div class="col">
+        <div class="receipt_form">
+          <h4 class="nominee_deatails"> Nominee Details</h4>
+          <div class="input-group">
+            <label class="filter_branch"> First Name :
+            <input name="nominee_firstname" class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Member A/C No.<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="client_account_no" id="inputEmail3" >
-            <p id="membererror"></p>
+          <div class="input-group">
+            <label class="filter_branch">Last Name:
+            <input name="nominee_lastname" class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Date of Deposit<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="deposited_date" id="date-picker-cc" >
-            <p id="deposited_date"></p>
+          <div class="input-group">
+            <label class="filter_branch">Nominee Occupation:
+            <input name="nominee_occupation" class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Deposit Amount<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="recurring_deposit_amount" >
-            <p id="recurring_deposit_amount"></p>
+          <div class="input-group">
+            <label class="filter_branch">Date OF Birth :
+            <input name="nominee_date_of_birth" class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Deposit Period(in months)<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="recurring_deposit_period" id="inputEmail3" >
-            <p id="recurring_deposit_period"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Interest Rate<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="recurring_deposit_interest_rate" id="inputEmail3"
-            >
-            <p id="recurring_deposit_interest_rate"></p>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label box-center"><b>Nominee Details</b></label>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">First Name<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_firstname" >
-            <p id="nominee_firstname"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Last Name<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_lastname" >
-            <p id="nominee_lastname"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Gender<span>*</span></label>
-          <div class="col-sm-7">
-            <div class="col-sm-8 mar-top-rad pad-lt-0">
-              <input type="radio" name="nominee_gender" value="M">Male &nbsp;&nbsp;
-              <input type="radio" name="nominee_gender" value="F">Female
-              <p id="nominee_gender"></p>
+          <div class="input-group">
+            <label class="select_filter" name="nominee_gender">
+              Gender:
+              <div class="form-check form-check-inline">
+            <label class="form-check-label">
+            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">Male
+            </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2">Female
+              </label>
             </div>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Date of Birth<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" id="datepicker-dob" name="nominee_date_of_birth" >
+          <div class="input-group-choose_image">
+            <label class="nominee_image"> Nominee Image:
+            <input type="file" id="myFile" name="nominee_photo">
+          </div>
+          <div class="input-group-choose_signature">
+            <label class="nominee_image"> Nominee Signature:
+            <input type="file" id="myFile" name="nominee_signature">
           </div>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Relationship with Nominee<span>*</span></label>
-          <div class="col-sm-7">
-            <select class="text-box wid-form" name="relationship_with_nominee">
-              <option value="">Select Relationship</option>
-              <option>Father</option>
-              <option>Mother</option>
-              <option>Daughter</option>
-              <option>Son</option>
-              <option>Brother</option>
-              <option>Nephew</option>
-              <option>Niece</option>
-              <option>Father-in-law</option>
-              <option>Daugter-in-law</option>
-              <option>Brother-in-law</option>
-              <option>Aunt</option>
-              <option>Granddaughter</option>
-              <option>Grandfather</option>
-              <option>Grandmother</option>
-              <option>Grandson</option>
-              <option>Mother-in-law</option>
-            </select>
-            <p id="relationship_with_nominee"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Nominee Occupation<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_occupation" >
-            <p id="nominee_occupation"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Nominee Image<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="file" class="input-file-pad-top-4" name="nominee_photo">
-            <p id="nominee_photo"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Nominee Signature<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="file" class="input-file-pad-top-4" name="nominee_signature">
-            <p id="nominee_signature"></p>
-          </div>
-        </div>
-        <div class="form-group btns" style="margin-top: -10px;">
-          <button class="submit-btn" id="senddetails"><i class="fa fa-check padd"></i>Deposit</button>
-          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
-        </div>
-      </form>
+      </div>
+      <div class=" col-12 save_deposit">
+        <button type="button" class="deposit">Deposit</button>
+        <button type="button" class="deposit">Cancel</button>
+      </div>
     </div>
-  </div>
-  <!--form div ends above-->
-</div>
-<!--content ends above-->
-
+  </form>
+</div> 
 <script>
   $(document).ready(function() {
     $('#recurringdepositapplicationform').ajaxForm({
