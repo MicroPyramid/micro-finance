@@ -1,58 +1,45 @@
 {% extends 'group/groupbase.html' %}
-{% block groupbreadcrumb %}
+{% block breadcrumb %}
 <li>Add Savings Application</li>
 {% endblock %}
 {% block groupstage %}
-<!--content goes below-->
-<div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel margin-top-set">
-    <div class="panel-heading">{% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-      {{ group.name }} Savings Application
-    </div>
-    <div class="panel-body pb-pad">
-      <form id="groupsavingsapplicationform" class="form-horizontal" role="form" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Savings A/C. No.</label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="account_no" value="{{ account_no }}" id="account_no">
+<dir class="col">
+  <div class="container">
+    <div class="container">
+      <div class="col-12 receipts">
+        <form id="groupsavingsapplicationform" class="form-horizontal" role="form" method="post">
+          {% csrf_token %}
+          <div class="saving_form">
+            <div class="input-group">
+              <label class="filter_branch"> Savings A/C No :
+              <input list="browsers" name="account_no" class="locations" value="{{account_no}}" /></label>
+            </div>
+            <div class="input-group">
+              <label  class="filter_branch">Created By :
+              <input list="browsers" name="created_by" value="{{ user.username }}" class="locations"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Opening-Date :
+              <input list="browsers" class="locations" name="opening_date" id="date-picker-gc">
+            </div></label>
+            <div class="input-group">
+              <label  class="filter_branch">Minimum Balance:
+              <input list="browsers" class="locations" name="min_required_balance" id="min_required_balance"></label>
+            </div>
+            <div class="input-group">
+              <label f class="filter_branch">Annual Interest Rate :
+              <input list="browsers" class="locations" name="annual_interest_rate" id="annual_interest_rate"></label>
+            </div>
+            <div class="save_application">
+              <button class="create_branch" type="submit">Submit</button>
+              <button class="create_branch" type="reset">Cancel</button>
+            </div>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Created By</label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" value="{{ user.username }}" readonly>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Opening-Date</label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="opening_date" id="date-picker-gc">
-            <span id="opening_date"></span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Minimum Balance</label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="min_required_balance" id="min_required_balance">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate</label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="annual_interest_rate" id="annual_interest_rate">
-          </div>
-        </div>
-        <div class="form-group btns">
-          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
-          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-  <!--form div ends above-->
-</div>
+</dir>
 <!--content ends above-->
 <script type="text/javascript">
   $(document).ready(function() {
