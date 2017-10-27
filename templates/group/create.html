@@ -60,6 +60,9 @@
   <!--form div ends above-->
 </div>
 <!--content ends above-->
+{% endblock %}
+{% block extra_js%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#creategroupform').submit(function(e) {
@@ -82,4 +85,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}

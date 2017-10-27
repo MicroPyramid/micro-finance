@@ -79,11 +79,13 @@
 <!--content ends above-->
 </div>
 <!--wrapper ends above-->
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#editbranchform').submit(function(e) {
       e.preventDefault();
-      $("span.error").remove();
       $.post('.', $('#editbranchform').serialize(), function(data) {
         if (data.error == false) {
           window.location = data.success_url;
@@ -104,4 +106,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js%}
