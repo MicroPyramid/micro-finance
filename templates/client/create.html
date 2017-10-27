@@ -49,7 +49,7 @@
             <div class="col-sm-8">
               <select class="text-box wid-form select-box-pad" name="client_role" id="client_role">
                 <option>Select Member Roles</option>
-                {% for role in client_roles %}
+                {% for key, role in client_roles %}
                   <option value="{{ role }}">{{ role }}</option>
                 {% endfor %}
               </select>
@@ -168,6 +168,9 @@
 <!--content ends above-->
 </div>
 <!--wrapper ends above-->
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function () {
     $('#createclientform').submit(function (e) {
@@ -199,4 +202,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}

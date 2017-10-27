@@ -59,7 +59,7 @@
             <label for="inputEmail3" class="col-sm-4 control-label">User Roles</label>
             <div class="col-sm-8">
               <select class="text-box wid-form select-box-pad" name="user_roles" id="user_roles">
-                {% for role in userroles %}
+                {% for key,role in userroles %}
                   {% ifequal role selecteduser.user_roles %}
                     <option value="{{ role }}" selected="selected">{{ role }}</option>
                   {% else %}
@@ -155,6 +155,9 @@
   <!--form div ends above-->
 </div>
 <!--content ends above-->
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://select2.github.io/dist/js/select2.full.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
@@ -185,4 +188,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}

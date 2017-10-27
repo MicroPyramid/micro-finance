@@ -1,65 +1,63 @@
 {% extends 'group/groupbase.html' %}
+
 {% block groupbreadcrumb %}
   <li>Add Members</li>
 {% endblock %}
+
 {% block groupstage %}
-<div class="col">
-  <div class="container">
-    <div class="container">
-      <div class="row add_members">
-        <div class="col-5">
-          <div class="list_member_view red">
-            <div class="count_list">
-              <h4>Add Member To : abcGroup</h4>
-            </div>
+<!--content goes below-->
+<div class="home-div-gp">
+  <div class="panel panel-default panel-hdg">
+    <div class="panel-heading">
+      <h3 class="panel-title">Add Members to: {{ group.name|capfirst }} Group</h3>
+    </div>
+    <div class="panel-body">
+      <!--panel body starts above-->
+      <form id="addmembersform" class="form-horizontal" role="form" method="post">
+        {% csrf_token %}
+        <br clear="all" />
+        <div class="hg-table">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Select</th>
+                  <th>Name</th>
+                  <th>A/c Number</th>
+                  <th>Status</th>
+                  <th>Role</th>
+                  <th>Branch</th>
+                </tr>
+              </thead>
+              <tbody class="color-back-tb">
+                {% for client in clients_list %}
+                <tr>
+                  <td><input type="checkbox" name="clients" value="{{ client.id }}"/></td>
+                  <td>{{ client.first_name }}</td>
+                  <td>{{ client.account_number }}</td>
+                  {% if client.is_active %}
+                  <td><i class="fa fa-square green padd"></i>Active</td>
+                  {% else %}
+                  <td><i class="fa fa-square red padd">InActive</i></td>
+                  {% endif %}
+                  <td>{{ client.client_role }}</td>
+                  <td>{{ client.branch.name }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <p id="clientserror"></p>
           </div>
         </div>
-      </div>
-      <div class="col-12 receipts">
-        <form id="addmembersform" class="form-horizontal" role="form" method="post">
-          {% csrf_token %}
-          <br clear="all" />
-          <div class="hg-table">
-            <div class="table-responsive">
-              <table class="table tacble-striped receipt_list" data-tablesaw-mode="columntoggle" id="active_users">
-                <thead>
-                  <tr>
-                    <th scope="col">Select</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">A/c Number</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Role</th>
-                    <th scope="col">Branch</th>
-                  </tr>
-                </thead>
-                <tbody class="color-back-tb">
-                  {% for client in clients_list %}
-                  <tr class="list">
-                    <td><input type="checkbox" name="clients" value="{{ client.id }}"/></td>
-                    <td>{{ client.first_name }}</td>
-                    <td>{{ client.account_number }}</td>
-                    {% if client.is_active %}
-                    <td><i class="fa fa-square green padd"></i>Active</td>
-                    {% else %}
-                    <td><i class="fa fa-square red padd">InActive</i></td>
-                    {% endif %}
-                    <td>{{ client.client_role }}</td>
-                    <td>{{ client.branch.name }}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-              <p id="clientserror"></p>
-            </div>
+        <div class="btns-row">
+          <div class="form-group btns align-btns">
+            <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
+            <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
           </div>
-          <div class="save_application">
-            <button class="create_branch" type="submit">Submit</button>
-            <button class="create_branch" type="reset">Cancel</button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
+    <!--panel body ends below crct-->
   </div>
 </div>
 <!--content ends above-->
