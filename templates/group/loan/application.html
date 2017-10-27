@@ -3,84 +3,67 @@
 <li>Add Loan Application</li>
 {% endblock %}
 {% block groupstage %}
-<!--content goes below-->
-<div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel wid-panel-form margin-top-set">
-    <div class="panel-heading">{% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-      {{ group.name|capfirst }} Loan Application
-    </div>
-    <div class="panel-body pb-pad">
-      <form id="grouploanapplicationform" class="form-horizontal" role="form" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Account Number</label>
-          <div class="col-sm-7">
-            <input type="hidden"  id="group_id" value="{{ group.id }}" style="dispaly:none;">
-            <input type="text" class="text-box wid-form" name="account_no" value="{{account_no}}" id="account_no">
+<dir class="col">
+  <div class="container">
+    <div class="container">
+      <div class="col-12 receipts">
+        <form id="grouploanapplicationform" class="form-horizontal" role="form" method="post">
+          {% csrf_token %}
+          <div class="saving_form">
+            <div class="input-group">
+              <label class="filter_branch"> Account Number :
+              <input list="browsers" name="account_no" class="locations" value="{{account_no}}" /></label>
+            </div>
+            <div class="input-group">
+              <label  class="filter_branch">Created By :
+              <input list="browsers" name="created_by" value="{{ user.username }}" class="locations"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch"> Loan Amount:
+              <input list="browsers" class="locations" name="loan_amount" id="loan_amount">
+            </div></label>
+            <div class="input-group">
+              <label class="filter_branch">Loan Repayment Period :
+              <input list="browsers" class="locations" name="loan_repayment_period" id="loan_repayment_period"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Loan Repayment Every : </label>
+              <select class="custom-select" name="loan_repayment_every" id="loan_repayment_every">
+                <option value="">Please Select Option</option>
+                {% for val in loan_repayment_every %}
+                  <option value="{{ val.value }}">{{ val.value }}</option>
+                {% endfor %}
+             </select>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Interset Type : </label>
+                <select class="custom-select" name="interest_type" id="interest_type" required="True">
+                  <option>Select Interest Type</option>
+                  <option value="Flat">Flat</option>
+                  <option value="Declining">Declining</option>
+                </select>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Annual Interest Rate :
+              <input list="browsers" class="locations" name="annual_interest_rate" id="annual_interest_rate"></label>
+            </div>
+            <div class="input-group">
+              <label class="loan_purpose">Loan Purpose : </label>
+                <textarea name="loanpurpose_description" id="loanpurpose_description" rows="3" cols="25"></textarea>
+            </div>
+            <div class="save_application">
+              <button type="button" class="create_branch">Submit</button>
+              <button type="button" class="create_branch">Cancel</button>
+            </div>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Created By</label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" id="created_by" value="{{ user.username }}" name="created_by" readonly>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Loan Amount<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_amount" id="loan_amount">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Period (in months)<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="loan_repayment_period" id="loan_repayment_period">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Loan Repayment Every (in months)<span>*</span></label>
-          <div class="col-sm-7">
-            <select class="text-box wid-form" name="loan_repayment_every" id="loan_repayment_every">
-              <option value="">Please Select Option</option>
-              {% for val in loan_repayment_every %}
-                <option value="{{ val.value }}">{{ val.value }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Interset Type<span>*</span></label>
-          <div class="col-sm-7">
-            <select class="text-box wid-form" name="interest_type" id="interest_type" required="True">
-              <option>Select Interest Type</option>
-              <option value="Flat">Flat</option>
-              <option value="Declining">Declining</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Annual Interest Rate (%)<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="annual_interest_rate" id="annual_interest_rate">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Loan Purpose<span>*</span></label>
-          <div class="col-sm-7">
-            <textarea name="loanpurpose_description" id="loanpurpose_description" rows="3" class="txt-area-wid"></textarea>
-          </div>
-        </div>
-        <div class="form-group btns">
-          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
-          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-  <!--form div ends above-->
-</div>
-<!--content ends above-->
+</dir>
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#grouploanapplicationform').submit(function(e) {
@@ -109,4 +92,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}

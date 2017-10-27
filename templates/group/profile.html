@@ -1,6 +1,6 @@
 {% extends 'group/groupbase.html' %}
 {% block breadcrumb %}
-<li>Branch Profile</li>
+<li>Group Details</li>
 {% endblock %}
 {% block groupstage %}
   <div class="col">
@@ -13,18 +13,18 @@
       <div class="container">
         <div class="row testing_branch">
           <div class="col">
-            <div class="list_detail_view">
+            <div class="list_detail_view red">
               <div class="count_list">
                 <h4>{{ group.account_number }}</h4>
                 <p>Account Number</p>
               </div>
               <div class="detail_list_icon">
-                <i class="fa fa-credit-card orange"></i>
+                <i class="fa fa-credit-card red"></i>
               </div>
             </div>
           </div>
           <div class="col">
-            <div class="list_detail_view">
+            <div class="list_detail_view orange">
               <div class="count_list">
                 <h4> {% if group.staff.first_name %}{{ group.staff.first_name }}
                 {% else %}
@@ -37,36 +37,36 @@
               </div>
             </div>
           </div>
-          <div class="col">
-            <div class="list_detail_view">
+          <div class="col-2">
+            <div class="list_detail_view green">
               <div class="count_list_members">
                 <h4>{{ clients_count }}</h4>
                 <p>Members</p>
               </div>
               <div class="detail_list_icon">
-                <i class="fa fa-users orange"></i>
+                <i class="fa fa-users green"></i>
               </div>
             </div>
           </div>
           <div class="col">
-            <div class="list_detail_view">
+            <div class="list_detail_view blue">
               <div class="count_list">
                 <h4>{{ group.branch.name|capfirst }}</h4>
                 <p> Branch Name</p>
               </div>
               <div class="detail_list_icon">
-                <i class="fa fa-university orange"></i>
+                <i class="fa fa-university blue"></i>
               </div>
             </div>
           </div>
           <div class="col">
-            <div class="list_detail_view">
+            <div class="list_detail_view yellow">
               <div class="count_list">
                 <h4>{{ group.activation_date }}</h4>
                 <p>Activated</p>
               </div>
               <div class="detail_list_icon">
-                <i class="fa fa-calendar orange"></i>
+                <i class="fa fa-calendar yellow"></i>
               </div>
             </div>
           </div>
