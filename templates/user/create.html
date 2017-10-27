@@ -49,7 +49,7 @@
             <div class="col-sm-8">
               <select class="text-box wid-form select-box-pad" name="user_roles" id="user_roles">
                 <option>Select Staff Role</option>
-                {% for role in userroles %}
+                {% for key, role in userroles %}
                 <option value="{{ role }}">{{ role }}</option>
                 {% endfor%}
               </select>
@@ -153,6 +153,9 @@
   <!--form div ends above-->
 </div>
 <!--content ends above-->
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://select2.github.io/dist/js/select2.full.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
@@ -181,4 +184,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}
