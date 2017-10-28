@@ -4,106 +4,53 @@
 <li>Add Fixed Deposit</li>
 {% endblock %}
 {% block stage %}
-<!--content goes below-->
-<head>
-  <script src="http://malsup.github.com/jquery.form.js"></script>
-</head>
-<div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel wid-panel-form margin-top-set">
-    <div class="panel-heading">
-      <h3 class="panel-title">
-      New Fixed Deposit Application
-      </h3>
+<div class="row group_list">
+  <div class="col">
+    <div class="container">
+      <div class="row">
+        <div class="testing_head">
+          <h3>New Fixed Deposite Application</h3>
+        </div>
+      </div>
     </div>
-    <div class="panel-body pb-pad">
-      <form id="fixeddepositapplicationform" enctype="multipart/form-data" class="form-horizontal" role="form" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">FD Account Number<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="fixed_deposit_number" id="inputEmail3" >
-            <p id="fixed_deposit_number"></p>
+  </div>
+</div>
+<div class="container">
+  <div class="fixed_deposite_list">
+    <form id="groupsavingsapplicationform" class="form-horizontal" role="form" method="POST">
+      {% csrf_token %}
+      <h6> Nominee Details</h6>
+       <div class="row">
+         <div class="input-group">
+            <label class="filter_branch">F.D Account Number :
+            <input name="fixed_deposit_number" id="fixed_deposit_number" class="locations"/></label>
+            <label class="filter_branch"> First Name :
+            <input name="nominee_firstname" class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Member Name<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="client_name" id="inputEmail3" >
+          <div class="input-group">
+            <label class="filter_branch"> Member Name :
+            <input name="client_name" id="client_name" class="locations"/></label>
+            <label class="filter_branch">Last Name  :
+            <input name="nominee_lastname" id="nominee_lastname" class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Member A/C No.<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="client_account_no" id="inputEmail3" >
-            <p id="membererror"></p>
+          <div class="input-group">
+            <label class="filter_branch">Deposite Period:
+            <input name="fixed_deposit_period" id="fixed_deposit_period" class="locations"/></label>
+            <label class="filter_branch"> Nominee Occupation :
+            <input name="nominee_occupation" id="nominee_occupation" class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Date of Deposit<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="deposited_date" id="date-picker-cc" >
-            <p id="deposited_date"></p>
+          <div class="input-group">
+            <label class="filter_branch"> Date Of Deposite :
+            <input name="deposited_date" id="deposited_date" class="locations"/></label>
+            <label class="filter_branch">Date Of Birth  :
+            <input name="nominee_date_of_birth" id="nominee_date_of_birth"class="locations"/></label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Deposit Amount<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="fixed_deposit_amount" >
-            <p id="fixed_deposit_amount"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Deposit Period(in months)<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="fixed_deposit_period" id="inputEmail3" >
-            <p id="fixed_deposit_period"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Interest Rate<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="fixed_deposit_interest_rate" id="inputEmail3" >
-            <p id="fixed_deposit_interest_rate"></p>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-12 col-xs-12 control-label box-center"><b>Nominee Details</b></label>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">First Name<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_firstname" >
-            <p id="nominee_firstname"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Last Name<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_lastname" >
-            <p id="nominee_lastname"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Gender<span>*</span></label>
-          <div class="col-sm-7">
-            <div class="col-sm-8 mar-top-rad pad-lt-0">
-              <input type="radio" name="nominee_gender" value="M">Male &nbsp;&nbsp;
-              <input type="radio" name="nominee_gender" value="F">Female
-              <p id="nominee_gender"></p>
-            </div>
-          </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Date of Birth<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" id="datepicker-dob" name="nominee_date_of_birth" >
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-5 control-label">Relationship with Nominee<span>*</span></label>
-          <div class="col-sm-7">
-            <select class="text-box wid-form" name="relationship_with_nominee">
+          <div class="input-group">
+            <label class="filter_branch"> Deposite Amount :
+            <input name="fixed_deposit_amount" id="fixed_deposit_amount" class="locations"/></label>
+            <label class="filter_branch"> Relationship with nominee :
+            <input list="browsers" name="relationship_with_nominee" class="locations"/></label>
+            <datalist id="browsers">
               <option value="">Select Relationship</option>
               <option>Father</option>
               <option>Mother</option>
@@ -121,73 +68,78 @@
               <option>Grandmother</option>
               <option>Grandson</option>
               <option>Mother-in-law</option>
-            </select>
-            <p id="relationship_with_nominee"></p>
+            </datalist>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Nominee Occupation<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="text" class="text-box wid-form" name="nominee_occupation" >
-            <p id="nominee_occupation"></p>
+          <div class="input-group">
+            <label class="filter_branch"> Member A/C No :
+            <input name="client_account_no" class="locations"/></label>
+            <label class="gender">Gender:
+              <div class="form-check form-check-inline">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">Male
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2">Female
+                </label>
+              </div>
+            </label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Nominee Image<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="file" class="input-file-pad-top-4" name="nominee_photo">
-            <p id="nominee_photo"></p>
+          <div class="input-group">
+            <label class="filter_branch">Intrest Rate:
+            <input name="fixed_deposit_interest_rate" id="fixed_deposit_interest_rate" class="locations"/></label>
+            <label class="nominee_image"> Nominee Image:
+            <input type="file" id="myFile" name="nominee_image"></label>
           </div>
-        </div>
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-5 control-label">Nominee Signature<span>*</span></label>
-          <div class="col-sm-7">
-            <input type="file" class="input-file-pad-top-4" name="nominee_signature">
-            <p id="nominee_signature"></p>
+          <div class="input-group">
+            <div class="save_application">
+            </div>
+            <label class="nominee_sign"> Nominee Signature:
+            <input type="file" id="myFile" name="nominee_signature">
           </div>
-        </div>
-        <div class="form-group btns" style="margin-top: -10px;">
-          <button class="submit-btn" id="senddetails"><i class="fa fa-check padd"></i>Deposit</button>
-          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
-        </div>
-      </form>
-    </div>
+          <div class="save_application">
+           <button class="create_branch" type="submit">deposit</button>
+           <button class="create_branch" type="reset">Cancel</button>
+          </div>
+       </div>
+    </form>
   </div>
-  <!--form div ends above-->
 </div>
-<!--content ends above-->
-
+{% endblock %}
+{% block extra_js %}
 <script>
-  $(document).ready(function() {
-    $('#fixeddepositapplicationform').ajaxForm({
-      dataType: 'json',
-      data : $('#fixeddepositapplicationform').serialize(),
-      type: "POST",
-      success: function(data){
-        $(".error").remove();
-        if(data.error == false)
-        {
-          alert("FD Application Submitted sucessfully.");
-          window.location = data.success_url;
-        }
-        else
-        {
-          $('.error').text('');
-          if (data.message) {
-            $.each(data.message, function( field, error ) {
-              console.log(field)
-              console.log(error)
-              if (field == "nominee_gender"){
-                $("#nominee_gender").html("<span class='error' style='height:11px;color:red;'>" + error + "</span>")
-              }
-              else{
-                $("[name='" + field + "']").after("<span class='error' style='height:11px;color:red;'>" + error + "</span>")
-              }
-            });
-          }
+$(document).ready(function() {
+  $('#fixeddepositapplicationform').ajaxForm({
+    dataType: 'json',
+    type: "POST",
+    url:".",
+    data : $('#fixeddepositapplicationform').serialize(),
+    success: function(data){
+      $(".error").remove();
+      if(data.error == false)
+      {
+        alert("FD Application Submitted sucessfully.");
+        window.location = data.success_url;
+      }
+      else
+      {
+        $('.error').text('');
+        if (data.message) {
+          $.each(data.message, function( field, error ) {
+            console.log(field)
+            console.log(error)
+            if (field == "nominee_gender"){
+              $("#nominee_gender").html("<span class='error' style='height:11px;color:red;'>" + error + "</span>")
+            }
+            else{
+              $("[name='" + field + "']").after("<span class='error' style='height:11px;color:red;'>" + error + "</span>")
+            }
+          });
         }
       }
-    });
+    }
   });
+});
 </script>
-{% endblock %}
+{% endblock extra_js %}
