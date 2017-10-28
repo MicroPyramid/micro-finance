@@ -88,9 +88,9 @@
                     <td><a href="{% url 'micro_admin:clientprofile' client.id %}">{{ client.first_name|capfirst }}</a></td>
                     <td>{{ client.account_number }}</td>
                     {% if client.is_active %}
-                    <td><i class="fa fa-square green padd"></i>Active</td>
+                    <td>Active</td>
                     {% else %}
-                    <td><i class="fa fa-square red padd"></i>InActive</td>
+                    <td>InActive</td>
                     {% endif %}
                     <td class="anchr-trash">
                     {% if client.is_active %}

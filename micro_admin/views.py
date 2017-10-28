@@ -203,7 +203,7 @@ def updateclientprofileview(request, pk):
             client_obj.save()
             return JsonResponse({
                 "error": False,
-                "success_url": reverse('micro_admin:clientprofile', {"pk": client_obj.id})
+                "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client_obj.id})
             })
         else:
             data = {"error": True, "errors": form.errors}
@@ -417,7 +417,7 @@ def group_assign_staff_view(request, group_id):
             group.save()
             data = {
                 "error": False,
-                "success_url": reverse('micro_admin:groupprofile', {"group_id": group.id})
+                "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
             }
         else:
             data = {"error": True, "message": {"staff": "This field is required"}}
@@ -446,7 +446,7 @@ def group_add_members_view(request, group_id):
                     client.save()
             return JsonResponse({
                 "error": False,
-                "success_url": reverse('micro_admin:groupprofile', {"group_id": group.id})
+                "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
             })
         else:
             return JsonResponse({"error": True, "message": form.errors})
