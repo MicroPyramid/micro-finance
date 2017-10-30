@@ -3,7 +3,7 @@ body {
   background-color: #ffffff; }
 
 .nav-header {
-  background-color: #31d485;
+  background-color: #2a8c5d;
   margin: 0px; }
   .nav-header .header-logo {
     float: left;
@@ -115,6 +115,42 @@ body {
     border-top: none; }
 
 
+/*create_form*/
+.form_content {
+  width: 35%;
+  height: 450px;
+  margin: 0px auto;
+  margin-top: 60px;
+  text-align: center; }
+  .form_content h2 {
+    font-size: 25px;
+    padding-top: 20px; }
+
+.create_form {
+  margin-top: 40px; }
+  .create_form .input-group {
+    padding: 5px 80px 5px 5px; }
+  .create_form .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+  .create_form .location {
+    border: none;
+    border-bottom: 1px solid #ddd; }
+
+.create_branch {
+  background: #dddddd;
+  border: 1px solid #dddddd;
+  padding: 1px 12px;
+  font-size: 18px;
+  border-radius: 4px;
+  margin-right: 15px;
+  margin-top: 17px; }
+
+
 /*# breadcrumbcontainer */
 .breadcrumbcontainer{
   width: 100%;
@@ -139,7 +175,7 @@ body {
 .row.group_list .detail_list {
   margin-top: -29px;
   padding: 9px;
-  background-color: #9E9E9E;
+  background-color: #50949b;
   height: 615px; }
 
 .sub-menu {
@@ -238,6 +274,10 @@ body {
   font-size: 13px;
   padding: 5px; }
 
+.view_members{
+  margin-top: 30px;
+}
+
 .view_members .list_saving_view {
   height: 50px;
   background: rgba(23, 162, 184, 0.66);
@@ -245,13 +285,14 @@ body {
   border-radius: 5px;
   margin-left: 15px; }
   .view_members .list_saving_view.red {
-    background-color: rgba(255, 165, 0, 0.19); }
+    background-color: transparent;
+    color: rgba(23,162,184,0.66); }
 .view_members .count_list {
   width: 79%;
   height: 50px;
   float: left; }
   .view_members .count_list h4 {
-    font-size: 20px;
+    font-size: 22px;
     padding-left: 5px;
     margin-bottom: 0px;
     font-weight: 700; }
@@ -275,11 +316,12 @@ body {
 .add_members .list_member_view {
   height: 50px;
   background: rgba(23, 162, 184, 0.66);
-  margin-top: 7px;
+  margin-top: 35px;
   border-radius: 5px;
-  margin-left: 15px; }
+  margin-left: 10px; }
   .add_members .list_member_view.red {
-    background-color: rgba(255, 165, 0, 0.19); }
+    color: rgba(23, 162, 184, 0.66);
+    background-color: transparent; }
 .add_members h4 {
   padding: 12px; }
 
@@ -287,9 +329,10 @@ body {
   width: 100%;
   font-size: 25px; }
   .loan_header_text h3 {
-    padding-top: 10px;
+    padding-top: 35px;
     text-align: center;
-    font-size: 25px; }
+    font-size: 25px;
+    padding-bottom: 5px; }
 
 .loan_apply_form {
   margin-top: 15px !important;
@@ -510,7 +553,9 @@ body {
       .fixed_deposite_list .filter_branch .locations:focus, .recurring_deposite_list .filter_branch .locations:focus {
         outline: none; }
 
-
+.no_records{
+  text-align: center;
+}
 
 .pay_list_head {
   margin-top: 0px;

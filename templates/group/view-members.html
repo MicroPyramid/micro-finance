@@ -1,5 +1,5 @@
 {% extends 'group/groupbase.html' %}
-{% block breadcrumb %}
+{% block groupbreadcrumb %}
 <li>View Members</li>
 {% endblock %}
 {% block groupstage %}
@@ -7,14 +7,10 @@
   <div class="container">
     <div class="container">
       <div class="row view_members">
-        <div class="col-3">
+        <div class="col-5">
           <div class="list_saving_view red">
             <div class="count_list">
-              <h4>{{group.name}} Group</h4>
-                <p>Mumber</p>
-            </div>
-            <div class="detail_view_members">
-              {{ clients_list|length }}
+              <h4>View Members : &nbsp; {{group.name}}</h4>
             </div>
           </div>
         </div>
@@ -30,7 +26,7 @@
               <th scope="col">Role</th>
               <th scope="col">Branch Name</th>
               {% if user.is_admin %}
-              <th scope="col">Delete</th>
+              <th scope="col">Actions</th>
               {% endif %}
             </tr>
           </thead>
