@@ -1,5 +1,5 @@
 {% extends 'group/groupbase.html' %}
-{% block groupbreadcrumb %}
+{% block breadcrumb %}
 <li>Assign Staff</li>
 {% endblock %}
 {% block groupstage %}
@@ -16,9 +16,9 @@
           {% csrf_token %}
           <div class="assign_staff_form">
             <div class="input-group">
-              <label class="filter_branch"> Staff :
-              <input list="browsers" name="myBrowser" class="locations"/></label>
-              <datalist id="browsers" name="staff">
+              <label class="filter_branch" id="stafferror" name="staff"> Staff :
+              <input list="browsers" name="staff" class="locations"/></label>
+              <datalist id="browsers">
                 {% for user in users_list %}
                   {% if group.staff %}
                     {% ifequal user.id group.staff.id %}
@@ -33,7 +33,7 @@
               </datalist>
             </div>
             <div class="save_application">
-              <button type="button" class="create_branch">Submit</button><button type="button" class="create_branch">Cancel</button>
+              <button type="submit" class="create_branch">Submit</button><button type="button" class="create_branch">Cancel</button>
             </div>
           </div>
         </form>
@@ -41,6 +41,9 @@
     </div>
   </div>
 </dir>
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#assignstaffform').submit(function(e) {
@@ -49,7 +52,7 @@
         if (data.error) {
           $("span.error").remove();
           if (data.message.staff) {
-            $("#stafferror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.staff + "</span>");
+            $("#stafferror").after("<span class='error' style='height:11px;color:red;'>" + data.message.staff + "</span>");
           }
         }
         else {
@@ -62,4 +65,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}
