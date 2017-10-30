@@ -32,7 +32,7 @@ def client_savings_application_view(request, client_id):
             return JsonResponse({"error": True, "errors": form.errors})
     else:
         account_no = unique_random_number(SavingsAccount)
-        return render(request, "client/savings/application.html", kwargs={'client': client, 'account_no': account_no})
+        return render(request, "client/savings/application.html", {'client': client, 'account_no': account_no})
 
 
 @login_required
@@ -114,7 +114,7 @@ def group_savings_withdrawals_list_view(request, group_id):
 # Change Group/Client Savings account status
 @login_required
 def change_savings_account_status(request, savingsaccount_id):
-    savings_account = SavingsAccount.objects.filter(id=savingsaccount_id)
+    savings_account = SavingsAccount.objects.get(id=savingsaccount_id)
     group = savings_account.group
     client = savings_account.client
     if group:

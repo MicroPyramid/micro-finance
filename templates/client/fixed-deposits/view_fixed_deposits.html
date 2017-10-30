@@ -42,7 +42,7 @@
             </tr>
           </thead>
           <tbody class="body-row-tb">
-            {% for fixed_deposit in fixed_deposit_list %}
+            {% for fixed_deposit in client_fixed_deposits %}
             <tr>
               <td><b>{{ forloop.counter }}</b></td>
               <td><a href="{% url 'micro_admin:clientfixeddepositsprofile' fixed_deposit.id %}" style="color:#337ab7;">
