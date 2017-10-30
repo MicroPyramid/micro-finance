@@ -42,6 +42,7 @@ def index(request):
         receipts_list = Receipts.objects.all().order_by("-id")
         payments_list = Payments.objects.all().order_by("-id")
         fixed_deposits_list = FixedDeposits.objects.all().order_by('-id')
+        recurring_deposits_list = RecurringDeposits.objects.all().order_by('-id')
         branches_count = Branch.objects.count()
         staff_count = User.objects.count()
         groups_count = Group.objects.count()
@@ -50,7 +51,7 @@ def index(request):
                       "receipts": receipts_list, "payments": payments_list,
                       "fixed_deposits": fixed_deposits_list, "groups_count": groups_count,
                       "branches_count": branches_count, "clients_count": clients_count,
-                      "staff_count": staff_count})
+                      "staff_count": staff_count, "recurring_deposits": recurring_deposits_list})
     return render(request, "login.html")
 
 
@@ -116,7 +117,6 @@ def update_branch_view(request, pk):
     if request.method == 'POST':
         form = BranchForm(request.POST, instance=branch)
         if form.is_valid():
-            print('ki')
             branch = form.save()
             return JsonResponse({
                 "error": False, "success_url": reverse('micro_admin:branchprofile', kwargs={'pk': branch.id})
@@ -375,7 +375,6 @@ def create_group_view(request):
 
 def group_profile_view(request, group_id):
     group_obj = Group.objects.filter(id=group_id).first()
-    print(group_obj)
     clients_list = group_obj.clients.all()
     group_mettings = GroupMeetings.objects.filter(group_id=group_obj.id).order_by('-id')
     clients_count = len(clients_list)
@@ -558,7 +557,7 @@ def general_ledger(request):
 def fixed_deposits_view(request):
     form = FixedDepositForm()
     if request.method == 'POST':
-        form = FixedDepositForm(request.POST)
+        form = FixedDepositForm(request.POST, request.FILES)
         if form.is_valid():
             fixed_deposit = form.save(commit=False)
             fixed_deposit.status = "Opened"
@@ -573,7 +572,7 @@ def fixed_deposits_view(request):
                 fixed_deposit.maturity_amount - fixed_deposit.fixed_deposit_amount
             )
             fixed_deposit.save()
-            url = reverse('micro_admin:clientfixeddepositsprofile', {"fixed_deposit_id": fixed_deposit.id})
+            url = reverse('micro_admin:clientfixeddepositsprofile', kwargs={"fixed_deposit_id": fixed_deposit.id})
             return JsonResponse({"error": False, "success_url": url})
         else:
             return JsonResponse({"error": True, "message": form.errors})
@@ -582,8 +581,8 @@ def fixed_deposits_view(request):
 
 
 def client_fixed_deposits_profile(request, fixed_deposit_id):
-    fixed_deposits = FixedDeposits.objects.filter(id=fixed_deposit_id)
-    return render(request, "client/fixed-deposits/fixed_deposits_profile.html", {'fixed_deposits': fixed_deposits})
+    fixed_deposits = FixedDeposits.objects.get(id=fixed_deposit_id)
+    return render(request, "client/fixed-deposits/fixed_deposits_profile.html", {'fixed_deposit': fixed_deposits})
 
 
 def view_client_fixed_deposits(request):
@@ -601,7 +600,7 @@ def view_particular_client_fixed_deposits(request, client_id):
 
 
 def client_recurring_deposits_profile(request, recurring_deposit_id):
-    recurring_deposit = RecurringDeposits.objects.filter(id=recurring_deposit_id)
+    recurring_deposit = RecurringDeposits.objects.get(id=recurring_deposit_id)
     return render(request, "client/recurring-deposits/recurring_deposit_profile.html", {
         'recurring_deposit': recurring_deposit})
 
@@ -952,14 +951,14 @@ def day_book_view(request):
 def recurring_deposits_view(request):
     form = ReccuringDepositForm()
     if request.method == 'POST':
-        form = ReccuringDepositForm(request.POST)
+        form = ReccuringDepositForm(request.POST, request.FILES)
         if form.is_valid():
             recurring_deposit = form.save(commit=False)
             recurring_deposit.status = "Opened"
             recurring_deposit.client = form.client
             recurring_deposit.save()
             url = reverse('micro_admin:clientrecurringdepositsprofile',
-                          {"recurring_deposit_id": recurring_deposit.id})
+                          kwargs={"recurring_deposit_id": recurring_deposit.id})
             return JsonResponse({"error": False, "success_url": url})
         else:
             return JsonResponse({"error": True, "message": form.errors})

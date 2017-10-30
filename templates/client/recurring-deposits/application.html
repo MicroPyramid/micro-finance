@@ -25,7 +25,7 @@
             <label class="filter_branch">R.D Account Number :
             <input name="reccuring_deposit_number" id="reccuring_deposit_number" class="locations"/></label>
             <label class="filter_branch"> First Name :
-            <input name="nominee_firstname" class="locations"/></label>
+            <input name="nominee_firstname" class="locations" id="nominee_firstname" /></label>
           </div>
           <div class="input-group">
             <label class="filter_branch"> Member Name :
@@ -51,7 +51,8 @@
             <label class="filter_branch"> Deposite Amount :
             <input name="recurring_deposit_amount" id="recurring_deposit_amount" class="locations"/></label>
             <label class="filter_branch"> Relationship with nominee :
-            <input list="browsers" name="relationship_with_nominee" class="locations"/></label>
+            <input list="browsers" name="relationship_with_nominee" class="locations" 
+             id="relationship_with_nominee" /></label>
             <datalist id="browsers">
               <option value="">Select Relationship</option>
               <option>Father</option>
@@ -74,17 +75,17 @@
            </div>
           <div class="input-group">
               <label class="filter_branch"> Member A/C No :
-              <input name="client_account_no" class="locations"/></label>
-              <label class="gender">
+              <input name="client_account_no" class="locations" id="client_account_no" /></label>
+              <label class="gender" id="nominee_gender">
                 Gender:
               <div class="form-check form-check-inline">
                 <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">Male
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="M" name="nominee_gender">Male
                 </label>
               </div>
               <div class="form-check form-check-inline">
                 <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2">Female
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="F" id="nominee_gender">Female
                 </label>
               </div>
           </div>
@@ -92,13 +93,13 @@
             <label class="filter_branch">Intrest Rate:
             <input name="recurring_deposit_interest_rate" id="recurring_deposit_interest_rate" class="locations"/></label>
            <label class="nominee_image"> Nominee Image:
-            <input type="file" id="myFile" name="nominee_image">
+            <input type="file" id="nominee_photo" name="nominee_photo">
           </div>
           <div class="input-group">
             <div class="save_application">
             </div>
             <label class="nominee_sign"> Nominee Signature:
-            <input type="file" id="myFile" name="nominee_signature"></label>
+            <input type="file" id="nominee_signature" name="nominee_signature"></label>
           </div>
           <div class="save_application">
            <button class="create_branch" type="submit">deposit</button>
@@ -107,14 +108,17 @@
        </div>
     </form>
   </div>
-</div>
-{% block extra_js %}    
+</div>   
+{% endblock %}
+{% block extra_js %}
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+ <script src="http://malsup.github.com/jquery.form.js"></script> 
 <script>
-  $(document).ready(function() {
     $('#recurringdepositapplicationform').ajaxForm({
       dataType: 'json',
       data : $('#recurringdepositapplicationform').serialize(),
       type: "POST",
+      url: ".",
       success: function(data){
         $(".error").remove();
         if(data.error == false)
@@ -140,7 +144,5 @@
         }
       }
     });
-  });
 </script>
 {% endblock extra_js %}
-{% endblock %}
