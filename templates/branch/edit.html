@@ -4,81 +4,66 @@
 <li>Edit</li>
 {% endblock %}
 {% block stage %}
-<!--content goes below-->
-<div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel margin-top-set">
-    <div class="panel-heading">Edit Branch</div>
-    <div class="panel-body pb-pad">
-      <form  id="editbranchform" class="form-horizontal" role="form" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Branch Name<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="hidden"  id="branch_id" value="{{branch.id}}" style="dispaly:none;">
-            <input type="text" class="text-box wid-form" name="name" value="{{ branch.name }}" id="name" readonly>
-          </div>
+<div class="row group_list">
+  <div class="col">
+    <div class="container">
+      <div class="row">
+        <div class="testing_head">
+          <h3>Edit Branch</h3>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Opening Date<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="opening_date" value="{{ branch.opening_date|date:"Y-m-d" }}" id="opening_date" readonly>
-          </div>
+      </div> 
+      <div class="container">
+        <div class="col-12 receipts">
+          <form  id="editbranchform" class="edit_branch_form" role="form" 
+            method="post">
+            {% csrf_token %}
+            <div class="input-group">
+              <label class="filter_branch">Branch Name :
+                <input list="browsers" class="locations" name="name" value="{{ branch.name }}" id="name" readonly>
+              </label>
+            </div>
+            <div class="input-group">
+              <label  class="filter_branch">Opening Date :
+                <input list="browsers" class="locations"  name="opening_date" value="{{ branch.opening_date|date:"Y-m-d" }}" id="opening_date" readonly></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Country :
+                <input list="browsers" class="locations"  name="country" value="{{ branch.country }}" id="country"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">State :
+                <input list="browsers" class="locations"  name="state" value="{{ branch.state }}" id="state"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">District : 
+                <input list="browsers" class="locations"  name="district" value="{{ branch.district }}" id="district"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">City :
+                <input list="browsers" class="locations" name="city" value="{{ branch.city }}" id="city"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Area :
+                <input list="browsers" class="locations"  name="area" value="{{ branch.area }}" id="area"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Phone Number :
+                <input list="browsers" class="locations"  name="phone_number" value="{{ branch.phone_number }}" id="phone_number"></label>
+            </div>
+            <div class="input-group">
+              <label class="filter_branch">Pin Code :
+                <input list="browsers" class="locations"  name="pincode" value="{{ branch.pincode }}" id="pincode"></label>
+            </div>
+            <div class="save_application">
+              <button class="create_branch" type="submit">Submit</button>
+              <button class="create_branch 1cancel-btn" type="reset">Cancel</button>
+            </div>
+          </form> 
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Country<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="country" value="{{ branch.country }}" id="country">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">State<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="state" value="{{ branch.state }}" id="state">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">District<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="district" value="{{ branch.district }}" id="district">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">City<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="city" value="{{ branch.city }}" id="city">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Area<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="area" value="{{ branch.area }}" id="area">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Phone Number<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="phone_number" value="{{ branch.phone_number }}" id="phone_number">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Pin Code<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="pincode" value="{{ branch.pincode }}" id="pincode">
-          </div>
-        </div>
-        <div class="form-group btns">
-          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
-          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
-  <!--form div ends above-->
 </div>
-<!--content ends above-->
-</div>
-<!--wrapper ends above-->
 {% endblock %}
 {% block extra_js %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

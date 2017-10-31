@@ -3,52 +3,60 @@
 <li>Create Branch</li>
 {% endblock %}
 {% block stage %}
-  <div class="banner">
-    <div class="form_content">
-      <h2>Create Branch</h2>
-      <form  id="create_form" class="form-horizontal" role="form" method="POST">{% csrf_token %}
+<div class="row group_list">
+      <div class="col">
+        <div class="container">
+          <div class="row">
+            <div class="testing_head">
+              <h3>Create Branch</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="container">
+      <form  id="createbranchform" class="branch_create" role="form" method="POST">{% csrf_token %}
         <div class="input-group">
-          <label class="location">Branch Name :</label>
-          <input type="text" class="form-control" placeholder="State" name="name" id="name">
+          <label class="filter_branch">Branch Name :
+          <input type="text" class="locations" placeholder="Branch Name" name="name" id="name"></label>
         </div>
         <div class="input-group">
-          <label class="location">Opening Date :</label>
-          <input type="text" class="form-control" placeholder="Date" name="opening_date" id="datepicker">
+          <label class="filter_branch">Opening Date :
+          <input type="text" class="locations" placeholder="Date" name="opening_date" id="datepicker"></label>
         </div>
         <div class="input-group">
-          <label class="location">Country :</label>
-          <input type="text" class="form-control" placeholder="Country" name="country" id="country">
+          <label class="filter_branch">Country :
+          <input type="text" class="locations" placeholder="Country" name="country" id="country"></label>
         </div>
         <div class="input-group">
-          <label class="location">State :</label>
-          <input type="text" class="form-control" placeholder="State" name="state" id="state">
+          <label class="filter_branch">State :
+          <input type="text" class="locations" placeholder="State" name="state" id="state"></label>
         </div>
         <div class="input-group">
-          <label class="location">District :</label>
-          <input type="text" class="form-control" placeholder="District" name="district" id="district">
+          <label class="filter_branch">District :
+          <input type="text" class="locations" placeholder="District" name="district" id="district"></label>
         </div>
         <div class="input-group">
-          <label class="location">City :</label>
-          <input type="text" class="form-control" placeholder="City" name="city" id="city">
+          <label class="filter_branch">City :
+          <input type="text" class="locations" placeholder="City" name="city" id="city"></label>
         </div>
         <div class="input-group">
-          <label class="location">Area :</label>
-          <input type="text" class="form-control" placeholder="Area" name="area" id="area">
+          <label class="filter_branch">Area :
+          <input type="text" class="locations" placeholder="Area" name="area" id="area"></label>
         </div>
         <div class="input-group">
-          <label class="location">Phone Number :</label>
-          <input type="text" class="form-control" placeholder="Phone Number" name="phone_number" id="phone_number">
+          <label class="filter_branch">Phone Number :
+          <input type="text" class="locations" placeholder="Phone Number" name="phone_number" id="phone_number"></label>
         </div>
         <div class="input-group">
-          <label class="location">Pin Code :</label>
-          <input type="text" class="form-control" placeholder="Pincode" name="pincode" id="pincode">
+          <label class="filter_branch">Pin Code :
+          <input type="text" class="locations" placeholder="Pincode" name="pincode" id="pincode"></label>
         </div>
-        <div class="input-group btns">
+        <div class="save_application">
           <button type="submit" class="create_branch">Create</button>
           <button type="reset" class="create_branch">Cancel</button>
         </div>
       </form>
-    </div>
   </div>
 {% endblock %}
 {% block extra_js %}
@@ -63,9 +71,9 @@
 
           $.each(data.errors, function( key, value ) {
             if (key == 'opening_date'){
-              $('#datepicker').after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
+              $('#datepicker').after("<span class='error' style='display:-webkit-inline-box;color:red;'> * " + value + "</span>");
             }else{
-              $('#'+key).after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
+              $('#'+key).after("<span class='error' style='display:-webkit-inline-box;color:red;'> * " + value + "</span>");
             }
           });
         }

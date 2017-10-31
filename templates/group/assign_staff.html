@@ -16,21 +16,21 @@
           {% csrf_token %}
           <div class="assign_staff_form">
             <div class="input-group">
-              <label class="filter_branch" id="stafferror" name="staff"> Staff :
-              <input list="browsers" name="staff" class="locations"/></label>
-              <datalist id="browsers">
-                {% for user in users_list %}
-                  {% if group.staff %}
-                    {% ifequal user.id group.staff.id %}
-                      <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
+              <label class="filter_branch"> Staff : 
+                <select class="custom-select" name="staff" id="stafferror" required="True">
+                  <option value="">Select Staff</option>
+                   {% for user in users_list %}
+                    {% if group.staff %}
+                      {% ifequal user.id group.staff.id %}
+                        <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
+                      {% else %}
+                        <option value="{{ user.id }}">{{ user.first_name }}</option>
+                      {% endifequal %}
                     {% else %}
                       <option value="{{ user.id }}">{{ user.first_name }}</option>
-                    {% endifequal %}
-                  {% else %}
-                    <option value="{{ user.id }}">{{ user.first_name }}</option>
-                  {% endif %}
-                {% endfor%}
-              </datalist>
+                    {% endif %}
+                   {% endfor%}
+                </select></label>
             </div>
             <div class="save_application">
               <button type="submit" class="create_branch">Submit</button><button type="button" class="create_branch">Cancel</button>
