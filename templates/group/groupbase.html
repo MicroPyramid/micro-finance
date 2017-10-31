@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+  <li><a href="{% url 'micro_admin:groupprofile' group.id %}">{{ group.name }}</a>&nbsp;/</li> &nbsp;
+  {% block groupbreadcrumb %}
+  {% endblock %}
+{% endblock %}
 {% block stage %}
 <div class="row group_list">
   <div class="col-2  detail_list">

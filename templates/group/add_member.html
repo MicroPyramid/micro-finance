@@ -10,52 +10,55 @@
         <div class="col-5">
           <div class="list_member_view red">
             <div class="count_list">
-              <h4>Add Member To : abcGroup</h4>
+              <h4>Add Member to : &nbsp; ABCGroup</h4>
             </div>
           </div>
         </div>
       </div>
       <div class="col-12 receipts">
-        <form id="addmembersform" class="form-horizontal" role="form" method="post">
-          {% csrf_token %}
+        <form id="addmembersform" class="form-horizontal" role="form" method="post">{% csrf_token %}
           <br clear="all" />
-          <div class="hg-table">
-            <div class="table-responsive">
-              <table class="table tacble-striped receipt_list" data-tablesaw-mode="columntoggle" id="active_users">
-                <thead>
-                  <tr>
-                    <th scope="col">Select</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">A/c Number</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Role</th>
-                    <th scope="col">Branch</th>
-                  </tr>
-                </thead>
-                <tbody class="color-back-tb">
-                  {% for client in clients_list %}
-                  <tr class="list">
-                    <td><input type="checkbox" name="clients" value="{{ client.id }}"/></td>
-                    <td>{{ client.first_name }}</td>
-                    <td>{{ client.account_number }}</td>
-                    {% if client.is_active %}
-                    <td>Active</td>
-                    {% else %}
-                    <td>InActive</td>
-                    {% endif %}
-                    <td>{{ client.client_role }}</td>
-                    <td>{{ client.branch.name }}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-              <p id="clientserror"></p>
+          {% if clients_list %}
+            <div class="hg-table">
+              <div class="table-responsive">
+                <table class="table tacble-striped receipt_list" data-tablesaw-mode="columntoggle" id="active_users">
+                  <thead>
+                    <tr>
+                      <th scope="col">Select</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">A/c Number</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Role</th>
+                      <th scope="col">Branch</th>
+                    </tr>
+                  </thead>
+                  <tbody class="color-back-tb">
+                    {% for client in clients_list %}
+                    <tr class="list">
+                      <td><input type="checkbox" name="clients" value="{{ client.id }}"/></td>
+                      <td>{{ client.first_name }}</td>
+                      <td>{{ client.account_number }}</td>
+                      {% if client.is_active %}
+                      <td>Active</td>
+                      {% else %}
+                      <td>InActive</td>
+                      {% endif %}
+                      <td>{{ client.client_role }}</td>
+                      <td>{{ client.branch.name }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <p id="clientserror"></p>
+              </div>
             </div>
-          </div>
-          <div class="save_application">
-            <button class="create_branch" type="submit">Submit</button>
-            <button class="create_branch" type="reset">Cancel</button>
-          </div>
+            <div class="save_application">
+              <button class="create_branch" type="submit">Submit</button>
+              <button class="create_branch" type="reset">Cancel</button>
+            </div>
+          {% else %}
+            <h4 class="no_records">No Members to Add in this Group</h4>
+          {% endif %}
         </form>
       </div>
     </div>
