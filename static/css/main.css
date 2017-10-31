@@ -628,3 +628,84 @@ body {
     .view_deposit span i.blue {
       background-color: rgba(0, 123, 255, 0.18);
       color: rgba(64, 208, 41, 0.8); }
+
+
+.edit_branch_form, .branch_create {
+  width: 50%;
+  margin: 0px auto;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .edit_branch_form .input-group, .branch_create .input-group {
+    padding: 5px 100px 5px 5px; }
+  .edit_branch_form .filter_branch, .branch_create .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px;
+    margin-bottom: 5px; }
+    .edit_branch_form .filter_branch .locations, .branch_create .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd;
+      padding-left: 10px; }
+      .edit_branch_form .filter_branch .locations:focus, .branch_create .filter_branch .locations:focus {
+        outline: none; }
+  .edit_branch_form .save_application, .branch_create .save_application {
+    text-align: center;
+    margin-top: 0px; }
+
+.profile_header {
+  margin: 0px auto;
+  width: 50%;
+  margin-bottom: 5px; }
+  .profile_header h3 {
+    padding: 5px 20px 10px 20px;
+    font-size: 25px;
+    background: rgba(243, 243, 243, 0.6); }
+    .profile_header h3 i {
+      padding: 5px;
+      font-size: 18px; }
+      .profile_header h3 i.red {
+        background-color: rgba(255, 0, 0, 0.21);
+        color: #f51b30; }
+      .profile_header h3 i.green {
+        background-color: rgba(0, 123, 255, 0.18);
+        color: rgba(64, 208, 41, 0.8); }
+
+/*branch_profile_form start here*/
+.branch_profile_form {
+  width: 50%;
+  margin: 0px auto;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .branch_profile_form .input-group {
+    padding: 5px 60px 5px 5px; }
+    .branch_profile_form .input-group .filter_branch {
+      width: 100%;
+      padding: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: right;
+      padding-right: 10px; }
+      .branch_profile_form .input-group .filter_branch .locations {
+        border: none;
+        padding-left: 10px; }
+        .branch_profile_form .input-group .filter_branch .locations:focus {
+          outline: none; }
+
+.create_form .input-group, .create_group .input-group {
+  padding: 5px 80px 5px 5px; }
+  .create_form .input-group .filter_branch, .create_group .input-group .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+    .create_form .input-group .filter_branch .locations, .create_group .input-group .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd;
+      padding-left: 10px; }
+      .create_form .input-group .filter_branch .locations:focus, .create_group .input-group .filter_branch .locations:focus {
+        outline: none; }
