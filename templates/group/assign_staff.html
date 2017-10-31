@@ -1,56 +1,49 @@
 {% extends 'group/groupbase.html' %}
-{% block groupbreadcrumb %}
+{% block breadcrumb %}
 <li>Assign Staff</li>
 {% endblock %}
 {% block groupstage %}
-<div class="home-div-gp wid-ass-stf mar-left-30">
-<div class="panel panel-default panel-hdg">
-  <div class="panel-heading">
-    <h3 class="panel-title">
-      {% if group.is_active %}<i class="fa fa-square green padd"></i>{% else %}<i class="fa fa-square red padd"></i>{% endif %}
-      {{ group.name|capfirst }} Group
-    </h3>
-  </div>
-  <div class="panel-body">
-    <!--panel body starts above-->
-    <form id="assignstaffform" class="form-horizontal" role="form" method="post">
-      {% csrf_token %}
-      <!--div 1 0f form-->
-      <div class="box-form-as">
-        <div class="form-group" style="margin-top: -10px;">
-          <label for="inputEmail3" class="col-sm-offset-2 col-sm-2 control-label">Staff</label>
-          <div class="col-sm-6">
-            <select class="text-box wid-form form-control" name="staff">
-              <option value="">Select Staff</option>
-              {% for user in users_list %}
-                {% if group.staff %}
-                  {% ifequal user.id group.staff.id %}
-                    <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
-                  {% else %}
-                    <option value="{{ user.id }}">{{ user.first_name }}</option>
-                  {% endifequal %}
-                {% else %}
-                  <option value="{{ user.id }}">{{ user.first_name }}</option>
-                {% endif %}
-              {% endfor%}
-            </select>
-            <span id="stafferror"></span>
-          </div>
-          <div><input type="hidden" id="group_id" value="{{group.id}}"></div>
-        </div>
-        <!--div 1 of fomr ends above-->
-        <div class="btns-row" style="margin-top: -10px;">
-          <div class="form-group btns align-btns">
-            <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
-            <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
-          </div>
-        </div>
-    </form>
+<dir class="col">
+  <div class="container">
+    <div class="row">
+      <div class="testing_head">
+        <h3>{{group.name|title}} Group Staff</h3>
+      </div>
     </div>
-    <!--panel body ends below crct-->
+    <div class="container">
+      <div class="col-12 receipts">
+        <form id="assignstaffform" class="form-horizontal" role="form" method="post">
+          {% csrf_token %}
+          <div class="assign_staff_form">
+            <div class="input-group">
+              <label class="filter_branch"> Staff : 
+                <select class="custom-select" name="staff" id="stafferror" required="True">
+                  <option value="">Select Staff</option>
+                   {% for user in users_list %}
+                    {% if group.staff %}
+                      {% ifequal user.id group.staff.id %}
+                        <option value="{{ user.id }}" selected="selected">{{ user.first_name }}</option>
+                      {% else %}
+                        <option value="{{ user.id }}">{{ user.first_name }}</option>
+                      {% endifequal %}
+                    {% else %}
+                      <option value="{{ user.id }}">{{ user.first_name }}</option>
+                    {% endif %}
+                   {% endfor%}
+                </select></label>
+            </div>
+            <div class="save_application">
+              <button type="submit" class="create_branch">Submit</button><button type="button" class="create_branch">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
-</div>
-<!--content ends above-->
+</dir>
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#assignstaffform').submit(function(e) {
@@ -59,7 +52,7 @@
         if (data.error) {
           $("span.error").remove();
           if (data.message.staff) {
-            $("#stafferror").prepend("<span class='error' style='height:11px;color:red;'>" + data.message.staff + "</span>");
+            $("#stafferror").after("<span class='error' style='height:11px;color:red;'>" + data.message.staff + "</span>");
           }
         }
         else {
@@ -72,4 +65,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}

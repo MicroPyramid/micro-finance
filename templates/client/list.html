@@ -3,64 +3,62 @@
 <li>View Members</li>
 {% endblock %}
 {% block stage %}
-<!--content goes below-->
 <div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile margin-top-set">
-    <div class="panel-heading">View Members</div>
-    <div class="panel-body pb-table">
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr class="head-row-tb">
-              <th>Member Name</th>
-              <th>Account Number</th>
-              <th>Branch Name</th>
-              <th>Group Name</th>
-              <th>Role</th>
-              <th>Status</th>
-              {% if user.is_admin or user.user_roles == "BranchManager" %}
-              <th>Edit/Delete</th>
-              {% else %}
-              <th>Edit</th>
-              {% endif %}
-            </tr>
-          </thead>
-          <tbody class="body-row-tb">
-            {% for client in client_list %}
-            <tr>
-              <td><a href="{% url 'micro_admin:clientprofile' client.id %}" style="color:#337ab7">
-              {{ client.first_name|capfirst }} {{ client.last_name|capfirst }}</a></td>
-              <td>{{ client.account_number }}</td>
-              <td><a href="{% url 'micro_admin:branchprofile' client.branch.id %}" style="color:#337ab7">{{ client.branch.name|capfirst}}</a></td>
-              <td>
-                {% if client.group_set.get %}
-                  <a href="{% url 'micro_admin:groupprofile' client.group_set.get.id %}" style="color:#337ab7">
-                    {{ client.group_set.get.name|capfirst}} Group </a>
-                {% else %} - {% endif %}
-              </td>
-              <td>{{ client.client_role }}</td>
-              {% if client.is_active %}
-              <td><a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-circle green pad-lt"></i></a></td>
-              {% else %}
-              <td><a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-circle red pad-lt"></i></a></td>
-              {% endif %}
-              <td class="ed">
-                <a href="{% url 'micro_admin:editclient' client.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
-                {% if client.is_active %}
-                {% if user.is_admin or user.user_roles == "BranchManager" %}
-                <a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
-                {% endif %}
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <div class="row search_list">
+    <div class="col">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search branch" aria-label="Username" aria-describedby="sizing-addon2"> <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
       </div>
     </div>
+    <div class="col">
+      <button type="button" class="pull-right branch">Create Member</button>
+    </div>
   </div>
-  <!--form div ends above-->
+  <div class="row list_page_view">
+    <table class="table table-striped" data-tablesaw-mode="columntoggle" id="active_users">
+      <thead>
+        <tr>
+          <th width="15%" scope="col">Member Name</th>
+          <th width="15%" scope="col">Account Number</th>
+          <th width="15%" scope="col">Branch Name</th>
+          <th width="15%" scope="col">Group Name</th>
+          <th width="15%" scope="col">Role</th>
+          <th width="10%" scope="col">Status</th>
+          <th width="15%" scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for client in client_list %}
+        <tr>
+          <td><a href="{% url 'micro_admin:clientprofile' client.id %}" style="color:#337ab7">
+          {{ client.first_name|capfirst }} {{ client.last_name|capfirst }}</a></td>
+          <td>{{ client.account_number }}</td>
+          <td><a href="{% url 'micro_admin:branchprofile' client.branch.id %}" style="color:#337ab7">{{ client.branch.name|capfirst}}</a></td>
+          <td>
+            {% if client.group_set.get %}
+              <a href="{% url 'micro_admin:groupprofile' client.group_set.get.id %}" style="color:#337ab7">
+                {{ client.group_set.get.name|capfirst}} Group </a>
+            {% else %} - {% endif %}
+          </td>
+          <td>{{ client.client_role }}</td>
+          {% if client.is_active %}
+            <td><a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-circle green pad-lt"></i></a></td>
+          {% else %}
+            <td><a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-circle red pad-lt"></i></a></td>
+          {% endif %}
+          <td class="ed">
+            <a href="{% url 'micro_admin:clientprofile' client.id %}"><i class="fa fa-eye"></i></a>
+            <a href="{% url 'micro_admin:editclient' client.id %}"><i class="fa fa-pencil-square-o edit-icon"></i></a>
+            {% if client.is_active %}
+              {% if user.is_admin or user.user_roles == "BranchManager" %}
+                <a href="{% url 'micro_admin:deleteclient' client.id %}"><i class="fa fa-trash-o trash-icon"></i></a>
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-<!--content ends above-->
 {% endblock %}

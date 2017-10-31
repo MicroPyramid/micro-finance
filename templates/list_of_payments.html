@@ -4,74 +4,72 @@
 <li>Payments</li>
 {% endblock %}
 {% block stage %}
-<!--content goes below-->
-<div class="container-trans-table">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel-bprofile margin-top-set trans-table">
-    <div class="panel-heading">
-      <h3 class="panel-title">
-        Payments Lists
-        <span><a href="{% url 'core:payslip' %}"><button class="ed-btn"><i class="fa fa-plus padd"></i>New Payment
-        </button>
-        </a></span>
-      </h3>
-    </div>
-    <div class="hg-table panel-body pb-table">
-      <div class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-            <tr class="head-row-tb">
-              <th>S.No.</th>
-              <th>Date</th>
-              <th>Vocher Number</th>
-              <th>Group Name</th>
-              <th>Member Name</th>
-              <th>Staff Name</th>
-              <th>Payment Type</th>
-              <th>Amount</th>
-              <th>Interest</th>
-              <th>Total Amount</th>
-            </tr>
-          </thead>
-          <tbody class="body-row-tb">
-            {% for payment in payments_list %}
-            <tr>
-              <td><b>{{ forloop.counter }}</b></td>
-              <td>{{ payment.date }}</td>
-              <td>{{ payment.voucher_number}}</td>
-              <td>
-              {% if payment.group %}
-              <a href="{% url 'micro_admin:groupprofile' payment.group.id %}" style="color:#337ab7;">
-              {% endif %}
-              {{ payment.group.name|capfirst|default:" - " }}
-              {% if payment.group %}</a>{% endif %}
-              </td>
-              <td>
-              {% if payment.client %}
-                <a href="{% url 'micro_admin:clientprofile' payment.client.id %}" style="color:#337ab7;">
-              {% endif %}
-              {{ payment.client.first_name|capfirst|default:" - " }}
-              {% if payment.client %}</a>{% endif %}
-              </td>
-              <td>
-              {% if payment.staff %}
-                <a href="{% url 'micro_admin:userprofile' payment.staff.id %}" style="color:#337ab7;">
-              {% endif %}
-              {{ payment.staff.username|capfirst|default:" - " }}
-              {% if payment.staff %}</a>{% endif %}
-              </td>
-              <td>{{ payment.payment_type }}</td>
-              <td>{{ payment.amount|floatformat:2 }}</td>
-              <td>{% if payment.interest %}{{ payment.interest|default:" - " }}{% else %}-{% endif %}</td>
-              <td style="color:#FF00CC;">{{ payment.total_amount|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+<div class="row group_list">
+  <div class="col">
+    <div class="container">
+      <div class="row">
+        <div class="pay_list_head">
+          <h3>Payments List <span class="pull-right"><a href="{% url 'core:payslip' %}"><button type="button" class="create_branch">New Payment</button></a></span></h3>
+        </div>
       </div>
     </div>
   </div>
-  <!--form div ends above-->
 </div>
-<!--content ends above-->
+<div class="container">
+  <div class="row ">
+    <div class="col">
+      <table class="table table-striped receipt_list" data-tablesaw-mode="columntoggle" 
+        id="active_users">
+        <thead>
+          <tr>
+            <th scope="col">S.No.</th>
+            <th scope="col">Date</th>
+            <th scope="col">Vocher Number</th>
+            <th scope="col">Group Name</th>
+            <th scope="col">Member Name</th>
+            <th scope="col">Staff Name</th>
+            <th scope="col">Payment Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Interest</th>
+            <th scope="col">Total Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment in payments_list %}
+          <tr class="list">
+            <td><b>{{ forloop.counter }}</b></td>
+            <td>{{ payment.date }}</td>
+            <td>{{ payment.voucher_number}}</td>
+            <td>
+            {% if payment.group %}
+            <a href="{% url 'micro_admin:groupprofile' payment.group.id %}" style="color:#337ab7;">
+            {% endif %}
+            {{ payment.group.name|capfirst|default:" - " }}
+            {% if payment.group %}</a>{% endif %}
+            </td>
+            <td>
+            {% if payment.client %}
+              <a href="{% url 'micro_admin:clientprofile' payment.client.id %}" style="color:#337ab7;">
+            {% endif %}
+            {{ payment.client.first_name|capfirst|default:" - " }}
+            {% if payment.client %}</a>{% endif %}
+            </td>
+            <td>
+            {% if payment.staff %}
+              <a href="{% url 'micro_admin:userprofile' payment.staff.id %}" style="color:#337ab7;">
+            {% endif %}
+            {{ payment.staff.username|capfirst|default:" - " }}
+            {% if payment.staff %}</a>{% endif %}
+            </td>
+            <td>{{ payment.payment_type }}</td>
+            <td>{{ payment.amount|floatformat:2 }}</td>
+            <td>{% if payment.interest %}{{ payment.interest|default:" - " }}{% else %}-{% endif %}</td>
+            <td style="color:#FF00CC;">{{ payment.total_amount|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 {% endblock %}

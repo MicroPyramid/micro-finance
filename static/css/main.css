@@ -1,0 +1,711 @@
+body {
+  font-family: 'muli';
+  background-color: #ffffff; }
+
+.nav-header {
+  background-color: #2a8c5d;
+  margin: 0px; }
+  .nav-header .header-logo {
+    float: left;
+    width: 9%; }
+
+.header-content {
+  width: 100%;
+  padding: 11px;
+  font-size: 26px;
+  height: 60px; }
+  .header-content a {
+    color: #ffffff;
+    font-weight: 600; }
+    .header-content a:hover {
+      text-decoration: none; }
+
+.notification {
+  float: left;
+  margin-top: 15px; }
+  .notification i {
+    font-size: 23px;
+    color: #ffffff;
+    margin-right: 20px;
+    margin-top: 3px; }
+
+.profile {
+  float: left;
+  margin-top: 15px; }
+  .profile i {
+    font-size: 23px;
+    color: #ffffff; }
+  .profile .profile_dropdown {
+    float: right;
+    background: none;
+    border: none; }
+    .profile .profile_dropdown i {
+      font-size: 25px; }
+
+.dropdown-menu.profile_logout.show {
+  left: -18px !important;
+  top: 6px !important;
+  min-width: 5rem !important; }
+
+.banner_content {
+  width: 50%;
+  height: 300px;
+  background-color: #ffffff;
+  margin: 0px auto;
+  margin-top: 50px;
+  text-align: center; }
+  .banner_content h2 {
+    font-size: 35px;
+    padding-top: 40px; }
+  .banner_content .select_banner {
+    margin-top: 50px; }
+    .banner_content .select_banner .branch {
+      background: #dddddd;
+      border: 1px solid #dddddd;
+      padding: 8px 40px;
+      font-size: 20px; }
+
+.select_or {
+  background: #ddd;
+  padding: 13px 15px;
+  border-radius: 50%;
+  font-size: 18px; }
+
+.navbar-light {
+  padding: 11px;
+  margin-left: 75px; }
+  .navbar-light .navbar-nav .nav-link {
+    color: #ffffff;
+    font-size: 13px;
+    padding: 9px 20px;
+    font-weight: 600; }
+    .navbar-light .navbar-nav .nav-link:hover {
+      color: #fbe207; }
+    .navbar-light .navbar-nav .nav-item.active {
+      color: #fbe207;
+      background-color: #fff;
+      }
+
+/*listpage */
+.search_list {
+  margin-top: 50px; }
+  .search_list .input-group .form-control {
+    border-bottom: 1px solid #dddddd !important;
+    border: none; }
+  .search_list .input-group .input-group-addon {
+    border: none !important; }
+  .search_list .branch {
+    background: #dddddd;
+    border: 1px solid #dddddd;
+    padding: 2px 12px;
+    font-size: 20px;
+    border-radius: 4px; }
+
+.list_page_view {
+  margin-top: 50px; }
+  .list_page_view .table td {
+    border: none !important;
+    font-size: 14px; }
+    .list_page_view .table td i {
+      font-size: 15px;
+      padding: 3px;
+      padding-left: 10px; }
+  .list_page_view .table thead th {
+    border-bottom: 1px solid #ddd;
+    border-top: none; }
+
+
+/*create_form*/
+.form_content {
+  width: 35%;
+  height: 450px;
+  margin: 0px auto;
+  margin-top: 60px;
+  text-align: center; }
+  .form_content h2 {
+    font-size: 25px;
+    padding-top: 20px; }
+
+.create_form {
+  margin-top: 40px; }
+  .create_form .input-group {
+    padding: 5px 80px 5px 5px; }
+  .create_form .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+  .create_form .location {
+    border: none;
+    border-bottom: 1px solid #ddd; }
+
+.create_branch {
+  background: #dddddd;
+  border: 1px solid #dddddd;
+  padding: 1px 12px;
+  font-size: 18px;
+  border-radius: 4px;
+  margin-right: 15px;
+  margin-top: 17px; }
+
+
+/*# breadcrumbcontainer */
+.breadcrumbcontainer{
+  width: 100%;
+  text-align: center;}
+  ol.breadcrumb{
+    background: none!important;
+    display: inline-flex;
+  }
+
+.testing_head {
+  margin-top: 0px;
+  width: 100%;
+  font-size: 27px; }
+  .testing_head h3 {
+    padding-top: 30px;
+    text-align: center;
+    font-size: 25px; }
+    .group_list{
+      width: 100%;
+    }
+
+.row.group_list .detail_list {
+  margin-top: -29px;
+  padding: 9px;
+  background-color: #50949b;
+  height: 615px; }
+
+.sub-menu {
+  list-style: none;
+  padding-left: 5px; }
+  .sub-menu li {
+    list-style: none;
+    font-size: 1.3rem; }
+    .sub-menu li a {
+      font-size: 1.0rem;
+      padding: 8px;
+      display: block;
+      color: #fff; }
+      .sub-menu li a:hover {
+        text-decoration: none; }
+
+.list_header {
+  border-bottom: 1px solid #ddd; }
+
+.receipt_list {
+  background-color: #ffffff;
+  font-size: 14px;
+  color: #000;
+  margin-top: 20px; }
+  .receipt_list td {
+    border: none;
+    padding: 10px; }
+  .receipt_list th {
+    border: none;
+    padding: 8px; }
+
+.testing_branch {
+  background-color: #fff;
+  margin: 0px;
+  margin-top: 5px; }
+  .testing_branch .list_detail_view {
+    height: 50px;
+    background: rgba(23, 162, 184, 0.66);
+    margin-top: 7px;
+    border-radius: 5px; }
+    .testing_branch .list_detail_view.red {
+      background-color: rgba(255, 0, 0, 0.21); }
+    .testing_branch .list_detail_view.orange {
+      background-color: rgba(255, 165, 0, 0.19); }
+    .testing_branch .list_detail_view.green {
+      background-color: rgba(49, 212, 133, 0.23); }
+    .testing_branch .list_detail_view.blue {
+      background-color: rgba(0, 123, 255, 0.18); }
+    .testing_branch .list_detail_view.yellow {
+      background-color: rgba(255, 193, 7, 0.34); }
+    .testing_branch .list_detail_view .count_list {
+      width: 79%;
+      height: 50px;
+      float: left; }
+      .testing_branch .list_detail_view .count_list h4 {
+        font-size: 16px;
+        padding: 5px;
+        margin-bottom: 0px;
+        font-weight: 700; }
+      .testing_branch .list_detail_view .count_list p {
+        font-size: 14px;
+        padding-left: 5px;
+        margin: 0px; }
+    .testing_branch .list_detail_view .count_list_members {
+      width: 72%;
+      height: 50px;
+      float: left; }
+      .testing_branch .list_detail_view .count_list_members h4 {
+        font-size: 16px;
+        padding: 5px;
+        margin-bottom: 0px;
+        font-weight: 700; }
+      .testing_branch .list_detail_view .count_list_members p {
+        font-size: 14px;
+        padding-left: 5px;
+        margin: 0px; }
+    .testing_branch .list_detail_view .detail_list_icon i {
+      padding: 9px;
+      margin-top: 8px;
+      font-size: 18px; }
+      .testing_branch .list_detail_view .detail_list_icon i.red {
+        color: #f51b30; }
+      .testing_branch .list_detail_view .detail_list_icon i.orange {
+        color: rgba(255, 87, 34, 0.43); }
+      .testing_branch .list_detail_view .detail_list_icon i.green {
+        color: rgba(64, 208, 41, 0.8); }
+      .testing_branch .list_detail_view .detail_list_icon i.blue {
+        color: rgba(63, 81, 181, 0.52); }
+      .testing_branch .list_detail_view .detail_list_icon i.yellow {
+        color: #FFC107; }
+
+.breadcrumb {
+  background-color: #ffffff;
+  text-align: center;
+  margin-bottom: 0px;
+  font-size: 13px;
+  padding: 5px; }
+
+.view_members{
+  margin-top: 30px;
+}
+
+.view_members .list_saving_view {
+  height: 50px;
+  background: rgba(23, 162, 184, 0.66);
+  margin-top: 7px;
+  border-radius: 5px;
+  margin-left: 15px; }
+  .view_members .list_saving_view.red {
+    background-color: transparent;
+    color: rgba(23,162,184,0.66); }
+.view_members .count_list {
+  width: 79%;
+  height: 50px;
+  float: left; }
+  .view_members .count_list h4 {
+    font-size: 22px;
+    padding-left: 5px;
+    margin-bottom: 0px;
+    font-weight: 700; }
+  .view_members .count_list p {
+    font-size: 14px;
+    padding-left: 5px;
+    margin: 0px; }
+.view_members .detail_view_members {
+  padding-top: 10px;
+  font-size: 20px; }
+
+  .view_members .list_loan_view {
+  height: 50px;
+  background: rgba(23, 162, 184, 0.66);
+  margin-top: 7px;
+  border-radius: 5px;
+  margin-left: 15px; }
+  .view_members .list_loan_view.red {
+    background-color: rgba(255, 165, 0, 0.19); }
+
+.add_members .list_member_view {
+  height: 50px;
+  background: rgba(23, 162, 184, 0.66);
+  margin-top: 35px;
+  border-radius: 5px;
+  margin-left: 10px; }
+  .add_members .list_member_view.red {
+    color: rgba(23, 162, 184, 0.66);
+    background-color: transparent; }
+.add_members h4 {
+  padding: 12px; }
+
+.loan_header_text {
+  width: 100%;
+  font-size: 25px; }
+  .loan_header_text h3 {
+    padding-top: 35px;
+    text-align: center;
+    font-size: 25px;
+    padding-bottom: 5px; }
+
+.loan_apply_form {
+  margin-top: 15px !important;
+  width: 50%;
+  margin: 0px auto;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .loan_apply_form .input-group {
+    padding: 5px 60px 5px 5px; }
+    .loan_apply_form .input-group .custom-select {
+      border: none;
+      border-bottom: 1px solid #ddd;
+      width: 92%; }
+  .loan_apply_form .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+    .loan_apply_form .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd; }
+  .loan_apply_form textarea {
+    margin-top: 12px;
+    border: 1px solid #ddd; }
+
+.saving_form {
+  margin-top: 40px !important;
+  width: 50%;
+  height: 320px;
+  margin: 0px auto;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .saving_form .input-group {
+    padding: 5px 60px 5px 5px; }
+  .saving_form .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+    .saving_form .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd; }
+  .saving_form .save_application {
+    text-align: center;
+    margin-top: 0px; }
+
+.save_application {
+  height: 40px;
+  text-align: center; }
+  .save_application .create_branch {
+    margin-top: 0px;
+    background-color: #a1c7e4; }
+
+.loan_purpose {
+  width: 60%;
+  padding: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+  padding-right: 10px; }
+
+.assign_staff_form {
+  margin-top: 40px !important;
+  width: 50%;
+  height: 105px;
+  margin: 0px auto;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .assign_staff_form .input-group {
+    padding: 5px 50px 5px 5px; }
+  .assign_staff_form .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    padding-right: 10px; }
+    .assign_staff_form .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd; }
+  .assign_staff_form .save_application {
+    text-align: center;
+    margin-top: 0px; }
+
+.user_dashboard_count {
+  margin-top: 30px; }
+
+.count_view {
+  height: 80px;
+  margin-top: 7px;
+  border-radius: 5px; }
+  .count_view.red {
+    background-color: rgba(255, 0, 0, 0.21); }
+  .count_view.blue {
+    background-color: rgba(0, 123, 255, 0.18); }
+  .count_view.yellow {
+    background-color: rgba(255, 255, 0, 0.23); }
+  .count_view.orange {
+    background-color: rgba(255, 165, 0, 0.19); }
+  .count_view.green {
+    background-color: rgba(49, 212, 133, 0.23); }
+  .count_view .count_list {
+    width: 79%;
+    float: left; }
+    .count_view .count_list h2 {
+      font-size: 15px;
+      padding-top: 15px;
+      font-weight: 700;
+      margin-bottom: 0px;
+      text-align: center; }
+    .count_view .count_list p {
+      font-size: 25px;
+      font-weight: 600;
+      margin: 0px;
+      text-align: center; }
+  .count_view .detail_list_icon i {
+    font-size: 30px;
+    padding-top: 25px; }
+    .count_view .detail_list_icon i.pink {
+      color: #ff6565; }
+    .count_view .detail_list_icon i.blue {
+      color: #519cef; }
+    .count_view .detail_list_icon i.yellow {
+      color: #f7b743; }
+    .count_view .detail_list_icon i.green {
+      color: #25b725; }
+
+.dashboard_view {
+  margin-top: 40px; }
+  .dashboard_view ul li {
+    width: 25%;
+    text-align: center; }
+    .dashboard_view ul li .nav-link.active {
+      background: #d1e7ff; }
+  .dashboard_view #myTabContent {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd; }
+  .dashboard_view .user_transation_list {
+    background-color: #ffffff;
+    font-size: 14px;
+    color: #000;
+    margin-bottom: 0px;
+    text-align: center; }
+    .dashboard_view .user_transation_list td {
+      border: none;
+      padding: 10px; }
+    .dashboard_view .user_transation_list th {
+      border: none;
+      padding: 8px;
+      text-align: center; }
+
+.fixed_deposite_list, .recurring_deposite_list {
+  margin-top: 10px;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .fixed_deposite_list h6, .recurring_deposite_list h6 {
+    text-align: right;
+    padding-right: 260px;
+    padding-top: 5px;
+    font-weight: 600;
+    text-decoration: underline; }
+  .fixed_deposite_list .receipt_form, .recurring_deposite_list .receipt_form {
+    margin-top: 20px;
+    height: 440px; }
+    .fixed_deposite_list .receipt_form .nominee_deatails, .recurring_deposite_list .receipt_form .nominee_deatails {
+      text-align: center;
+      font-weight: 600;
+      font-size: 18px;
+      padding: 10px; }
+  .fixed_deposite_list .nominee_image, .fixed_deposite_list .nominee_sign, .recurring_deposite_list .nominee_image, .recurring_deposite_list .nominee_sign {
+    width: 100%;
+    text-align: right;
+    font-weight: 600; }
+    .fixed_deposite_list .nominee_image #myFile, .fixed_deposite_list .nominee_sign #myFile, .recurring_deposite_list .nominee_image #myFile, .recurring_deposite_list .nominee_sign #myFile {
+      width: 46%; }
+  .fixed_deposite_list .gender, .recurring_deposite_list .gender {
+    width: 87%;
+    margin-right: 70px;
+    text-align: right;
+    font-weight: 600; }
+  .fixed_deposite_list .input-group, .recurring_deposite_list .input-group {
+    padding: 5px 5px 5px 5px;
+    width: 85%; }
+    .fixed_deposite_list .input-group .select_filter, .recurring_deposite_list .input-group .select_filter {
+      margin-left: 170px;
+      font-size: 16px;
+      font-weight: 600; }
+  .fixed_deposite_list .save_application, .recurring_deposite_list .save_application {
+    width: 100%;
+    text-align: center;
+    height: 40px; }
+    .fixed_deposite_list .save_application .deposit, .recurring_deposite_list .save_application .deposit {
+      background-color: #a1c7e4;
+      color: #ffffff;
+      padding: 1px 8px;
+      font-size: 18px;
+      border-radius: 4px;
+      margin-top: 0px;
+      margin-left: 10px;
+      margin-bottom: 5px; }
+  .fixed_deposite_list .filter_branch, .recurring_deposite_list .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+    .fixed_deposite_list .filter_branch .locations, .recurring_deposite_list .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd;
+      padding-left: 10px; }
+      .fixed_deposite_list .filter_branch .locations:focus, .recurring_deposite_list .filter_branch .locations:focus {
+        outline: none; }
+
+.no_records{
+  text-align: center;
+}
+
+.pay_list_head {
+  margin-top: 0px;
+  width: 100%;
+  font-size: 27px; }
+  .pay_list_head h3 {
+    padding-top: 30px;
+    font-size: 25px;
+    padding-left: 15px;
+    padding-right: 15px; }
+  .pay_list_head .create_branch {
+    background-color: #a1c7e4;
+    color: #ffffff;
+    padding: 6px 12px;
+    font-size: 18px;
+    border-radius: 4px;
+    margin-top: 0px; }
+
+.savings_account_list {
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px;
+  width: 100%;
+  height: 330px;
+  margin: 0px auto; }
+  .savings_account_list .input-group {
+    padding: 5px 5px 5px 5px;
+    width: 100%; }
+    .savings_account_list .input-group .select_filter {
+      margin-left: 170px;
+      font-size: 16px;
+      font-weight: 600; }
+  .savings_account_list .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+    .savings_account_list .filter_branch .locations {
+      border: none;
+      padding-left: 10px; }
+      .savings_account_list .filter_branch .locations:focus {
+        outline: none; }
+
+.view_deposit {
+  height: 50px;
+  width: 100%;
+  margin: 0px auto;
+  margin-bottom: 15px; }
+  .view_deposit .view_transations {
+    font-size: 18px;
+    padding: 10px;
+    background-color: rgba(243, 243, 243, 0.6); }
+  .view_deposit a {
+    padding: 5px; }
+    .view_deposit a:hover {
+      text-decoration: none; }
+  .view_deposit span i {
+    color: #ffffff;
+    padding: 5px; }
+    .view_deposit span i.red {
+      background-color: rgba(255, 0, 0, 0.21);
+      color: #f51b30; }
+    .view_deposit span i.orange {
+      background-color: rgba(255, 165, 0, 0.19);
+      color: rgba(255, 87, 34, 0.43); }
+    .view_deposit span i.green {
+      background-color: rgba(49, 212, 133, 0.23);
+      color: rgba(63, 81, 181, 0.52); }
+    .view_deposit span i.blue {
+      background-color: rgba(0, 123, 255, 0.18);
+      color: rgba(64, 208, 41, 0.8); }
+
+
+.edit_branch_form, .branch_create {
+  width: 50%;
+  margin: 0px auto;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .edit_branch_form .input-group, .branch_create .input-group {
+    padding: 5px 100px 5px 5px; }
+  .edit_branch_form .filter_branch, .branch_create .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px;
+    margin-bottom: 5px; }
+    .edit_branch_form .filter_branch .locations, .branch_create .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd;
+      padding-left: 10px; }
+      .edit_branch_form .filter_branch .locations:focus, .branch_create .filter_branch .locations:focus {
+        outline: none; }
+  .edit_branch_form .save_application, .branch_create .save_application {
+    text-align: center;
+    margin-top: 0px; }
+
+.profile_header {
+  margin: 0px auto;
+  width: 50%;
+  margin-bottom: 5px; }
+  .profile_header h3 {
+    padding: 5px 20px 10px 20px;
+    font-size: 25px;
+    background: rgba(243, 243, 243, 0.6); }
+    .profile_header h3 i {
+      padding: 5px;
+      font-size: 18px; }
+      .profile_header h3 i.red {
+        background-color: rgba(255, 0, 0, 0.21);
+        color: #f51b30; }
+      .profile_header h3 i.green {
+        background-color: rgba(0, 123, 255, 0.18);
+        color: rgba(64, 208, 41, 0.8); }
+
+/*branch_profile_form start here*/
+.branch_profile_form {
+  width: 50%;
+  margin: 0px auto;
+  box-shadow: 0px 0px 5px 5px rgba(221, 221, 221, 0.34);
+  border-radius: 5px; }
+  .branch_profile_form .input-group {
+    padding: 5px 60px 5px 5px; }
+    .branch_profile_form .input-group .filter_branch {
+      width: 100%;
+      padding: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: right;
+      padding-right: 10px; }
+      .branch_profile_form .input-group .filter_branch .locations {
+        border: none;
+        padding-left: 10px; }
+        .branch_profile_form .input-group .filter_branch .locations:focus {
+          outline: none; }
+
+.create_form .input-group, .create_group .input-group {
+  padding: 5px 80px 5px 5px; }
+  .create_form .input-group .filter_branch, .create_group .input-group .filter_branch {
+    width: 100%;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    padding-right: 10px; }
+    .create_form .input-group .filter_branch .locations, .create_group .input-group .filter_branch .locations {
+      border: none;
+      border-bottom: 1px solid #ddd;
+      padding-left: 10px; }
+      .create_form .input-group .filter_branch .locations:focus, .create_group .input-group .filter_branch .locations:focus {
+        outline: none; }

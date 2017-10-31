@@ -37,7 +37,7 @@ INSTALLED_APPS = (
     'django_blog_it.django_blog_it',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -45,7 +45,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'microfinance.urls'
 
@@ -113,10 +113,10 @@ TEMPLATES = [
             'context_processors':
             [
                 "django.contrib.auth.context_processors.auth",
+                'django.template.context_processors.request',
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
                 "django.template.context_processors.media",
-                "django.core.context_processors.request",
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
@@ -124,6 +124,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 LOGGING = {
     'version': 1,
