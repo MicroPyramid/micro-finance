@@ -27,7 +27,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Last Name</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="last_name" value="{{selecteduser.last_name}}" name="last_name">
+              <input type="text" class="text-box wid-form" id="last_name" {% if selecteduser.last_name %}value="{{selecteduser.last_name}}" {% else %} value="" {% endif %}name="last_name">
             </div>
           </div>
           <div class="form-group">
@@ -59,7 +59,7 @@
             <label for="inputEmail3" class="col-sm-4 control-label">User Roles</label>
             <div class="col-sm-8">
               <select class="text-box wid-form select-box-pad" name="user_roles" id="user_roles">
-                {% for role in userroles %}
+                {% for key,role in userroles %}
                   {% ifequal role selecteduser.user_roles %}
                     <option value="{{ role }}" selected="selected">{{ role }}</option>
                   {% else %}
@@ -78,7 +78,7 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Mobile</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="mobile" name="mobile" value="{{selecteduser.mobile}}">
+              <input type="text" class="text-box wid-form" id="mobile" name="mobile" {% if selecteduser.mobile %}value="{{selecteduser.mobile}}" {% else %} value=""{% endif %}>
             </div>
           </div>
            <div class="form-group">
@@ -98,37 +98,37 @@
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Country</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="country" name="country" value="{{selecteduser.country}}">
+              <input type="text" class="text-box wid-form" id="country" name="country" {% if selecteduser.country %}value="{{selecteduser.country}}" {% else %} value="" {% endif %}>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">State</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="state" name="state" value="{{selecteduser.state}}">
+              <input type="text" class="text-box wid-form" id="state" name="state" {% if selecteduser.state %}value="{{selecteduser.state}}" {% else %} value="" {% endif %}>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">District</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="district" name="district" value="{{selecteduser.district}}">
+              <input type="text" class="text-box wid-form" id="district" name="district" {% if selecteduser.district %}value="{{selecteduser.district}}" {% else %} value=""{% endif %}>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">City</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="city" name="city" value="{{selecteduser.city}}">
+              <input type="text" class="text-box wid-form" id="city" name="city" {% if selecteduser.city %}value="{{selecteduser.city}}" {% else %} value="" {% endif %}>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Area</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="area" name="area" value="{{selecteduser.area}}">
+              <input type="text" class="text-box wid-form" id="area" name="area" {% if selecteduser.area%}value="{{selecteduser.area}}" {% else %} value="" {% endif %}>
             </div>
           </div>
           <div class="form-group">
             <label for="inputEmail3" class="col-sm-4 control-label">Pin-Code</label>
             <div class="col-sm-8">
-              <input type="text" class="text-box wid-form" id="pincode" name="pincode" value="{{selecteduser.pincode}}">
+              <input type="text" class="text-box wid-form" id="pincode" name="pincode" {% if selecteduser.pincode %}value="{{selecteduser.pincode}}" {% else %} value="" {% endif %}>
             </div>
           </div>
           <div class="form-group">
@@ -155,10 +155,12 @@
   <!--form div ends above-->
 </div>
 <!--content ends above-->
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://select2.github.io/dist/js/select2.full.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-    $(".js-example-basic-multiple").select2();
     $('#edituserform').submit(function(e) {
       e.preventDefault();
       $("span.error").remove();
@@ -179,10 +181,11 @@
           });
         }
       }, "json");
+    $(".js-example-basic-multiple").select2();
     });
     $('.cancel-btn').click(function(e){
       $("span.error").remove();
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}

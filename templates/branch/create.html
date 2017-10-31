@@ -3,91 +3,77 @@
 <li>Create Branch</li>
 {% endblock %}
 {% block stage %}
-<!--content goes below-->
-<div class="container">
-  <!--form div starts below-->
-  <div class="panel panel-default my-panel margin-top-set">
-    <div class="panel-heading"><i class="fa fa-plus padd"></i>Create Branch</div>
-    <div class="panel-body pb-pad">
-      <form  id="createbranchform" class="form-horizontal" role="form" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Branch Name<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="name" id="name">
+<div class="row group_list">
+      <div class="col">
+        <div class="container">
+          <div class="row">
+            <div class="testing_head">
+              <h3>Create Branch</h3>
+            </div>
           </div>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Opening Date<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="opening_date" id="datepicker">
-          </div>
+      </div>
+    </div>
+  <div class="container">
+      <form  id="createbranchform" class="branch_create" role="form" method="POST">{% csrf_token %}
+        <div class="input-group">
+          <label class="filter_branch">Branch Name :
+          <input type="text" class="locations" placeholder="Branch Name" name="name" id="name"></label>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Country<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="country" id="country">
-          </div>
+        <div class="input-group">
+          <label class="filter_branch">Opening Date :
+          <input type="text" class="locations" placeholder="Date" name="opening_date" id="datepicker"></label>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">State<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="state" id="state">
-          </div>
+        <div class="input-group">
+          <label class="filter_branch">Country :
+          <input type="text" class="locations" placeholder="Country" name="country" id="country"></label>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">District<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="district" id="district">
-          </div>
+        <div class="input-group">
+          <label class="filter_branch">State :
+          <input type="text" class="locations" placeholder="State" name="state" id="state"></label>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">City<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="city" id="city">
-          </div>
+        <div class="input-group">
+          <label class="filter_branch">District :
+          <input type="text" class="locations" placeholder="District" name="district" id="district"></label>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Area<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="area" id="area">
-          </div>
+        <div class="input-group">
+          <label class="filter_branch">City :
+          <input type="text" class="locations" placeholder="City" name="city" id="city"></label>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Phone Number<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="phone_number" id="phone_number">
-          </div>
+        <div class="input-group">
+          <label class="filter_branch">Area :
+          <input type="text" class="locations" placeholder="Area" name="area" id="area"></label>
         </div>
-        <div class="form-group">
-          <label for="inputEmail3" class="col-sm-4 control-label">Pin Code<span>*</span></label>
-          <div class="col-sm-8">
-            <input type="text" class="text-box wid-form" name="pincode" id="pincode">
-          </div>
+        <div class="input-group">
+          <label class="filter_branch">Phone Number :
+          <input type="text" class="locations" placeholder="Phone Number" name="phone_number" id="phone_number"></label>
         </div>
-        <div class="form-group btns">
-          <button class="submit-btn" type="submit"><i class="fa fa-check padd"></i>Submit</button>
-          <button class="cancel-btn" type="reset"><i class="fa fa-times padd"></i>Cancel</button>
+        <div class="input-group">
+          <label class="filter_branch">Pin Code :
+          <input type="text" class="locations" placeholder="Pincode" name="pincode" id="pincode"></label>
+        </div>
+        <div class="save_application">
+          <button type="submit" class="create_branch">Create</button>
+          <button type="reset" class="create_branch">Cancel</button>
         </div>
       </form>
-    </div>
   </div>
-  <!--form div ends above-->
-</div>
-<!--content ends above-->
+{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function () {
     $('#createbranchform').submit(function (e) {
       e.preventDefault();
-      $("span.error").remove();
-      $.post('.', $('#createbranchform').serialize(), function (data) {
+      $.post('.', $('#createbranchform').serialize(), function(data) {
         if (data.error) {
           $("span.error").remove();
+
           $.each(data.errors, function( key, value ) {
             if (key == 'opening_date'){
-              $('#datepicker').after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
+              $('#datepicker').after("<span class='error' style='display:-webkit-inline-box;color:red;'> * " + value + "</span>");
             }else{
-              $('#'+key).after("<span class='error' style='height:11px;color:red;'> * " + value + "</span>");
+              $('#'+key).after("<span class='error' style='display:-webkit-inline-box;color:red;'> * " + value + "</span>");
             }
           });
         }
@@ -102,4 +88,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock extra_js %}
