@@ -1,16 +1,13 @@
-import json
 import datetime
 import decimal
 # import csv
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth import login, authenticate, logout
 # from django.views.generic.detail import BaseDetailView
-from django.contrib.auth.decorators import login_required
 # from django.utils.encoding import smart_str
 from django.template import Context
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, UpdateView, View
 from django.views.generic import ListView, DetailView, RedirectView, FormView
@@ -26,34 +23,40 @@ from django.db.models import Sum
 
 from micro_admin.models import (
     User, Branch, Group, Client, CLIENT_ROLES, GroupMeetings, SavingsAccount,
-    LoanAccount, Receipts, FixedDeposits, PAYMENT_TYPES, Payments,
-    RecurringDeposits, USER_ROLES, ClientBranchTransfer, GroupMemberLoanAccount)
+    LoanAccount, Receipts, FixedDeposits, Payments,
+    RecurringDeposits, USER_ROLES, GroupMemberLoanAccount)
 from micro_admin.forms import (
     BranchForm, UserForm, GroupForm, ClientForm, AddMemberForm,
-    ReceiptForm, FixedDepositForm, PaymentForm,
-    ReccuringDepositForm, ChangePasswordForm, GroupMeetingsForm, UpdateClientProfileForm)
-from micro_admin.mixins import UserPermissionRequiredMixin, BranchAccessRequiredMixin, BranchManagerRequiredMixin, ContentManagerRequiredMixin
-from django.db.models.aggregates import Max
+    FixedDepositForm, ReccuringDepositForm, ChangePasswordForm,
+    GroupMeetingsForm, UpdateClientProfileForm)
+from micro_admin.mixins import BranchAccessRequiredMixin, BranchManagerRequiredMixin
 from django.contrib.auth.models import Permission, ContentType
-from weasyprint import HTML, CSS
+# from weasyprint import HTML, CSS
 from django.template.loader import get_template
-
-
 
 d = decimal.Decimal
 
 
-class IndexView(View):
+def index(request):
+    if request.user.is_authenticated():
+        receipts_list = Receipts.objects.all().order_by("-id")
+        payments_list = Payments.objects.all().order_by("-id")
+        fixed_deposits_list = FixedDeposits.objects.all().order_by('-id')
+        recurring_deposits_list = RecurringDeposits.objects.all().order_by('-id')
+        branches_count = Branch.objects.count()
+        staff_count = User.objects.count()
+        groups_count = Group.objects.count()
+        clients_count = Client.objects.count()
+        return render(request, "index.html", {"user": request.user,
+                      "receipts": receipts_list, "payments": payments_list,
+                      "fixed_deposits": fixed_deposits_list, "groups_count": groups_count,
+                      "branches_count": branches_count, "clients_count": clients_count,
+                      "staff_count": staff_count, "recurring_deposits": recurring_deposits_list})
+    return render(request, "login.html")
 
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            return render(request, "index.html", {"user": request.user})
-        return render(request, "login.html")
 
-
-class LoginView(View):
-
-    def post(self, request):
+def getin(request):
+    if request.method == 'POST':
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(username=username, password=password)
@@ -66,391 +69,348 @@ class LoginView(View):
         else:
             data = {"error": True, "errors": "Username and Password were incorrect."}
         return JsonResponse(data)
-
-    def get(self, request):
+    else:
         if request.user.is_authenticated():
             return render(request, 'index.html', {'user': request.user})
         return render(request, "login.html")
 
 
-class LogoutView(RedirectView):
-    pattern_name = "micro_admin:login"
+def getout(request):
+    logout(request)
+    return redirect("micro_admin:login")
 
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return super(LogoutView, self).get(request, *args, **kwargs)
+
+def transactions(request):
+    return render(request, "transactions.html")
+
+
+def deposits(request):
+    return render(request, "deposits.html")
+
+
+def reports(request):
+    return render(request, "reports.html")
 
 
 # --------------------------------------------------- #
 # Branch Model class Based View #
-class CreateBranchView(LoginRequiredMixin, CreateView):
-    form_class = BranchForm
-    template_name = "branch/create.html"
-
-    def form_valid(self, form):
-        branch = form.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class UpdateBranchView(LoginRequiredMixin, UpdateView):
-    pk = 'pk'
-    model = Branch
-    form_class = BranchForm
-    template_name = "branch/edit.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        # Checking the permissions
-        if not self.request.user.is_admin:
-            return HttpResponseRedirect(reverse("micro_admin:viewbranch"))
-
-        return super(UpdateBranchView, self).dispatch(
-            request, *args, **kwargs)
-
-    def form_valid(self, form):
-        branch = form.save()
-        return JsonResponse({
-            "error": False, "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+def create_branch_view(request):
+    form = BranchForm()
+    if request.method == 'POST':
+        form = BranchForm(request.POST)
+        if form.is_valid():
+            branch = form.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:branchprofile', kwargs={"pk": branch.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "branch/create.html", {'form': form})
 
 
-class BranchProfileView(LoginRequiredMixin, DetailView):
-    model = Branch
-    pk = 'pk'
-    template_name = "branch/view.html"
+def update_branch_view(request, pk):
+    form = BranchForm()
+    branch = get_object_or_404(Branch, id=pk)
+    if not request.user.is_admin:
+        return HttpResponseRedirect(reverse("micro_admin:viewbranch"))
+    if request.method == 'POST':
+        form = BranchForm(request.POST, instance=branch)
+        if form.is_valid():
+            branch = form.save()
+            return JsonResponse({
+                "error": False, "success_url": reverse('micro_admin:branchprofile', kwargs={'pk': branch.id})
+            })
+        else:
+
+            return JsonResponse({"error": True, "errors": form.errors})
+
+    return render(request, "branch/edit.html", {'form': form, 'branch': branch})
 
 
-class BranchListView(LoginRequiredMixin, ListView):
-    model = Branch
-    template_name = "branch/list.html"
+def branch_profile_view(request, pk):
+    branch = get_object_or_404(Branch, id=pk)
+    return render(request, "branch/view.html", {'branch': branch})
 
 
-class BranchInactiveView(LoginRequiredMixin, View):
+def branch_list_view(request):
+    branch_list = Branch.objects.all()
+    return render(request, "branch/list.html", {'branch_list': branch_list})
 
-    def get(self, request, *args, **kwargs):
-        if request.user.is_admin:
-            branch = get_object_or_404(Branch, id=kwargs.get('pk'))
-            if branch.is_active:
-                branch.is_active = False
-            else:
-                branch.is_active = True
-            branch.save()
-        return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
+
+def branch_inactive_view(request, pk):
+    if request.user.is_admin:
+        branch = get_object_or_404(Branch, id=pk)
+        if branch.is_active:
+            branch.is_active = False
+        else:
+            branch.is_active = True
+        branch.save()
+    return HttpResponseRedirect(reverse('micro_admin:viewbranch'))
 # --------------------------------------------------- #
 
 
 # --------------------------------------------------- #
 # Clinet model views
-class CreateClientView(LoginRequiredMixin, CreateView):
-    form_class = ClientForm
-    template_name = "client/create.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(CreateClientView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        context['client_roles'] = dict(CLIENT_ROLES).keys()
-        return context
-
-    def form_valid(self, form):
-        client = form.save(commit=False)
-        client.created_by = self.request.user
-        client.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+def create_client_view(request):
+    branches = Branch.objects.all()
+    form = ClientForm()
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            client = form.save(commit=False)
+            client.created_by = request.user
+            client.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "client/create.html", {'branches': branches, 'client_roles': CLIENT_ROLES})
 
 
-class ClienProfileView(LoginRequiredMixin, DetailView):
-    pk = 'pk'
-    model = Client
-    template_name = "client/profile.html"
+def client_profile_view(request, pk):
+    client = get_object_or_404(Client, id=pk)
+    return render(request, "client/profile.html", {'client': client})
 
 
-class UpdateClientView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    pk = 'pk'
-    model = Client
-    form_class = ClientForm
-    template_name = "client/edit.html"
-
-    def get_form_kwargs(self):
-        kwargs = super(UpdateClientView, self).get_form_kwargs()
-        client_obj = get_object_or_404(Client, pk=self.kwargs.get('pk'))
-        kwargs.update({'user': self.request.user, 'client': client_obj})
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super(UpdateClientView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        context['client_roles'] = dict(CLIENT_ROLES).keys()
-        return context
-
-    def form_valid(self, form):
-        # if not (request.user.is_admin or request.user.branch == client.branch):
-        #     return HttpResponseRedirect(reverse('micro_admin:viewclient'))
-        client = form.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+def update_client_view(request, pk):
+    form = ClientForm()
+    branches = Branch.objects.all()
+    client_obj = get_object_or_404(Client, id=pk)
+    if request.method == 'POST':
+        form = ClientForm(request.POST, user=request.user, client=client_obj, instance=client_obj)
+        if form.is_valid():
+            client = form.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "client/edit.html", {'branches': branches, 'client_roles': CLIENT_ROLES, 'client':client_obj})
 
 
-class UpdateClientProfileView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    pk = 'pk'
-    model = Client
-    form_class = UpdateClientProfileForm
-    template_name = "client/update-profile.html"
+def updateclientprofileview(request, pk):
+    form = UpdateClientProfileForm()
+    client_obj = get_object_or_404(Client, pk=pk)
+    if request.method == 'POST':
+        form = UpdateClientProfileForm(request.POST)
+        if form.is_valid():
+            client_obj.photo = request.FILES.get("photo")
+            client_obj.signature = request.FILES.get("signature")
+            client_obj.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": client_obj.id})
+            })
+        else:
+            data = {"error": True, "errors": form.errors}
+            return JsonResponse(data)
 
-    def get_context_data(self, **kwargs):
-        context = super(UpdateClientProfileView, self).get_context_data(**kwargs)
-        context['photo'] = str(self.object.photo).split('/')[-1] if self.object.photo else None
-        context['signature'] = str(self.object.signature).split('/')[-1] if self.object.signature else None
-        return context
+    photo = str(client_obj.photo).split('/')[-1] if client_obj.photo else None
+    signature = str(client_obj.signature).split('/')[-1] if client_obj.signature else None
 
-    def form_valid(self, form):
-        self.object.photo = self.request.FILES.get("photo")
-        self.object.signature = self.request.FILES.get("signature")
-        self.object.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:clientprofile', kwargs={"pk": self.object.id})
-        })
-
-    def form_invalid(self, form):
-        data = {"error": True, "errors": form.errors}
-        return JsonResponse(data)
+    return render(request, "client/update-profile.html", {
+        'form': form, 'photo': photo, 'signature': signature})
 
 
-class ClientsListView(LoginRequiredMixin, ListView):
-    model = Client
-    template_name = "client/list.html"
+def clients_list_view(request):
+    client_list = Client.objects.all()
+    return render(request, "client/list.html", {'client_list': client_list})
 
 
-class ClientInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, View):
-
-    def get_object(self):
-        return get_object_or_404(Client, id=self.kwargs.get('pk'))
-
-    def get(self, request, *args, **kwargs):
-        client = self.get_object()
-        if client.is_active:
-            count = 0
-            loans = LoanAccount.objects.filter(client=client)
-            savings_account = SavingsAccount.objects.filter(client=client).last()
-            if (loans and savings_account) or savings_account or loans:
-                if loans and savings_account:
-                    if savings_account and savings_account.savings_balance != 0:
-                        raise Http404("Oops! Member is involved in savings, Unable to delete.")
-                    # elif loans and loans.count() != loans.filter(status='Closed').count():
-                    elif loans and loans.count() != loans.filter(total_loan_balance=0).count():
-                        raise Http404("Oops! Member is involved in loan, Unable to delete.")
-                    else:
-                        client.is_active = False
-                        client.save()
-                        # return HttpResponseRedirect(reverse("micro_admin:viewclient")
-                elif savings_account:
-                    if savings_account.savings_balance != 0:
-                        raise Http404("Oops! Member is involved in savings, Unable to delete.")
-                    else:
-                        client.is_active = False
-                        client.save()
-                elif loans:
-                    for loan in loans:
-                        if loan.total_loan_balance == 0:
-                            count += 1
-                            if count == loans.count():
-                                client.is_active = False
-                                client.save()
-                        else:
-                            raise Http404("Oops! Member is involved in loan, Unable to delete.")
+def client_inactive_view(request, pk):
+    client = get_object_or_404(Client, id=pk)
+    if client.is_active:
+        count = 0
+        loans = LoanAccount.objects.filter(client=client)
+        savings_account = SavingsAccount.objects.filter(client=client).last()
+        if (loans and savings_account) or savings_account or loans:
+            if loans and savings_account:
+                if savings_account and savings_account.savings_balance != 0:
+                    raise Http404("Oops! Member is involved in savings, Unable to delete.")
+                # elif loans and loans.count() != loans.filter(status='Closed').count():
+                elif loans and loans.count() != loans.filter(total_loan_balance=0).count():
+                    raise Http404("Oops! Member is involved in loan, Unable to delete.")
                 else:
-                    client.is_active = True
+                    client.is_active = False
                     client.save()
+                    # return HttpResponseRedirect(reverse("micro_admin:viewclient")
+            elif savings_account:
+                if savings_account.savings_balance != 0:
+                    raise Http404("Oops! Member is involved in savings, Unable to delete.")
+                else:
+                    client.is_active = False
+                    client.save()
+            elif loans:
+                for loan in loans:
+                    if loan.total_loan_balance == 0:
+                        count += 1
+                        if count == loans.count():
+                            client.is_active = False
+                            client.save()
+                    else:
+                        raise Http404("Oops! Member is involved in loan, Unable to delete.")
             else:
-                client.is_active = False
+                client.is_active = True
                 client.save()
-        return HttpResponseRedirect(reverse("micro_admin:viewclient"))
+        else:
+            client.is_active = False
+            client.save()
+    return HttpResponseRedirect(reverse("micro_admin:viewclient"))
 
 # ------------------------------------------- #
 # User Model views
-class CreateUserView(LoginRequiredMixin, CreateView):
-    form_class = UserForm
-    template_name = "user/create.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(CreateUserView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        context['userroles'] = dict(USER_ROLES).keys()
-        contenttype = ContentType.objects.get_for_model(self.request.user)
-        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
-        context['permissions'] = permissions
-        return context
-
-    def form_valid(self, form):
-        user = form.save()
-        if len(self.request.POST.getlist("user_permissions")):
-            user.user_permissions.add(
-                *self.request.POST.getlist("user_permissions"))
-        if self.request.POST.get("user_roles") == "BranchManager":
-            if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
-                user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
 
 
-class UpdateUserView(LoginRequiredMixin, UpdateView):
-    pk_url_kwarg = 'pk'
-    model = User
-    form_class = UserForm
-    context_object_name = 'selecteduser'
-    template_name = "user/edit.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(UpdateUserView, self).get_context_data(**kwargs)
-        context['branch'] = Branch.objects.all()
-        context['userroles'] = dict(USER_ROLES).keys()
-        contenttype = ContentType.objects.get_for_model(self.request.user)
-        permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
-        context['permissions'] = permissions
-        return context
-
-    def form_valid(self, form):
-        selected_user = User.objects.get(id=self.kwargs.get('pk'))
-        if not (
-           self.request.user.is_admin or self.request.user == selected_user or
-           (
-               self.request.user.has_perm("branch_manager") and
-               self.request.user.branch == selected_user.branch
-           )):
-            return JsonResponse({
-                "error": True,
-                "message": "You are unbale to Edit this staff details.",
-                "success_url": reverse('micro_admin:userslist')
-            })
-        else:
+def create_user_view(request):
+    branches = Branch.objects.all()
+    contenttype = ContentType.objects.get_for_model(request.user)
+    permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
+    form = UserForm()
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
             user = form.save()
-            user.user_permissions.clear()
-            user.user_permissions.add(
-                *self.request.POST.getlist("user_permissions"))
-            if self.request.POST.get("user_roles") == "BranchManager":
-                if not user.user_permissions.filter(id__in=self.request.POST.getlist("user_permissions")).exists():
+            if len(request.POST.getlist("user_permissions")):
+                user.user_permissions.add(
+                    *request.POST.getlist("user_permissions"))
+            if request.POST.get("user_roles") == "BranchManager":
+                if not user.user_permissions.filter(id__in=request.POST.getlist("user_permissions")).exists():
                     user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
-
             return JsonResponse({
                 "error": False,
                 "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
             })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
 
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
-
-
-class UserProfileView(LoginRequiredMixin, DetailView):
-    pk = 'pk'
-    model = User
-    context_object_name = 'selecteduser'
-    template_name = "user/profile.html"
+    return render(request, "user/create.html", {
+        'form': form, 'userroles': USER_ROLES, 'branches': branches, 'permissions': permissions})
 
 
-class UsersListView(LoginRequiredMixin, ListView):
-    model = User
-    template_name = "user/list.html"
-    context_object_name = 'list_of_users'
-
-    def get_queryset(self):
-        return User.objects.filter(is_admin=0)
-
-
-class UserInactiveView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        user = get_object_or_404(User, id=kwargs.get('pk'))
-        if (
-            request.user.is_admin or
-            (request.user.has_perm("branch_manager") and
-             request.user.branch == user.branch)
-        ):
-            if user.is_active:
-                user.is_active = False
+def update_user_view(request, pk):
+    branch = Branch.objects.all()
+    contenttype = ContentType.objects.get_for_model(request.user)
+    permissions = Permission.objects.filter(content_type_id=contenttype, codename__in=["branch_manager"])
+    form = UserForm()
+    selected_user = User.objects.get(id=pk)
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=selected_user)
+        if form.is_valid():
+            if not (
+               request.user.is_admin or request.user == selected_user or
+               (
+                   request.user.has_perm("branch_manager") and
+                   request.user.branch == selected_user.branch
+               )):
+                return JsonResponse({
+                    "error": True,
+                    "message": "You are unbale to Edit this staff details.",
+                    "success_url": reverse('micro_admin:userslist')
+                })
             else:
-                user.is_active = True
-            user.save()
-        return HttpResponseRedirect(reverse('micro_admin:userslist'))
+                user = form.save()
+                user.user_permissions.clear()
+                user.user_permissions.add(*request.POST.getlist("user_permissions"))
+                if request.POST.get("user_roles") == "BranchManager":
+                    if not user.user_permissions.filter(id__in=request.POST.getlist("user_permissions")).exists():
+                        user.user_permissions.add(Permission.objects.get(codename="branch_manager"))
+
+                return JsonResponse({
+                    "error": False,
+                    "success_url": reverse('micro_admin:userprofile', kwargs={"pk": user.id})
+                })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+
+    return render(request, "user/edit.html", {
+        'form': form, 'userroles': USER_ROLES, 'branch': branch, 'permissions': permissions, 'selecteduser': selected_user})
+
+
+def user_profile_view(request, pk):
+    selecteduser = get_object_or_404(User, id=pk)
+    return render(request, "user/profile.html", {'selecteduser': selecteduser})
+
+
+def users_list_view(request):
+    list_of_users = User.objects.filter(is_admin=0)
+    return render(request, "user/list.html", {'list_of_users': list_of_users})
+
+
+def user_inactive_view(request, pk):
+    user = get_object_or_404(User, id=pk)
+    if (request.user.is_admin or (request.user.has_perm("branch_manager") and
+                                  request.user.branch == user.branch)):
+        if user.is_active:
+            user.is_active = False
+        else:
+            user.is_active = True
+        user.save()
+    return HttpResponseRedirect(reverse('micro_admin:userslist'))
+
 # ------------------------------------------------- #
 
 
-class CreateGroupView(LoginRequiredMixin, CreateView):
-    model = Group
-    form_class = GroupForm
-    template_name = "group/create.html"
+def create_group_view(request):
+    branches = Branch.objects.all()
+    form = GroupForm()
+    if request.method == 'POST':
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            group = form.save(commit=False)
+            group.created_by = request.user
+            group.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
+            })
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
 
-    def get_context_data(self, **kwargs):
-        context = super(CreateGroupView, self).get_context_data(**kwargs)
-        context['branches'] = Branch.objects.all()
-        return context
+    return render(request, "group/create.html", {'form': form, 'branches': branches})
 
-    def form_valid(self, form):
-        group = form.save(commit=False)
-        group.created_by = self.request.user
+
+def group_profile_view(request, group_id):
+    group_obj = Group.objects.filter(id=group_id).first()
+    clients_list = group_obj.clients.all()
+    group_mettings = GroupMeetings.objects.filter(group_id=group_obj.id).order_by('-id')
+    clients_count = len(clients_list)
+    latest_group_meeting = group_mettings.first() if group_mettings else None
+    return render(request, "group/profile.html", {
+        'clients_list': clients_list, 'clients_count': clients_count, 'latest_group_meeting': latest_group_meeting, 'group': group_obj})
+
+
+def groups_list_view(request):
+    groups_list = Group.objects.all().prefetch_related("clients", "staff", "branch")
+
+    return render(request, "group/list.html", {'groups_list': groups_list})
+
+
+def group_inactive_view(request, group_id):
+    group = Group.objects.filter(id=group_id)
+    if (
+        LoanAccount.objects.filter(
+            group=group, status="Approved"
+        ).exclude(
+            total_loan_balance=0
+        ).count() or not group.is_active
+    ):
+        # TODO: Add message saying that, this group
+        # has pending loans or already in-active.
+        pass
+    else:
+        group.is_active = False
         group.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+    return HttpResponseRedirect(reverse('micro_admin:groupslist'))
 
 
-class GroupProfileView(LoginRequiredMixin, DetailView):
-    pk_url_kwarg = 'group_id'
-    model = Group
-    context_object_name = 'group'
-    template_name = "group/profile.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupProfileView, self).get_context_data(**kwargs)
-        clients_list = self.object.clients.all()
-        group_mettings = GroupMeetings.objects.filter(group_id=self.object.id).order_by('-id')
-
-        context["clients_list"] = clients_list
-        context["clients_count"] = len(clients_list)
-        context["latest_group_meeting"] = group_mettings.first() if group_mettings else None
-        return context
-
-
-class GroupAssignStaffView(LoginRequiredMixin, BranchAccessRequiredMixin, DetailView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-    context_object_name = 'group'
-    template_name = "group/assign_staff.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupAssignStaffView, self).get_context_data(**kwargs)
-        context["users_list"] = User.objects.filter(is_admin=0)
-        return context
-
-    def post(self, request, *args, **kwargs):
-        group = self.get_object()
+def group_assign_staff_view(request, group_id):
+    group = Group.objects.filter(id=group_id).first()
+    users_list = User.objects.filter(is_admin=0)
+    if request.method == 'POST':
         if request.POST.get("staff"):
             group.staff = get_object_or_404(User, id=request.POST.get("staff"))
             group.save()
@@ -462,186 +422,116 @@ class GroupAssignStaffView(LoginRequiredMixin, BranchAccessRequiredMixin, Detail
             data = {"error": True, "message": {"staff": "This field is required"}}
         return JsonResponse(data)
 
+    return render(request, "group/assign_staff.html", {'users_list': users_list, 'group': group})
 
-class GroupAddMembersView(LoginRequiredMixin, BranchAccessRequiredMixin, UpdateView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-    context_object_name = 'group'
-    form_class = AddMemberForm
-    template_name = "group/add_member.html"
 
-    def get_context_data(self, **kwargs):
-        context = super(GroupAddMembersView, self).get_context_data(**kwargs)
-        context["clients_list"] = Client.objects.filter(status="UnAssigned", is_active=1)
-        return context
+def group_add_members_view(request, group_id):
+    form = AddMemberForm()
+    clients_list = Client.objects.filter(status="UnAssigned", is_active=1)
+    group = Group.objects.filter(id=group_id).first()
+    if request.method == 'POST':
+        form = AddMemberForm(request.POST)
+        if form.is_valid():
+            client_ids = request.POST.getlist("clients")
+            for client_id in client_ids:
+                try:
+                    client = Client.objects.get(id=client_id, status="UnAssigned", is_active=1)
+                except Client.DoesNotExist:
+                    continue
+                else:
+                    group.clients.add(client)
+                    group.save()
+                    client.status = "Assigned"
+                    client.save()
+            return JsonResponse({
+                "error": False,
+                "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
+            })
+        else:
+            return JsonResponse({"error": True, "message": form.errors})
 
-    def form_valid(self, form):
-        group = self.object
-        client_ids = self.request.POST.getlist("clients")
-        for client_id in client_ids:
-            try:
-                client = Client.objects.get(id=client_id, status="UnAssigned", is_active=1)
-            except Client.DoesNotExist:
-                continue
+    return render(request, "group/add_member.html", {'form': form, 'clients_list': clients_list, 'group': group})
+
+
+def group_members_list_view(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    clients_list = group.clients.all()
+
+    return render(request, "group/view-members.html", {'group': group, 'clients_list': clients_list})
+
+
+def group_remove_members_view(request, group_id, client_id):
+    group = Group.objects.filter(id=group_id)
+    client = get_object_or_404(Client, id=client_id)
+    group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
+    group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
+    client_savings_account = SavingsAccount.objects.filter(client=client).last()
+    count = 0
+    if (group_loan_accounts and (group_savings_account and client_savings_account)) or\
+            (group_savings_account and client_savings_account) or group_loan_accounts:
+        if group_loan_accounts and (client_savings_account and client_savings_account):
+            if client_savings_account.savings_balance != 0:
+                raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
+            elif group_loan_accounts and group_loan_accounts.count() != GroupMemberLoanAccount.objects.filter(
+                    group_loan_account__in=group_loan_accounts, client=client, total_loan_balance=0).count():
+                raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
             else:
-                group.clients.add(client)
-                group.save()
-                client.status = "Assigned"
+                group.clients.remove(client)
+                client.status = "UnAssigned"
                 client.save()
-        return JsonResponse({
-            "error": False,
-            "success_url": reverse('micro_admin:groupprofile', kwargs={"group_id": group.id})
-        })
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "message": form.errors})
-
-
-class GroupMembersListView(LoginRequiredMixin, ListView):
-    template_name = "group/view-members.html"
-    context_object_name = 'clients_list'
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupMembersListView, self).get_context_data(**kwargs)
-        context["group"] = self.group
-        return context
-
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        return self.group.clients.all()
-
-
-class GroupsListView(LoginRequiredMixin, ListView):
-    model = Group
-    template_name = "group/list.html"
-    context_object_name = 'groups_list'
-
-    def get_queryset(self):
-        query_set = super(GroupsListView, self).get_queryset()
-        return query_set.select_related("staff", "branch").prefetch_related("clients")
-
-
-class GroupInactiveView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-
-    def get(self, request, *args, **kwargs):
-        if not hasattr(self, 'object'):
-            group = self.get_object()
-        else:
-            group = self.object
-
-        if (
-            LoanAccount.objects.filter(
-                group=group, status="Approved"
-            ).exclude(
-                total_loan_balance=0
-            ).count() or not group.is_active
-        ):
-            # TODO: Add message saying that, this group
-            # has pending loans or already in-active.
-            pass
-        else:
-            group.is_active = False
-            group.save()
-        return HttpResponseRedirect(reverse('micro_admin:groupslist'))
-
-
-class GroupRemoveMembersView(LoginRequiredMixin, BranchManagerRequiredMixin, UpdateView):
-    model = Group
-    pk_url_kwarg = 'group_id'
-    context_object_name = 'group'
-
-    def get(self, request, *args, **kwargs):
-        if not hasattr(self, 'object'):
-            group = self.get_object()
-        else:
-            group = self.object
-
-        client = get_object_or_404(Client, id=self.kwargs.get('client_id'))
-        group_loan_accounts = LoanAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True)
-        group_savings_account = SavingsAccount.objects.filter(group=group, group__account_number=group.account_number, client__isnull=True).last()
-        client_savings_account = SavingsAccount.objects.filter(client=client).last()
-        count = 0
-        if (group_loan_accounts and (group_savings_account and client_savings_account)) or (group_savings_account and client_savings_account) or group_loan_accounts:
-            if group_loan_accounts and (client_savings_account and client_savings_account):
-                if client_savings_account.savings_balance != 0:
-                    raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
-                elif group_loan_accounts and group_loan_accounts.count() != GroupMemberLoanAccount.objects.filter(group_loan_account__in=group_loan_accounts, client=client, total_loan_balance=0).count():
+        elif group_savings_account and client_savings_account:
+            if not client_savings_account.savings_balance == 0:
+                raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
+            else:
+                group.clients.remove(client)
+                client.status = "UnAssigned"
+                client.save()
+            #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+        elif group_loan_accounts:
+            for group_loan_account in group_loan_accounts:
+                # if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
+                if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, total_loan_balance=0).exists():
                     raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
                 else:
-                    group.clients.remove(client)
-                    client.status = "UnAssigned"
-                    client.save()
-            elif group_savings_account and client_savings_account:
-                if not client_savings_account.savings_balance == 0:
-                    raise Http404("Oops! Unable to delete this Member, Savings Account Not yet Closed.")
-                else:
-                    group.clients.remove(client)
-                    client.status = "UnAssigned"
-                    client.save()
-                #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
-            elif group_loan_accounts:
-                for group_loan_account in group_loan_accounts:
-                    # if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, status="Closed").exists():
-                    if not GroupMemberLoanAccount.objects.filter(group_loan_account=group_loan_account, client=client, total_loan_balance=0).exists():
-                        raise Http404("Oops! Unable to delete this Member, Group Loan Not yet Closed.")
-                    else:
-                        count += 1
-                        if count == group_loan_accounts:
+                    count += 1
+                    if count == group_loan_accounts:
 
-                            group.clients.remove(client)
-                            client.status = "UnAssigned"
-                            client.save()
-                        #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
-        return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+                        group.clients.remove(client)
+                        client.status = "UnAssigned"
+                        client.save()
+                    #     return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
+    return HttpResponseRedirect(reverse('micro_admin:groupprofile', kwargs={'group_id': group.id}))
 
 
-class GroupMeetingsListView(LoginRequiredMixin, ListView):
-    model = GroupMeetings
-    template_name = "group/meetings/list.html"
-    context_object_name = 'group_meetings'
+def group_meetings_list_view(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    group_meetings = GroupMeetings.objects.filter(group=group).order_by('-id')
 
-    def get_queryset(self):
-        self.group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        query_set = super(GroupMeetingsListView, self).get_queryset()
-        return query_set.filter(group=self.group).order_by('-id')
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupMeetingsListView, self).get_context_data(**kwargs)
-        context["group"] = self.group
-        return context
+    return render(request, "group/meetings/list.html", {'group': group, 'group_meetings': group_meetings})
 
 
-class GroupMeetingsAddView(LoginRequiredMixin, CreateView):
-    model = GroupMeetings
-    form_class = GroupMeetingsForm
-    template_name = "group/meetings/add.html"
+def group_meetings_add_view(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    if request.method == 'POST':
+        form = GroupMeetingsForm(request.POST)
+        if form.is_valid():
+            meeting = form.save(commit=False)
+            meeting.group = group
+            meeting.save()
+            return JsonResponse({"error": False, "group_id": group.id})
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
 
-    def get_context_data(self, **kwargs):
-        context = super(GroupMeetingsAddView, self).get_context_data(**kwargs)
-        context["group"] = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        return context
-
-    def form_valid(self, form):
-        group = get_object_or_404(Group, id=self.kwargs.get("group_id"))
-        meeting = form.save(commit=False)
-        meeting.group = group
-        meeting.save()
-        return JsonResponse({"error": False, "group_id": group.id})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+    return render(request, "group/meetings/add.html", {'group': group})
 
 
-class ReceiptsList(LoginRequiredMixin, ListView):
-    context_object_name = "receipt_list"
-    queryset = Receipts.objects.all().order_by("-id")
-    template_name = "listof_receipts.html"
+def receipts_list(request):
+    receipt_list = Receipts.objects.all().order_by("-id")
+    return render(request, "listof_receipts.html", {'receipt_list': receipt_list})
 
 
-def general_ledger_function():
-    return Receipts.objects.all().values("date").distinct().order_by("-date").annotate(
+def general_ledger(request):
+    ledgers_list = Receipts.objects.all().values("date").distinct().order_by("-date").annotate(
         sum_sharecapital_amount=Sum('sharecapital_amount'),
         sum_entrancefee_amount=Sum('entrancefee_amount'),
         sum_membershipfee_amount=Sum('membershipfee_amount'),
@@ -661,95 +551,72 @@ def general_ledger_function():
                    Sum('insurance_amount'))
     )
 
-
-class GeneralLedger(LoginRequiredMixin, ListView):
-    context_object_name = "list"
-    template_name = "generalledger.html"
-
-    def get_queryset(self):
-        return general_ledger_function()
+    return render(request, "generalledger.html", {'ledgers_list': ledgers_list})
 
 
-class FixedDepositsView(LoginRequiredMixin, CreateView):
-    form_class = FixedDepositForm
-    template_name = "client/fixed-deposits/fixed_deposit_application.html"
+def fixed_deposits_view(request):
+    form = FixedDepositForm()
+    if request.method == 'POST':
+        form = FixedDepositForm(request.POST, request.FILES)
+        if form.is_valid():
+            fixed_deposit = form.save(commit=False)
+            fixed_deposit.status = "Opened"
+            fixed_deposit.client = form.client
+            interest_charged = (fixed_deposit.fixed_deposit_amount * (
+                                fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
+            fixed_deposit_interest_charged = interest_charged * d(
+                fixed_deposit.fixed_deposit_period)
+            fixed_deposit.maturity_amount = (fixed_deposit.fixed_deposit_amount +
+                                             fixed_deposit_interest_charged)
+            fixed_deposit.fixed_deposit_interest = (
+                fixed_deposit.maturity_amount - fixed_deposit.fixed_deposit_amount
+            )
+            fixed_deposit.save()
+            url = reverse('micro_admin:clientfixeddepositsprofile', kwargs={"fixed_deposit_id": fixed_deposit.id})
+            return JsonResponse({"error": False, "success_url": url})
+        else:
+            return JsonResponse({"error": True, "message": form.errors})
 
-    def form_valid(self, form):
-        fixed_deposit = form.save(commit=False)
-        fixed_deposit.status = "Opened"
-        fixed_deposit.client = form.client
-        interest_charged = (fixed_deposit.fixed_deposit_amount * (
-                            fixed_deposit.fixed_deposit_interest_rate / 12)) / 100
-        fixed_deposit_interest_charged = interest_charged * d(
-            fixed_deposit.fixed_deposit_period)
-        fixed_deposit.maturity_amount = (fixed_deposit.fixed_deposit_amount +
-                                         fixed_deposit_interest_charged)
-        fixed_deposit.fixed_deposit_interest = (
-            fixed_deposit.maturity_amount - fixed_deposit.fixed_deposit_amount
-        )
-        fixed_deposit.save()
-        url = reverse('micro_admin:clientfixeddepositsprofile',
-                      kwargs={"fixed_deposit_id": fixed_deposit.id})
-        return JsonResponse({"error": False, "success_url": url})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "message": form.errors})
-
-
-class ClientFixedDepositsProfile(LoginRequiredMixin, DetailView):
-    model = FixedDeposits
-    pk_url_kwarg = "fixed_deposit_id"
-    context_object_name = "fixed_deposit"
-    template_name = "client/fixed-deposits/fixed_deposits_profile.html"
+    return render(request, "client/fixed-deposits/fixed_deposit_application.html", {'form': form})
 
 
-class ViewClientFixedDeposits(LoginRequiredMixin, ListView):
-    model = FixedDeposits
-    template_name = "client/fixed-deposits/view_fixed_deposits.html"
-    context_object_name = "fixed_deposit_list"
+def client_fixed_deposits_profile(request, fixed_deposit_id):
+    fixed_deposits = FixedDeposits.objects.get(id=fixed_deposit_id)
+    return render(request, "client/fixed-deposits/fixed_deposits_profile.html", {'fixed_deposit': fixed_deposits})
 
 
-class ViewParticularClientFixedDeposits(LoginRequiredMixin, ListView):
-    context_object_name = "fixed_deposit_list"
-    template_name = "client/fixed-deposits/view_fixed_deposits.html"
-
-    def get_queryset(self):
-        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        queryset = FixedDeposits.objects.filter(client=self.client).order_by("-id")
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(ViewParticularClientFixedDeposits, self).get_context_data(**kwargs)
-        context["client"] = self.client
-        return context
+def view_client_fixed_deposits(request):
+    fixed_deposits = FixedDeposits.objects.all()
+    return render(request, "client/fixed-deposits/view_fixed_deposits.html", {
+        'fixed_deposits': fixed_deposits})
 
 
-class ClientRecurringDepositsProfile(LoginRequiredMixin, DetailView):
-    model = RecurringDeposits
-    pk_url_kwarg = "recurring_deposit_id"
-    context_object_name = "recurring_deposit"
-    template_name = "client/recurring-deposits/recurring_deposit_profile.html"
+def view_particular_client_fixed_deposits(request, client_id):
+    client = get_object_or_404(Client, id=client_id)
+    client_fixed_deposits = FixedDeposits.objects.filter(client=client).order_by("-id")
+
+    return render(request, "client/fixed-deposits/view_fixed_deposits.html", {
+        'client': client, 'client_fixed_deposits': client_fixed_deposits})
 
 
-class ViewClientRecurringDeposits(LoginRequiredMixin, ListView):
-    queryset = RecurringDeposits.objects.all().order_by("-id")
-    template_name = "client/recurring-deposits/view_recurring_deposits.html"
-    context_object_name = "recurring_deposit_list"
+def client_recurring_deposits_profile(request, recurring_deposit_id):
+    recurring_deposit = RecurringDeposits.objects.get(id=recurring_deposit_id)
+    return render(request, "client/recurring-deposits/recurring_deposit_profile.html", {
+        'recurring_deposit': recurring_deposit})
 
 
-class ViewParticularClientRecurringDeposits(LoginRequiredMixin, ListView):
-    template_name = "client/recurring-deposits/view_recurring_deposits.html"
-    context_object_name = "recurring_deposit_list"
+def view_client_recurring_deposits(request):
+    recurring_deposit_list = RecurringDeposits.objects.all().order_by("-id")
+    return render(request, "client/recurring-deposits/view_recurring_deposits.html", {
+        'recurring_deposit_list': recurring_deposit_list})
 
-    def get_queryset(self):
-        self.client = get_object_or_404(Client, id=self.kwargs.get("client_id"))
-        queryset = RecurringDeposits.objects.filter(client=self.client).order_by("-id")
-        return queryset
 
-    def get_context_data(self):
-        context = super(ViewParticularClientRecurringDeposits, self).get_context_data()
-        context["client"] = self.client
-        return context
+def view_particular_client_recurring_deposits(request, client_id):
+    client = get_object_or_404(Client, id=client_id)
+    recurring_deposit_list = RecurringDeposits.objects.filter(client=client).order_by("-id")
+
+    return render(request, "client/recurring-deposits/view_recurring_deposits.html", {
+        'recurring_deposit_list': recurring_deposit_list})
 
 
 def get_results_list(receipts_list, group_id, thrift_deposit_sum_list, loanprinciple_amount_sum_list, loaninterest_amount_sum_list,
@@ -1024,235 +891,225 @@ def day_book_function(request, date):
         share_capital_amount_sum_list
 
 
-class DayBookView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        if self.request.GET.get("date"):
-            try:
-                self.date = datetime.datetime.strptime(self.request.GET.get("date"), "%Y-%m-%d").date()
-            except (ValueError, TypeError):
-                return render(request, "day_book.html", {"error_message": "Invalid date."})
-        else:
-            self.date = datetime.datetime.now().date()
-
-        context = self.get_context_data(**kwargs)
-        return render(request, "day_book.html", context)
-
-    def post(self, request, *args, **kwargs):
+def day_book_view(request):
+    if request.GET.get("date"):
         try:
-            self.date = datetime.datetime.strptime(self.request.POST.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
+            date = datetime.datetime.strptime(request.GET.get("date"), "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return render(request, "day_book.html", {"error_message": "Invalid date."})
+    else:
+        date = datetime.datetime.now().date()
+    return render(request, "day_book.html", {'date': date})
+    if request.method == 'POST':
+        try:
+            date = datetime.datetime.strptime(request.POST.get("date"), "%m/%d/%Y").strftime("%Y-%m-%d")
         except (ValueError, TypeError):
             return render(request, "day_book.html", {"error_message": "Invalid date."})
 
-        context = self.get_context_data(**kwargs)
-        return render(request, "day_book.html", context)
+        return render(request, "day_book.html", {'date': date})
 
-    def get_context_data(self):
-        date = self.date
+    receipts_list, total_payments, travellingallowance_list, \
+        loans_list, paymentofsalary_list, printingcharges_list, \
+        stationarycharges_list, othercharges_list, savingswithdrawal_list,\
+        recurringwithdrawal_list, fixedwithdrawal_list, total, \
+        dict_payments, total_dict, selected_date, grouped_receipts_list, \
+        thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
+        loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
+        membershipfee_amount_sum_list, bookfee_amount_sum_list, \
+        loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
+        fixed_deposit_sum_list, recurring_deposit_sum_list, \
+        share_capital_amount_sum_list = day_book_function(request, date)
 
-        receipts_list, total_payments, travellingallowance_list, \
-            loans_list, paymentofsalary_list, printingcharges_list, \
-            stationarycharges_list, othercharges_list, savingswithdrawal_list,\
-            recurringwithdrawal_list, fixedwithdrawal_list, total, \
-            dict_payments, total_dict, selected_date, grouped_receipts_list, \
-            thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
-            loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
-            membershipfee_amount_sum_list, bookfee_amount_sum_list, \
-            loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
-            fixed_deposit_sum_list, recurring_deposit_sum_list, \
-            share_capital_amount_sum_list = day_book_function(self.request, date)
-
-        date_formated = datetime.datetime.strptime(str(selected_date), "%Y-%m-%d").strftime("%m/%d/%Y")
-        return {
-            "receipts_list": receipts_list, "total_payments": total_payments,
-            "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
-            "dict_payments": dict_payments, "dict": total_dict,
-            "selected_date": selected_date, "date_formated": date_formated,
-            "othercharges_list": othercharges_list, "loans_list": loans_list,
-            "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list,
-            "loaninterest_amount_sum_list": loaninterest_amount_sum_list,
-            "entrancefee_amount_sum_list": entrancefee_amount_sum_list,
-            "membershipfee_amount_sum_list": membershipfee_amount_sum_list,
-            "share_capital_amount_sum_list": share_capital_amount_sum_list,
-            "bookfee_amount_sum_list": bookfee_amount_sum_list,
-            "insurance_amount_sum_list": insurance_amount_sum_list,
-            "recurring_deposit_sum_list": recurring_deposit_sum_list,
-            "fixed_deposit_sum_list": fixed_deposit_sum_list,
-            "travellingallowance_list": travellingallowance_list,
-            "paymentofsalary_list": paymentofsalary_list,
-            "printingcharges_list": printingcharges_list,
-            "stationarycharges_list": stationarycharges_list,
-            "savingswithdrawal_list": savingswithdrawal_list,
-            "recurringwithdrawal_list": recurringwithdrawal_list,
-            "grouped_receipts_list": grouped_receipts_list,
-            "thrift_deposit_sum_list": thrift_deposit_sum_list,
-            "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list,
-        }
+    date_formated = datetime.datetime.strptime(str(selected_date), "%Y-%m-%d").strftime("%m/%d/%Y")
+    return {
+        "receipts_list": receipts_list, "total_payments": total_payments,
+        "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
+        "dict_payments": dict_payments, "dict": total_dict,
+        "selected_date": selected_date, "date_formated": date_formated,
+        "othercharges_list": othercharges_list, "loans_list": loans_list,
+        "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list,
+        "loaninterest_amount_sum_list": loaninterest_amount_sum_list,
+        "entrancefee_amount_sum_list": entrancefee_amount_sum_list,
+        "membershipfee_amount_sum_list": membershipfee_amount_sum_list,
+        "share_capital_amount_sum_list": share_capital_amount_sum_list,
+        "bookfee_amount_sum_list": bookfee_amount_sum_list,
+        "insurance_amount_sum_list": insurance_amount_sum_list,
+        "recurring_deposit_sum_list": recurring_deposit_sum_list,
+        "fixed_deposit_sum_list": fixed_deposit_sum_list,
+        "travellingallowance_list": travellingallowance_list,
+        "paymentofsalary_list": paymentofsalary_list,
+        "printingcharges_list": printingcharges_list,
+        "stationarycharges_list": stationarycharges_list,
+        "savingswithdrawal_list": savingswithdrawal_list,
+        "recurringwithdrawal_list": recurringwithdrawal_list,
+        "grouped_receipts_list": grouped_receipts_list,
+        "thrift_deposit_sum_list": thrift_deposit_sum_list,
+        "loanprocessingfee_amount_sum_list": loanprocessingfee_amount_sum_list,
+    }
 
 
-class RecurringDepositsView(LoginRequiredMixin, CreateView):
-    form_class = ReccuringDepositForm
-    template_name = "client/recurring-deposits/application.html"
+def recurring_deposits_view(request):
+    form = ReccuringDepositForm()
+    if request.method == 'POST':
+        form = ReccuringDepositForm(request.POST, request.FILES)
+        if form.is_valid():
+            recurring_deposit = form.save(commit=False)
+            recurring_deposit.status = "Opened"
+            recurring_deposit.client = form.client
+            recurring_deposit.save()
+            url = reverse('micro_admin:clientrecurringdepositsprofile',
+                          kwargs={"recurring_deposit_id": recurring_deposit.id})
+            return JsonResponse({"error": False, "success_url": url})
+        else:
+            return JsonResponse({"error": True, "message": form.errors})
 
-    def form_valid(self, form):
-        recurring_deposit = form.save(commit=False)
-        recurring_deposit.status = "Opened"
-        recurring_deposit.client = form.client
-        recurring_deposit.save()
-        url = reverse('micro_admin:clientrecurringdepositsprofile',
-                      kwargs={"recurring_deposit_id": recurring_deposit.id})
-        return JsonResponse({"error": False, "success_url": url})
-
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "message": form.errors})
-
-
-class PaymentsList(LoginRequiredMixin, ListView):
-    queryset = Payments.objects.all().order_by("-id")
-    context_object_name = "payments_list"
-    template_name = "list_of_payments.html"
+    return render(request, "client/recurring-deposits/application.html", {'form': form})
 
 
-class GeneralLedgerPdfDownload(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        general_ledger_list = general_ledger_function()
-        print (general_ledger_list)
-        try:
-            template = get_template("pdfgeneral_ledger.html")
-            context = Context(
-                {'pagesize': 'A4', "list": general_ledger_list,
-                 "mediaroot": settings.MEDIA_ROOT})
-            # return render(request, 'pdfgeneral_ledger.html', context)
-            # html = template.render(context)
-            # result = StringIO.StringIO()
-            # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
-            # if not pdf.err:
-            #     return HttpResponse(result.getvalue(),
-            #                         content_type='application/pdf')
-            # else:
-            #     return HttpResponse('We had some errors')
-            # html = template.render(context)
-            # import pdfkit
-
-            # pdfkit.from_string(html, 'out.pdf')
-            # pdf = open("out.pdf")
-            # response = HttpResponse(pdf.read(), content_type='application/pdf')
-            # response['Content-Disposition'] = 'attachment; filename=General Ledger.pdf'
-            # pdf.close()
-            # os.remove("out.pdf")
-            # return response
-            html_template = get_template("pdfgeneral_ledger.html")
-            context = Context({
-               'pagesize': 'A4',
-               "list": general_ledger_list,
-               "mediaroot": settings.MEDIA_ROOT
-               })
-            rendered_html = html_template.render(context).encode(encoding="UTF-8")
-            pdf_file = HTML(string=rendered_html).write_pdf(stylesheets=[CSS(settings.COMPRESS_ROOT + '/css/mf.css'), CSS(settings.COMPRESS_ROOT + '/css/pdf_stylesheet.css')])
-
-            http_response = HttpResponse(pdf_file, content_type='application/pdf')
-            http_response['Content-Disposition'] = 'filename="report.pdf"'
-
-            return http_response
-
-        except Exception as err:
-            errmsg = "%s" % (err)
-            return HttpResponse(errmsg)
+def payments_list(request):
+    payments_list = Payments.objects.all().order_by("-id")
+    return render(request, "list_of_payments.html", {'payments_list': payments_list})
 
 
-class DayBookPdfDownload(LoginRequiredMixin, View):
+# def general_ledger_pdf_download(request):
 
-    def get(self, request, *args, **kwargs):
-        date = kwargs.get("date")
-        receipts_list, total_payments, travellingallowance_list, \
-            loans_list, paymentofsalary_list, printingcharges_list, \
-            stationarycharges_list, othercharges_list, savingswithdrawal_list,\
-            recurringwithdrawal_list, fixedwithdrawal_list, total, \
-            dict_payments, total_dict, selected_date, grouped_receipts_list, \
-            thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
-            loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
-            membershipfee_amount_sum_list, bookfee_amount_sum_list, \
-            loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
-            fixed_deposit_sum_list, recurring_deposit_sum_list, \
-            share_capital_amount_sum_list = day_book_function(request, date)
+#     def get(self, request, *args, **kwargs):
+#         general_ledger_list = general_ledger_function()
+#         print (general_ledger_list)
+#         try:
+#             template = get_template("pdfgeneral_ledger.html")
+#             # context = Context(
+#             #     {'pagesize': 'A4', "list": general_ledger_list,
+#             #      "mediaroot": settings.MEDIA_ROOT})
+#             context = dict(
+#                 {'pagesize': 'A4', "list": general_ledger_list,
+#                  "mediaroot": settings.MEDIA_ROOT})
+#             # return render(request, 'pdfgeneral_ledg
+#             # # return render(request, 'pdfgeneral_ledger.html', context)
+#             # html = template.render(context)
+#             # result = StringIO.StringIO()
+#             # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+#             # if not pdf.err:
+#             #     return HttpResponse(result.getvalue(),
+#             #                         content_type='application/pdf')
+#             # else:
+#             #     return HttpResponse('We had some errors')
+#             # html = template.render(context)
+#             # import pdfkit
 
-        try:
-            # template = get_template("pdf_daybook.html")
-            context = Context(
-                {'pagesize': 'A4',
-                 "mediaroot": settings.MEDIA_ROOT,
-                 "receipts_list": receipts_list, "total_payments": total_payments,
-                 "loans_list": loans_list, "selected_date": selected_date,
-                 "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
-                 "dict_payments": dict_payments, "dict": total_dict,
-                 "travellingallowance_list": travellingallowance_list,
-                 "paymentofsalary_list": paymentofsalary_list,
-                 "printingcharges_list": printingcharges_list,
-                 "stationarycharges_list": stationarycharges_list,
-                 "othercharges_list": othercharges_list,
-                 "savingswithdrawal_list": savingswithdrawal_list,
-                 "recurringwithdrawal_list": recurringwithdrawal_list,
-                 "grouped_receipts_list": grouped_receipts_list,
-                 "thrift_deposit_sum_list": thrift_deposit_sum_list,
-                 "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list,
-                 "loaninterest_amount_sum_list": loaninterest_amount_sum_list,
-                 "entrancefee_amount_sum_list": entrancefee_amount_sum_list,
-                 "membershipfee_amount_sum_list": membershipfee_amount_sum_list,
-                 "bookfee_amount_sum_list": bookfee_amount_sum_list,
-                 "insurance_amount_sum_list": insurance_amount_sum_list,
-                 "share_capital_amount_sum_list": share_capital_amount_sum_list,
-                 "recurring_deposit_sum_list": recurring_deposit_sum_list,
-                 "fixed_deposit_sum_list": fixed_deposit_sum_list,
-                 "loanprocessingfee_amount_sum_list":
-                    loanprocessingfee_amount_sum_list
-                 }
-            )
-            # return render(request, 'pdf_daybook.html', context)
-            # html = template.render(context)
-            # result = StringIO.StringIO()
-            # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
-            # if not pdf.err:
-            #     return HttpResponse(result.getvalue(),
-            #                         content_type='application/pdf')
-            # else:
-            #     return HttpResponse('We had some errors')
-            html_template = get_template("pdf_daybook.html")
-            # context = Context({
-            #    'pagesize': 'A4',
-            #    "list": general_ledger_list,
-            #    "mediaroot": settings.MEDIA_ROOT
-            #    })
-            rendered_html = html_template.render(context).encode(encoding="UTF-8")
-            pdf_file = HTML(string=rendered_html).write_pdf(stylesheets=[CSS(settings.COMPRESS_ROOT + '/css/mf.css'), CSS(settings.COMPRESS_ROOT + '/css/pdf_stylesheet.css')])
+#             # pdfkit.from_string(html, 'out.pdf')
+#             # pdf = open("out.pdf")
+#             # response = HttpResponse(pdf.read(), content_type='application/pdf')
+#             # response['Content-Disposition'] = 'attachment; filename=General Ledger.pdf'
+#             # pdf.close()
+#             # os.remove("out.pdf")
+#             # return response
+#             html_template = get_template("pdfgeneral_ledger.html")
+#             context = dict({
+#                'pagesize': 'A4',
+#                "list": general_ledger_list,
+#                "mediaroot": settings.MEDIA_ROOT
+#                })
+#             rendered_html = html_template.render(context).encode(encoding="UTF-8")
+#             pdf_file = HTML(string=rendered_html).write_pdf(stylesheets=[CSS(settings.COMPRESS_ROOT + '/css/mf.css'), CSS(settings.COMPRESS_ROOT + '/css/pdf_stylesheet.css')])
 
-            http_response = HttpResponse(pdf_file, content_type='application/pdf')
-            http_response['Content-Disposition'] = 'filename="report.pdf"'
+#             http_response = HttpResponse(pdf_file, content_type='application/pdf')
+#             http_response['Content-Disposition'] = 'filename="report.pdf"'
 
-            return http_response
+#             return http_response
 
-        except Exception as err:
-            errmsg = "%s" % (err)
-            return HttpResponse(errmsg)
-        except Exception as err:
-            errmsg = "%s" % (err)
-            return HttpResponse(errmsg)
+#         except Exception as err:
+#             errmsg = "%s" % (err)
+#             return HttpResponse(errmsg)
 
 
-class UserChangePassword(LoginRequiredMixin, FormView):
-    form_class = ChangePasswordForm
-    template_name = "user_change_password.html"
+def daybook_pdf_download(request):
+    date = request.GET.get("date")
+    receipts_list, total_payments, travellingallowance_list, \
+        loans_list, paymentofsalary_list, printingcharges_list, \
+        stationarycharges_list, othercharges_list, savingswithdrawal_list,\
+        recurringwithdrawal_list, fixedwithdrawal_list, total, \
+        dict_payments, total_dict, selected_date, grouped_receipts_list, \
+        thrift_deposit_sum_list, loanprinciple_amount_sum_list, \
+        loaninterest_amount_sum_list, entrancefee_amount_sum_list, \
+        membershipfee_amount_sum_list, bookfee_amount_sum_list, \
+        loanprocessingfee_amount_sum_list, insurance_amount_sum_list, \
+        fixed_deposit_sum_list, recurring_deposit_sum_list, \
+        share_capital_amount_sum_list = day_book_function(request, date)
 
-    def get_form_kwargs(self):
-        kwargs = super(UserChangePassword, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs
+    try:
+        # template = get_template("pdf_daybook.html")
+        context = dict(
+            {'pagesize': 'A4',
+             "mediaroot": settings.MEDIA_ROOT,
+             "receipts_list": receipts_list, "total_payments": total_payments,
+             "loans_list": loans_list, "selected_date": selected_date,
+             "fixedwithdrawal_list": fixedwithdrawal_list, "total": total,
+             "dict_payments": dict_payments, "dict": total_dict,
+             "travellingallowance_list": travellingallowance_list,
+             "paymentofsalary_list": paymentofsalary_list,
+             "printingcharges_list": printingcharges_list,
+             "stationarycharges_list": stationarycharges_list,
+             "othercharges_list": othercharges_list,
+             "savingswithdrawal_list": savingswithdrawal_list,
+             "recurringwithdrawal_list": recurringwithdrawal_list,
+             "grouped_receipts_list": grouped_receipts_list,
+             "thrift_deposit_sum_list": thrift_deposit_sum_list,
+             "loanprinciple_amount_sum_list": loanprinciple_amount_sum_list,
+             "loaninterest_amount_sum_list": loaninterest_amount_sum_list,
+             "entrancefee_amount_sum_list": entrancefee_amount_sum_list,
+             "membershipfee_amount_sum_list": membershipfee_amount_sum_list,
+             "bookfee_amount_sum_list": bookfee_amount_sum_list,
+             "insurance_amount_sum_list": insurance_amount_sum_list,
+             "share_capital_amount_sum_list": share_capital_amount_sum_list,
+             "recurring_deposit_sum_list": recurring_deposit_sum_list,
+             "fixed_deposit_sum_list": fixed_deposit_sum_list,
+             "loanprocessingfee_amount_sum_list":
+                loanprocessingfee_amount_sum_list
+             }
+        )
+        # return render(request, 'pdf_daybook.html', context)
+        # html = template.render(context)
+        # result = StringIO.StringIO()
+        # # pdf = pisa.pisaDocument(StringIO.StringIO(html), dest=result)
+        # if not pdf.err:
+        #     return HttpResponse(result.getvalue(),
+        #                         content_type='application/pdf')
+        # else:
+        #     return HttpResponse('We had some errors')
+        html_template = get_template("pdf_daybook.html")
+        # context = Context({
+        #    'pagesize': 'A4',
+        #    "list": general_ledger_list,
+        #    "mediaroot": settings.MEDIA_ROOT
+        #    })
+        rendered_html = html_template.render(context).encode(encoding="UTF-8")
+        pdf_file = HTML(string=rendered_html).write_pdf(stylesheets=[CSS(
+            settings.COMPRESS_ROOT + '/css/mf.css'), CSS(settings.COMPRESS_ROOT + '/css/pdf_stylesheet.css')])
 
-    def form_valid(self, form):
-        user = self.request.user
-        user.set_password(form.cleaned_data.get("new_password"))
-        user.save()
-        return JsonResponse({"error": False, "message": "You have changed your password!"})
+        http_response = HttpResponse(pdf_file, content_type='application/pdf')
+        http_response['Content-Disposition'] = 'filename="report.pdf"'
 
-    def form_invalid(self, form):
-        return JsonResponse({"error": True, "errors": form.errors})
+        return http_response
+
+    except Exception as err:
+        errmsg = "%s" % (err)
+        return HttpResponse(errmsg)
+    except Exception as err:
+        errmsg = "%s" % (err)
+        return HttpResponse(errmsg)
+
+
+def user_change_password(request):
+    form = ChangePasswordForm()
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.POST, user=request.user)
+        if form.is_valid():
+            user = request.user
+            user.set_password(form.cleaned_data.get("new_password"))
+            user.save()
+            return JsonResponse({"error": False, "message": "You have changed your password!"})
+        else:
+            return JsonResponse({"error": True, "errors": form.errors})
+
+    return render(request, "user_change_password.html", {'form': form})

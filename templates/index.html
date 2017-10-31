@@ -1,6 +1,176 @@
 {% extends 'base.html' %}
+{% block basebreadcrumb %}
+{% endblock basebreadcrumb %}
 {% block stage %}
-<h4 align="center">
-  Welcome {{user.username}}
-</h4>
-{% endblock %}
+    <div class="col">
+      <!-- main_container starts here -->
+      <div class="container-fluid">
+        <!--inner_container starts here -->
+        <div class="container-fluid">
+          <div class="row user_dashboard_count">
+            <div class="col">
+              <div class="count_view red">
+                <div class="count_list">
+                  <h2>Branch</h2>
+                  <p>{{branches_count}}</p>
+                </div>
+                <div class="detail_list_icon">
+                  <i class="fa fa-university pink"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="count_view blue">
+                <div class="count_list">
+                  <h2>Staff</h2>
+                  <p>{{staff_count}}</p>
+                </div>
+                <div class="detail_list_icon">
+                  <i class="fa fa-user blue"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="count_view orange">
+                <div class="count_list">
+                  <h2>Groups</h2>
+                  <p>{{groups_count}}</p>
+                </div>
+                <div class="detail_list_icon">
+                  <i class="fa fa-users yellow"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="count_view green">
+                <div class="count_list">
+                  <h2>Members</h2>
+                  <p>{{clients_count}}</p>
+                </div>
+                <div class="detail_list_icon">
+                  <i class="fa fa-user-plus green"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--inner_container ends here -->
+        <div class="container-fluid">
+          <!-- dashboard_view starts here -->
+          <div class="dashboard_view">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="receipts_tab" data-toggle="tab" href="#receipts" role="tab" aria-controls="receipts" aria-selected="false">Receipts</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="payments_tab" data-toggle="tab" href="#payments" role="tab" aria-controls="payments" aria-selected="false">Payments</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="fixed_deposits_tab" data-toggle="tab" href="#fixed_deposits" role="tab" aria-controls="fixed_deposits" aria-selected="false">Fixed Deposits</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="recurring_deposits_tab" data-toggle="tab" href="#recurring_deposits" role="tab" aria-controls="recurring_deposits" aria-selected="false">Recurring Deposits</a>
+              </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+              <div class="tab-pane active " id="receipts" role="tabpanel" aria-labelledby="receipts-tab">
+                <table class="table table-striped user_transation_list" data-tablesaw-mode="columntoggle" id="active_users">
+                  <thead>
+                    <tr>
+                      <th scope="col">Receipt No</th>
+                      <th scope="col">Account No</th>
+                      <th scope="col">Paid By</th>
+                      <th scope="col">date</th>
+                    </tr>
+                  </thead>
+                  {% for receipt in receipts %}
+                  <tr class="list">
+                    <td >{{ receipt.receipt_number}}</td>
+                    <td >{{ receipt.group_loan_account.account_no|default:" - " }}</td>
+                    <td >28/7/2017</td>
+                    <td >{{ receipt.date }}</td>
+                  </tr>
+                 {% endfor %}
+                </table>
+              </div>
+              <div class="tab-pane fade" id="payments" role="tabpanel" aria-labelledby="payments-tab">
+                <table class="table table-striped user_transation_list" data-tablesaw-mode="columntoggle" id="active_users">
+                  <thead>
+                    <tr>
+                      <th scope="col">Voucher No</th>
+                      <th scope="col">Account No</th>
+                      <th scope="col">Paid To</th>
+                      <th scope="col">date</th>
+                    </tr>
+                  </thead>
+                  {% for payment in payments %}
+                  <tr class="list">
+                    <td >{{ payment.voucher_number}}</td>
+                    <td >{{ payment.group.account_number|default:" - " }}</td>
+                    <td ></td>
+                    <td >{{ payment.date }}</td>
+                  </tr>
+                 {% endfor %}
+                </table>
+              </div>
+              <div class="tab-pane fade" id="fixed_deposits" role="tabpanel" aria-labelledby="fixed_deposits_tab">
+                <table class="table table-striped user_transation_list" data-tablesaw-mode="columntoggle" id="active_users">
+                  <thead>
+                    <tr>
+                      <th scope="col">Fixed Deposit A/c No</th>
+                      <th scope="col">Member A/c No</th>
+                      <th scope="col">Maturity Amount</th>
+                      <th scope="col">Maturity Date</th>
+                      <th scope="col">Deposited Amount Date</th>
+                      <th scope="col">Maturity Period</th>
+                    </tr>
+                  </thead>
+                  {% for fixed_deposit in fixed_deposits %}
+                    <tr class="list">
+                      <td >{{ fixed_deposit.fixed_deposit_number}}</td>
+                      <td >{{ fixed_deposit.client.account_number|default:" - " }}</td>
+                      <td >{{ fixed_deposit.maturity_amount }}</td>
+                      <td></td>
+                      <td >{{ fixed_deposit.date }}</td>
+                      <td>{{fixed_deposit.fixed_deposit_period }}</td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
+              <div class="tab-pane fade" id="recurring_deposits" role="tabpanel" aria-labelledby="recurring_deposits_tab">
+                <table class="table table-striped user_transation_list" data-tablesaw-mode="columntoggle" id="active_users">
+                  <thead>
+                    <tr>
+                      <th scope="col">recurring Deposit A/c No</th>
+                      <th scope="col">Member A/c No</th>
+                      <th scope="col">Maturity Amount</th>
+                      <th scope="col">Maturity Date</th>
+                      <th scope="col">Deposited Amount</th>
+                      <th scope="col">Deposited Date</th>
+                      <th scope="col">Maturity Period</th>
+                      <th scope="col">Monthly EMI</th>
+                    </tr>
+                  </thead>
+                   {% for recurring_deposit in recurring_deposits %}
+                    <tr class="list">
+                      <td >{{ recurring_deposit.reccuring_deposit_number}}</td>
+                      <td >{{ recurring_deposit.client.account_number|default:" - " }}</td>
+                      <td >{{ recurring_deposit.maturity_amount }}</td>
+                      <td>{{recurring_deposit.}}</td>
+                      <td>{{recurring_deposit.recurring_deposit_amount}}</td>
+                      <td >{{ recurring_deposit.deposited_date }}</td>
+                      <td>{{recurring_deposit.fixed_deposit_period }}</td>
+                      <td>{{recurring_deposit.}}</td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- dashboard_view end here -->
+          <!-- main_container end here -->
+        </div>
+      </div>
+      <!-- main_container end here -->
+    </div>
+  {% endblock %}

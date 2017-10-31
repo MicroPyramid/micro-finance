@@ -15,7 +15,7 @@ class UpdateClientProfileForm(forms.Form):
 
     def __init__(self, instance, *args, **kwargs):
         super(UpdateClientProfileForm, self).__init__(*args, **kwargs)
-        
+
 
 class BranchForm(forms.ModelForm):
 
@@ -41,12 +41,13 @@ class BranchForm(forms.ModelForm):
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
         try:
-            if int(phone_number):
-                check_phone = str(phone_number)
-                if not phone_number or not(len(check_phone) == 10):
-                    raise forms.ValidationError(
-                        'Please enter a valid 10 digit phone number')
-                return phone_number
+            if phone_number is not None:
+                if int(phone_number):
+                    check_phone = str(phone_number)
+                    if not phone_number or not(len(check_phone) == 10):
+                        raise forms.ValidationError(
+                            'Please enter a valid 10 digit phone number')
+                    return phone_number
         except ValueError:
             raise forms.ValidationError('Please enter a valid phone number')
 
@@ -105,12 +106,13 @@ class UserForm(forms.ModelForm):
     def clean_mobile(self):
         phone_number = self.cleaned_data.get('mobile')
         try:
-            if int(phone_number):
-                check_phone = str(phone_number)
-                if not phone_number or not(len(check_phone) == 10):
-                    raise forms.ValidationError(
-                        'Please enter a valid 10 digit phone number')
-                return phone_number
+            if phone_number is not None:
+                if int(phone_number):
+                    check_phone = str(phone_number)
+                    if not phone_number or not(len(check_phone) == 10):
+                        raise forms.ValidationError(
+                            'Please enter a valid 10 digit phone number')
+                    return phone_number
         except ValueError:
             raise forms.ValidationError('Please enter a valid phone number')
 

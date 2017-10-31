@@ -1,57 +1,48 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+  <li><a href="{% url 'micro_admin:groupprofile' group.id %}">{{ group.name }}</a>&nbsp;/</li> &nbsp;
+  {% block groupbreadcrumb %}
+  {% endblock %}
+{% endblock %}
 {% block stage %}
-<div class="ver-nav-wrap">
-  <div class="nav-2" id="nav-conteiner">
-    <ul>
-      <li><a href="{% url 'micro_admin:groupprofile' group.id %}"><i class="fa fa-users padd"></i>Group Profile</a></li>
-      <li>
-        <a href="#" class="mem"><i class="fa fa-users padd"></i>Members<span><i class="fa fa-caret-down"></i></span></a>
-        <ul class="mem-drop">
-          <li><a href="{% url 'micro_admin:addmember' group.id %}"><i class="fa fa-plus padd"></i>Add New Member</a></li>
-          <li><a href="{% url 'micro_admin:viewmembers' group.id %}"><i class="fa fa-eye padd"></i>View Members</a></li>
-        </ul>
-      </li>
-      <li>
-        <a href="#" class="acc"><i class="fa fa-database padd"></i>Accounts<span><i class="fa fa-caret-down"></i></span></a>
-        <ul class="acc-drop">
-          {% if group.savingsaccount_set.count %}
-          <li><a href="{% url 'savings:groupsavingsaccount' group.id %}"><i class="fa fa-money padd"></i>View Savings</a></li>
+<div class="row group_list">
+  <div class="col-2  detail_list">
+    <div class="nav-2" id="nav-conteiner">
+      <ul class="sub-menu">
+        <li><a href="{% url 'micro_admin:groupprofile' group.id %}" class="list_header"></i>Group  Profile</a></li>
+        <li>
+          <a href="#" class="list_header"></i>Members<span class="pull-right"><i class="fa fa-caret-down"></i></span></a>
+          <ul class="sub-menus">
+            <li><a href="{% url 'micro_admin:addmember' group.id %}"></i>Add New Member</a></li>
+            <li><a href="{% url 'micro_admin:viewmembers' group.id %}"></i>View Members</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" class="list_header"> </i>Accounts<span class="pull-right"><i class="fa fa-caret-down"></i></span></a>
+          <ul class="sub-menus">
+           {% if group.savingsaccount_set.count %}
+            <li><a href="{% url 'savings:groupsavingsaccount' group.id %}""></i>View Savings</a></li>
+           {% else %}
+            <li><a href="{% url 'savings:groupsavingsapplication' group.id %}"></i>Savings Application</a></li>
+           {% endif %}
+            <li><a href="{% url 'loans:grouploanapplication' group.id %}"></i>New Loan Application</a></li>
+            <li><a href="{% url 'loans:grouploanaccountslist' group.id %}""></i>View Loans</a></li>
+          </ul>
+        </li>
+        <li>
+          {% if group.staff %}
+          <a href="{% url 'micro_admin:assignstaff' group.id %}" class="list_header"></i>Re-Assign Staff</a>
           {% else %}
-          <li><a href="{% url 'savings:groupsavingsapplication' group.id %}"><i class="fa fa-plus padd"></i>Savings Application</a></li>
+          <a href="{% url 'micro_admin:assignstaff' group.id %}" class="list_header"></i>Assign Staff</a>
           {% endif %}
-          <li><a href="{% url 'loans:grouploanapplication' group.id %}"><i class="fa fa-plus padd"></i>New Loan Application</a>
-          </li>
-          <li><a href="{% url 'loans:grouploanaccountslist' group.id %}"><i class="fa fa-money padd"></i>View Loans</a></li>
-        </ul>
-      </li>
-      <li>
-        {% if group.staff %}
-        <a href="{% url 'micro_admin:assignstaff' group.id %}"><i class="fa fa-user padd"></i>Re-Assign Staff</a>
-        {% else %}
-        <a href="{% url 'micro_admin:assignstaff' group.id %}"><i class="fa fa-user padd"></i>Assign Staff</a>
-        {% endif %}
-      </li>
-      <li>
-        <a href="{% url 'micro_admin:groupmeetings' group.id %}"><i class="fa fa-user padd"></i>Meetings</a>
-      </li>
-    </ul>
+        </li>
+        <li>
+          <a href="{% url 'micro_admin:groupmeetings' group.id %}" class="list_header"></i>Meetings</a>
+        </li>
+      </ul>
+    </div>
   </div>
-  <button class="toggle-btn margin-lft" id="togg-btn"><img src="/static/images/1414856121_equal-16.png" style="color:#fff;" /></button>
+  {% block groupstage %}
+  {% endblock %}
 </div>
-{% block basebreadcrumb %}
-{% endblock %}
-<div class="row marl bread-row">
-  <div class="breadcrumbcontainer">
-    <ol class="breadcrumb">
-      <span>You are Here:</span> &nbsp;&nbsp;
-      <li><a href="{% url 'micro_admin:login' %}">Home</a></li>
-      <li><a href="{% url 'micro_admin:branchprofile' group.branch.id %}">{{ group.branch.name|capfirst }} Branch</a></li>
-      <li><a href="{% url 'micro_admin:groupprofile' group.id %}">{{ group.name|capfirst }} Group</a></li>
-      {% block groupbreadcrumb %}
-      {% endblock %}
-    </ol>
-  </div>
-</div>
-{% block groupstage %}
-{% endblock %}
 {% endblock %}
