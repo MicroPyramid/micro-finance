@@ -34,6 +34,9 @@ Deploy To Heroku:
 .. image:: https://www.herokucdn.com/deploy/button.svg
    :target: https://heroku.com/deploy?template=https://github.com/nikhila05/micro-finance
 
+You can view the sample application here `https://test-microfinance-app.herokuapp.com/`
+
 Visit our Django Web Development page `Here`_
 
 .. _Here: https://micropyramid.com/django-development-services/
+-- _https://test-microfinance-app.herokuapp.com/: https://test-microfinance-app.herokuapp.com/
