@@ -27,6 +27,13 @@ How to deploy?
 * do necessary changes to settings.py
 * configure nginx with uwsgi for production on server or you can run inside virtualenv for development purposes.
 
+You can try it by hosting on your own or deploy to Heroku with a button click.
+
+Deploy To Heroku:
+
+.. image:: https://www.herokucdn.com/deploy/button.svg
+   :target: https://heroku.com/deploy?template=https://github.com/MicroPyramid/micro-finance
+
 Visit our Django Web Development page `Here`_
 
 .. _Here: https://micropyramid.com/django-development-services/
