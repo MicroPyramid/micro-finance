@@ -13,7 +13,7 @@ SECRET_KEY = 'y409=qwy(=u^%7t$aa)j=83^f!-oqyy2omq%pj1+koeh2aryvd'
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', '*']
 
 PHOTO_PATH = 'static/images/users'
 SIGNATURE_PATH = 'static/images/signatures'
@@ -52,18 +52,6 @@ ROOT_URLCONF = 'microfinance.urls'
 WSGI_APPLICATION = 'microfinance.wsgi.application'
 
 AUTH_USER_MODEL = 'micro_admin.User'
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mfi',
-        'USER': 'postgres',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
 
 LOGIN_URL = '/'
 
