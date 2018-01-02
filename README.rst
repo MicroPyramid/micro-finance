@@ -32,7 +32,7 @@ You can try it by hosting on your own or deploy to Heroku with a button click.
 Deploy To Heroku:
 
 .. image:: https://www.herokucdn.com/deploy/button.svg
-   :target: https://heroku.com/deploy?template=https://github.com/nikhila05/micro-finance
+   :target: https://heroku.com/deploy?template=https://github.com/MicroPyramid/micro-finance
 
 You can view the sample here `https://test-microfinance-app.herokuapp.com/`_
 
