@@ -1,0 +1,10 @@
+{
+	"name": "Microfinance",
+	"description": "Free Micro Finance Software",
+	"repository": "https://github.com/MicroPyramid/micro-finance.git",
+	"addons": ["heroku-postgresql:hobby-dev"],
+	"scripts": {
+		"postdeploy": "python manage_local.py makemigrations && python manage_local.py migrate && echo \"from micro_admin.models import User; User.objects.create_superuser('Admin001', 'admin001')\" | python manage_local.py shell"
+	},
+	"env": {}
+}

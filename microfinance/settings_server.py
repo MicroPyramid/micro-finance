@@ -9,6 +9,17 @@ FROM_EMAIL = "admin@example.com"
 DEBUG = False
 THUMBNAIL_DEBUG = False
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mfi',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
+
 # Set your DSN value
 RAVEN_CONFIG = {
     'dsn': 'http://231a89ff121b4205855c6455510fd453:f0455e97caf7425aa95acc4e1d9f0864@sentry.micropyramid.com/2',

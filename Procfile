@@ -1,1 +1,1 @@
-web: gunicorn -b 0.0.0.0:9001 microfinance.wsgi
+web: sh -c 'gunicorn microfinance.wsgi && pip install -r requirements.txt'
