@@ -38,7 +38,7 @@ You can view the sample here `https://test-microfinance-app.herokuapp.com/`_
 
 Credentials to MicroFinance Dashboard:
 
-  * **Email:** Admin001
+  * **Username:** Admin001
   * **Password:** admin001
 
 Visit our Django Web Development page `Here`_
