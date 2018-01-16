@@ -36,6 +36,11 @@ Deploy To Heroku:
 
 You can view the sample here `https://test-microfinance-app.herokuapp.com/`_
 
+Credentials to MicroFinance Dashboard:
+
+  * **Username:** Admin001
+  * **Password:** admin001
+
 Visit our Django Web Development page `Here`_
 
 .. _Here: https://micropyramid.com/django-development-services/
