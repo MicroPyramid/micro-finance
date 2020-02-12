@@ -1,4 +1,4 @@
-Django==1.11.21
+Django==1.11.28
 django-celery==3.2.1
 django-compressor==2.2
 django-simple-pagination==1.1.8
