@@ -2,7 +2,7 @@ Django==1.11.21
 django-celery==3.2.1
 django-compressor==2.2
 django-simple-pagination==1.1.8
-django-debug-toolbar==1.8
+django-debug-toolbar==1.11.1
 django-blog-it==0.2.3
 psycopg2==2.7.3.1
 microurl==0.1.1
